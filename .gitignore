@@ -1,0 +1,13 @@
+.classpath
+.project
+.settings/
+.evosuite
+*~
+build/
+.idea/
+*.iml
+/target/
+bin/
+out/
+LICENSE
+*.tmp
