@@ -1,7 +1,6 @@
 package org.araguacaima.commons.utils;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -38,14 +37,17 @@ public class JarUtils {
             throws IOException {
         BufferedInputStream in = null;
         try {
+            final File[] files = source.listFiles();
             if (offsetExclusionDirectory == 0) {
                 if (source.isDirectory()) {
                     JarEntry entry = new JarEntry(StringUtils.difference(rootPath, source.getPath()) + "/");
                     entry.setTime(source.lastModified());
                     target.putNextEntry(entry);
                     target.closeEntry();
-                    for (File nestedFile : source.listFiles()) {
-                        add(nestedFile, target, offsetExclusionDirectory, jarOutputFullPath, rootPath);
+                    if (files != null) {
+                        for (File nestedFile : files) {
+                            add(nestedFile, target, offsetExclusionDirectory, jarOutputFullPath, rootPath);
+                        }
                     }
                     return;
 
@@ -66,9 +68,8 @@ public class JarUtils {
                 }
                 target.closeEntry();
             } else {
-                File[] nestedFile = source.listFiles();
-                if (nestedFile != null) {
-                    for (File aNestedFile : nestedFile) {
+                if (files != null) {
+                    for (File aNestedFile : files) {
                         if (!aNestedFile.getPath().equals(jarOutputFullPath)) {
                             offsetExclusionDirectory--;
                             add(aNestedFile, target, offsetExclusionDirectory, jarOutputFullPath, rootPath);
@@ -104,14 +105,14 @@ public class JarUtils {
                 String innerName = inner.getName();
                 // log.debug("innerName = " + innerName);
                 if (innerName.contains(className2u)) {
-                    System.out.println("Class '" + innerName + "' found on jar '" + jarName + "'.");
+                    log.debug("Class '" + innerName + "' found on jar '" + jarName + "'.");
                     return true;
                 }
             }
             // log.debug("Class not found on jar '" + jarName + "'.");
         } catch (Exception e) {
-            System.err.println("Error looking for class '" + className + "' on jar '" + jarName + "'");
-            e.printStackTrace();
+            log.error("Error looking for class '" + className + "' on jar '" + jarName + "'");
+            log.error(e.getMessage());
         }
         return false;
     }
@@ -152,8 +153,8 @@ public class JarUtils {
         target.close();
     }
 
-    public ArrayList listClassesOnJar(String jarName) {
-        ArrayList result = new ArrayList();
+    public ArrayList<String> listClassesOnJar(String jarName) {
+        ArrayList<String> result = new ArrayList<>();
         try {
             log.debug("Looking for classes on jar '" + jarName + "'.");
             //           String pattern = ".\\$.";

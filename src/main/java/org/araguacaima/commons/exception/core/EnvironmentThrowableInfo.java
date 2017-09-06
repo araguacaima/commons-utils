@@ -14,6 +14,7 @@ import java.util.Collection;
 /**
  * The internal representation of caller environment information.
  */
+@SuppressWarnings("CanBeFinal")
 public class EnvironmentThrowableInfo implements java.io.Serializable {
 
     /**

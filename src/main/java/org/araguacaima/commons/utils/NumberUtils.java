@@ -69,7 +69,6 @@ public class NumberUtils {
     private NumberFormat decimalFormatter;
     private long serie = 0;
     private StringUtils stringUtils;
-    private SystemInfo systemInfo;
 
     {
         // TODO: Decidir que Locale y que Precision se usaran.
@@ -82,9 +81,8 @@ public class NumberUtils {
     }
 
     @Autowired
-    public NumberUtils(StringUtils stringUtils, SystemInfo systemInfo) {
+    public NumberUtils(StringUtils stringUtils) {
         this.stringUtils = stringUtils;
-        this.systemInfo = systemInfo;
     }
 
     /**
@@ -152,14 +150,14 @@ public class NumberUtils {
                                String separator,
                                String decimalSeparator,
                                String originalDecimalSeparator) {
-        /**
-         * - Si el number tiene entre 7-8 digitos o menos (ej, 9999999) ambos
-         *   parser funcionan perfectamente.
-         * - Si el number tiene entre 7-8 digitos enteros y 4 o mas decimales
-         *   (ej, 9999999.9999), usar DecimalFormat da error de redondeo
-         *   (devuelve 10.000.000).
-         * - Si el number tiene entre 8-9 digitos o mas (ej, 99999999) el
-         *   formateo basado en String da error (devuelve 9,9999999E7)
+        /*
+          - Si el number tiene entre 7-8 digitos o menos (ej, 9999999) ambos
+            parser funcionan perfectamente.
+          - Si el number tiene entre 7-8 digitos enteros y 4 o mas decimales
+            (ej, 9999999.9999), usar DecimalFormat da error de redondeo
+            (devuelve 10.000.000).
+          - Si el number tiene entre 8-9 digitos o mas (ej, 99999999) el
+            formateo basado en String da error (devuelve 9,9999999E7)
          */
         if (number == null) {
             return EMPTY_NUMBER;
@@ -250,9 +248,9 @@ public class NumberUtils {
 
         if (haveDecimal) {
             parteEntera = number.substring(0, indexOfDot);
-            //            System.out.println("parteEntera = " + parteEntera);
+            //            log.debug("parteEntera = " + parteEntera);
             parteDecimal = number.substring(indexOfDot + 1, number.length());
-            //            System.out.println("haveDecimal = " + haveDecimal);
+            //            log.debug("haveDecimal = " + haveDecimal);
         } else {
             parteEntera = number;
             parteDecimal = "";
@@ -261,7 +259,7 @@ public class NumberUtils {
 
         isNegativo = ((new BigDecimal(parteEntera)).compareTo(new BigDecimal("0")) < 0);
         StringBuilder result = new StringBuilder();
-        //        System.out.println("number = " + number);
+        //        log.debug("number = " + number);
         if (isNegativo) {
             parteEntera = parteEntera.substring(1, parteEntera.length());
         }
@@ -270,18 +268,18 @@ public class NumberUtils {
 
         for (int i = 0; i < length; i++) {
             int count = i % 3;
-            //           System.out.println("count = " + i + "/" + count);
+            //           log.debug("count = " + i + "/" + count);
             if (count == 0 && i != 0) {
                 result.insert(0, separator);
             }
-            //            System.out.println("parteEntera.charAt(i - 1) = " + parteEntera.charAt(length - i - 1));
+            //            log.debug("parteEntera.charAt(i - 1) = " + parteEntera.charAt(length - i - 1));
             result.insert(0, parteEntera.charAt(length - i - 1));
         }
 
-        //        System.out.println("result = " + result);
+        //        log.debug("result = " + result);
         int numberDecimales = decimalDigits > parteDecimal.length() ? parteDecimal.length() : decimalDigits;
-        //        System.out.println("numberDecimales = " + numberDecimales);
-        //        System.out.println("haveDecimal = " + haveDecimal);
+        //        log.debug("numberDecimales = " + numberDecimales);
+        //        log.debug("haveDecimal = " + haveDecimal);
         // TODO: Completar con ceros si number.lenght() > decimalDigits
         //        return result + (haveDecimal ? decimalSeparator + parteDecimal.substring(0, numberDecimales) : "");
         result.append(haveDecimal ? decimalSeparator + parteDecimal.substring(0,
@@ -412,12 +410,13 @@ public class NumberUtils {
         // Locale[] locales = NumberFormat.getAvailableLocales();
         BigDecimal number_ = formatBigDecimal(number, precision);
         Locale lDefault = SystemInfo.getLocale();
-        System.out.println("lDefault = " + lDefault);
+        log.debug("lDefault = " + lDefault);
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(lDefault);
         return formatNumber(number_,
                 symbols.getGroupingSeparator() + "",
                 symbols.getDecimalSeparator() + "",
-                StringUtils.DOT);
+                StringUtils.DOT,
+                number_.scale());
     }
 
     /**
@@ -433,6 +432,36 @@ public class NumberUtils {
         }
         return number.setScale(precision, BigDecimal.ROUND_HALF_UP);
     }
+
+    /**
+     * Formatea un BigDecimal bigValue para ser mostrado por pantalla
+     * TODO: Agregar el metodo de redondeo.
+     *
+     * @param number                   BigDecimal con el number a formatear
+     * @param separator                String con el separador de miles a usar en el resultado
+     * @param decimalSeparator         String con el separador de decimales a usar en el resultado
+     * @param originalDecimalSeparator String con el separador de decimales usado en bigValue
+     * @param decimalDigits            int con la cantidad de decimales a mostrar
+     * @return String con bigValue formateado
+     */
+    public String formatNumber(BigDecimal number,
+                               String separator,
+                               String decimalSeparator,
+                               String originalDecimalSeparator,
+                               int decimalDigits) {
+        if (null == number) {
+            return EMPTY_NUMBER;
+        } else {
+            return formatNumber(number.toString(),
+                    separator,
+                    decimalSeparator,
+                    originalDecimalSeparator,
+                    decimalDigits);
+        }
+    }
+
+    // Inicio de Metodos de NumberUtil de SICAM ----------------- ELIMINAR
+    // TODO: Sincerar los metodos y usar el mismo formateador y formato
 
     /**
      * Formatea un BigDecimal number para ser mostrado por pantalla
@@ -458,9 +487,6 @@ public class NumberUtils {
         return formatNumber(number.toString(), separator, decimalSeparator, originalDecimalSeparator, number.scale());
     }
 
-    // Inicio de Metodos de NumberUtil de SICAM ----------------- ELIMINAR
-    // TODO: Sincerar los metodos y usar el mismo formateador y formato
-
     /**
      * Formatea un BigDecimal number para ser mostrado por pantalla
      *
@@ -475,7 +501,8 @@ public class NumberUtils {
         return formatNumber(number,
                 symbols.getGroupingSeparator() + "",
                 symbols.getDecimalSeparator() + "",
-                StringUtils.DOT);
+                StringUtils.DOT,
+                number.scale());
     }
 
     /**
@@ -509,33 +536,6 @@ public class NumberUtils {
                 symbols.getGroupingSeparator() + "",
                 symbols.getDecimalSeparator() + "",
                 StringUtils.DOT);
-    }
-
-    /**
-     * Formatea un BigDecimal bigValue para ser mostrado por pantalla
-     * TODO: Agregar el metodo de redondeo.
-     *
-     * @param number                   BigDecimal con el number a formatear
-     * @param separator                String con el separador de miles a usar en el resultado
-     * @param decimalSeparator         String con el separador de decimales a usar en el resultado
-     * @param originalDecimalSeparator String con el separador de decimales usado en bigValue
-     * @param decimalDigits            int con la cantidad de decimales a mostrar
-     * @return String con bigValue formateado
-     */
-    public String formatNumber(BigDecimal number,
-                               String separator,
-                               String decimalSeparator,
-                               String originalDecimalSeparator,
-                               int decimalDigits) {
-        if (null == number) {
-            return EMPTY_NUMBER;
-        } else {
-            return formatNumber(number.toString(),
-                    separator,
-                    decimalSeparator,
-                    originalDecimalSeparator,
-                    decimalDigits);
-        }
     }
 
     /**
@@ -699,7 +699,7 @@ public class NumberUtils {
             bigDecimal = new BigDecimal(formateado);
         }
         if (fractionDigits > -1) {
-            bigDecimal = bigDecimal.setScale(fractionDigits);
+            bigDecimal = bigDecimal.setScale(fractionDigits, BigDecimal.ROUND_UNNECESSARY);
         }
         return bigDecimal;
     }

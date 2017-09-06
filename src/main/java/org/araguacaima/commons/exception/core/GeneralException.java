@@ -92,6 +92,4 @@ public abstract class GeneralException extends RuntimeException {
         return this.severity;
     }
 
-    public abstract void perform();
-
 }

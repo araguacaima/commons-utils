@@ -1,8 +1,9 @@
 package org.araguacaima.commons.utils;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
@@ -14,9 +15,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("unchecked")
 @Component
 public class EnumsUtils<T> {
 
+    private static final Logger log = LoggerFactory.getLogger(EnumsUtils.class);
     private final Pattern getterPattern = Pattern.compile("(?:get|is)\\p{Upper}+");
     private final RandomDataGenerator randomData = new RandomDataGenerator();
 
@@ -56,7 +59,6 @@ public class EnumsUtils<T> {
      *                                  class object does not represent an enum type
      * @throws NullPointerException     if {@code enumType} or {@code name}
      *                                  is null
-     * @since 1.5
      */
     public T getEnum(Class<T> enumType, final String name) {
         T[] constants = enumType.getEnumConstants();
@@ -77,7 +79,7 @@ public class EnumsUtils<T> {
             try {
                 return getField((Enum) getEnum(clazz, name), fieldName);
             } catch (Throwable t) {
-                t.printStackTrace();
+                log.error(t.getMessage());
             }
         }
         return null;
@@ -103,7 +105,7 @@ public class EnumsUtils<T> {
             }
             return anEnum.toString();
         } catch (InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
         return anEnum.name();
     }
@@ -136,7 +138,7 @@ public class EnumsUtils<T> {
             } catch (NoSuchMethodException e) {
                 return anEnum.toString();
             } catch (InvocationTargetException | IllegalAccessException e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
             }
             return anEnum.name();
         }
@@ -160,7 +162,7 @@ public class EnumsUtils<T> {
                     } catch (NoSuchMethodException e) {
                         result.add(o.toString());
                     } catch (InvocationTargetException | IllegalAccessException e) {
-                        e.printStackTrace();
+                        log.error(e.getMessage());
                     }
 
                 });

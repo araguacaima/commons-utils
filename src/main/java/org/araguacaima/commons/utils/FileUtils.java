@@ -4,7 +4,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.net.JarURLConnection;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
@@ -305,7 +303,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public void copyResourceToDirectory(URL url, File dest, String basePath, boolean forceDelete)
-            throws URISyntaxException, IOException {
+            throws IOException {
         if (url != null) {
             if (forceDelete) {
                 try {
@@ -444,7 +442,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                     results.add(clazz);
                 }
             } catch (Throwable e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
                 // log.warn("Error loading class = " + nativeNotation);
                 // TODO: Validar si colocamos o no esta traza
                 // Todas las clases internas fallan y pasan por aqui.
@@ -543,9 +541,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                         // Jar?
                         // Otra forma de compararlo es viendo si el
                         // (URL.getProtocol().equals("jar")
-                        //log.debug(tabStr + "JAR: = " +
-                        // innerFilePath);
-                        // System.out.println("innerFileName = " + innerFileName);
                         boolean found = jarUtils.findClassOnJar(fileName, innerFilePath);
                         if (found) {
                             log.debug(tabStr + "*** Class '" + fileName + "' found on " + "jar '" + innerFilePath +
@@ -576,8 +571,8 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             // folderName + "'.");
         } catch (Exception e) {
             log.error(tabStr + "Error looking for class '" + fileName + "' on dir '" + folderName + "'", e);
-            System.err.println(tabStr + "Error looking for class '" + fileName + "' on dir '" + folderName + "'");
-            e.printStackTrace();
+            log.error(tabStr + "Error looking for class '" + fileName + "' on dir '" + folderName + "'");
+            log.error(e.getMessage());
         }
         return null;
     }
@@ -793,10 +788,9 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      *
      * @param superClass Super class of the classes that will be searched in current directory
      * @return Classes that extend provided super class on current directory
-     * @throws Exception If is not possible to find children for provided super class
+     * @throws IllegalArgumentException If is not possible to find children for provided super class
      */
-    public ArrayList<Class> getClassesThatExtends(Class superClass)
-            throws Exception {
+    public ArrayList<Class> getClassesThatExtends(Class superClass) {
         if (superClass == null) {
             throw new IllegalArgumentException("Super Class name is null!");
         }
@@ -817,8 +811,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return findClassesThatImplemented(directory, implementedClassName);
     }
 
-    public ArrayList<Class> getClassesThatImplementsFromJar(Class implementedClassName, String jarName)
-            throws Exception {
+    public ArrayList<Class> getClassesThatImplementsFromJar(Class implementedClassName, String jarName) {
         if (implementedClassName == null) {
             throw new IllegalArgumentException("Implemented Class name is null!");
         }
@@ -878,17 +871,17 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                     }
                 } catch (ClassNotFoundException e) {
                     // TODO: Cuando se vea esta traza es que hay una inconsistencia en el codigo.
-                    System.err.println("    Error buscando la clase '" + nativeNotation + "'.");
+                    log.error("    Error buscando la clase '" + nativeNotation + "'.");
                     // Si no se consigue una clase, es que su paquete y su
                     // directorio estan inconsistentes
-                    System.err.println("    Probablemente hay inconsistencia entre su package y " + "su path...");
-                    // e.printStackTrace();
+                    log.error("    Probablemente hay inconsistencia entre su package y " + "su path...");
+                    // log.error(e.getMessage());
                 } catch (Throwable e) {
                     // TODO: Cuando se vea esta traza es que hay una inconsistencia en el codigo.
-                    System.err.println("    Error desconocido buscando la clase '" + nativeNotation + "'.");
+                    log.error("    Error desconocido buscando la clase '" + nativeNotation + "'.");
                     // Todas las clases internas fallan y pasan por aqui.
-                    System.err.println("    Ignorar esta traza si la clase es una clase interna." + "." + ".");
-                    // e.printStackTrace();
+                    log.error("    Ignorar esta traza si la clase es una clase interna." + "." + ".");
+                    // log.error(e.getMessage());
                 }
             }
             //log.debug("El tamanio de results en findClassesThatImplementedFromJar es
@@ -1111,7 +1104,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             }
             bundle.load(fis);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         } finally {
             try {
                 if (fis != null) {
@@ -1273,7 +1266,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * @param replacement The text for replace
      * @return A sanitized files with the same incoming lines including its replacements
      * @throws java.io.IOException If it is not possible to create a new file with data form incoming text according
-     * to the criteria
+     *                             to the criteria
      */
 
     public File sanitizeTextFileByReplacingTextThatMatchRegExp(File file, String regExp, String replacement)
@@ -1305,7 +1298,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * @param regExp Regular expression that indicates which lines are selected to stay
      * @return A sanitized file with just those lines that matched the related regExp
      * @throws java.io.IOException If it is not possible to create a new file with data form incoming text according
-     * to the criteria
+     *                             to the criteria
      */
 
     public File sanitizeTextFileKeepingLinesThatMatchRegExp(File file, String regExp)

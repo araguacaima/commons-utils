@@ -30,7 +30,6 @@ import java.util.Properties;
 
 @Component
 public class MessageHandler {
-
     public static final String ERRORS = "errors";
     public static final String EXCEPTIONS = "exceptions";
     public static final String LABELS = "labels";
@@ -43,10 +42,9 @@ public class MessageHandler {
     private static final String DEFAULT_ORIGIN = "default";
     // private ResourceBundle labels; // Contenedor de las etiquetas leidas.
     private static final Hashtable<String, Hashtable<String, String>> labels = new Hashtable<>();
+    private static final Logger log = LoggerFactory.getLogger(MessageHandler.class);
     private static Locale forcedLocale;
     private final FileUtils fileUtils;
-    // private  HashMap bundles = new HashMap();
-    private final Logger log = LoggerFactory.getLogger(MessageHandler.class);
     private String defaultFile = null;
 
     @Autowired
@@ -81,19 +79,25 @@ public class MessageHandler {
      */
     public static String get(String key, Object[] params, String origin, Locale locale) {
         if (null == params) {
-            System.err.println("No se suministraron parametros para la etiqueta '" + key + "'.");
+            final String message = "No se suministraron parametros para la etiqueta '" + key + "'.";
+            System.err.println(message);
+            log.error(message);
             return get(key, origin, locale);
         }
         try {
             String message = get(key, origin, locale);
             if (null == message) {
-                System.err.println("Etiqueta '" + key + "' no encontrada.  Devolviendo valor por defecto...");
+                message = "Etiqueta '" + key + "' no encontrada.  Devolviendo valor por defecto...";
+                System.err.println(message);
+                log.error(message);
                 return getDefaultMessage(key); // TODO: Mostrar los params?
             } else {
                 return MessageFormat.format(message, params);
             }
         } catch (Exception e) {
-            System.err.println("Error buscando etiqueta '" + key + "'.  Devolviendo valor por defecto...");
+            final String message = "Error buscando etiqueta '" + key + "'.  Devolviendo valor por defecto...";
+            System.err.println(message);
+            log.error(message);
             return getDefaultMessage(key); // TODO: Mostrar los params?
         }
     }
@@ -102,10 +106,10 @@ public class MessageHandler {
         Locale innerLocale = forcedLocale;
         if (null == innerLocale) {
             return SystemInfo.getLocale();
-            /**
-             * TODO: Estamos usando el Locale default para el sistema.
-             * Vale la pena usar aqui el Locale seleccionado por el usuario?
-             * locale = UserInfo.getLocale();
+            /*
+              TODO: Estamos usando el Locale default para el sistema.
+              Vale la pena usar aqui el Locale seleccionado por el usuario?
+              locale = UserInfo.getLocale();
              */
         } else {
             return innerLocale;
@@ -159,7 +163,9 @@ public class MessageHandler {
             return getDefaultMessage(propertyName);
 
         } catch (Exception e) {
-            System.err.println("Error buscando etiqueta '" + propertyName + "'.  Devolviendo valor por defecto...");
+            final String message = "Error buscando etiqueta '" + propertyName + "'.  Devolviendo valor por defecto...";
+            System.err.println(message);
+            log.error(message);
             return getDefaultMessage(propertyName);
         }
     }
@@ -344,7 +350,6 @@ public class MessageHandler {
      * Solo debe ser usado para tratar de recargar la data, o para las pruebas.
      */
     public void clearData() {
-        // System.out.println("Limpiando data...");
         labels.clear();
     }
 

@@ -113,12 +113,12 @@ public class SystemInfo {
         } catch (Exception e) {
             log.error("Error adding data from file '" + fileName + "'.  No data will be added from this file.", e);
 
-            System.err.println("Error adding data from file '" + fileName + "'.  No data will be added from this " +
-                    "file" + ".");
-            e.printStackTrace();
+            log.error("Error adding data from file '" + fileName + "'.  No data will be added from this " + "file" +
+                    ".");
+            log.error(e.getMessage());
             // Se podria hacer return -1 aqui si queremos un codigo de error.
         }
-        // System.out.println("count = " + count);
+        // log.debug("count = " + count);
         return count;
     }
 
@@ -126,7 +126,7 @@ public class SystemInfo {
         while (keys.hasMoreElements()) {
             String key = (String) keys.nextElement();
             try {
-                // System.out.println(key + " = " + bundle.getProperty(key));
+                // log.debug(key + " = " + bundle.getProperty(key));
                 // put(key, bundle.getString(key));
                 put(key, bundle.getProperty(key));
                 count++;
@@ -154,7 +154,7 @@ public class SystemInfo {
      * Solo debe ser usado para tratar de recargar la data, o para las pruebas.
      */
     public void clearData() {
-        // System.out.println("Limpiando data...");
+        // log.debug("Limpiando data...");
         properties.clear();
     }
 
@@ -221,6 +221,7 @@ public class SystemInfo {
      * @param fileName String con el nombre del archivo
      * @return int con el conteo de las propiedades agregadas
      */
+    @SuppressWarnings("UnusedReturnValue")
     public int addDataFromFile(String fileName) {
         int count = 0;
         try {
@@ -245,7 +246,7 @@ public class SystemInfo {
                 try {
                     fileUtils.loadBundleAsResource(fileName, bundle);
                 } catch (Exception e1) {
-                    System.err.println("Error leyendo archivo '" + fileName + "'");
+                    log.error("Error leyendo archivo '" + fileName + "'");
                     log.error("Error leyendo archivo '" + fileName + "'");
                     e1.printStackTrace();
                 }
@@ -257,9 +258,9 @@ public class SystemInfo {
         } catch (Exception e) {
             log.error("Error adding data from file '" + fileName + "'.  No data will be added from this file.", e);
 
-            System.err.println("Error adding data from file '" + fileName + "'.  No data will be added from this " +
-                    "file" + ".");
-            e.printStackTrace();
+            log.error("Error adding data from file '" + fileName + "'.  No data will be added from this " + "file" +
+                    ".");
+            log.error(e.getMessage());
             // Se podria hacer return -1 aqui si queremos un codigo de error.
         }
         return count;
@@ -314,36 +315,17 @@ public class SystemInfo {
         }
     }
 
-    /**
-     * Setea la precision del sistema
-     *
-     * @param precision int con la precision usada en el sistema
-     * @deprecated Este metodo cambia la precision de todo el sistema.  Se debe
-     * usar con sumo cuidado.
-     */
-    public void setPrecision(int precision) {
-    }
-
     public String getSystemCharset() {
         // not crossplateform safe
         return System.getProperty("file.encoding");
         // jdk1.4
         // return new java.io.OutputStreamWriter(new java.io.ByteArrayOutputStream()).getEncoding();
         // jdk1.5
-        // return System.out.println(java.nio.charset.Charset.defaultCharset().name());
+        // return log.debug(java.nio.charset.Charset.defaultCharset().name());
     }
 
     public String getSystemPath() {
         return get(APPLICATION_FOLDER_ROOT);
-    }
-
-    /**
-     * Metodo que cambia el comportamiento de la clase, permitiendo o no sobreescribir nombres.
-     *
-     * @param uniqueName boolean que indica si se garantizaran nombres unicos o no.
-     * @deprecated No usar en ejecucion.  Solo debe usarse para las pruebas.
-     */
-    public void isUniqueName(boolean uniqueName) {
     }
 
     public boolean isWindows() {
@@ -352,7 +334,7 @@ public class SystemInfo {
 
     public int findOperatingSystem() {
         String osName = System.getProperty("os.name").toUpperCase();
-        // System.out.println("Operating System: '" + osName + "'");
+        // log.debug("Operating System: '" + osName + "'");
         if (osName.contains("WINDOWS")) {
             // Win 3.X
             return OS_WINDOWS;

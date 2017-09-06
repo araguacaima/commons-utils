@@ -47,8 +47,4 @@ public class ApplicationException extends GeneralException {
         super(messageKey, e);
     }
 
-    @Override
-    public void perform() {
-
-    }
 }

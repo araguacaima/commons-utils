@@ -74,7 +74,6 @@ public class HttpUtils {
             "_squot_",
             "_quot_");
     private HttpClient httpClient = new HttpClient();
-    private StringUtils stringUtils;
 
     public HttpUtils(String host, int port, String username, String password) {
         this(host, port, username, password, null, null, null, null, 0, 0);
@@ -132,11 +131,6 @@ public class HttpUtils {
     }
 
     @Autowired
-    public HttpUtils(StringUtils stringUtils) {
-        this.stringUtils = stringUtils;
-    }
-
-    @Autowired
     public HttpUtils(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
@@ -149,7 +143,7 @@ public class HttpUtils {
      * @return String con el value decodificado usando el format
      */
     public String decode(String value, String format) {
-        if (org.apache.commons.lang3.StringUtils.isBlank(value)) {
+        if (StringUtils.isBlank(value)) {
             return "";
         }
         try {
@@ -176,7 +170,7 @@ public class HttpUtils {
      * @return String con el value codificado usando el format
      */
     public String encode(String value, String format) {
-        if (org.apache.commons.lang3.StringUtils.isBlank(value)) {
+        if (StringUtils.isBlank(value)) {
             return "";
         }
         try {

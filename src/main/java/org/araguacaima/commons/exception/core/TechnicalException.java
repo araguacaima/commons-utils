@@ -1,5 +1,9 @@
 package org.araguacaima.commons.exception.core;
 
+import org.araguacaima.commons.exception.MessageHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
@@ -20,8 +24,8 @@ import java.io.PrintWriter;
 
 public class TechnicalException extends GeneralException {
 
+    private static final Logger log = LoggerFactory.getLogger(MessageHandler.class);
     private static final long serialVersionUID = -8689850436632874402L;
-
     // Original exception
     protected final Throwable cause;
 
@@ -98,32 +102,11 @@ public class TechnicalException extends GeneralException {
         return this.cause;
     }
 
-    @Override
-    public void perform() {
-
-    }
-
-    /**
-     *
-     * @param writer PrintWriter
-     */
-    //TODO Corregir NESTED printStackTrace() para que no interfiera con exception atrapadas por web.xml
-    //    public void printStackTrace(PrintWriter writer) {
-    //        writer.println(this.getMessage());
-    //        writer.println(Exceptions.getMessage(Exceptions.NESTED_EXCEPTION));
-    //        cause.printStackTrace(writer);
-    //    }
-
     /**
      * @param stream PrintStream
      */
     public void printStackTrace(PrintStream stream) {
         this.printStackTrace(new PrintWriter(stream));
-        //        this.printStackTrace(printWriter);
-        //        if (this.cause != null) {
-        //            printWriter.println(Exceptions.NESTED_EXCEPTION);
-        //            this.cause.printStackTrace(printWriter);
-        //        }
     }
 
     public void printStackTrace(PrintWriter printWriter) {
@@ -143,6 +126,7 @@ public class TechnicalException extends GeneralException {
         // No sabemos si tenemos un log vivo en este momento.
         if (this.cause != null) {
             System.err.println(Exceptions.NESTED_EXCEPTION);
+            log.error(Exceptions.NESTED_EXCEPTION);
             this.cause.printStackTrace();
         }
     }

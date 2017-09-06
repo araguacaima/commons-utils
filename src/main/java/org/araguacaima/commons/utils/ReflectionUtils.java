@@ -2,7 +2,8 @@ package org.araguacaima.commons.utils;
 
 import com.google.common.collect.ObjectArrays;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import sun.reflect.ConstructorAccessor;
@@ -17,8 +18,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
+@SuppressWarnings("unchecked")
 @Component
 public class ReflectionUtils {
+
+    private static final Logger log = LoggerFactory.getLogger(ReflectionUtils.class);
 
     public final Collection<String> COMMONS_JAVA_TYPES_EXCLUSIONS = new ArrayList<String>() {
         {
@@ -54,7 +58,6 @@ public class ReflectionUtils {
 
     @Autowired
     public ReflectionUtils(DataTypesConverter dataTypesConverter) {
-
         this.dataTypesConverter = dataTypesConverter;
     }
 
@@ -114,7 +117,7 @@ public class ReflectionUtils {
             //            cleanEnumCache(type);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -217,7 +220,7 @@ public class ReflectionUtils {
 
     public Object createAndInitializeCollection(Class<?> clazz, Object value) {
         Class generics = extractGenerics(clazz);
-        return getObject(clazz, value, generics, null);
+        return getObject(clazz, value, generics);
     }
 
     public Class extractGenerics(Class clazz) {
@@ -227,7 +230,7 @@ public class ReflectionUtils {
         if (!isCollectionImplementation(clazz)) {
             return clazz;
         }
-        Class generics = null;
+        Class generics;
         if (Collection.class.isAssignableFrom(clazz)) {
             Type genericSuperclass = clazz.getGenericSuperclass();
             if (genericSuperclass == null) {
@@ -245,13 +248,14 @@ public class ReflectionUtils {
                 }
             }
         } else
-            generics = getClass(clazz, generics);
+            generics = getClass(clazz);
 
         return generics;
 
     }
 
-    private Object getObject(Class<?> clazz, Object value, Class<?> generics, Object result) {
+    private Object getObject(Class<?> clazz, Object value, Class<?> generics) {
+        Object result;
         if (Collection.class.isAssignableFrom(clazz)) {
             result = ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments()[0];
             try {
@@ -260,7 +264,7 @@ public class ReflectionUtils {
 
             }
         } else
-            result = getObject_(clazz, value, generics, result);
+            result = getObject_(clazz, value, generics);
         return result;
     }
 
@@ -269,13 +273,14 @@ public class ReflectionUtils {
                 || clazz.isArray());
     }
 
-    private Class getClass(Class clazz, Class generics) {
+    private Class getClass(Class clazz) {
+        Class generics = null;
         if (Object[].class.isAssignableFrom(clazz)) {
             try {
                 generics = Class.forName(clazz.toString().replaceFirst("class \\[L", StringUtils.EMPTY).replace(";",
                         StringUtils.EMPTY));
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
             }
 
         } else if (clazz.isArray()) {
@@ -291,13 +296,13 @@ public class ReflectionUtils {
         return generics;
     }
 
-    private Object getObject_(Class<?> clazz, Object value, Class<?> generics, Object result) {
+    private Object getObject_(Class<?> clazz, Object value, Class<?> generics) {
+        Object result = null;
         if (Object[].class.isAssignableFrom(clazz) || clazz.isArray()) {
             try {
                 result = ObjectArrays.newArray(generics, 0);
                 result = ObjectArrays.concat((Object[]) result, value);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ignored) {
             }
         } else {
             throw new IllegalArgumentException("Invalid Type. Incoming type must be a collection implementation");
@@ -310,11 +315,11 @@ public class ReflectionUtils {
         Class generics = extractGenerics(clazz);
         Object bean = generics.newInstance();
         PropertyUtils.setProperty(bean, methodName, value);
-        return getObject(clazz, bean, generics, null);
+        return getObject(clazz, bean, generics);
     }
 
     public Collection<Object> createAndInitializeTypedCollection(Class<?> typedClassForCollection)
-            throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
+            throws IllegalAccessException, InstantiationException {
         return createAndInitializeTypedCollection(typedClassForCollection, null);
     }
 
@@ -344,7 +349,7 @@ public class ReflectionUtils {
         Class generics = extractGenerics(clazz);
         Object bean = generics.newInstance();
 
-        Object result = null;
+        Object result;
         if (Collection.class.isAssignableFrom(clazz)) {
             Type genericSuperclass = clazz.getGenericSuperclass();
             if (genericSuperclass == null) {
@@ -362,7 +367,7 @@ public class ReflectionUtils {
                 }
             }
         } else
-            result = getObject_(clazz, bean, generics, result);
+            result = getObject_(clazz, bean, generics);
         return result;
     }
 
@@ -432,7 +437,7 @@ public class ReflectionUtils {
             ObjectInputStream ois = new ObjectInputStream(bais);
             return ois.readObject();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return null;
         }
     }
@@ -459,9 +464,7 @@ public class ReflectionUtils {
 
         if (includeParent) {
             Collection<Field> fields_ = getAllFieldsIncludingParents(object);
-
             fields = fields_.toArray(new Field[fields_.size()]);
-            includeParent = false;
         } else {
             fields = object.getClass().getDeclaredFields();
         }
@@ -528,8 +531,8 @@ public class ReflectionUtils {
                         field.set(object, value);
                     } catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
 
-                        System.err.println("Could not initialize " + fieldClass.getSimpleName() + ", Maybe it's an "
-                                + "interface, abstract class, or it hasn't an empty Constructor");
+                        log.error("Could not initialize " + fieldClass.getSimpleName() + ", Maybe it's an " +
+                                "interface, abstract class, or it hasn't an empty Constructor");
                         continue;
                     }
                 }
@@ -557,7 +560,7 @@ public class ReflectionUtils {
                 rawTypeField.setAccessible(true);
                 clazz = (Class) rawTypeField.get(type);
             } catch (NoSuchFieldException | IllegalAccessException e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
             }
         } catch (Throwable ignored) {
         }
@@ -591,7 +594,7 @@ public class ReflectionUtils {
         if (!isCollectionImplementation(clazz)) {
             return clazz;
         }
-        Class generics = null;
+        Class generics;
         if (Collection.class.isAssignableFrom(clazz)) {
             TypeVariable[] typedGenerics = clazz.getTypeParameters();
             if (typedGenerics == null) {
@@ -609,9 +612,8 @@ public class ReflectionUtils {
                 }
             }
         } else
-            generics = getClass(clazz, generics);
+            generics = getClass(clazz);
         return generics;
-
     }
 
     public Collection<Field> getAllFieldsIncludingParents(Object object) {

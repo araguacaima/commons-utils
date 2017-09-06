@@ -27,7 +27,7 @@ public class MapUtils extends org.apache.commons.collections.MapUtils {
     }
 
     public Map find(Map map, Predicate keyPredicate, Predicate valuePredicate, int evaluationType) {
-        Map newMap = new HashMap();
+        Map<Object, Object> newMap = new HashMap<>();
         Object key;
         Object value;
         for (Object o : map.entrySet()) {
@@ -95,8 +95,8 @@ public class MapUtils extends org.apache.commons.collections.MapUtils {
         CollectionUtils.forAllDo(keys, map::remove);
     }
 
-    public Map select(Map map, Predicate keyPredicate, Predicate valuePredicate) {
-        Map newMap = new HashMap(map);
+    public Map select(Map<Object, Object> map, Predicate keyPredicate, Predicate valuePredicate) {
+        Map<Object, Object> newMap = new HashMap<>(map);
         Object key;
         Object value;
         for (Iterator it = map.entrySet().iterator(); it.hasNext(); removeFromMap(key,
@@ -121,8 +121,8 @@ public class MapUtils extends org.apache.commons.collections.MapUtils {
         }
     }
 
-    public Map transform(Map map, Transformer keyTransformer, Transformer valueTransformer) {
-        Map newMap = new HashMap(map);
+    public Map transform(Map<Object, Object> map, Transformer keyTransformer, Transformer valueTransformer) {
+        Map<Object, Object> newMap = new HashMap<>(map);
         Object key;
         Object value;
         for (Iterator it = map.entrySet().iterator(); it.hasNext(); appendIntoMap(key,
@@ -141,7 +141,7 @@ public class MapUtils extends org.apache.commons.collections.MapUtils {
                                Object value,
                                Transformer keyTransformer,
                                Transformer valueTransformer,
-                               Map map) {
+                               Map<Object, Object> map) {
         map.remove(key);
         insertIntoMap(key, value, keyTransformer, valueTransformer, map);
 
@@ -151,7 +151,7 @@ public class MapUtils extends org.apache.commons.collections.MapUtils {
                                Object value,
                                Transformer keyTransformer,
                                Transformer valueTransformer,
-                               Map map) {
+                               Map<Object, Object> map) {
         Object transformedKey = null;
         Object transformedValue = null;
         if (keyTransformer != null) {

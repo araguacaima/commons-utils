@@ -5,7 +5,6 @@ import org.araguacaima.commons.exception.core.Exceptions;
 import org.araguacaima.commons.exception.core.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Locale;
@@ -24,13 +23,7 @@ import java.util.Locale;
 @Component
 public class ExceptionUtils {
 
-    private static Logger log = LoggerFactory.getLogger(ExceptionUtils.class);
-    private final StringUtils stringUtils;
-
-    @Autowired
-    public ExceptionUtils(StringUtils stringUtils) {
-        this.stringUtils = stringUtils;
-    }
+    private static final Logger log = LoggerFactory.getLogger(ExceptionUtils.class);
 
     /**
      * Elimina las excepciones anidadas, hasta llegar a la inicial
@@ -104,7 +97,7 @@ public class ExceptionUtils {
      * @return String con el mensaje truncado
      */
     public String cleanMessage(String message, int initialLine, int finalLine) {
-        if (org.apache.commons.lang3.StringUtils.isBlank(message)) {
+        if (StringUtils.isBlank(message)) {
             return "Error Unknown (null Exception)";
         }
         StringBuilder result = new StringBuilder((finalLine - initialLine) * 100);
@@ -159,12 +152,13 @@ public class ExceptionUtils {
      *                              de acuerdo a la excepcion procesada.
      * @see Exceptions
      */
+    @SuppressWarnings("ThrowableNotThrown")
     public void handleException(String messageKey, Exception e) {
         e = cleanException(e);
         if (e instanceof ApplicationException) {
-            new ApplicationException(messageKey, e).perform();
+            new ApplicationException(messageKey, e);
         } else {
-            new TechnicalException(messageKey, e).perform();
+            new TechnicalException(messageKey, e);
         }
     }
 
@@ -182,7 +176,7 @@ public class ExceptionUtils {
     }
 
     public void main(String[] args) {
-        System.out.println("cleanMessage(new Exception(), 3) = " + cleanMessage(new Exception(), 3));
+        log.debug("cleanMessage(new Exception(), 3) = " + cleanMessage(new Exception(), 3));
     }
 
     /**

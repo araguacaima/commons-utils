@@ -537,13 +537,13 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         } finally {
             if (br != null) {
                 try {
                     br.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error(e.getMessage());
                 }
             }
         }
@@ -898,7 +898,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     //    public  void main(String[] args) {
     //        String test = "<span class=\"colorLink\" >64280</span>";
-    //        System.out.println("args = " + test.replaceAll("<span class=\"colorLink\" >",
+    //        log.debug("args = " + test.replaceAll("<span class=\"colorLink\" >",
     // "").replaceAll("</span>", ""));
     //    }
 
@@ -975,13 +975,13 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     }
 
     //    public  void main(String[] args) {
-    //        System.out.println("a = " + substringIfLonger(null, -1, "..."));
-    //        System.out.println("a = " + substringIfLonger("pepe", -1, "..."));
-    //        System.out.println("a = " + substringIfLonger("pepe", 0, "..."));
-    //        System.out.println("a = " + substringIfLonger("pepe", 1, "..."));
-    //        System.out.println("a = " + substringIfLonger("pepe", 4, "..."));
-    //        System.out.println("a = " + substringIfLonger("pepe", 5, "..."));
-    ////        System.out.println("a = " + "pepe".substring(0, 5));
+    //        log.debug("a = " + substringIfLonger(null, -1, "..."));
+    //        log.debug("a = " + substringIfLonger("pepe", -1, "..."));
+    //        log.debug("a = " + substringIfLonger("pepe", 0, "..."));
+    //        log.debug("a = " + substringIfLonger("pepe", 1, "..."));
+    //        log.debug("a = " + substringIfLonger("pepe", 4, "..."));
+    //        log.debug("a = " + substringIfLonger("pepe", 5, "..."));
+    ////        log.debug("a = " + "pepe".substring(0, 5));
     //    }
 
 /*
@@ -1002,7 +1002,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
       in.close();
 
       }catch (Exception e){
-        System.err.println("Error: " + e.getMessage());
+        log.error("Error: " + e.getMessage());
       }
 
       return lines;
