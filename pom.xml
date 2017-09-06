@@ -7,15 +7,37 @@
     <artifactId>commons-utils</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
-    <name>Common Utils</name>
+    <name>${project.artifactId}</name>
+    <description>The maven main core project description</description>
     <url>http://maven.apache.org</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Alejandro Manuel Méndez Araguacaima</name>
+            <email>araguacaima@gmail.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/araguacaima/commons-utils.git</connection>
+        <developerConnection>scm:git:ssh://github.com:araguacaima/commons-utils.git</developerConnection>
+        <url>https://github.com/araguacaima/commons-utils/tree/master</url>
+    </scm>
 
     <properties>
         <slf4j.version>1.7.25</slf4j.version>
-        <commons-beanutils-commons-beanutils>1.9.1</commons-beanutils-commons-beanutils>
-        <org.apache.commons-commons-lang3>3.1</org.apache.commons-commons-lang3>
-        <org.springframework-spring-core>4.3.7.RELEASE</org.springframework-spring-core>
-        <joda-time-joda-time>2.1</joda-time-joda-time>
+        <commons-beanutils-commons-beanutils>1.9.3</commons-beanutils-commons-beanutils>
+        <org.apache.commons-commons-lang3>3.6</org.apache.commons-commons-lang3>
+        <org.springframework-spring-core>4.3.10.RELEASE</org.springframework-spring-core>
+        <joda-time-joda-time>2.9.9</joda-time-joda-time>
         <com.google.collections-google-collections>1.0</com.google.collections-google-collections>
         <commons-io-commons-io>2.5</commons-io-commons-io>
         <javax.servlet-servlet-api>2.5</javax.servlet-servlet-api>
@@ -31,20 +53,18 @@
         <minimum-maven-version>3.1</minimum-maven-version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <org.apache.maven.plugins-maven-source-plugin>2.4</org.apache.maven.plugins-maven-source-plugin>
-        <org.apache.maven.plugins-maven-compiler-plugin>2.3.2</org.apache.maven.plugins-maven-compiler-plugin>
+        <org.apache.maven.plugins-maven-source-plugin>3.0.1</org.apache.maven.plugins-maven-source-plugin>
+        <org.apache.maven.plugins-maven-javadoc-plugin>3.0.0-M1</org.apache.maven.plugins-maven-javadoc-plugin>
+        <org.apache.maven.plugins-maven-compiler-plugin>3.6.2</org.apache.maven.plugins-maven-compiler-plugin>
         <org.apache.maven.plugins-maven-surefire-plugin>2.20</org.apache.maven.plugins-maven-surefire-plugin>
-        <org.apache.maven.plugin-maven-jar-plugin>2.4</org.apache.maven.plugin-maven-jar-plugin>
-        <org.apache.maven.plugin-maven-dependency-plugin>2.10</org.apache.maven.plugin-maven-dependency-plugin>
-        <org.codehaus.mojo-build-helper-maven-plugin>1.8</org.codehaus.mojo-build-helper-maven-plugin>
-        <org.codehaus.mojo-aspectj-maven-plugin>1.8</org.codehaus.mojo-aspectj-maven-plugin>
-        <org.apache.maven.plugins-maven-enforcer-plugin>1.3.1</org.apache.maven.plugins-maven-enforcer-plugin>
+        <org.apache.maven.plugins-maven-enforcer-plugin>3.0.0-M1</org.apache.maven.plugins-maven-enforcer-plugin>
+        <org.apache.maven.plugin-maven-jar-plugin>3.0.2</org.apache.maven.plugin-maven-jar-plugin>
+        <org.apache.maven.plugin-maven-dependency-plugin>3.0.1</org.apache.maven.plugin-maven-dependency-plugin>
         <maven.skip.tests>true</maven.skip.tests>
 
         <!-- tests -->
         <org.evosuite-evosuite-standalone-runtime>1.0.5</org.evosuite-evosuite-standalone-runtime>
         <org.evosuite.plugins-evosuite-maven-plugin>1.0.5</org.evosuite.plugins-evosuite-maven-plugin>
-        <org.junit.jupiter-junit-jupiter-api>RELEASE</org.junit.jupiter-junit-jupiter-api>
         <junit-junit>4.12</junit-junit>
 
     </properties>
@@ -153,12 +173,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${org.junit.jupiter-junit-jupiter-api}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.evosuite.plugins</groupId>
             <artifactId>evosuite-maven-plugin</artifactId>
             <version>${org.evosuite.plugins-evosuite-maven-plugin}</version>
@@ -176,7 +190,7 @@
                 <configuration>
                     <numberOfCores>2</numberOfCores>
                     <memoryInMB>2000</memoryInMB>
-                    <cuts>org.araguacaima.utils.DataTypesConverter</cuts>
+                    <cuts>org.araguacaima.commons.utils.DataTypesConverter</cuts>
                 </configuration>
                 <executions>
                     <execution>
@@ -210,6 +224,26 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.0-M1</version>
+                <configuration>
+                    <show>private</show>
+                    <nohelp>true</nohelp>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
