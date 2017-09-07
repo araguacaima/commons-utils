@@ -5,10 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.araguacaima</groupId>
     <artifactId>commons-utils</artifactId>
-    <version>1.0</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <description>The maven main core project description</description>
+    <description>Common utilities is a set of java utilities for managing commmon actions when working with enums, files, exceptions, zip/jar files, classes (via Reflection), maps, numbers and so on.
+        Most of the utilities extend functionalities covered in amazing libraries like:
+
+        * commons-beanutils (apache)
+        * commons-lang3 (apache)
+        * commons-io (apache)
+        * commons-math3 (apache)
+    </description>
     <url>http://maven.apache.org</url>
 
     <licenses>
@@ -31,6 +38,17 @@
         <developerConnection>scm:git:ssh://github.com:araguacaima/commons-utils.git</developerConnection>
         <url>https://github.com/araguacaima/commons-utils/tree/master</url>
     </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
         <slf4j.version>1.7.25</slf4j.version>
