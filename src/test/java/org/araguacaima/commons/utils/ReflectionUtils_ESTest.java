@@ -5,6 +5,7 @@
 
 package org.araguacaima.commons.utils;
 
+import org.evosuite.runtime.mock.java.lang.MockIllegalArgumentException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.evosuite.runtime.EvoAssertions.*;
@@ -534,36 +535,6 @@ public class ReflectionUtils_ESTest extends ReflectionUtils_ESTest_scaffolding {
   }
 
   @Test(timeout = 4000)
-  public void test31()  throws Throwable  {
-      ReflectionUtils reflectionUtils0 = new ReflectionUtils((DataTypesConverter) null);
-      assertNotNull(reflectionUtils0);
-      
-      Class<String> class0 = String.class;
-      Class class1 = reflectionUtils0.extractGenerics(class0);
-      assertFalse(class1.isPrimitive());
-      assertFalse(class1.isInterface());
-      assertFalse(class1.isArray());
-      assertEquals("class java.lang.String", class1.toString());
-      assertEquals(17, class1.getModifiers());
-      assertFalse(class1.isEnum());
-      assertFalse(class1.isSynthetic());
-      assertFalse(class1.isAnnotation());
-      assertNotNull(class1);
-      
-      // Undeclared exception!
-      try { 
-        reflectionUtils0.createAndInitializeTypedCollection(class1, "[\"`:ef^r6k>9=Vgo@2D", (Object) null);
-        fail("Expecting exception: NoClassDefFoundError");
-      
-      } catch(NoClassDefFoundError e) {
-         //
-         // org/apache/commons/beanutils/PropertyUtils
-         //
-         verifyException("org.araguacaima.commons.utils.ReflectionUtils", e);
-      }
-  }
-
-  @Test(timeout = 4000)
   public void test32()  throws Throwable  {
       ReflectionUtils reflectionUtils0 = new ReflectionUtils((DataTypesConverter) null);
       assertNotNull(reflectionUtils0);
@@ -590,13 +561,13 @@ public class ReflectionUtils_ESTest extends ReflectionUtils_ESTest_scaffolding {
       // Undeclared exception!
       try { 
         reflectionUtils0.createAndInitializeCollection(class0, ">", (Object) null);
-        fail("Expecting exception: NoClassDefFoundError");
+        fail("Expecting exception: NoSuchMethodException");
       
-      } catch(NoClassDefFoundError e) {
+      } catch(NoSuchMethodException e) {
          //
          // org/apache/commons/beanutils/PropertyUtils
          //
-         verifyException("org.araguacaima.commons.utils.ReflectionUtils", e);
+         verifyException("org.apache.commons.beanutils.PropertyUtilsBean", e);
       }
   }
 
