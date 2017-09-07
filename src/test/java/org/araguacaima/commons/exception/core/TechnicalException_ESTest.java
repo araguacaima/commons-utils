@@ -427,21 +427,6 @@ public class TechnicalException_ESTest extends TechnicalException_ESTest_scaffol
   }
 
   @Test(timeout = 4000)
-  public void test02()  throws Throwable  {
-      TechnicalException technicalException0 = null;
-      try {
-        technicalException0 = new TechnicalException("HnkL", (Throwable) null);
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("org.araguacaima.commons.exception.core.TechnicalException", e);
-      }
-  }
-
-  @Test(timeout = 4000)
   public void test03()  throws Throwable  {
       TechnicalException technicalException0 = new TechnicalException("");
       assertNotNull(technicalException0);

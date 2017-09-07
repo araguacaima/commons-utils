@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.araguacaima</groupId>
     <artifactId>commons-utils</artifactId>
-    <version>1.0-RELEASE</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>Common utilities is a set of java utilities for managing commmon actions when working with enums,
@@ -314,7 +314,7 @@
         <profile>
             <id>snapshot</id>
             <build>
-                <defaultGoal>clean deploy -P release:clean release:prepare release:perform</defaultGoal>
+                <defaultGoal>clean deploy</defaultGoal>
                 <plugins>
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
@@ -324,7 +324,7 @@
                         <configuration>
                             <serverId>ossrh</serverId>
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
 

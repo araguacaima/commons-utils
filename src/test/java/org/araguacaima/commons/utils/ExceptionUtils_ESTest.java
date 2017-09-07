@@ -86,38 +86,6 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
   }
 
   @Test(timeout = 4000)
-  public void test05()  throws Throwable  {
-      ExceptionUtils exceptionUtils0 = new ExceptionUtils();
-      // Undeclared exception!
-      try { 
-        exceptionUtils0.handleException("", (Exception) null);
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("org.araguacaima.commons.exception.core.TechnicalException", e);
-      }
-  }
-
-  @Test(timeout = 4000)
-  public void test06()  throws Throwable  {
-      ExceptionUtils exceptionUtils0 = new ExceptionUtils();
-      // Undeclared exception!
-      try { 
-        exceptionUtils0.handleException((Exception) null);
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("org.araguacaima.commons.exception.core.TechnicalException", e);
-      }
-  }
-
-  @Test(timeout = 4000)
   public void test09()  throws Throwable  {
       ExceptionUtils exceptionUtils0 = new ExceptionUtils();
       String string0 = exceptionUtils0.cleanMessage((Exception) null, 0, 0);
@@ -139,44 +107,6 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
          // 3
          //
          verifyException("org.araguacaima.commons.utils.ExceptionUtils", e);
-      }
-  }
-
-  @Test(timeout = 4000)
-  public void test14()  throws Throwable  {
-      ExceptionUtils exceptionUtils0 = new ExceptionUtils();
-      Exception exception0 = mock(Exception.class, new ViolatedAssumptionAnswer());
-      doReturn((Throwable) null).when(exception0).getCause();
-      doReturn((String) null).when(exception0).getMessage();
-      Exception exception1 = exceptionUtils0.cleanException(exception0);
-      Exception exception2 = mock(Exception.class, new ViolatedAssumptionAnswer());
-      doReturn(exception1, (Throwable) null).when(exception2).getCause();
-      // Undeclared exception!
-      try { 
-        exceptionUtils0.cleanException(exception2);
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("org.araguacaima.commons.exception.core.TechnicalException", e);
-      }
-  }
-
-  @Test(timeout = 4000)
-  public void test16()  throws Throwable  {
-      ExceptionUtils exceptionUtils0 = new ExceptionUtils();
-      // Undeclared exception!
-      try { 
-        exceptionUtils0.cleanException((Exception) null);
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("org.araguacaima.commons.exception.core.TechnicalException", e);
       }
   }
 
