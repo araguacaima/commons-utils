@@ -22,32 +22,37 @@ package org.araguacaima.commons.exception.core;
 import org.araguacaima.commons.exception.MessageHandler;
 
 /**
- * Clase principal del modulo de manejo de excepciones (org.araguacaima.commons.exception).
- * Todas las excepciones especializadas heredan de esta clase.
- * No se ha de usar esta clase directamente, sino alguna de sus subclases.
- * Dado que es una excepcion Runtime, ninguna de sus hijas debe ser lanzada dentro de un EJB.
- * Title: GeneralException.java
+ * Exception handling module main class. All specialized exceptions inherit from this class. This class should not be
+ * used directly, but one of its subclasses.
  *
- * @author Alejandro Manuel Méndez Araguacaima (AMMA)
+ * @author Alejandro Manuel Méndez Araguacaima (AMMA) araguacaima@gmail.com
+ * <br>
  * Changes:<br>
  * <ul>
- * <li> 2014-11-26 (AMMA)  Creacion de la clase. </li>
+ * <li> 2017-09-07 | (AMMA) | Class creation. </li>
  * </ul>
  */
 
 public abstract class GeneralException extends RuntimeException {
 
     private static final long serialVersionUID = 3172918925590622749L;
-    // Codigo del mensaje a mostrar, para usar en el bundle asociado
+
+    /**
+     * Message code to display, for use in the associated bundle
+     */
     private final String code;
     protected Object magicValue;
-    // Severidad de la excepcion
+    /**
+     * Severity of the exception
+     */
     protected Severity severity;
-    // Mensaje a ser mostrado "as is" como parte del mensaje final
+    /**
+     * Message to be displayed "as is" as part of the final message
+     */
     private String extendedMessage;
 
     /**
-     * Create an GeneralException of a given {@link org.araguacaima.commons.exception.core.Severity} with a message
+     * Create an {@link GeneralException} of a given {@link Severity} with a message
      * detailing it
      *
      * @param code     String

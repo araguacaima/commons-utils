@@ -52,14 +52,10 @@ public class MessageHandler {
     public static final String ERRORS = "errors";
     public static final String EXCEPTIONS = "exceptions";
     public static final String LABELS = "labels";
-    // private  final Logger log = LoggerFactory.getLogger(MessageHandler.class);
     public static final String POST = "]]";
-    // Prefijo y sufijo a usar para los mensajes por defecto
     public static final String PRE = "[[";
-    // Constantes para comodidad de uso, para identificar los bundles mas usados
     public static final String PROPERTIES = ".properties";
     private static final String DEFAULT_ORIGIN = "default";
-    // private ResourceBundle labels; // Contenedor de las etiquetas leidas.
     private static final Hashtable<String, Hashtable<String, String>> labels = new Hashtable<>();
     private static final Logger log = LoggerFactory.getLogger(MessageHandler.class);
     private static Locale forcedLocale;
@@ -69,7 +65,7 @@ public class MessageHandler {
     @Autowired
     public MessageHandler(FileUtils fileUtils) {
         this.fileUtils = fileUtils;
-    } // Contenedor de las etiquetas leidas.
+    }
 
     /**
      * Obtiene un mensaje/etiqueta de acuerdo al key solicitado

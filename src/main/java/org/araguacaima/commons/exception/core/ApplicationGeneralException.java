@@ -22,6 +22,18 @@ package org.araguacaima.commons.exception.core;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * Embed all types of consumer application problems.
+ *
+ * @see org.araguacaima.commons.exception.core.ApplicationGeneralExceptionImpl
+ *
+ * @author Alejandro Manuel Méndez Araguacaima (AMMA) araguacaima@gmail.com
+ * <br>
+ * Changes:<br>
+ * <ul>
+ * <li> 2017-09-07 | (AMMA) | Class creation. </li>
+ * </ul>
+ */
 public abstract class ApplicationGeneralException extends Throwable {
 
     public static final String PRINT_STACK_TRACE = "PRINT_STACK_TRACE";

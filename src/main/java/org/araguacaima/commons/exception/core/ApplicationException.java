@@ -20,18 +20,18 @@
 package org.araguacaima.commons.exception.core;
 
 /**
- * Representa los problemas de negocio, o aquellos a los que el usuario final
- * puede corregir, como validaciones y demas.
- * Dado que es una excepcion Runtime, no debe ser lanzada dentro de un EJB.
- * Title: ApplicationException.java
+ * It represents consumer application problems, or those to which the end user can correct, such as validations,
+ * format representation and others. It is not intended to handle business rules errors nor exceptions.
  *
- * @author Alejandro Manuel Méndez Araguacaima (AMMA)
+ * @see org.araguacaima.commons.exception.core.GeneralException
+ *
+ * @author Alejandro Manuel Méndez Araguacaima (AMMA) araguacaima@gmail.com
+ * <br>
  * Changes:<br>
  * <ul>
- * <li> 2014-11-26 (AMMA)  Creacion de la clase. </li>
+ * <li> 2017-09-07 | (AMMA) | Class creation. </li>
  * </ul>
  */
-
 public class ApplicationException extends GeneralException {
 
     private static final long serialVersionUID = -183494513519467642L;

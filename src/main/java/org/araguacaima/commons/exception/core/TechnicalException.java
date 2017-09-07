@@ -56,7 +56,9 @@ public class TechnicalException extends GeneralException {
      * @param cause         Exception
      */
     public TechnicalException(String detailMessage, Throwable cause) {
-        super(detailMessage, Severity.ERROR, cause.getMessage());
+        super(detailMessage,
+                Severity.ERROR,
+                cause == null ? Exceptions.getMessage(Exceptions.UNKNOWN_ERROR) : cause.getMessage());
         this.cause = cause;
     }
 
@@ -141,8 +143,6 @@ public class TechnicalException extends GeneralException {
      */
     public void printStackTrace() {
         super.printStackTrace();
-        // Usaremos System.err.println debido a que es una clase de bajo nivel.
-        // No sabemos si tenemos un log vivo en este momento.
         if (this.cause != null) {
             System.err.println(Exceptions.NESTED_EXCEPTION);
             log.error(Exceptions.NESTED_EXCEPTION);

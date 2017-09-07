@@ -32,6 +32,13 @@ import java.util.Collection;
 
 /**
  * The internal representation of caller environment information.
+ *
+ * @author Alejandro Manuel Méndez Araguacaima (AMMA) araguacaima@gmail.com
+ * <br>
+ * Changes:<br>
+ * <ul>
+ * <li> 2017-09-07 | (AMMA) | Class creation. </li>
+ * </ul>
  */
 @SuppressWarnings("CanBeFinal")
 public class EnvironmentThrowableInfo implements java.io.Serializable {

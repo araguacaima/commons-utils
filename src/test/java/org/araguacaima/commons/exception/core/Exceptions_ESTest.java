@@ -41,38 +41,6 @@ public class Exceptions_ESTest extends Exceptions_ESTest_scaffolding {
   }
 
   @Test(timeout = 4000)
-  public void test3()  throws Throwable  {
-      Exception exception0 = mock(Exception.class, new ViolatedAssumptionAnswer());
-      doReturn("HS0009").when(exception0).getMessage();
-      // Undeclared exception!
-      try { 
-        Exceptions.handleException(exception0, (String) null);
-        fail("Expecting exception: RuntimeException");
-      
-      } catch(RuntimeException e) {
-         //
-         // [[UNKNOWN]] HS0009
-         //
-         verifyException("org.araguacaima.commons.exception.core.Exceptions", e);
-      }
-  }
-
-  @Test(timeout = 4000)
-  public void test4()  throws Throwable  {
-      // Undeclared exception!
-      try { 
-        Exceptions.handleException((Exception) null, "exceptions.properties");
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("org.araguacaima.commons.exception.core.TechnicalException", e);
-      }
-  }
-
-  @Test(timeout = 4000)
   public void test5()  throws Throwable  {
       Exceptions exceptions0 = new Exceptions();
       assertEquals("exceptions.properties", exceptions0.getBundleName());
@@ -92,15 +60,4 @@ public class Exceptions_ESTest extends Exceptions_ESTest_scaffolding {
       assertEquals("[[Error adding data from file ']]", string0);
   }
 
-  @Test(timeout = 4000)
-  public void test8()  throws Throwable  {
-      TechnicalException technicalException0 = new TechnicalException((String) null);
-      // Undeclared exception!
-      try { 
-        Exceptions.handleException(technicalException0, "");
-        fail("Expecting exception: RuntimeException");
-      
-      } catch(RuntimeException e) {
-      }
-  }
 }
