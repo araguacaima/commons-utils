@@ -214,7 +214,7 @@ public class ExceptionUtils {
      * @return String con el mensaje truncado
      */
     public String cleanMessage(Exception e, int initialLine, int finalLine) {
-        if (e == null || initialLine <= finalLine) {
+        if (e == null || initialLine >= finalLine) {
             return null;
         } else if (e.getMessage() == null) {
             StringBuilder result = new StringBuilder((finalLine - initialLine) * 100);

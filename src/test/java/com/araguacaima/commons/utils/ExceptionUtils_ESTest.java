@@ -100,17 +100,7 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
         Exception exception0 = mock(Exception.class, new ViolatedAssumptionAnswer());
         doReturn((String) null).when(exception0).getMessage();
         ExceptionUtils exceptionUtils0 = new ExceptionUtils();
-        // Undeclared exception!
-        try {
-            exceptionUtils0.cleanMessage(exception0, 5175, 0);
-            fail("Expecting exception: NegativeArraySizeException");
-
-        } catch (NegativeArraySizeException e) {
-            //
-            // no message in exception (getMessage() returned null)
-            //
-            verifyException("java.lang.AbstractStringBuilder", e);
-        }
+        assertNull(exceptionUtils0.cleanMessage(exception0, 5175, 0));
     }
 
     @Test
@@ -150,17 +140,7 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
             throws Throwable {
         ExceptionUtils exceptionUtils0 = new ExceptionUtils();
         Exception exception0 = exceptionUtils0.cleanException((Exception) null);
-        // Undeclared exception!
-        try {
-            exceptionUtils0.cleanMessage(exception0, (-14));
-            fail("Expecting exception: NoClassDefFoundError");
-
-        } catch (NoClassDefFoundError e) {
-            //
-            // com/araguacaima/commons/utils/StringUtils
-            //
-            verifyException("com.araguacaima.commons.utils.ExceptionUtils", e);
-        }
+        assertNull(exceptionUtils0.cleanMessage(exception0, (-14)));
     }
 
     @Test
