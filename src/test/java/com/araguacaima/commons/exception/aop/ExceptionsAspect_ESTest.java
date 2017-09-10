@@ -5,22 +5,29 @@
 
 package com.araguacaima.commons.exception.aop;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-import com.araguacaima.commons.exception.aop.ExceptionsAspect;
 import org.evosuite.runtime.EvoRunner;
 import org.evosuite.runtime.EvoRunnerParameters;
 import org.evosuite.runtime.mock.java.lang.MockThrowable;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(EvoRunner.class) @EvoRunnerParameters(mockJVMNonDeterminism = true, useVFS = true, useVNET = true, resetStaticState = true, separateClassLoader = true, useJEE = true) 
+import static org.junit.Assert.assertNull;
+
+@RunWith(EvoRunner.class)
+@EvoRunnerParameters(mockJVMNonDeterminism = true,
+                     useVFS = true,
+                     useVNET = true,
+                     resetStaticState = true,
+                     separateClassLoader = true,
+                     useJEE = true)
 public class ExceptionsAspect_ESTest extends ExceptionsAspect_ESTest_scaffolding {
 
-  @Test
-  public void test0()  throws Throwable  {
-      ExceptionsAspect exceptionsAspect0 = new ExceptionsAspect();
-      MockThrowable mockThrowable0 = new MockThrowable();
-      exceptionsAspect0.errorInterceptor(mockThrowable0);
-      assertNull(mockThrowable0.getMessage());
-  }
+    @Test
+    public void test0()
+            throws Throwable {
+        ExceptionsAspect exceptionsAspect0 = new ExceptionsAspect();
+        MockThrowable mockThrowable0 = new MockThrowable();
+        exceptionsAspect0.errorInterceptor(mockThrowable0);
+        assertNull(mockThrowable0.getMessage());
+    }
 }

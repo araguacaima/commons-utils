@@ -5,19 +5,26 @@
 
 package com.araguacaima.commons.utils;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-import com.araguacaima.commons.utils.UnicodeUtils;
 import org.evosuite.runtime.EvoRunner;
 import org.evosuite.runtime.EvoRunnerParameters;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(EvoRunner.class) @EvoRunnerParameters(mockJVMNonDeterminism = true, useVFS = true, useVNET = true, resetStaticState = true, separateClassLoader = true, useJEE = true) 
+import static org.junit.Assert.assertEquals;
+
+@RunWith(EvoRunner.class)
+@EvoRunnerParameters(mockJVMNonDeterminism = true,
+                     useVFS = true,
+                     useVNET = true,
+                     resetStaticState = true,
+                     separateClassLoader = true,
+                     useJEE = true)
 public class UnicodeUtils_ESTest extends UnicodeUtils_ESTest_scaffolding {
 
-  @Test
-  public void test0()  throws Throwable  {
-      UnicodeUtils unicodeUtils0 = new UnicodeUtils();
-      assertEquals('!', UnicodeUtils.COMILLA_DOBLE_1);
-  }
+    @Test
+    public void test0()
+            throws Throwable {
+        UnicodeUtils unicodeUtils0 = new UnicodeUtils();
+        assertEquals('!', UnicodeUtils.COMILLA_DOBLE_1);
+    }
 }

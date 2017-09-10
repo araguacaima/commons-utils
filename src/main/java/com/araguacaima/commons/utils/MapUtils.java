@@ -73,7 +73,7 @@ public class MapUtils {
         return org.apache.commons.collections4.MapUtils.isNotEmpty(map);
     }
 
-    public static Map<String, String> toMap(final Properties properties) {
+    public Map<String, String> toMap(final Properties properties) {
         final Map<String, String> map = new HashMap<>();
         IterableUtils.forEach(properties.keySet(), key -> {
             if (key != null) {
@@ -90,7 +90,7 @@ public class MapUtils {
         return map;
     }
 
-    public static Properties toProperties(final Map<String, String> map) {
+    public Properties toProperties(final Map<String, String> map) {
         final Properties properties = new Properties();
         IterableUtils.forEach(map.keySet(), key -> {
             if (key != null) {

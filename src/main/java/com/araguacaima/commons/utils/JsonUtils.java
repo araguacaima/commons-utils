@@ -8,8 +8,6 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
-import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -21,7 +19,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
 @Component
@@ -33,16 +34,13 @@ public class JsonUtils {
     private ObjectMapper mapper;
     private SimpleModule module = new SimpleModule("serializers", Version.unknownVersion());
     private Reflections reflections;
-    private EnumsUtils enumsUtils;
 
     @Autowired
     public JsonUtils(ClassLoaderUtils classLoaderUtils,
                      MapUtils mapUtils,
-                     @Qualifier("reflectionsModel") Reflections reflections,
-                     ObjectMapper objectMapper, EnumsUtils enumsUtils) {
-        if (objectMapper == null) {
-            mapper = new ObjectMapper();
-        }
+                     @Qualifier("reflections") Reflections reflections) {
+
+        mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         mapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.ANY);
         mapper.setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.ANY);
@@ -57,7 +55,6 @@ public class JsonUtils {
         module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
         mapper.registerModule(module);
         this.mapUtils = mapUtils;
-        this.enumsUtils = enumsUtils;
     }
 
     public void addDeserializer(Class clazz, JsonDeserializer deserializer) {

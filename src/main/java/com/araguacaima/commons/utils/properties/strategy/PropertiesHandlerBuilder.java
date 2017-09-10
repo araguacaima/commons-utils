@@ -37,14 +37,13 @@ public class PropertiesHandlerBuilder {
     private PropertiesHandlerStrategyInterface propertiesHandlerStrategy;
     private String propertiesHandlerStrategyPolicy = StringUtils.EMPTY;
 
-    private PropertiesHandlerBuilder(String defaultFileName) {
+    private PropertiesHandlerBuilder() {
 
-        this.defaultFileName = defaultFileName;
     }
 
     public static PropertiesHandlerStrategyInterface buildChainOfResponsibility(String policyString,
                                                                                 String defaultFileName) {
-        PropertiesHandlerStrategyInterface propertiesHandlerStrategy = new PropertiesHandlerBuilder(defaultFileName)
+        PropertiesHandlerStrategyInterface propertiesHandlerStrategy = new PropertiesHandlerBuilder()
                 .createPropertiesHandlerStrategyDefault();
         return getPropertiesHandlerStrategy(policyString, defaultFileName, propertiesHandlerStrategy);
     }
@@ -61,7 +60,7 @@ public class PropertiesHandlerBuilder {
             setNext(propertiesHandlerStrategy, new ArrayList<>(Arrays.asList(policy)), defaultFileName);
             return propertiesHandlerStrategy.getNext();
         } else {
-            return new PropertiesHandlerBuilder(defaultFileName).createPropertiesHandlerStrategyDefault();
+            return new PropertiesHandlerBuilder().createPropertiesHandlerStrategyDefault();
         }
     }
 

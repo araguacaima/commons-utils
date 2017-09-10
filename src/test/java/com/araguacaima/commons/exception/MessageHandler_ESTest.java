@@ -5,375 +5,396 @@
 
 package com.araguacaima.commons.exception;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.evosuite.runtime.EvoAssertions.*;
-
 import com.araguacaima.commons.utils.PropertiesHandlerUtils;
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 import org.evosuite.runtime.EvoRunner;
 import org.evosuite.runtime.EvoRunnerParameters;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(EvoRunner.class) @EvoRunnerParameters(mockJVMNonDeterminism = true, useVFS = true, useVNET = true, resetStaticState = true, separateClassLoader = true, useJEE = true) 
+import java.util.*;
+
+import static org.evosuite.runtime.EvoAssertions.verifyException;
+import static org.junit.Assert.*;
+
+@RunWith(EvoRunner.class)
+@EvoRunnerParameters(mockJVMNonDeterminism = true,
+                     useVFS = true,
+                     useVNET = true,
+                     resetStaticState = true,
+                     separateClassLoader = true,
+                     useJEE = true)
 public class MessageHandler_ESTest extends MessageHandler_ESTest_scaffolding {
 
-  @Test
-  public void test00()  throws Throwable  {
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
-      Locale locale0 = Locale.UK;
-      Locale locale1 = locale0.stripExtensions();
-      messageHandler0.addDataFromFile("' value as int (", locale0);
-      locale1.getDisplayCountry(locale0);
-      MessageHandler.get((String) null, (Object[]) null, "exceptions");
-      messageHandler0.setDefaultFile("Error searching for tag '");
-      messageHandler0.getDefaultFile();
-      messageHandler0.put("Error searching for tag '", "^Vv:rL", "");
-      MessageHandler.get("[[", (Object[]) null, "errors");
-      MessageHandler.buildNameAndLocale("s+ 3,!b", locale1);
-      messageHandler0.put("[[errors_en_]]", "", "Error searching for tag '");
-      MessageHandler.get("[[errors_en_]]", (String) null, locale1);
-      Locale locale2 = Locale.GERMAN;
-      messageHandler0.addDataFromFile("[[errors_en_]]", locale2);
-      messageHandler0.clearData();
-      messageHandler0.getValue("default");
-      messageHandler0.getDefaultFile();
-  }
+    @Test
+    public void test00()
+            throws Throwable {
+        MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
+        Locale locale0 = Locale.UK;
+        Locale locale1 = locale0.stripExtensions();
+        messageHandler0.addDataFromFile("' value as int (", locale0);
+        locale1.getDisplayCountry(locale0);
+        MessageHandler.get((String) null, (Object[]) null, "exceptions");
+        messageHandler0.setDefaultFile("Error searching for tag '");
+        messageHandler0.getDefaultFile();
+        messageHandler0.put("Error searching for tag '", "^Vv:rL", "");
+        MessageHandler.get("[[", (Object[]) null, "errors");
+        MessageHandler.buildNameAndLocale("s+ 3,!b", locale1);
+        messageHandler0.put("[[errors_en_]]", "", "Error searching for tag '");
+        MessageHandler.get("[[errors_en_]]", (String) null, locale1);
+        Locale locale2 = Locale.GERMAN;
+        messageHandler0.addDataFromFile("[[errors_en_]]", locale2);
+        messageHandler0.clearData();
+        messageHandler0.getValue("default");
+        messageHandler0.getDefaultFile();
+    }
 
-  @Test
-  public void test01()  throws Throwable  {
-      Locale locale0 = Locale.ITALY;
-      Locale.getISOCountries();
-      locale0.getDisplayScript();
-      MessageHandler.buildNameAndLocale("]]", locale0);
-      LinkedList<Locale.LanguageRange> linkedList0 = new LinkedList<Locale.LanguageRange>();
-      Locale.filterTags((List<Locale.LanguageRange>) linkedList0, (Collection<String>) null);
-      Locale.setDefault(locale0);
-      MessageHandler.get("", (String) null, locale0);
-  }
+    @Test
+    public void test01()
+            throws Throwable {
+        Locale locale0 = Locale.ITALY;
+        Locale.getISOCountries();
+        locale0.getDisplayScript();
+        MessageHandler.buildNameAndLocale("]]", locale0);
+        LinkedList<Locale.LanguageRange> linkedList0 = new LinkedList<Locale.LanguageRange>();
+        Locale.filterTags((List<Locale.LanguageRange>) linkedList0, (Collection<String>) null);
+        Locale.setDefault(locale0);
+        MessageHandler.get("", (String) null, locale0);
+    }
 
-  @Test
-  public void test02()  throws Throwable  {
-      Locale locale0 = Locale.GERMAN;
-      locale0.stripExtensions();
-      Locale.setDefault(locale0);
-      MessageHandler.buildNameAndLocale("UK-z!*:G=/OEqU)", locale0);
-      MessageHandler.buildNameAndLocale("UK-z!*:G=/OEqU)_de_", "UK-z!*:G=/OEqU)_de_");
-      MessageHandler.get("UK-z!*:G=/OEqU)_de_", "UK-z!*:G=/OEqU)_de_");
-      MessageHandler.buildNameAndLocale("com.araguacaima.commons.exception.MessageHandler", "");
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
-      messageHandler0.setDefaultFile("");
-      messageHandler0.clearData();
-      messageHandler0.get("");
-      messageHandler0.getDefaultFile();
-      messageHandler0.setDefaultFile("UK-z!*:G=/OEqU)_de__UK-z!*:G=/OEqU)_de_");
-      messageHandler0.getLabels();
-      messageHandler0.addDataFromFile("");
-  }
+    @Test
+    public void test02()
+            throws Throwable {
+        Locale locale0 = Locale.GERMAN;
+        locale0.stripExtensions();
+        Locale.setDefault(locale0);
+        MessageHandler.buildNameAndLocale("UK-z!*:G=/OEqU)", locale0);
+        MessageHandler.buildNameAndLocale("UK-z!*:G=/OEqU)_de_", "UK-z!*:G=/OEqU)_de_");
+        MessageHandler.get("UK-z!*:G=/OEqU)_de_", "UK-z!*:G=/OEqU)_de_");
+        MessageHandler.buildNameAndLocale("com.araguacaima.commons.exception.MessageHandler", "");
+        MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
+        messageHandler0.setDefaultFile("");
+        messageHandler0.clearData();
+        messageHandler0.get("");
+        messageHandler0.getDefaultFile();
+        messageHandler0.setDefaultFile("UK-z!*:G=/OEqU)_de__UK-z!*:G=/OEqU)_de_");
+        messageHandler0.getLabels();
+        messageHandler0.addDataFromFile("");
+    }
 
-  @Test
-  public void test03()  throws Throwable  {
-      MessageHandler.buildNameAndLocale("cCf\",OaZ", (Locale) null);
-      Object[] objectArray0 = new Object[8];
-      Object object0 = new Object();
-      objectArray0[0] = object0;
-      objectArray0[1] = (Object) "cCf\",OaZ_en_";
-      objectArray0[2] = (Object) null;
-      objectArray0[3] = (Object) "cCf\",OaZ";
-      objectArray0[4] = (Object) "cCf\",OaZ_en_";
-      objectArray0[5] = (Object) null;
-      objectArray0[6] = (Object) "cCf\",OaZ_en_";
-      objectArray0[7] = (Object) "cCf\",OaZ";
-      MessageHandler.get((String) null, objectArray0, "cCf\",OaZ_en_");
-      MessageHandler.buildNameAndLocale("Uploaded ", "U*#Bxi.DAov@ 2cJ{");
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
-      messageHandler0.addDataFromFile("cCf\",OaZ");
-      messageHandler0.getDefaultFile();
-      // Undeclared exception!
-      try { 
-        messageHandler0.get((String) null);
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("com.araguacaima.commons.exception.MessageHandler", e);
-      }
-  }
+    @Test
+    public void test03()
+            throws Throwable {
+        MessageHandler.buildNameAndLocale("cCf\",OaZ", (Locale) null);
+        Object[] objectArray0 = new Object[8];
+        Object object0 = new Object();
+        objectArray0[0] = object0;
+        objectArray0[1] = (Object) "cCf\",OaZ_en_";
+        objectArray0[2] = (Object) null;
+        objectArray0[3] = (Object) "cCf\",OaZ";
+        objectArray0[4] = (Object) "cCf\",OaZ_en_";
+        objectArray0[5] = (Object) null;
+        objectArray0[6] = (Object) "cCf\",OaZ_en_";
+        objectArray0[7] = (Object) "cCf\",OaZ";
+        MessageHandler.get((String) null, objectArray0, "cCf\",OaZ_en_");
+        MessageHandler.buildNameAndLocale("Uploaded ", "U*#Bxi.DAov@ 2cJ{");
+        MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
+        messageHandler0.addDataFromFile("cCf\",OaZ");
+        messageHandler0.getDefaultFile();
+        // Undeclared exception!
+        try {
+            messageHandler0.get((String) null);
+            fail("Expecting exception: NullPointerException");
 
-  @Test
-  public void test04()  throws Throwable  {
-      Locale locale0 = Locale.JAPAN;
-      locale0.getExtension('i');
-      MessageHandler.get("FH+E{<+J}Kk$80kzL", (String) null, locale0);
-  }
+        } catch (NullPointerException e) {
+            //
+            // no message in exception (getMessage() returned null)
+            //
+            verifyException("com.araguacaima.commons.exception.MessageHandler", e);
+        }
+    }
 
-  @Test
-  public void test05()  throws Throwable  {
-      MessageHandler.get("", "");
-      Object[] objectArray0 = new Object[0];
-      MessageHandler.get("[[_en_]]", objectArray0, "");
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
-      messageHandler0.getLabels();
-      MessageHandler.get("", "O0E=84FV");
-      Locale locale0 = Locale.US;
-      messageHandler0.getWithLocale("", locale0);
-      MessageHandler.get("com.araguacaima.commons.exception.MessageHandler", "O0E=84FV");
-      // Undeclared exception!
-      try { 
-        messageHandler0.addDataFromFile((String) null, locale0);
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("com.araguacaima.commons.exception.MessageHandler", e);
-      }
-  }
+    @Test
+    public void test04()
+            throws Throwable {
+        Locale locale0 = Locale.JAPAN;
+        locale0.getExtension('i');
+        MessageHandler.get("FH+E{<+J}Kk$80kzL", (String) null, locale0);
+    }
 
-  @Test
-  public void test06()  throws Throwable  {
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
-      Hashtable hashtable0 = messageHandler0.getLabels();
-      Object[] objectArray0 = new Object[2];
-      objectArray0[0] = (Object) hashtable0;
-      Object object0 = new Object();
-      objectArray0[1] = object0;
-      Locale locale0 = Locale.FRANCE;
-      Set<Character> set0 = locale0.getExtensionKeys();
-      MessageHandler.get("exceptions", objectArray0, "0I'sSul^ZxJ'%K(", locale0);
-      Object[] objectArray1 = new Object[5];
-      objectArray1[0] = (Object) hashtable0;
-      objectArray1[1] = object0;
-      objectArray1[2] = (Object) set0;
-      objectArray1[3] = (Object) locale0;
-      objectArray1[4] = (Object) messageHandler0;
-      MessageHandler.get("", objectArray1, "C@@`NB%N8");
-      messageHandler0.addDataFromFile("0I'sSul^ZxJ'%K(");
-      // Undeclared exception!
-      try { 
-        messageHandler0.getWithLocale((String) null, locale0);
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("com.araguacaima.commons.exception.MessageHandler", e);
-      }
-  }
+    @Test
+    public void test05()
+            throws Throwable {
+        MessageHandler.get("", "");
+        Object[] objectArray0 = new Object[0];
+        MessageHandler.get("[[_en_]]", objectArray0, "");
+        MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
+        messageHandler0.getLabels();
+        MessageHandler.get("", "O0E=84FV");
+        Locale locale0 = Locale.US;
+        messageHandler0.getWithLocale("", locale0);
+        MessageHandler.get("com.araguacaima.commons.exception.MessageHandler", "O0E=84FV");
+        // Undeclared exception!
+        try {
+            messageHandler0.addDataFromFile((String) null, locale0);
+            fail("Expecting exception: NullPointerException");
 
-  @Test
-  public void test07()  throws Throwable  {
-      Locale locale0 = Locale.ENGLISH;
-      Locale locale1 = Locale.UK;
-      locale0.getDisplayVariant(locale1);
-      // Undeclared exception!
-      try { 
-        MessageHandler.buildNameAndLocale((String) null, locale0);
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("com.araguacaima.commons.exception.MessageHandler", e);
-      }
-  }
+        } catch (NullPointerException e) {
+            //
+            // no message in exception (getMessage() returned null)
+            //
+            verifyException("com.araguacaima.commons.exception.MessageHandler", e);
+        }
+    }
 
-  @Test
-  public void test08()  throws Throwable  {
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
-      // Undeclared exception!
-      try { 
-        messageHandler0.put((String) null, (String) null, "Ncc");
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("java.util.Hashtable", e);
-      }
-  }
+    @Test
+    public void test06()
+            throws Throwable {
+        MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
+        Hashtable hashtable0 = messageHandler0.getLabels();
+        Object[] objectArray0 = new Object[2];
+        objectArray0[0] = (Object) hashtable0;
+        Object object0 = new Object();
+        objectArray0[1] = object0;
+        Locale locale0 = Locale.FRANCE;
+        Set<Character> set0 = locale0.getExtensionKeys();
+        MessageHandler.get("exceptions", objectArray0, "0I'sSul^ZxJ'%K(", locale0);
+        Object[] objectArray1 = new Object[5];
+        objectArray1[0] = (Object) hashtable0;
+        objectArray1[1] = object0;
+        objectArray1[2] = (Object) set0;
+        objectArray1[3] = (Object) locale0;
+        objectArray1[4] = (Object) messageHandler0;
+        MessageHandler.get("", objectArray1, "C@@`NB%N8");
+        messageHandler0.addDataFromFile("0I'sSul^ZxJ'%K(");
+        // Undeclared exception!
+        try {
+            messageHandler0.getWithLocale((String) null, locale0);
+            fail("Expecting exception: NullPointerException");
 
-  @Test
-  public void test09()  throws Throwable  {
-      MessageHandler.get("'.", "'.");
-      Object[] objectArray0 = new Object[5];
-      objectArray0[0] = (Object) "[['_en_.]]";
-      objectArray0[1] = (Object) "[['_en_.]]";
-      objectArray0[2] = (Object) "[['_en_.]]";
-      objectArray0[3] = (Object) "'.";
-      objectArray0[4] = (Object) "'.";
-      Locale locale0 = Locale.FRENCH;
-      MessageHandler.get("'.", objectArray0, "{4|f CqWTv+", locale0);
-  }
+        } catch (NullPointerException e) {
+            //
+            // no message in exception (getMessage() returned null)
+            //
+            verifyException("com.araguacaima.commons.exception.MessageHandler", e);
+        }
+    }
 
-  @Test
-  public void test10()  throws Throwable  {
-      MessageHandler.get("d&#%p:tFQXuWg", "");
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
-      messageHandler0.getLabels();
-  }
+    @Test
+    public void test07()
+            throws Throwable {
+        Locale locale0 = Locale.ENGLISH;
+        Locale locale1 = Locale.UK;
+        locale0.getDisplayVariant(locale1);
+        // Undeclared exception!
+        try {
+            MessageHandler.buildNameAndLocale((String) null, locale0);
+            fail("Expecting exception: NullPointerException");
 
-  @Test
-  public void test11()  throws Throwable  {
-      MessageHandler.buildNameAndLocale("uG@u7TD.eo 9", "Iex+:uvy0!S!T.1z*");
-  }
+        } catch (NullPointerException e) {
+            //
+            // no message in exception (getMessage() returned null)
+            //
+            verifyException("com.araguacaima.commons.exception.MessageHandler", e);
+        }
+    }
 
-  @Test
-  public void test12()  throws Throwable  {
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
-      messageHandler0.put("OJGs?t", "OJGs?t", "OJGs?t");
-      messageHandler0.getWithLocale("OJGs?t", (Locale) null);
-      messageHandler0.setDefaultFile("");
-  }
+    @Test
+    public void test08()
+            throws Throwable {
+        MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
+        // Undeclared exception!
+        try {
+            messageHandler0.put((String) null, (String) null, "Ncc");
+            fail("Expecting exception: NullPointerException");
 
-  @Test
-  public void test13()  throws Throwable  {
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
-      String string0 = "";
-      messageHandler0.addDataFromFile("");
-      String string1 = "";
-      Locale locale0 = Locale.CANADA;
-      locale0.getDisplayScript((Locale) null);
-      messageHandler0.get("");
-      Locale locale1 = new Locale("exceptions", "\"T0{A$:A+xm");
-      Locale locale2 = Locale.KOREAN;
-      Locale.getISOCountries();
-      locale1.getDisplayVariant(locale2);
-      messageHandler0.addDataFromFile("", locale1);
-      MessageHandler.buildNameAndLocale("", "");
-      // Undeclared exception!
-      try { 
-        locale2.getDisplayLanguage((Locale) null);
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("java.util.Locale", e);
-      }
-  }
+        } catch (NullPointerException e) {
+            //
+            // no message in exception (getMessage() returned null)
+            //
+            verifyException("java.util.Hashtable", e);
+        }
+    }
 
-  @Test
-  public void test14()  throws Throwable  {
-      Object[] objectArray0 = new Object[12];
-      objectArray0[0] = (Object) "";
-      Object object0 = new Object();
-      objectArray0[1] = object0;
-      objectArray0[2] = (Object) "";
-      Object object1 = new Object();
-      objectArray0[3] = object1;
-      objectArray0[4] = (Object) "";
-      objectArray0[5] = (Object) "";
-      Locale locale0 = Locale.FRANCE;
-      MessageHandler.get("", objectArray0, "", locale0);
-      MessageHandler.get("", "");
-      MessageHandler.get("", "*@_2;t}e");
-      // Undeclared exception!
-      try { 
-        MessageHandler.buildNameAndLocale((String) null, "[[*@_2;t}e_en_]]");
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("com.araguacaima.commons.exception.MessageHandler", e);
-      }
-  }
+    @Test
+    public void test09()
+            throws Throwable {
+        MessageHandler.get("'.", "'.");
+        Object[] objectArray0 = new Object[5];
+        objectArray0[0] = (Object) "[['_en_.]]";
+        objectArray0[1] = (Object) "[['_en_.]]";
+        objectArray0[2] = (Object) "[['_en_.]]";
+        objectArray0[3] = (Object) "'.";
+        objectArray0[4] = (Object) "'.";
+        Locale locale0 = Locale.FRENCH;
+        MessageHandler.get("'.", objectArray0, "{4|f CqWTv+", locale0);
+    }
 
-  @Test
-  public void test15()  throws Throwable  {
-      MessageHandler.get("", "");
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
-      messageHandler0.getValue("^lTTT4s");
-      messageHandler0.getDefaultFile();
-      messageHandler0.setDefaultFile("");
-      messageHandler0.addDataFromFile("", (Locale) null);
-      // Undeclared exception!
-      try { 
-        messageHandler0.addDataFromFile((String) null);
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("com.araguacaima.commons.exception.MessageHandler", e);
-      }
-  }
+    @Test
+    public void test10()
+            throws Throwable {
+        MessageHandler.get("d&#%p:tFQXuWg", "");
+        MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
+        messageHandler0.getLabels();
+    }
 
-  @Test
-  public void test16()  throws Throwable  {
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
-      Object[] objectArray0 = new Object[2];
-      messageHandler0.setDefaultFile("    Error buscando la clase '");
-      Object object0 = new Object();
-      objectArray0[0] = object0;
-      Object object1 = new Object();
-      objectArray0[1] = object1;
-      String string0 = MessageHandler.get("errors", objectArray0, "");
-      assertEquals("[[_en_]]", string0);
-      
-      messageHandler0.getDefaultFile();
-      int int0 = messageHandler0.addDataFromFile(")");
-      assertEquals(0, int0);
-      
-      MessageHandler.buildNameAndLocale("[[_en_]]", "Uploaded ");
-      String string1 = messageHandler0.getDefaultFile();
-      assertEquals("    Error buscando la clase '", string1);
-      
-      Locale locale0 = new Locale("temp_", "    Error buscando la clase '", "errors");
-      MessageHandler.buildNameAndLocale(".properties", locale0);
-      messageHandler0.getWithLocale("", locale0);
-      messageHandler0.clearData();
-      messageHandler0.put("exceptions", "", "Uploaded ");
-      String string2 = MessageHandler.get("]]", "BiQ=]-.]}B33 D");
-      assertEquals("[[BiQ=]-_en_.]}B33 D]]", string2);
-      
-      messageHandler0.put("Z}fX", "' not found. Returning default value...", "WINDOWS");
-      MessageHandler.get("[[_en_]]", "C:integraproyectosdigitelcdaVirtual", locale0);
-      Hashtable hashtable0 = messageHandler0.getLabels();
-      assertEquals(1, hashtable0.size());
-      
-      String string3 = MessageHandler.get("4O\"C.-T", "    Error buscando la clase '", locale0);
-      assertNotNull(string3);
-      assertEquals("[[    Error buscando la clase '_en_]]", string3);
-  }
+    @Test
+    public void test11()
+            throws Throwable {
+        MessageHandler.buildNameAndLocale("uG@u7TD.eo 9", "Iex+:uvy0!S!T.1z*");
+    }
 
-  @Test
-  public void test17()  throws Throwable  {
-      String string0 = MessageHandler.get("", "");
-      assertEquals("[[_en_]]", string0);
-      
-      Locale locale0 = Locale.CHINA;
-      Locale.Category locale_Category0 = Locale.Category.FORMAT;
-      Locale.setDefault(locale_Category0, locale0);
-      Locale locale1 = new Locale(".@w@z#zEb&.");
-      locale0.getDisplayScript(locale1);
-      String string1 = MessageHandler.get("[[_en_]]", (Object[]) null, "0H@", locale0);
-      assertEquals("[[0H@_en_]]", string1);
-  }
+    @Test
+    public void test12()
+            throws Throwable {
+        MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
+        messageHandler0.put("OJGs?t", "OJGs?t", "OJGs?t");
+        messageHandler0.getWithLocale("OJGs?t", (Locale) null);
+        messageHandler0.setDefaultFile("");
+    }
 
-  @Test
-  public void test18()  throws Throwable  {
-      Object[] objectArray0 = new Object[0];
-      String string0 = MessageHandler.get("", objectArray0, "'.  No data will be added for this label.");
-      assertEquals("[[_en_.  No data will be added for this label.]]", string0);
-      
-      Locale locale0 = Locale.CHINA;
-      String string1 = MessageHandler.buildNameAndLocale(" tags from file '", locale0);
-      assertEquals(" tags from file '_zh_CN", string1);
-  }
+    @Test
+    public void test13()
+            throws Throwable {
+        MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
+        String string0 = "";
+        messageHandler0.addDataFromFile("");
+        String string1 = "";
+        Locale locale0 = Locale.CANADA;
+        locale0.getDisplayScript((Locale) null);
+        messageHandler0.get("");
+        Locale locale1 = new Locale("exceptions", "\"T0{A$:A+xm");
+        Locale locale2 = Locale.KOREAN;
+        Locale.getISOCountries();
+        locale1.getDisplayVariant(locale2);
+        messageHandler0.addDataFromFile("", locale1);
+        MessageHandler.buildNameAndLocale("", "");
+        // Undeclared exception!
+        try {
+            locale2.getDisplayLanguage((Locale) null);
+            fail("Expecting exception: NullPointerException");
+
+        } catch (NullPointerException e) {
+            //
+            // no message in exception (getMessage() returned null)
+            //
+            verifyException("java.util.Locale", e);
+        }
+    }
+
+    @Test
+    public void test14()
+            throws Throwable {
+        Object[] objectArray0 = new Object[12];
+        objectArray0[0] = (Object) "";
+        Object object0 = new Object();
+        objectArray0[1] = object0;
+        objectArray0[2] = (Object) "";
+        Object object1 = new Object();
+        objectArray0[3] = object1;
+        objectArray0[4] = (Object) "";
+        objectArray0[5] = (Object) "";
+        Locale locale0 = Locale.FRANCE;
+        MessageHandler.get("", objectArray0, "", locale0);
+        MessageHandler.get("", "");
+        MessageHandler.get("", "*@_2;t}e");
+        // Undeclared exception!
+        try {
+            MessageHandler.buildNameAndLocale((String) null, "[[*@_2;t}e_en_]]");
+            fail("Expecting exception: NullPointerException");
+
+        } catch (NullPointerException e) {
+            //
+            // no message in exception (getMessage() returned null)
+            //
+            verifyException("com.araguacaima.commons.exception.MessageHandler", e);
+        }
+    }
+
+    @Test
+    public void test15()
+            throws Throwable {
+        MessageHandler.get("", "");
+        MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
+        messageHandler0.getValue("^lTTT4s");
+        messageHandler0.getDefaultFile();
+        messageHandler0.setDefaultFile("");
+        messageHandler0.addDataFromFile("", (Locale) null);
+        // Undeclared exception!
+        try {
+            messageHandler0.addDataFromFile((String) null);
+            fail("Expecting exception: NullPointerException");
+
+        } catch (NullPointerException e) {
+            //
+            // no message in exception (getMessage() returned null)
+            //
+            verifyException("com.araguacaima.commons.exception.MessageHandler", e);
+        }
+    }
+
+    @Test
+    public void test16()
+            throws Throwable {
+        MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
+        Object[] objectArray0 = new Object[2];
+        messageHandler0.setDefaultFile("    Error buscando la clase '");
+        Object object0 = new Object();
+        objectArray0[0] = object0;
+        Object object1 = new Object();
+        objectArray0[1] = object1;
+        String string0 = MessageHandler.get("errors", objectArray0, "");
+        assertEquals("[[_en_]]", string0);
+
+        messageHandler0.getDefaultFile();
+        int int0 = messageHandler0.addDataFromFile(")");
+        assertEquals(0, int0);
+
+        MessageHandler.buildNameAndLocale("[[_en_]]", "Uploaded ");
+        String string1 = messageHandler0.getDefaultFile();
+        assertEquals("    Error buscando la clase '", string1);
+
+        Locale locale0 = new Locale("temp_", "    Error buscando la clase '", "errors");
+        MessageHandler.buildNameAndLocale(".properties", locale0);
+        messageHandler0.getWithLocale("", locale0);
+        messageHandler0.clearData();
+        messageHandler0.put("exceptions", "", "Uploaded ");
+        String string2 = MessageHandler.get("]]", "BiQ=]-.]}B33 D");
+        assertEquals("[[BiQ=]-_en_.]}B33 D]]", string2);
+
+        messageHandler0.put("Z}fX", "' not found. Returning default value...", "WINDOWS");
+        MessageHandler.get("[[_en_]]", "C:integraproyectosdigitelcdaVirtual", locale0);
+        Hashtable hashtable0 = messageHandler0.getLabels();
+        assertEquals(1, hashtable0.size());
+
+        String string3 = MessageHandler.get("4O\"C.-T", "    Error buscando la clase '", locale0);
+        assertNotNull(string3);
+        assertEquals("[[    Error buscando la clase '_en_]]", string3);
+    }
+
+    @Test
+    public void test17()
+            throws Throwable {
+        String string0 = MessageHandler.get("", "");
+        assertEquals("[[_en_]]", string0);
+
+        Locale locale0 = Locale.CHINA;
+        Locale.Category locale_Category0 = Locale.Category.FORMAT;
+        Locale.setDefault(locale_Category0, locale0);
+        Locale locale1 = new Locale(".@w@z#zEb&.");
+        locale0.getDisplayScript(locale1);
+        String string1 = MessageHandler.get("[[_en_]]", (Object[]) null, "0H@", locale0);
+        assertEquals("[[0H@_en_]]", string1);
+    }
+
+    @Test
+    public void test18()
+            throws Throwable {
+        Object[] objectArray0 = new Object[0];
+        String string0 = MessageHandler.get("", objectArray0, "'.  No data will be added for this label.");
+        assertEquals("[[_en_.  No data will be added for this label.]]", string0);
+
+        Locale locale0 = Locale.CHINA;
+        String string1 = MessageHandler.buildNameAndLocale(" tags from file '", locale0);
+        assertEquals(" tags from file '_zh_CN", string1);
+    }
 }

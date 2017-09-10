@@ -58,14 +58,11 @@ public class ClassLoaderUtils {
         this.stringUtils = stringUtils;
     }
 
-    @Autowired
-    public ClassLoaderUtils(ClassLoader classLoader, StringUtils stringUtils)
+    public ClassLoaderUtils(ClassLoader classLoader)
             throws MalformedURLException {
         setClassLoader(classLoader);
-        this.stringUtils = stringUtils;
     }
 
-    @Autowired
     public ClassLoaderUtils(URLClassLoader sysloader) {
         this.sysloader = sysloader;
     }

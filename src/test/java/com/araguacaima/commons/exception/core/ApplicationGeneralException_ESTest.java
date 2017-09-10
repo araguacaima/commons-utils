@@ -5,29 +5,42 @@
 
 package com.araguacaima.commons.exception.core;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-import com.araguacaima.commons.exception.core.ApplicationGeneralExceptionImpl;
-import com.araguacaima.commons.exception.core.EnvironmentThrowableInfo;
-import java.util.Date;
 import org.evosuite.runtime.EvoRunner;
 import org.evosuite.runtime.EvoRunnerParameters;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(EvoRunner.class) @EvoRunnerParameters(mockJVMNonDeterminism = true, useVFS = true, useVNET = true, resetStaticState = true, separateClassLoader = true, useJEE = true) 
+import java.util.Date;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+@RunWith(EvoRunner.class)
+@EvoRunnerParameters(mockJVMNonDeterminism = true,
+                     useVFS = true,
+                     useVNET = true,
+                     resetStaticState = true,
+                     separateClassLoader = true,
+                     useJEE = true)
 public class ApplicationGeneralException_ESTest extends ApplicationGeneralException_ESTest_scaffolding {
 
-  @Test
-  public void test0()  throws Throwable  {
-      ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("$Zsn}g}|`c Db=|p");
-      EnvironmentThrowableInfo environmentThrowableInfo0 = applicationGeneralExceptionImpl0.getEnvironmentThrowableInfo();
-      assertNotNull(environmentThrowableInfo0);
-  }
+    @Test
+    public void test0()
+            throws Throwable {
+        ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl(
+                "$Zsn}g}|`c Db=|p");
+        EnvironmentThrowableInfo environmentThrowableInfo0 =
+                applicationGeneralExceptionImpl0.getEnvironmentThrowableInfo();
+        assertNotNull(environmentThrowableInfo0);
+    }
 
-  @Test
-  public void test1()  throws Throwable  {
-      ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("R<5wyvb)Upc'9spH\fx", (Throwable) null);
-      Date date0 = applicationGeneralExceptionImpl0.getOccurrenceDateAndTime();
-      assertNull(date0);
-  }
+    @Test
+    public void test1()
+            throws Throwable {
+        ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl(
+                "R<5wyvb)Upc'9spH\fx",
+                (Throwable) null);
+        Date date0 = applicationGeneralExceptionImpl0.getOccurrenceDateAndTime();
+        assertNull(date0);
+    }
 }

@@ -30,12 +30,10 @@ public class FileUtilsFilenameFilterExtends extends FileUtilsFilenameFilterImpl 
         this.stringUtils = stringUtils;
     }
 
-    @Autowired
-    public FileUtilsFilenameFilterExtends(Class superClassCriteria, ClassLoader classLoader, StringUtils stringUtils) {
+    public FileUtilsFilenameFilterExtends(Class superClassCriteria, ClassLoader classLoader) {
         this.superClassCriteria = superClassCriteria;
         this.classLoader = classLoader;
         this.filterType = DEFAULT_FILTER_TYPE;
-        this.stringUtils = stringUtils;
     }
 
     public FileUtilsFilenameFilterExtends(Class superClassCriteria, ClassLoader classLoader, int filterType) {

@@ -5,104 +5,131 @@
 
 package com.araguacaima.commons.exception.core;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.evosuite.shaded.org.mockito.Mockito.*;
-import static org.evosuite.runtime.MockitoExtension.*;
-import com.araguacaima.commons.exception.core.ApplicationGeneralExceptionImpl;
-import java.io.PrintStream;
-import java.io.PrintWriter;
 import org.evosuite.runtime.EvoRunner;
 import org.evosuite.runtime.EvoRunnerParameters;
 import org.evosuite.runtime.ViolatedAssumptionAnswer;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(EvoRunner.class) @EvoRunnerParameters(mockJVMNonDeterminism = true, useVFS = true, useVNET = true, resetStaticState = true, separateClassLoader = true, useJEE = true) 
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
+import static org.evosuite.shaded.org.mockito.Mockito.mock;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+@RunWith(EvoRunner.class)
+@EvoRunnerParameters(mockJVMNonDeterminism = true,
+                     useVFS = true,
+                     useVNET = true,
+                     resetStaticState = true,
+                     separateClassLoader = true,
+                     useJEE = true)
 public class ApplicationGeneralExceptionImpl_ESTest extends ApplicationGeneralExceptionImpl_ESTest_scaffolding {
 
-  @Test
-  public void test00()  throws Throwable  {
-      ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("uwD\"(KnS0pRfN+Vt");
-      applicationGeneralExceptionImpl0.printStackTrace((PrintWriter) null);
-      assertNull(applicationGeneralExceptionImpl0.toString());
-  }
+    @Test
+    public void test00()
+            throws Throwable {
+        ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl(
+                "uwD\"(KnS0pRfN+Vt");
+        applicationGeneralExceptionImpl0.printStackTrace((PrintWriter) null);
+        assertNull(applicationGeneralExceptionImpl0.toString());
+    }
 
-  @Test
-  public void test01()  throws Throwable  {
-      ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("com.araguacaima.commons.exception.core.ApplicationGeneralExceptionImpl");
-      Throwable throwable0 = applicationGeneralExceptionImpl0.fillInStackTrace();
-      assertNull(throwable0);
-  }
+    @Test
+    public void test01()
+            throws Throwable {
+        ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl(
+                "com.araguacaima.commons.exception.core.ApplicationGeneralExceptionImpl");
+        Throwable throwable0 = applicationGeneralExceptionImpl0.fillInStackTrace();
+        assertNull(throwable0);
+    }
 
-  @Test
-  public void test02()  throws Throwable  {
-      ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("com.araguacaima.commons.exception.core.ApplicationGeneralExceptionImpl");
-      applicationGeneralExceptionImpl0.printStackTrace();
-      assertNull(applicationGeneralExceptionImpl0.toString());
-  }
+    @Test
+    public void test02()
+            throws Throwable {
+        ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl(
+                "com.araguacaima.commons.exception.core.ApplicationGeneralExceptionImpl");
+        applicationGeneralExceptionImpl0.printStackTrace();
+        assertNull(applicationGeneralExceptionImpl0.toString());
+    }
 
-  @Test
-  public void test03()  throws Throwable  {
-      ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("3_Hr");
-      StackTraceElement[] stackTraceElementArray0 = applicationGeneralExceptionImpl0.getStackTrace();
-      assertNotNull(stackTraceElementArray0);
-  }
+    @Test
+    public void test03()
+            throws Throwable {
+        ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("3_Hr");
+        StackTraceElement[] stackTraceElementArray0 = applicationGeneralExceptionImpl0.getStackTrace();
+        assertNotNull(stackTraceElementArray0);
+    }
 
-  @Test
-  public void test04()  throws Throwable  {
-      ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("com.araguacaima.commons.exception.core.ApplicationGeneralExceptionImpl");
-      String string0 = applicationGeneralExceptionImpl0.getMessage();
-      assertNull(string0);
-  }
+    @Test
+    public void test04()
+            throws Throwable {
+        ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl(
+                "com.araguacaima.commons.exception.core.ApplicationGeneralExceptionImpl");
+        String string0 = applicationGeneralExceptionImpl0.getMessage();
+        assertNull(string0);
+    }
 
-  @Test
-  public void test05()  throws Throwable  {
-      ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("3_Hr");
-      String string0 = applicationGeneralExceptionImpl0.toString();
-      assertNull(string0);
-  }
+    @Test
+    public void test05()
+            throws Throwable {
+        ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("3_Hr");
+        String string0 = applicationGeneralExceptionImpl0.toString();
+        assertNull(string0);
+    }
 
-  @Test
-  public void test06()  throws Throwable  {
-      ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("3_Hr");
-      Throwable throwable0 = applicationGeneralExceptionImpl0.getCause();
-      assertNull(throwable0);
-  }
+    @Test
+    public void test06()
+            throws Throwable {
+        ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("3_Hr");
+        Throwable throwable0 = applicationGeneralExceptionImpl0.getCause();
+        assertNull(throwable0);
+    }
 
-  @Test
-  public void test07()  throws Throwable  {
-      ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("3_Hr");
-      Throwable throwable0 = applicationGeneralExceptionImpl0.initCause(applicationGeneralExceptionImpl0);
-      assertNull(throwable0);
-  }
+    @Test
+    public void test07()
+            throws Throwable {
+        ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("3_Hr");
+        Throwable throwable0 = applicationGeneralExceptionImpl0.initCause(applicationGeneralExceptionImpl0);
+        assertNull(throwable0);
+    }
 
-  @Test
-  public void test08()  throws Throwable  {
-      ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("3_Hr");
-      ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl1 = new ApplicationGeneralExceptionImpl("T.0FP]\u0003TV~3~!L<Lsj", applicationGeneralExceptionImpl0);
-      assertNull(applicationGeneralExceptionImpl1.toString());
-  }
+    @Test
+    public void test08()
+            throws Throwable {
+        ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("3_Hr");
+        ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl1 = new ApplicationGeneralExceptionImpl(
+                "T.0FP]\u0003TV~3~!L<Lsj",
+                applicationGeneralExceptionImpl0);
+        assertNull(applicationGeneralExceptionImpl1.toString());
+    }
 
-  @Test
-  public void test09()  throws Throwable  {
-      ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("uwD\"(KnS0pRfN+Vt");
-      StackTraceElement[] stackTraceElementArray0 = new StackTraceElement[2];
-      applicationGeneralExceptionImpl0.setStackTrace(stackTraceElementArray0);
-      assertNull(applicationGeneralExceptionImpl0.toString());
-  }
+    @Test
+    public void test09()
+            throws Throwable {
+        ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl(
+                "uwD\"(KnS0pRfN+Vt");
+        StackTraceElement[] stackTraceElementArray0 = new StackTraceElement[2];
+        applicationGeneralExceptionImpl0.setStackTrace(stackTraceElementArray0);
+        assertNull(applicationGeneralExceptionImpl0.toString());
+    }
 
-  @Test
-  public void test10()  throws Throwable  {
-      ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("com.araguacaima.commons.exception.core.ApplicationGeneralExceptionImpl");
-      String string0 = applicationGeneralExceptionImpl0.getLocalizedMessage();
-      assertNull(string0);
-  }
+    @Test
+    public void test10()
+            throws Throwable {
+        ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl(
+                "com.araguacaima.commons.exception.core.ApplicationGeneralExceptionImpl");
+        String string0 = applicationGeneralExceptionImpl0.getLocalizedMessage();
+        assertNull(string0);
+    }
 
-  @Test
-  public void test11()  throws Throwable  {
-      ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("3_Hr");
-      PrintStream printStream0 = mock(PrintStream.class, new ViolatedAssumptionAnswer());
-      applicationGeneralExceptionImpl0.printStackTrace(printStream0);
-      assertNull(applicationGeneralExceptionImpl0.toString());
-  }
+    @Test
+    public void test11()
+            throws Throwable {
+        ApplicationGeneralExceptionImpl applicationGeneralExceptionImpl0 = new ApplicationGeneralExceptionImpl("3_Hr");
+        PrintStream printStream0 = mock(PrintStream.class, new ViolatedAssumptionAnswer());
+        applicationGeneralExceptionImpl0.printStackTrace(printStream0);
+        assertNull(applicationGeneralExceptionImpl0.toString());
+    }
 }

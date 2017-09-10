@@ -5,16 +5,21 @@
 
 package com.araguacaima.commons.utils;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
 import org.evosuite.runtime.EvoRunner;
 import org.evosuite.runtime.EvoRunnerParameters;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(EvoRunner.class) @EvoRunnerParameters(mockJVMNonDeterminism = true, useVFS = true, useVNET = true, resetStaticState = true, separateClassLoader = true, useJEE = true) 
+@RunWith(EvoRunner.class)
+@EvoRunnerParameters(mockJVMNonDeterminism = true,
+                     useVFS = true,
+                     useVNET = true,
+                     resetStaticState = true,
+                     separateClassLoader = true,
+                     useJEE = true)
 public class ZipUtils_ESTest extends ZipUtils_ESTest_scaffolding {
-  @Test
-  public void notGeneratedAnyTest() {
-    // EvoSuite did not generate any tests
-  }
+    @Test
+    public void notGeneratedAnyTest() {
+        // EvoSuite did not generate any tests
+    }
 }

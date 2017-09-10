@@ -5,1899 +5,1949 @@
 
 package com.araguacaima.commons.exception.core;
 
+import org.evosuite.runtime.EvoRunner;
+import org.evosuite.runtime.EvoRunnerParameters;
+import org.evosuite.runtime.ViolatedAssumptionAnswer;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.evosuite.shaded.org.mockito.Mockito.*;
-import static org.evosuite.runtime.MockitoExtension.*;
-import static org.evosuite.runtime.EvoAssertions.*;
-import com.araguacaima.commons.exception.core.Severity;
-import com.araguacaima.commons.exception.core.StackException;
+import org.junit.runner.RunWith;
+
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.stream.Stream;
-import org.evosuite.runtime.EvoRunner;
-import org.evosuite.runtime.EvoRunnerParameters;
-import org.evosuite.runtime.ViolatedAssumptionAnswer;
-import org.junit.runner.RunWith;
 
-@RunWith(EvoRunner.class) @EvoRunnerParameters(mockJVMNonDeterminism = true, useVFS = true, useVNET = true, resetStaticState = true, separateClassLoader = true, useJEE = true) 
+import static org.evosuite.runtime.EvoAssertions.verifyException;
+import static org.evosuite.runtime.MockitoExtension.doReturn;
+import static org.evosuite.shaded.org.mockito.Mockito.any;
+import static org.evosuite.shaded.org.mockito.Mockito.mock;
+import static org.junit.Assert.*;
+
+@RunWith(EvoRunner.class)
+@EvoRunnerParameters(mockJVMNonDeterminism = true,
+                     useVFS = true,
+                     useVNET = true,
+                     resetStaticState = true,
+                     separateClassLoader = true,
+                     useJEE = true)
 public class StackException_ESTest extends StackException_ESTest_scaffolding {
 
-  @Test
-  public void test00()  throws Throwable  {
-      Severity severity0 = Severity.ERROR;
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertEquals("ERROR", severity0.getName());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertNotNull(severity0);
-      
-      StackException stackException0 = new StackException((String) null, severity0, (String) null);
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertNull(stackException0.getKeyCode());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertNotNull(stackException0);
-      
-      boolean boolean0 = stackException0.contains((Object) null);
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertNull(stackException0.getKeyCode());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertFalse(boolean0);
-      
-      stackException0.clear();
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertNull(stackException0.getKeyCode());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      
-      // Undeclared exception!
-      try { 
-        stackException0.addAll((Collection) null);
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("java.util.Vector", e);
-      }
-  }
+    @Test
+    public void test00()
+            throws Throwable {
+        Severity severity0 = Severity.ERROR;
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertEquals("ERROR", severity0.getName());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertNotNull(severity0);
 
-  @Test
-  public void test01()  throws Throwable  {
-      Severity severity0 = Severity.INFO;
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertNotNull(severity0);
-      
-      Severity severity1 = Severity.getSeverity("");
-      assertNull(severity1);
-      
-      StackException stackException0 = new StackException("", severity0, "com.araguacaima.commons.exception.core.ApplicationException");
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertTrue(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException0.getExtendedMessage());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertNotNull(stackException0);
-      
-      boolean boolean0 = stackException0.add("");
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException0.getExtendedMessage());
-      assertFalse(stackException0.isEmpty());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertTrue(boolean0);
-      
-      stackException0.clear();
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertTrue(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException0.getExtendedMessage());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      
-      Iterator iterator0 = stackException0.iterator();
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertTrue(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException0.getExtendedMessage());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertNotNull(iterator0);
-      
-      int int0 = stackException0.size();
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertTrue(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException0.getExtendedMessage());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(0, int0);
-      
-      Severity severity2 = Severity.getSeverity("");
-      assertNull(severity2);
-      
-      StackException stackException1 = new StackException("com.araguacaima.commons.exception.core.ApplicationException", severity0, "");
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
-      assertTrue(stackException1.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertNotNull(stackException1);
-      
-      Collection collection0 = Severity.getSeverities();
-      assertNotNull(collection0);
-      
-      PrintStream printStream0 = mock(PrintStream.class, new ViolatedAssumptionAnswer());
-      doReturn((PrintStream) null, (PrintStream) null, (PrintStream) null, (PrintStream) null, (PrintStream) null).when(printStream0).append(any(java.lang.CharSequence.class));
-      stackException1.printStackTrace(printStream0);
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertNotSame(stackException1, stackException0);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
-      assertTrue(stackException1.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      
-      boolean boolean1 = stackException0.add("?IF");
-      assertFalse(stackException0.equals((Object)stackException1));
-      assertTrue(boolean1 == boolean0);
-      assertNotSame(stackException0, stackException1);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException0.getExtendedMessage());
-      assertFalse(stackException0.isEmpty());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertTrue(boolean1);
-      
-      stackException1.printStackTrace();
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertNotSame(stackException1, stackException0);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
-      assertTrue(stackException1.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      
-      StackTraceElement[] stackTraceElementArray0 = stackException1.getStackTrace();
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertNotSame(stackException1, stackException0);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
-      assertTrue(stackException1.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertNotNull(stackTraceElementArray0);
-      
-      Collection collection1 = Severity.getSeverities();
-      assertSame(collection1, collection0);
-      assertNotNull(collection1);
-      
-      boolean boolean2 = stackException0.remove((Object) null);
-      assertFalse(boolean2 == boolean1);
-      assertFalse(boolean2 == boolean0);
-      assertFalse(stackException0.equals((Object)stackException1));
-      assertNotSame(stackException0, stackException1);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException0.getExtendedMessage());
-      assertFalse(stackException0.isEmpty());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertFalse(boolean2);
-      
-      stackException1.clear();
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertNotSame(stackException1, stackException0);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
-      assertTrue(stackException1.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      
-      boolean boolean3 = stackException0.retainAll(stackException1);
-      assertTrue(boolean3 == boolean1);
-      assertTrue(boolean3 == boolean0);
-      assertFalse(boolean3 == boolean2);
-      assertFalse(stackException0.equals((Object)stackException1));
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertNotSame(stackException0, stackException1);
-      assertNotSame(stackException1, stackException0);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertTrue(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException0.getExtendedMessage());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
-      assertTrue(stackException1.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertTrue(boolean3);
-      
-      int int1 = stackException1.size();
-      assertTrue(int1 == int0);
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertNotSame(stackException1, stackException0);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
-      assertTrue(stackException1.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(0, int1);
-      
-      boolean boolean4 = stackException1.add(collection1);
-      assertTrue(boolean4 == boolean1);
-      assertTrue(boolean4 == boolean0);
-      assertTrue(boolean4 == boolean3);
-      assertFalse(boolean4 == boolean2);
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertNotSame(stackException1, stackException0);
-      assertSame(collection1, collection0);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertFalse(stackException1.isEmpty());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertTrue(boolean4);
-      
-      Iterator iterator1 = stackException1.iterator();
-      assertFalse(iterator1.equals((Object)iterator0));
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertNotSame(iterator1, iterator0);
-      assertNotSame(stackException1, stackException0);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertFalse(stackException1.isEmpty());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertNotNull(iterator1);
-      
-      boolean boolean5 = stackException1.add((Object) null);
-      assertTrue(boolean5 == boolean0);
-      assertTrue(boolean5 == boolean4);
-      assertTrue(boolean5 == boolean1);
-      assertTrue(boolean5 == boolean3);
-      assertFalse(boolean5 == boolean2);
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertNotSame(stackException1, stackException0);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertFalse(stackException1.isEmpty());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertTrue(boolean5);
-      
-      boolean boolean6 = stackException1.contains("");
-      assertTrue(boolean6 == boolean2);
-      assertFalse(boolean6 == boolean5);
-      assertFalse(boolean6 == boolean3);
-      assertFalse(boolean6 == boolean0);
-      assertFalse(boolean6 == boolean1);
-      assertFalse(boolean6 == boolean4);
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertNotSame(stackException1, stackException0);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertFalse(stackException1.isEmpty());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertFalse(boolean6);
-      
-      Object object0 = new Object();
-      assertNotNull(object0);
-      
-      boolean boolean7 = stackException0.remove(object0);
-      assertFalse(stackException0.equals((Object)stackException1));
-      assertFalse(boolean7 == boolean0);
-      assertFalse(boolean7 == boolean3);
-      assertFalse(boolean7 == boolean5);
-      assertFalse(boolean7 == boolean4);
-      assertTrue(boolean7 == boolean2);
-      assertTrue(boolean7 == boolean6);
-      assertFalse(boolean7 == boolean1);
-      assertNotSame(stackException0, stackException1);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertTrue(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException0.getExtendedMessage());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertFalse(boolean7);
-      
-      int int2 = stackException1.size();
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertFalse(int2 == int0);
-      assertFalse(int2 == int1);
-      assertNotSame(stackException1, stackException0);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertFalse(stackException1.isEmpty());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, int2);
-      
-      Object[] objectArray0 = stackException0.toArray();
-      assertFalse(stackException0.equals((Object)stackException1));
-      assertNotSame(stackException0, stackException1);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertTrue(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException0.getExtendedMessage());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertNotNull(objectArray0);
-      
-      boolean boolean8 = stackException1.isEmpty();
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertFalse(boolean8 == boolean3);
-      assertFalse(boolean8 == boolean5);
-      assertTrue(boolean8 == boolean2);
-      assertTrue(boolean8 == boolean7);
-      assertFalse(boolean8 == boolean0);
-      assertFalse(boolean8 == boolean1);
-      assertFalse(boolean8 == boolean4);
-      assertTrue(boolean8 == boolean6);
-      assertNotSame(stackException1, stackException0);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertFalse(stackException1.isEmpty());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertFalse(boolean8);
-      
-      Iterator iterator2 = stackException0.iterator();
-      assertFalse(stackException0.equals((Object)stackException1));
-      assertFalse(iterator2.equals((Object)iterator1));
-      assertFalse(iterator2.equals((Object)iterator0));
-      assertNotSame(stackException0, stackException1);
-      assertNotSame(iterator2, iterator1);
-      assertNotSame(iterator2, iterator0);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertTrue(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException0.getExtendedMessage());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertNotNull(iterator2);
-      
-      boolean boolean9 = stackException1.contains(iterator1);
-      assertFalse(iterator1.equals((Object)iterator2));
-      assertFalse(iterator1.equals((Object)iterator0));
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertFalse(boolean9 == boolean4);
-      assertTrue(boolean9 == boolean2);
-      assertTrue(boolean9 == boolean8);
-      assertFalse(boolean9 == boolean3);
-      assertFalse(boolean9 == boolean0);
-      assertFalse(boolean9 == boolean5);
-      assertFalse(boolean9 == boolean1);
-      assertTrue(boolean9 == boolean7);
-      assertTrue(boolean9 == boolean6);
-      assertNotSame(iterator1, iterator2);
-      assertNotSame(iterator1, iterator0);
-      assertNotSame(stackException1, stackException0);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertFalse(stackException1.isEmpty());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertFalse(boolean9);
-      
-      boolean boolean10 = stackException0.removeAll(stackException1);
-      assertFalse(stackException0.equals((Object)stackException1));
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertTrue(boolean10 == boolean2);
-      assertTrue(boolean10 == boolean7);
-      assertTrue(boolean10 == boolean6);
-      assertFalse(boolean10 == boolean5);
-      assertFalse(boolean10 == boolean1);
-      assertTrue(boolean10 == boolean8);
-      assertFalse(boolean10 == boolean3);
-      assertFalse(boolean10 == boolean4);
-      assertTrue(boolean10 == boolean9);
-      assertFalse(boolean10 == boolean0);
-      assertNotSame(stackException0, stackException1);
-      assertNotSame(stackException1, stackException0);
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.toString());
-      assertTrue(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException0.getExtendedMessage());
-      assertEquals("", stackException0.getKeyCode());
-      assertFalse(stackException1.isEmpty());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertFalse(boolean10);
-      
-      // Undeclared exception!
-      try { 
-        stackException1.toArray((Object[]) stackTraceElementArray0);
-        fail("Expecting exception: ArrayStoreException");
-      
-      } catch(ArrayStoreException e) {
-      }
-  }
+        StackException stackException0 = new StackException((String) null, severity0, (String) null);
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertNull(stackException0.getKeyCode());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertNotNull(stackException0);
 
-  @Test
-  public void test02()  throws Throwable  {
-      Severity severity0 = Severity.ERROR;
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertNotNull(severity0);
-      
-      StackException stackException0 = new StackException("com.araguacaima.commons.exception.core.GeneralException", severity0);
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
-      assertTrue(stackException0.isEmpty());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertNotNull(stackException0);
-      
-      Stream stream0 = stackException0.parallelStream();
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
-      assertTrue(stackException0.isEmpty());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertNotNull(stream0);
-      
-      Object object0 = stackException0.magicValue;
-      assertNull(object0);
-      
-      Severity severity1 = Severity.getSeverity("com.araguacaima.commons.exception.core.GeneralException");
-      assertNull(severity1);
-      
-      boolean boolean0 = stackException0.add((Object) null);
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertFalse(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertTrue(boolean0);
-      
-      int int0 = stackException0.size();
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertFalse(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, int0);
-      
-      boolean boolean1 = stackException0.add(severity0);
-      assertTrue(boolean1 == boolean0);
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertFalse(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertTrue(boolean1);
-      
-      Iterator iterator0 = stackException0.iterator();
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertFalse(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertNotNull(iterator0);
-      
-      boolean boolean2 = stackException0.remove((Object) null);
-      assertTrue(boolean2 == boolean0);
-      assertTrue(boolean2 == boolean1);
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertFalse(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertTrue(boolean2);
-      
-      StackException stackException1 = new StackException((String) null, (Severity) null);
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertEquals("", stackException1.getExtendedMessage());
-      assertNull(stackException1.getKeyCode());
-      assertTrue(stackException1.isEmpty());
-      assertNotNull(stackException1);
-      
-      Severity severity2 = Severity.getSeverity("INFO");
-      assertFalse(severity2.equals((Object)severity0));
-      assertNotSame(severity2, severity0);
-      assertEquals("INFO", severity2.getName());
-      assertEquals("INFO", severity2.toString());
-      assertEquals(4, severity2.getIntLevel());
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertNotNull(severity2);
-      
-      boolean boolean3 = stackException0.removeAll(stackException1);
-      assertFalse(severity0.equals((Object)severity2));
-      assertFalse(stackException0.equals((Object)stackException1));
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertFalse(boolean3 == boolean2);
-      assertFalse(boolean3 == boolean1);
-      assertFalse(boolean3 == boolean0);
-      assertNotSame(severity0, severity2);
-      assertNotSame(stackException0, stackException1);
-      assertNotSame(stackException1, stackException0);
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertFalse(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertNull(stackException1.getKeyCode());
-      assertTrue(stackException1.isEmpty());
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertFalse(boolean3);
-      
-      Severity severity3 = Severity.INFO;
-      assertFalse(severity3.equals((Object)severity0));
-      assertSame(severity3, severity2);
-      assertNotSame(severity3, severity0);
-      assertEquals(4, severity3.getIntLevel());
-      assertEquals("INFO", severity3.getName());
-      assertEquals("INFO", severity3.toString());
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertNotNull(severity3);
-      
-      StackException stackException2 = new StackException((String) null, severity3);
-      assertFalse(severity3.equals((Object)severity0));
-      assertFalse(stackException2.equals((Object)stackException1));
-      assertFalse(stackException2.equals((Object)stackException0));
-      assertEquals(4, severity3.getIntLevel());
-      assertEquals("INFO", severity3.getName());
-      assertEquals("INFO", severity3.toString());
-      assertEquals("", stackException2.getExtendedMessage());
-      assertTrue(stackException2.isEmpty());
-      assertNull(stackException2.getKeyCode());
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertNotNull(stackException2);
-      
-      boolean boolean4 = stackException1.containsAll(stackException2);
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertFalse(stackException1.equals((Object)stackException2));
-      assertFalse(severity3.equals((Object)severity0));
-      assertFalse(stackException2.equals((Object)stackException1));
-      assertFalse(stackException2.equals((Object)stackException0));
-      assertFalse(boolean4 == boolean1);
-      assertFalse(boolean4 == boolean2);
-      assertFalse(boolean4 == boolean0);
-      assertTrue(boolean4 == boolean3);
-      assertNotSame(stackException1, stackException0);
-      assertNotSame(stackException1, stackException2);
-      assertSame(severity3, severity2);
-      assertNotSame(severity3, severity0);
-      assertNotSame(stackException2, stackException1);
-      assertNotSame(stackException2, stackException0);
-      assertEquals("", stackException1.getExtendedMessage());
-      assertNull(stackException1.getKeyCode());
-      assertTrue(stackException1.isEmpty());
-      assertEquals(4, severity3.getIntLevel());
-      assertEquals("INFO", severity3.getName());
-      assertEquals("INFO", severity3.toString());
-      assertEquals("", stackException2.getExtendedMessage());
-      assertTrue(stackException2.isEmpty());
-      assertNull(stackException2.getKeyCode());
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertFalse(boolean4);
-      
-      stackException1.clear();
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertFalse(stackException1.equals((Object)stackException2));
-      assertNotSame(stackException1, stackException0);
-      assertNotSame(stackException1, stackException2);
-      assertEquals("", stackException1.getExtendedMessage());
-      assertNull(stackException1.getKeyCode());
-      assertTrue(stackException1.isEmpty());
-      
-      boolean boolean5 = stackException0.isEmpty();
-      assertFalse(severity0.equals((Object)severity3));
-      assertFalse(severity0.equals((Object)severity2));
-      assertTrue(boolean5 == boolean4);
-      assertFalse(boolean5 == boolean0);
-      assertFalse(boolean5 == boolean1);
-      assertTrue(boolean5 == boolean3);
-      assertFalse(boolean5 == boolean2);
-      assertFalse(stackException0.equals((Object)stackException1));
-      assertFalse(stackException0.equals((Object)stackException2));
-      assertNotSame(severity0, severity3);
-      assertNotSame(severity0, severity2);
-      assertNotSame(stackException0, stackException1);
-      assertNotSame(stackException0, stackException2);
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertFalse(stackException0.isEmpty());
-      assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertFalse(boolean5);
-      
-      Object object1 = new Object();
-      assertNotNull(object1);
-      
-      boolean boolean6 = stackException2.contains(object1);
-      assertFalse(boolean6 == boolean0);
-      assertTrue(boolean6 == boolean4);
-      assertTrue(boolean6 == boolean3);
-      assertTrue(boolean6 == boolean5);
-      assertFalse(boolean6 == boolean1);
-      assertFalse(boolean6 == boolean2);
-      assertFalse(severity3.equals((Object)severity0));
-      assertFalse(stackException2.equals((Object)stackException1));
-      assertFalse(stackException2.equals((Object)stackException0));
-      assertSame(severity3, severity2);
-      assertNotSame(severity3, severity0);
-      assertNotSame(stackException2, stackException1);
-      assertNotSame(stackException2, stackException0);
-      assertEquals(4, severity3.getIntLevel());
-      assertEquals("INFO", severity3.getName());
-      assertEquals("INFO", severity3.toString());
-      assertEquals("", stackException2.getExtendedMessage());
-      assertTrue(stackException2.isEmpty());
-      assertNull(stackException2.getKeyCode());
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertFalse(boolean6);
-      
-      Object object2 = stackException0.magicValue;
-      assertNull(object2);
-      
-      boolean boolean7 = stackException1.contains((Object) null);
-      assertTrue(boolean7 == boolean6);
-      assertFalse(boolean7 == boolean2);
-      assertTrue(boolean7 == boolean4);
-      assertFalse(boolean7 == boolean0);
-      assertTrue(boolean7 == boolean3);
-      assertFalse(boolean7 == boolean1);
-      assertTrue(boolean7 == boolean5);
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertFalse(stackException1.equals((Object)stackException2));
-      assertNotSame(stackException1, stackException0);
-      assertNotSame(stackException1, stackException2);
-      assertEquals("", stackException1.getExtendedMessage());
-      assertNull(stackException1.getKeyCode());
-      assertTrue(stackException1.isEmpty());
-      assertFalse(boolean7);
-      
-      boolean boolean8 = stackException1.isEmpty();
-      assertFalse(boolean8 == boolean5);
-      assertTrue(boolean8 == boolean0);
-      assertFalse(boolean8 == boolean6);
-      assertFalse(boolean8 == boolean3);
-      assertTrue(boolean8 == boolean2);
-      assertFalse(boolean8 == boolean7);
-      assertTrue(boolean8 == boolean1);
-      assertFalse(boolean8 == boolean4);
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertFalse(stackException1.equals((Object)stackException2));
-      assertNotSame(stackException1, stackException0);
-      assertNotSame(stackException1, stackException2);
-      assertEquals("", stackException1.getExtendedMessage());
-      assertNull(stackException1.getKeyCode());
-      assertTrue(stackException1.isEmpty());
-      assertTrue(boolean8);
-      
-      StackException stackException3 = new StackException("", (Severity) null, "INFO");
-      assertFalse(stackException3.equals((Object)stackException1));
-      assertFalse(stackException3.equals((Object)stackException2));
-      assertFalse(stackException3.equals((Object)stackException0));
-      assertTrue(stackException3.isEmpty());
-      assertEquals("", stackException3.getKeyCode());
-      assertEquals("INFO", stackException3.getExtendedMessage());
-      assertNotNull(stackException3);
-      
-      boolean boolean9 = stackException1.containsAll(stackException3);
-      assertFalse(stackException3.equals((Object)stackException1));
-      assertFalse(stackException3.equals((Object)stackException2));
-      assertFalse(stackException3.equals((Object)stackException0));
-      assertTrue(boolean9 == boolean3);
-      assertFalse(boolean9 == boolean0);
-      assertTrue(boolean9 == boolean4);
-      assertFalse(boolean9 == boolean8);
-      assertFalse(boolean9 == boolean1);
-      assertTrue(boolean9 == boolean7);
-      assertTrue(boolean9 == boolean5);
-      assertFalse(boolean9 == boolean2);
-      assertTrue(boolean9 == boolean6);
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertFalse(stackException1.equals((Object)stackException3));
-      assertFalse(stackException1.equals((Object)stackException2));
-      assertNotSame(stackException3, stackException1);
-      assertNotSame(stackException3, stackException2);
-      assertNotSame(stackException3, stackException0);
-      assertNotSame(stackException1, stackException0);
-      assertNotSame(stackException1, stackException3);
-      assertNotSame(stackException1, stackException2);
-      assertTrue(stackException3.isEmpty());
-      assertEquals("", stackException3.getKeyCode());
-      assertEquals("INFO", stackException3.getExtendedMessage());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertNull(stackException1.getKeyCode());
-      assertTrue(stackException1.isEmpty());
-      assertFalse(boolean9);
-  }
+        boolean boolean0 = stackException0.contains((Object) null);
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertNull(stackException0.getKeyCode());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertFalse(boolean0);
 
-  @Test
-  public void test03()  throws Throwable  {
-      Severity severity0 = Severity.DEBUG;
-      assertEquals("DEBUG", severity0.getName());
-      assertEquals(5, severity0.getIntLevel());
-      assertEquals("DEBUG", severity0.toString());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertNotNull(severity0);
-      
-      Severity severity1 = Severity.getSeverity("3G&J#f~H6xasKQ6qIa[");
-      assertNull(severity1);
-      
-      StackException stackException0 = new StackException("3G&J#f~H6xasKQ6qIa[", severity0, "3G&J#f~H6xasKQ6qIa[");
-      assertEquals("DEBUG", severity0.getName());
-      assertEquals(5, severity0.getIntLevel());
-      assertEquals("DEBUG", severity0.toString());
-      assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getKeyCode());
-      assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertNotNull(stackException0);
-      
-      Collection collection0 = Severity.getSeverities();
-      assertNotNull(collection0);
-      
-      Severity severity2 = Severity.getSeverity("wn{");
-      assertNull(severity2);
-      
-      Spliterator spliterator0 = stackException0.spliterator();
-      assertEquals("DEBUG", severity0.getName());
-      assertEquals(5, severity0.getIntLevel());
-      assertEquals("DEBUG", severity0.toString());
-      assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getKeyCode());
-      assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertNotNull(spliterator0);
-      
-      stackException0.clear();
-      assertEquals("DEBUG", severity0.getName());
-      assertEquals(5, severity0.getIntLevel());
-      assertEquals("DEBUG", severity0.toString());
-      assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getKeyCode());
-      assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      
-      StackException stackException1 = new StackException("%kJf>{p~", (Severity) null, "%kJf>{p~");
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertTrue(stackException1.isEmpty());
-      assertEquals("%kJf>{p~", stackException1.getExtendedMessage());
-      assertEquals("%kJf>{p~", stackException1.getKeyCode());
-      assertNotNull(stackException1);
-      
-      stackException1.printStackTrace();
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertNotSame(stackException1, stackException0);
-      assertTrue(stackException1.isEmpty());
-      assertEquals("%kJf>{p~", stackException1.getExtendedMessage());
-      assertEquals("%kJf>{p~", stackException1.getKeyCode());
-      
-      boolean boolean0 = stackException0.removeAll(stackException1);
-      assertFalse(stackException0.equals((Object)stackException1));
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertNotSame(stackException0, stackException1);
-      assertNotSame(stackException1, stackException0);
-      assertEquals("DEBUG", severity0.getName());
-      assertEquals(5, severity0.getIntLevel());
-      assertEquals("DEBUG", severity0.toString());
-      assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getKeyCode());
-      assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertTrue(stackException1.isEmpty());
-      assertEquals("%kJf>{p~", stackException1.getExtendedMessage());
-      assertEquals("%kJf>{p~", stackException1.getKeyCode());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertFalse(boolean0);
-      
-      boolean boolean1 = stackException0.removeAll(stackException1);
-      assertFalse(stackException0.equals((Object)stackException1));
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertTrue(boolean1 == boolean0);
-      assertNotSame(stackException0, stackException1);
-      assertNotSame(stackException1, stackException0);
-      assertEquals("DEBUG", severity0.getName());
-      assertEquals(5, severity0.getIntLevel());
-      assertEquals("DEBUG", severity0.toString());
-      assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getKeyCode());
-      assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertTrue(stackException1.isEmpty());
-      assertEquals("%kJf>{p~", stackException1.getExtendedMessage());
-      assertEquals("%kJf>{p~", stackException1.getKeyCode());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertFalse(boolean1);
-      
-      boolean boolean2 = stackException1.add("3G&J#f~H6xasKQ6qIa[");
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertFalse(boolean2 == boolean1);
-      assertFalse(boolean2 == boolean0);
-      assertNotSame(stackException1, stackException0);
-      assertEquals("%kJf>{p~", stackException1.getExtendedMessage());
-      assertEquals("%kJf>{p~", stackException1.getKeyCode());
-      assertFalse(stackException1.isEmpty());
-      assertTrue(boolean2);
-      
-      boolean boolean3 = stackException0.addAll(collection0);
-      assertFalse(stackException0.equals((Object)stackException1));
-      assertTrue(boolean3 == boolean2);
-      assertFalse(boolean3 == boolean1);
-      assertFalse(boolean3 == boolean0);
-      assertNotSame(stackException0, stackException1);
-      assertEquals("DEBUG", severity0.getName());
-      assertEquals(5, severity0.getIntLevel());
-      assertEquals("DEBUG", severity0.toString());
-      assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getKeyCode());
-      assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getExtendedMessage());
-      assertFalse(stackException0.isEmpty());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertTrue(boolean3);
-      
-      int int0 = stackException1.size();
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertNotSame(stackException1, stackException0);
-      assertEquals("%kJf>{p~", stackException1.getExtendedMessage());
-      assertEquals("%kJf>{p~", stackException1.getKeyCode());
-      assertFalse(stackException1.isEmpty());
-      assertEquals(1, int0);
-      
-      boolean boolean4 = stackException0.removeAll(collection0);
-      assertFalse(stackException0.equals((Object)stackException1));
-      assertTrue(boolean4 == boolean2);
-      assertTrue(boolean4 == boolean3);
-      assertFalse(boolean4 == boolean1);
-      assertFalse(boolean4 == boolean0);
-      assertNotSame(stackException0, stackException1);
-      assertEquals("DEBUG", severity0.getName());
-      assertEquals(5, severity0.getIntLevel());
-      assertEquals("DEBUG", severity0.toString());
-      assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getKeyCode());
-      assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertTrue(boolean4);
-  }
+        stackException0.clear();
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertNull(stackException0.getKeyCode());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
 
-  @Test
-  public void test04()  throws Throwable  {
-      Severity severity0 = Severity.WARNING;
-      assertEquals("WARNING", severity0.getName());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertNotNull(severity0);
-      
-      StackException stackException0 = new StackException("Ay?D1t7)mf8Oh9GWb{", severity0);
-      assertEquals("WARNING", severity0.getName());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.toString());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals("Ay?D1t7)mf8Oh9GWb{", stackException0.getKeyCode());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertNotNull(stackException0);
-      
-      // Undeclared exception!
-      try { 
-        stackException0.retainAll((Collection) null);
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("java.util.Objects", e);
-      }
-  }
+        // Undeclared exception!
+        try {
+            stackException0.addAll((Collection) null);
+            fail("Expecting exception: NullPointerException");
 
-  @Test
-  public void test05()  throws Throwable  {
-      Severity severity0 = Severity.INFO;
-      assertEquals("INFO", severity0.toString());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.getName());
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertNotNull(severity0);
-      
-      StackException stackException0 = new StackException("cYM<J`vJih}5~N", severity0);
-      assertEquals("INFO", severity0.toString());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("INFO", severity0.getName());
-      assertTrue(stackException0.isEmpty());
-      assertEquals("cYM<J`vJih}5~N", stackException0.getKeyCode());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertNotNull(stackException0);
-      
-      // Undeclared exception!
-      try { 
-        stackException0.removeAll((Collection) null);
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("java.util.Objects", e);
-      }
-  }
+        } catch (NullPointerException e) {
+            //
+            // no message in exception (getMessage() returned null)
+            //
+            verifyException("java.util.Vector", e);
+        }
+    }
 
-  @Test
-  public void test06()  throws Throwable  {
-      Severity severity0 = Severity.WARNING;
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertNotNull(severity0);
-      
-      StackException stackException0 = new StackException("", severity0);
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("WARNING", severity0.toString());
-      assertTrue(stackException0.isEmpty());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertNotNull(stackException0);
-      
-      Object[] objectArray0 = new Object[0];
-      Object[] objectArray1 = stackException0.toArray(objectArray0);
-      assertSame(objectArray0, objectArray1);
-      assertSame(objectArray1, objectArray0);
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("WARNING", severity0.toString());
-      assertTrue(stackException0.isEmpty());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertNotNull(objectArray1);
-  }
+    @Test
+    public void test01()
+            throws Throwable {
+        Severity severity0 = Severity.INFO;
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertNotNull(severity0);
 
-  @Test
-  public void test07()  throws Throwable  {
-      Severity severity0 = Severity.DEBUG;
-      assertEquals("DEBUG", severity0.toString());
-      assertEquals(5, severity0.getIntLevel());
-      assertEquals("DEBUG", severity0.getName());
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertNotNull(severity0);
-      
-      StackException stackException0 = new StackException("h/%*W}X4~L)>tV", severity0, (String) null);
-      assertEquals("DEBUG", severity0.toString());
-      assertEquals(5, severity0.getIntLevel());
-      assertEquals("DEBUG", severity0.getName());
-      assertEquals("h/%*W}X4~L)>tV", stackException0.getKeyCode());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertNotNull(stackException0);
-      
-      stackException0.clear();
-      assertEquals("DEBUG", severity0.toString());
-      assertEquals(5, severity0.getIntLevel());
-      assertEquals("DEBUG", severity0.getName());
-      assertEquals("h/%*W}X4~L)>tV", stackException0.getKeyCode());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(1, Severity.FATAL_INT);
-  }
+        Severity severity1 = Severity.getSeverity("");
+        assertNull(severity1);
 
-  @Test
-  public void test08()  throws Throwable  {
-      Severity severity0 = Severity.INFO;
-      assertEquals("INFO", severity0.toString());
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertNotNull(severity0);
-      
-      StackException stackException0 = new StackException("", severity0, "");
-      assertEquals("INFO", severity0.toString());
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals("", stackException0.getKeyCode());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertNotNull(stackException0);
-      
-      boolean boolean0 = stackException0.isEmpty();
-      assertEquals("INFO", severity0.toString());
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals("", stackException0.getKeyCode());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertTrue(boolean0);
-      
-      Severity severity1 = Severity.getSeverity("");
-      assertNull(severity1);
-      
-      PrintWriter printWriter0 = mock(PrintWriter.class, new ViolatedAssumptionAnswer());
-      PrintWriter printWriter1 = mock(PrintWriter.class, new ViolatedAssumptionAnswer());
-      doReturn(printWriter0, printWriter0, printWriter0, printWriter0, printWriter0).when(printWriter1).append(any(java.lang.CharSequence.class));
-      stackException0.printStackTrace(printWriter1);
-      assertEquals("INFO", severity0.toString());
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertEquals("", stackException0.getExtendedMessage());
-      assertEquals("", stackException0.getKeyCode());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      
-      StackException stackException1 = new StackException((String) null, severity0, "");
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertEquals("INFO", severity0.toString());
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertTrue(stackException1.isEmpty());
-      assertNull(stackException1.getKeyCode());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertNotNull(stackException1);
-      
-      Object object0 = new Object();
-      assertNotNull(object0);
-      
-      boolean boolean1 = stackException1.remove(object0);
-      assertFalse(stackException1.equals((Object)stackException0));
-      assertFalse(boolean1 == boolean0);
-      assertNotSame(stackException1, stackException0);
-      assertEquals("INFO", severity0.toString());
-      assertEquals("INFO", severity0.getName());
-      assertEquals(4, severity0.getIntLevel());
-      assertTrue(stackException1.isEmpty());
-      assertNull(stackException1.getKeyCode());
-      assertEquals("", stackException1.getExtendedMessage());
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertFalse(boolean1);
-  }
+        StackException stackException0 = new StackException("",
+                severity0,
+                "com.araguacaima.commons.exception.core.ApplicationException");
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertTrue(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException",
+                stackException0.getExtendedMessage());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertNotNull(stackException0);
 
-  @Test
-  public void test09()  throws Throwable  {
-      Object[] objectArray0 = new Object[6];
-      Object object0 = new Object();
-      assertNotNull(object0);
-      
-      Object object1 = new Object();
-      assertFalse(object1.equals((Object)object0));
-      assertNotNull(object1);
-  }
+        boolean boolean0 = stackException0.add("");
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException",
+                stackException0.getExtendedMessage());
+        assertFalse(stackException0.isEmpty());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertTrue(boolean0);
 
-  @Test
-  public void test10()  throws Throwable  {
-      Severity severity0 = Severity.WARNING;
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertNotNull(severity0);
-      
-      Collection collection0 = Severity.getSeverities();
-      assertNotNull(collection0);
-      
-      StackException stackException0 = new StackException("com.araguacaima.commons.exception.core.StackException", severity0, "com.araguacaima.commons.exception.core.StackException");
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertNotNull(stackException0);
-      
-      Collection collection1 = Severity.getSeverities();
-      assertSame(collection1, collection0);
-      assertNotNull(collection1);
-      
-      Collection collection2 = Severity.getSeverities();
-      assertSame(collection2, collection1);
-      assertSame(collection2, collection0);
-      assertNotNull(collection2);
-      
-      boolean boolean0 = stackException0.add(severity0);
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertFalse(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertTrue(boolean0);
-      
-      Iterator iterator0 = stackException0.iterator();
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertFalse(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertNotNull(iterator0);
-      
-      boolean boolean1 = stackException0.retainAll(collection0);
-      assertTrue(boolean1 == boolean0);
-      assertSame(collection0, collection1);
-      assertSame(collection0, collection2);
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertTrue(boolean1);
-      
-      boolean boolean2 = stackException0.retainAll(collection0);
-      assertFalse(boolean2 == boolean0);
-      assertFalse(boolean2 == boolean1);
-      assertSame(collection0, collection1);
-      assertSame(collection0, collection2);
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertFalse(boolean2);
-      
-      int int0 = stackException0.size();
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(0, int0);
-      
-      Object[] objectArray0 = stackException0.toArray();
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertNotNull(objectArray0);
-      
-      int int1 = stackException0.size();
-      assertTrue(int1 == int0);
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(0, int1);
-      
-      Collection collection3 = Severity.getSeverities();
-      assertSame(collection3, collection2);
-      assertSame(collection3, collection0);
-      assertSame(collection3, collection1);
-      assertNotNull(collection3);
-      
-      Collection collection4 = Severity.getSeverities();
-      assertSame(collection4, collection1);
-      assertSame(collection4, collection2);
-      assertSame(collection4, collection0);
-      assertSame(collection4, collection3);
-      assertNotNull(collection4);
-      
-      boolean boolean3 = stackException0.isEmpty();
-      assertTrue(boolean3 == boolean0);
-      assertFalse(boolean3 == boolean2);
-      assertTrue(boolean3 == boolean1);
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertTrue(boolean3);
-      
-      boolean boolean4 = stackException0.add(collection1);
-      assertTrue(boolean4 == boolean1);
-      assertTrue(boolean4 == boolean0);
-      assertTrue(boolean4 == boolean3);
-      assertFalse(boolean4 == boolean2);
-      assertSame(collection1, collection3);
-      assertSame(collection1, collection2);
-      assertSame(collection1, collection0);
-      assertSame(collection1, collection4);
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertFalse(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertTrue(boolean4);
-      
-      Object[] objectArray1 = stackException0.toArray(objectArray0);
-      assertFalse(objectArray1.equals((Object)objectArray0));
-      assertNotSame(objectArray1, objectArray0);
-      assertNotSame(objectArray0, objectArray1);
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertFalse(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertNotNull(objectArray1);
-      
-      int int2 = stackException0.size();
-      assertFalse(int2 == int1);
-      assertFalse(int2 == int0);
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertFalse(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(1, int2);
-      
-      Object object0 = new Object();
-      assertNotNull(object0);
-      
-      boolean boolean5 = stackException0.contains(object0);
-      assertFalse(boolean5 == boolean4);
-      assertTrue(boolean5 == boolean2);
-      assertFalse(boolean5 == boolean0);
-      assertFalse(boolean5 == boolean1);
-      assertFalse(boolean5 == boolean3);
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertFalse(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertFalse(boolean5);
-      
-      boolean boolean6 = stackException0.containsAll(collection3);
-      assertTrue(boolean6 == boolean4);
-      assertTrue(boolean6 == boolean1);
-      assertFalse(boolean6 == boolean5);
-      assertTrue(boolean6 == boolean3);
-      assertTrue(boolean6 == boolean0);
-      assertFalse(boolean6 == boolean2);
-      assertSame(collection3, collection2);
-      assertSame(collection3, collection0);
-      assertSame(collection3, collection1);
-      assertSame(collection3, collection4);
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertFalse(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertTrue(boolean6);
-      
-      boolean boolean7 = stackException0.contains(collection1);
-      assertTrue(boolean7 == boolean4);
-      assertTrue(boolean7 == boolean3);
-      assertFalse(boolean7 == boolean5);
-      assertTrue(boolean7 == boolean1);
-      assertTrue(boolean7 == boolean0);
-      assertFalse(boolean7 == boolean2);
-      assertTrue(boolean7 == boolean6);
-      assertSame(collection1, collection3);
-      assertSame(collection1, collection2);
-      assertSame(collection1, collection0);
-      assertSame(collection1, collection4);
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertFalse(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertTrue(boolean7);
-      
-      boolean boolean8 = stackException0.isEmpty();
-      assertFalse(boolean8 == boolean0);
-      assertTrue(boolean8 == boolean5);
-      assertFalse(boolean8 == boolean6);
-      assertFalse(boolean8 == boolean1);
-      assertFalse(boolean8 == boolean3);
-      assertFalse(boolean8 == boolean7);
-      assertFalse(boolean8 == boolean4);
-      assertTrue(boolean8 == boolean2);
-      assertEquals("WARNING", severity0.toString());
-      assertEquals(3, severity0.getIntLevel());
-      assertEquals("WARNING", severity0.getName());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
-      assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
-      assertFalse(stackException0.isEmpty());
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertFalse(boolean8);
-  }
+        stackException0.clear();
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertTrue(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException",
+                stackException0.getExtendedMessage());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
 
-  @Test
-  public void test11()  throws Throwable  {
-      String string0 = "";
-      Severity severity0 = Severity.ERROR;
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertNotNull(severity0);
-      
-      Collection collection0 = Severity.getSeverities();
-      assertNotNull(collection0);
-      
-      StackException stackException0 = new StackException("", severity0, ";9;UE~Zx6{5g5");
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals(";9;UE~Zx6{5g5", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertNotNull(stackException0);
-      
-      PrintStream printStream0 = mock(PrintStream.class, new ViolatedAssumptionAnswer());
-      PrintStream printStream1 = mock(PrintStream.class, new ViolatedAssumptionAnswer());
-      PrintStream printStream2 = mock(PrintStream.class, new ViolatedAssumptionAnswer());
-      doReturn(printStream0, printStream0, printStream0, printStream1, printStream1).when(printStream2).append(any(java.lang.CharSequence.class));
-      stackException0.printStackTrace(printStream2);
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals(";9;UE~Zx6{5g5", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      
-      Stream stream0 = stackException0.stream();
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals(";9;UE~Zx6{5g5", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertNotNull(stream0);
-      
-      String string1 = stackException0.getMessage();
-      assertFalse(string1.equals((Object)string0));
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals(";9;UE~Zx6{5g5", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertNotNull(string1);
-      assertEquals("[[exceptions_en_.properties]] ;9;UE~Zx6{5g5", string1);
-      
-      int int0 = stackException0.size();
-      assertEquals("ERROR", severity0.getName());
-      assertEquals("ERROR", severity0.toString());
-      assertEquals(2, severity0.getIntLevel());
-      assertEquals("", stackException0.getKeyCode());
-      assertEquals(";9;UE~Zx6{5g5", stackException0.getExtendedMessage());
-      assertTrue(stackException0.isEmpty());
-      assertEquals(1, Severity.FATAL_INT);
-      assertEquals(3, Severity.WARNING_INT);
-      assertEquals(2, Severity.ERROR_INT);
-      assertEquals(4, Severity.INFO_INT);
-      assertEquals(5, Severity.DEBUG_INT);
-      assertEquals(0, int0);
-      
-      Object[] objectArray0 = null;
-      // Undeclared exception!
-      try { 
-        stackException0.toArray((Object[]) null);
-        fail("Expecting exception: NullPointerException");
-      
-      } catch(NullPointerException e) {
-         //
-         // no message in exception (getMessage() returned null)
-         //
-         verifyException("java.util.Vector", e);
-      }
-  }
+        Iterator iterator0 = stackException0.iterator();
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertTrue(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException",
+                stackException0.getExtendedMessage());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertNotNull(iterator0);
 
-  @Test
-  public void test12()  throws Throwable  {
-      Severity severity0 = Severity.DEBUG;
-      StackException stackException0 = new StackException("N,FOXdj7b!el*U-", severity0);
-      Severity.getSeverity("N,FOXdj7b!el*U-");
-      StackException stackException1 = new StackException("com.araguacaima.commons.exception.core.StackException", severity0);
-      stackException1.clear();
-      Collection collection0 = Severity.getSeverities();
-      stackException0.removeAll(stackException1);
-      stackException1.isEmpty();
-      stackException0.addAll(collection0);
-      stackException1.setExtendedMessage("w.;F;G~XzKM.,l");
-      stackException0.retainAll(collection0);
-      Object[] objectArray0 = new Object[5];
-      objectArray0[0] = (Object) severity0;
-      objectArray0[1] = (Object) stackException0;
-      objectArray0[2] = (Object) severity0;
-      Severity.getSeverities();
-      objectArray0[3] = (Object) severity0;
-      objectArray0[4] = (Object) "com.araguacaima.commons.exception.core.StackException";
-      Object[] objectArray1 = stackException0.toArray(objectArray0);
-      Object object0 = new Object();
-      stackException1.contains(object0);
-      stackException0.iterator();
-      stackException0.toArray();
-      stackException1.remove("N,FOXdj7b!el*U-");
-      stackException0.toArray(objectArray1);
-      assertFalse(stackException0.isEmpty());
-      
-      stackException0.retainAll(stackException1);
-      stackException0.containsAll(stackException1);
-      StackException stackException2 = new StackException("N,FOXdj7b!el*U-", severity0, "com.araguacaima.commons.exception.core.StackException");
-      stackException0.addAll(stackException2);
-      assertTrue(stackException0.isEmpty());
-      
-      stackException2.addAll(stackException1);
-      boolean boolean0 = stackException2.isEmpty();
-      assertTrue(boolean0);
-  }
+        int int0 = stackException0.size();
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertTrue(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException",
+                stackException0.getExtendedMessage());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(0, int0);
 
-  @Test
-  public void test13()  throws Throwable  {
-      Severity severity0 = Severity.WARNING;
-      StackException stackException0 = new StackException("eW,yq=jo!zOU%s", severity0, "eW,yq=jo!zOU%s");
-      Severity.getSeverity("com.araguacaima.commons.exception.core.StackException");
-      Object[] objectArray0 = new Object[1];
-      Object[] objectArray1 = stackException0.toArray(objectArray0);
-      assertSame(objectArray0, objectArray1);
-  }
+        Severity severity2 = Severity.getSeverity("");
+        assertNull(severity2);
+
+        StackException stackException1 = new StackException(
+                "com.araguacaima.commons.exception.core.ApplicationException",
+                severity0,
+                "");
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
+        assertTrue(stackException1.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertNotNull(stackException1);
+
+        Collection collection0 = Severity.getSeverities();
+        assertNotNull(collection0);
+
+        PrintStream printStream0 = mock(PrintStream.class, new ViolatedAssumptionAnswer());
+        doReturn((PrintStream) null,
+                (PrintStream) null,
+                (PrintStream) null,
+                (PrintStream) null,
+                (PrintStream) null).when(printStream0).append(any(java.lang.CharSequence.class));
+        stackException1.printStackTrace(printStream0);
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertNotSame(stackException1, stackException0);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
+        assertTrue(stackException1.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+
+        boolean boolean1 = stackException0.add("?IF");
+        assertFalse(stackException0.equals((Object) stackException1));
+        assertTrue(boolean1 == boolean0);
+        assertNotSame(stackException0, stackException1);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException",
+                stackException0.getExtendedMessage());
+        assertFalse(stackException0.isEmpty());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertTrue(boolean1);
+
+        stackException1.printStackTrace();
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertNotSame(stackException1, stackException0);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
+        assertTrue(stackException1.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+
+        StackTraceElement[] stackTraceElementArray0 = stackException1.getStackTrace();
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertNotSame(stackException1, stackException0);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
+        assertTrue(stackException1.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertNotNull(stackTraceElementArray0);
+
+        Collection collection1 = Severity.getSeverities();
+        assertSame(collection1, collection0);
+        assertNotNull(collection1);
+
+        boolean boolean2 = stackException0.remove((Object) null);
+        assertFalse(boolean2 == boolean1);
+        assertFalse(boolean2 == boolean0);
+        assertFalse(stackException0.equals((Object) stackException1));
+        assertNotSame(stackException0, stackException1);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException",
+                stackException0.getExtendedMessage());
+        assertFalse(stackException0.isEmpty());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertFalse(boolean2);
+
+        stackException1.clear();
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertNotSame(stackException1, stackException0);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
+        assertTrue(stackException1.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+
+        boolean boolean3 = stackException0.retainAll(stackException1);
+        assertTrue(boolean3 == boolean1);
+        assertTrue(boolean3 == boolean0);
+        assertFalse(boolean3 == boolean2);
+        assertFalse(stackException0.equals((Object) stackException1));
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertNotSame(stackException0, stackException1);
+        assertNotSame(stackException1, stackException0);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertTrue(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException",
+                stackException0.getExtendedMessage());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
+        assertTrue(stackException1.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertTrue(boolean3);
+
+        int int1 = stackException1.size();
+        assertTrue(int1 == int0);
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertNotSame(stackException1, stackException0);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
+        assertTrue(stackException1.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(0, int1);
+
+        boolean boolean4 = stackException1.add(collection1);
+        assertTrue(boolean4 == boolean1);
+        assertTrue(boolean4 == boolean0);
+        assertTrue(boolean4 == boolean3);
+        assertFalse(boolean4 == boolean2);
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertNotSame(stackException1, stackException0);
+        assertSame(collection1, collection0);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertFalse(stackException1.isEmpty());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertTrue(boolean4);
+
+        Iterator iterator1 = stackException1.iterator();
+        assertFalse(iterator1.equals((Object) iterator0));
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertNotSame(iterator1, iterator0);
+        assertNotSame(stackException1, stackException0);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertFalse(stackException1.isEmpty());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertNotNull(iterator1);
+
+        boolean boolean5 = stackException1.add((Object) null);
+        assertTrue(boolean5 == boolean0);
+        assertTrue(boolean5 == boolean4);
+        assertTrue(boolean5 == boolean1);
+        assertTrue(boolean5 == boolean3);
+        assertFalse(boolean5 == boolean2);
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertNotSame(stackException1, stackException0);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertFalse(stackException1.isEmpty());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertTrue(boolean5);
+
+        boolean boolean6 = stackException1.contains("");
+        assertTrue(boolean6 == boolean2);
+        assertFalse(boolean6 == boolean5);
+        assertFalse(boolean6 == boolean3);
+        assertFalse(boolean6 == boolean0);
+        assertFalse(boolean6 == boolean1);
+        assertFalse(boolean6 == boolean4);
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertNotSame(stackException1, stackException0);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertFalse(stackException1.isEmpty());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertFalse(boolean6);
+
+        Object object0 = new Object();
+        assertNotNull(object0);
+
+        boolean boolean7 = stackException0.remove(object0);
+        assertFalse(stackException0.equals((Object) stackException1));
+        assertFalse(boolean7 == boolean0);
+        assertFalse(boolean7 == boolean3);
+        assertFalse(boolean7 == boolean5);
+        assertFalse(boolean7 == boolean4);
+        assertTrue(boolean7 == boolean2);
+        assertTrue(boolean7 == boolean6);
+        assertFalse(boolean7 == boolean1);
+        assertNotSame(stackException0, stackException1);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertTrue(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException",
+                stackException0.getExtendedMessage());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertFalse(boolean7);
+
+        int int2 = stackException1.size();
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertFalse(int2 == int0);
+        assertFalse(int2 == int1);
+        assertNotSame(stackException1, stackException0);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertFalse(stackException1.isEmpty());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, int2);
+
+        Object[] objectArray0 = stackException0.toArray();
+        assertFalse(stackException0.equals((Object) stackException1));
+        assertNotSame(stackException0, stackException1);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertTrue(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException",
+                stackException0.getExtendedMessage());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertNotNull(objectArray0);
+
+        boolean boolean8 = stackException1.isEmpty();
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertFalse(boolean8 == boolean3);
+        assertFalse(boolean8 == boolean5);
+        assertTrue(boolean8 == boolean2);
+        assertTrue(boolean8 == boolean7);
+        assertFalse(boolean8 == boolean0);
+        assertFalse(boolean8 == boolean1);
+        assertFalse(boolean8 == boolean4);
+        assertTrue(boolean8 == boolean6);
+        assertNotSame(stackException1, stackException0);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertFalse(stackException1.isEmpty());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertFalse(boolean8);
+
+        Iterator iterator2 = stackException0.iterator();
+        assertFalse(stackException0.equals((Object) stackException1));
+        assertFalse(iterator2.equals((Object) iterator1));
+        assertFalse(iterator2.equals((Object) iterator0));
+        assertNotSame(stackException0, stackException1);
+        assertNotSame(iterator2, iterator1);
+        assertNotSame(iterator2, iterator0);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertTrue(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException",
+                stackException0.getExtendedMessage());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertNotNull(iterator2);
+
+        boolean boolean9 = stackException1.contains(iterator1);
+        assertFalse(iterator1.equals((Object) iterator2));
+        assertFalse(iterator1.equals((Object) iterator0));
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertFalse(boolean9 == boolean4);
+        assertTrue(boolean9 == boolean2);
+        assertTrue(boolean9 == boolean8);
+        assertFalse(boolean9 == boolean3);
+        assertFalse(boolean9 == boolean0);
+        assertFalse(boolean9 == boolean5);
+        assertFalse(boolean9 == boolean1);
+        assertTrue(boolean9 == boolean7);
+        assertTrue(boolean9 == boolean6);
+        assertNotSame(iterator1, iterator2);
+        assertNotSame(iterator1, iterator0);
+        assertNotSame(stackException1, stackException0);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertFalse(stackException1.isEmpty());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertFalse(boolean9);
+
+        boolean boolean10 = stackException0.removeAll(stackException1);
+        assertFalse(stackException0.equals((Object) stackException1));
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertTrue(boolean10 == boolean2);
+        assertTrue(boolean10 == boolean7);
+        assertTrue(boolean10 == boolean6);
+        assertFalse(boolean10 == boolean5);
+        assertFalse(boolean10 == boolean1);
+        assertTrue(boolean10 == boolean8);
+        assertFalse(boolean10 == boolean3);
+        assertFalse(boolean10 == boolean4);
+        assertTrue(boolean10 == boolean9);
+        assertFalse(boolean10 == boolean0);
+        assertNotSame(stackException0, stackException1);
+        assertNotSame(stackException1, stackException0);
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.toString());
+        assertTrue(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException",
+                stackException0.getExtendedMessage());
+        assertEquals("", stackException0.getKeyCode());
+        assertFalse(stackException1.isEmpty());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals("com.araguacaima.commons.exception.core.ApplicationException", stackException1.getKeyCode());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertFalse(boolean10);
+
+        // Undeclared exception!
+        try {
+            stackException1.toArray((Object[]) stackTraceElementArray0);
+            fail("Expecting exception: ArrayStoreException");
+
+        } catch (ArrayStoreException e) {
+        }
+    }
+
+    @Test
+    public void test02()
+            throws Throwable {
+        Severity severity0 = Severity.ERROR;
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertNotNull(severity0);
+
+        StackException stackException0 = new StackException("com.araguacaima.commons.exception.core.GeneralException",
+                severity0);
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
+        assertTrue(stackException0.isEmpty());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertNotNull(stackException0);
+
+        Stream stream0 = stackException0.parallelStream();
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
+        assertTrue(stackException0.isEmpty());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertNotNull(stream0);
+
+        Object object0 = stackException0.magicValue;
+        assertNull(object0);
+
+        Severity severity1 = Severity.getSeverity("com.araguacaima.commons.exception.core.GeneralException");
+        assertNull(severity1);
+
+        boolean boolean0 = stackException0.add((Object) null);
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertFalse(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertTrue(boolean0);
+
+        int int0 = stackException0.size();
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertFalse(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, int0);
+
+        boolean boolean1 = stackException0.add(severity0);
+        assertTrue(boolean1 == boolean0);
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertFalse(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertTrue(boolean1);
+
+        Iterator iterator0 = stackException0.iterator();
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertFalse(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertNotNull(iterator0);
+
+        boolean boolean2 = stackException0.remove((Object) null);
+        assertTrue(boolean2 == boolean0);
+        assertTrue(boolean2 == boolean1);
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertFalse(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertTrue(boolean2);
+
+        StackException stackException1 = new StackException((String) null, (Severity) null);
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertEquals("", stackException1.getExtendedMessage());
+        assertNull(stackException1.getKeyCode());
+        assertTrue(stackException1.isEmpty());
+        assertNotNull(stackException1);
+
+        Severity severity2 = Severity.getSeverity("INFO");
+        assertFalse(severity2.equals((Object) severity0));
+        assertNotSame(severity2, severity0);
+        assertEquals("INFO", severity2.getName());
+        assertEquals("INFO", severity2.toString());
+        assertEquals(4, severity2.getIntLevel());
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertNotNull(severity2);
+
+        boolean boolean3 = stackException0.removeAll(stackException1);
+        assertFalse(severity0.equals((Object) severity2));
+        assertFalse(stackException0.equals((Object) stackException1));
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertFalse(boolean3 == boolean2);
+        assertFalse(boolean3 == boolean1);
+        assertFalse(boolean3 == boolean0);
+        assertNotSame(severity0, severity2);
+        assertNotSame(stackException0, stackException1);
+        assertNotSame(stackException1, stackException0);
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertFalse(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertNull(stackException1.getKeyCode());
+        assertTrue(stackException1.isEmpty());
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertFalse(boolean3);
+
+        Severity severity3 = Severity.INFO;
+        assertFalse(severity3.equals((Object) severity0));
+        assertSame(severity3, severity2);
+        assertNotSame(severity3, severity0);
+        assertEquals(4, severity3.getIntLevel());
+        assertEquals("INFO", severity3.getName());
+        assertEquals("INFO", severity3.toString());
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertNotNull(severity3);
+
+        StackException stackException2 = new StackException((String) null, severity3);
+        assertFalse(severity3.equals((Object) severity0));
+        assertFalse(stackException2.equals((Object) stackException1));
+        assertFalse(stackException2.equals((Object) stackException0));
+        assertEquals(4, severity3.getIntLevel());
+        assertEquals("INFO", severity3.getName());
+        assertEquals("INFO", severity3.toString());
+        assertEquals("", stackException2.getExtendedMessage());
+        assertTrue(stackException2.isEmpty());
+        assertNull(stackException2.getKeyCode());
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertNotNull(stackException2);
+
+        boolean boolean4 = stackException1.containsAll(stackException2);
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertFalse(stackException1.equals((Object) stackException2));
+        assertFalse(severity3.equals((Object) severity0));
+        assertFalse(stackException2.equals((Object) stackException1));
+        assertFalse(stackException2.equals((Object) stackException0));
+        assertFalse(boolean4 == boolean1);
+        assertFalse(boolean4 == boolean2);
+        assertFalse(boolean4 == boolean0);
+        assertTrue(boolean4 == boolean3);
+        assertNotSame(stackException1, stackException0);
+        assertNotSame(stackException1, stackException2);
+        assertSame(severity3, severity2);
+        assertNotSame(severity3, severity0);
+        assertNotSame(stackException2, stackException1);
+        assertNotSame(stackException2, stackException0);
+        assertEquals("", stackException1.getExtendedMessage());
+        assertNull(stackException1.getKeyCode());
+        assertTrue(stackException1.isEmpty());
+        assertEquals(4, severity3.getIntLevel());
+        assertEquals("INFO", severity3.getName());
+        assertEquals("INFO", severity3.toString());
+        assertEquals("", stackException2.getExtendedMessage());
+        assertTrue(stackException2.isEmpty());
+        assertNull(stackException2.getKeyCode());
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertFalse(boolean4);
+
+        stackException1.clear();
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertFalse(stackException1.equals((Object) stackException2));
+        assertNotSame(stackException1, stackException0);
+        assertNotSame(stackException1, stackException2);
+        assertEquals("", stackException1.getExtendedMessage());
+        assertNull(stackException1.getKeyCode());
+        assertTrue(stackException1.isEmpty());
+
+        boolean boolean5 = stackException0.isEmpty();
+        assertFalse(severity0.equals((Object) severity3));
+        assertFalse(severity0.equals((Object) severity2));
+        assertTrue(boolean5 == boolean4);
+        assertFalse(boolean5 == boolean0);
+        assertFalse(boolean5 == boolean1);
+        assertTrue(boolean5 == boolean3);
+        assertFalse(boolean5 == boolean2);
+        assertFalse(stackException0.equals((Object) stackException1));
+        assertFalse(stackException0.equals((Object) stackException2));
+        assertNotSame(severity0, severity3);
+        assertNotSame(severity0, severity2);
+        assertNotSame(stackException0, stackException1);
+        assertNotSame(stackException0, stackException2);
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertFalse(stackException0.isEmpty());
+        assertEquals("com.araguacaima.commons.exception.core.GeneralException", stackException0.getKeyCode());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertFalse(boolean5);
+
+        Object object1 = new Object();
+        assertNotNull(object1);
+
+        boolean boolean6 = stackException2.contains(object1);
+        assertFalse(boolean6 == boolean0);
+        assertTrue(boolean6 == boolean4);
+        assertTrue(boolean6 == boolean3);
+        assertTrue(boolean6 == boolean5);
+        assertFalse(boolean6 == boolean1);
+        assertFalse(boolean6 == boolean2);
+        assertFalse(severity3.equals((Object) severity0));
+        assertFalse(stackException2.equals((Object) stackException1));
+        assertFalse(stackException2.equals((Object) stackException0));
+        assertSame(severity3, severity2);
+        assertNotSame(severity3, severity0);
+        assertNotSame(stackException2, stackException1);
+        assertNotSame(stackException2, stackException0);
+        assertEquals(4, severity3.getIntLevel());
+        assertEquals("INFO", severity3.getName());
+        assertEquals("INFO", severity3.toString());
+        assertEquals("", stackException2.getExtendedMessage());
+        assertTrue(stackException2.isEmpty());
+        assertNull(stackException2.getKeyCode());
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertFalse(boolean6);
+
+        Object object2 = stackException0.magicValue;
+        assertNull(object2);
+
+        boolean boolean7 = stackException1.contains((Object) null);
+        assertTrue(boolean7 == boolean6);
+        assertFalse(boolean7 == boolean2);
+        assertTrue(boolean7 == boolean4);
+        assertFalse(boolean7 == boolean0);
+        assertTrue(boolean7 == boolean3);
+        assertFalse(boolean7 == boolean1);
+        assertTrue(boolean7 == boolean5);
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertFalse(stackException1.equals((Object) stackException2));
+        assertNotSame(stackException1, stackException0);
+        assertNotSame(stackException1, stackException2);
+        assertEquals("", stackException1.getExtendedMessage());
+        assertNull(stackException1.getKeyCode());
+        assertTrue(stackException1.isEmpty());
+        assertFalse(boolean7);
+
+        boolean boolean8 = stackException1.isEmpty();
+        assertFalse(boolean8 == boolean5);
+        assertTrue(boolean8 == boolean0);
+        assertFalse(boolean8 == boolean6);
+        assertFalse(boolean8 == boolean3);
+        assertTrue(boolean8 == boolean2);
+        assertFalse(boolean8 == boolean7);
+        assertTrue(boolean8 == boolean1);
+        assertFalse(boolean8 == boolean4);
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertFalse(stackException1.equals((Object) stackException2));
+        assertNotSame(stackException1, stackException0);
+        assertNotSame(stackException1, stackException2);
+        assertEquals("", stackException1.getExtendedMessage());
+        assertNull(stackException1.getKeyCode());
+        assertTrue(stackException1.isEmpty());
+        assertTrue(boolean8);
+
+        StackException stackException3 = new StackException("", (Severity) null, "INFO");
+        assertFalse(stackException3.equals((Object) stackException1));
+        assertFalse(stackException3.equals((Object) stackException2));
+        assertFalse(stackException3.equals((Object) stackException0));
+        assertTrue(stackException3.isEmpty());
+        assertEquals("", stackException3.getKeyCode());
+        assertEquals("INFO", stackException3.getExtendedMessage());
+        assertNotNull(stackException3);
+
+        boolean boolean9 = stackException1.containsAll(stackException3);
+        assertFalse(stackException3.equals((Object) stackException1));
+        assertFalse(stackException3.equals((Object) stackException2));
+        assertFalse(stackException3.equals((Object) stackException0));
+        assertTrue(boolean9 == boolean3);
+        assertFalse(boolean9 == boolean0);
+        assertTrue(boolean9 == boolean4);
+        assertFalse(boolean9 == boolean8);
+        assertFalse(boolean9 == boolean1);
+        assertTrue(boolean9 == boolean7);
+        assertTrue(boolean9 == boolean5);
+        assertFalse(boolean9 == boolean2);
+        assertTrue(boolean9 == boolean6);
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertFalse(stackException1.equals((Object) stackException3));
+        assertFalse(stackException1.equals((Object) stackException2));
+        assertNotSame(stackException3, stackException1);
+        assertNotSame(stackException3, stackException2);
+        assertNotSame(stackException3, stackException0);
+        assertNotSame(stackException1, stackException0);
+        assertNotSame(stackException1, stackException3);
+        assertNotSame(stackException1, stackException2);
+        assertTrue(stackException3.isEmpty());
+        assertEquals("", stackException3.getKeyCode());
+        assertEquals("INFO", stackException3.getExtendedMessage());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertNull(stackException1.getKeyCode());
+        assertTrue(stackException1.isEmpty());
+        assertFalse(boolean9);
+    }
+
+    @Test
+    public void test03()
+            throws Throwable {
+        Severity severity0 = Severity.DEBUG;
+        assertEquals("DEBUG", severity0.getName());
+        assertEquals(5, severity0.getIntLevel());
+        assertEquals("DEBUG", severity0.toString());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertNotNull(severity0);
+
+        Severity severity1 = Severity.getSeverity("3G&J#f~H6xasKQ6qIa[");
+        assertNull(severity1);
+
+        StackException stackException0 = new StackException("3G&J#f~H6xasKQ6qIa[", severity0, "3G&J#f~H6xasKQ6qIa[");
+        assertEquals("DEBUG", severity0.getName());
+        assertEquals(5, severity0.getIntLevel());
+        assertEquals("DEBUG", severity0.toString());
+        assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getKeyCode());
+        assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertNotNull(stackException0);
+
+        Collection collection0 = Severity.getSeverities();
+        assertNotNull(collection0);
+
+        Severity severity2 = Severity.getSeverity("wn{");
+        assertNull(severity2);
+
+        Spliterator spliterator0 = stackException0.spliterator();
+        assertEquals("DEBUG", severity0.getName());
+        assertEquals(5, severity0.getIntLevel());
+        assertEquals("DEBUG", severity0.toString());
+        assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getKeyCode());
+        assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertNotNull(spliterator0);
+
+        stackException0.clear();
+        assertEquals("DEBUG", severity0.getName());
+        assertEquals(5, severity0.getIntLevel());
+        assertEquals("DEBUG", severity0.toString());
+        assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getKeyCode());
+        assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+
+        StackException stackException1 = new StackException("%kJf>{p~", (Severity) null, "%kJf>{p~");
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertTrue(stackException1.isEmpty());
+        assertEquals("%kJf>{p~", stackException1.getExtendedMessage());
+        assertEquals("%kJf>{p~", stackException1.getKeyCode());
+        assertNotNull(stackException1);
+
+        stackException1.printStackTrace();
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertNotSame(stackException1, stackException0);
+        assertTrue(stackException1.isEmpty());
+        assertEquals("%kJf>{p~", stackException1.getExtendedMessage());
+        assertEquals("%kJf>{p~", stackException1.getKeyCode());
+
+        boolean boolean0 = stackException0.removeAll(stackException1);
+        assertFalse(stackException0.equals((Object) stackException1));
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertNotSame(stackException0, stackException1);
+        assertNotSame(stackException1, stackException0);
+        assertEquals("DEBUG", severity0.getName());
+        assertEquals(5, severity0.getIntLevel());
+        assertEquals("DEBUG", severity0.toString());
+        assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getKeyCode());
+        assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertTrue(stackException1.isEmpty());
+        assertEquals("%kJf>{p~", stackException1.getExtendedMessage());
+        assertEquals("%kJf>{p~", stackException1.getKeyCode());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertFalse(boolean0);
+
+        boolean boolean1 = stackException0.removeAll(stackException1);
+        assertFalse(stackException0.equals((Object) stackException1));
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertTrue(boolean1 == boolean0);
+        assertNotSame(stackException0, stackException1);
+        assertNotSame(stackException1, stackException0);
+        assertEquals("DEBUG", severity0.getName());
+        assertEquals(5, severity0.getIntLevel());
+        assertEquals("DEBUG", severity0.toString());
+        assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getKeyCode());
+        assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertTrue(stackException1.isEmpty());
+        assertEquals("%kJf>{p~", stackException1.getExtendedMessage());
+        assertEquals("%kJf>{p~", stackException1.getKeyCode());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertFalse(boolean1);
+
+        boolean boolean2 = stackException1.add("3G&J#f~H6xasKQ6qIa[");
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertFalse(boolean2 == boolean1);
+        assertFalse(boolean2 == boolean0);
+        assertNotSame(stackException1, stackException0);
+        assertEquals("%kJf>{p~", stackException1.getExtendedMessage());
+        assertEquals("%kJf>{p~", stackException1.getKeyCode());
+        assertFalse(stackException1.isEmpty());
+        assertTrue(boolean2);
+
+        boolean boolean3 = stackException0.addAll(collection0);
+        assertFalse(stackException0.equals((Object) stackException1));
+        assertTrue(boolean3 == boolean2);
+        assertFalse(boolean3 == boolean1);
+        assertFalse(boolean3 == boolean0);
+        assertNotSame(stackException0, stackException1);
+        assertEquals("DEBUG", severity0.getName());
+        assertEquals(5, severity0.getIntLevel());
+        assertEquals("DEBUG", severity0.toString());
+        assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getKeyCode());
+        assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getExtendedMessage());
+        assertFalse(stackException0.isEmpty());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertTrue(boolean3);
+
+        int int0 = stackException1.size();
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertNotSame(stackException1, stackException0);
+        assertEquals("%kJf>{p~", stackException1.getExtendedMessage());
+        assertEquals("%kJf>{p~", stackException1.getKeyCode());
+        assertFalse(stackException1.isEmpty());
+        assertEquals(1, int0);
+
+        boolean boolean4 = stackException0.removeAll(collection0);
+        assertFalse(stackException0.equals((Object) stackException1));
+        assertTrue(boolean4 == boolean2);
+        assertTrue(boolean4 == boolean3);
+        assertFalse(boolean4 == boolean1);
+        assertFalse(boolean4 == boolean0);
+        assertNotSame(stackException0, stackException1);
+        assertEquals("DEBUG", severity0.getName());
+        assertEquals(5, severity0.getIntLevel());
+        assertEquals("DEBUG", severity0.toString());
+        assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getKeyCode());
+        assertEquals("3G&J#f~H6xasKQ6qIa[", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertTrue(boolean4);
+    }
+
+    @Test
+    public void test04()
+            throws Throwable {
+        Severity severity0 = Severity.WARNING;
+        assertEquals("WARNING", severity0.getName());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertNotNull(severity0);
+
+        StackException stackException0 = new StackException("Ay?D1t7)mf8Oh9GWb{", severity0);
+        assertEquals("WARNING", severity0.getName());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.toString());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals("Ay?D1t7)mf8Oh9GWb{", stackException0.getKeyCode());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertNotNull(stackException0);
+
+        // Undeclared exception!
+        try {
+            stackException0.retainAll((Collection) null);
+            fail("Expecting exception: NullPointerException");
+
+        } catch (NullPointerException e) {
+            //
+            // no message in exception (getMessage() returned null)
+            //
+            verifyException("java.util.Objects", e);
+        }
+    }
+
+    @Test
+    public void test05()
+            throws Throwable {
+        Severity severity0 = Severity.INFO;
+        assertEquals("INFO", severity0.toString());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.getName());
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertNotNull(severity0);
+
+        StackException stackException0 = new StackException("cYM<J`vJih}5~N", severity0);
+        assertEquals("INFO", severity0.toString());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("INFO", severity0.getName());
+        assertTrue(stackException0.isEmpty());
+        assertEquals("cYM<J`vJih}5~N", stackException0.getKeyCode());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertNotNull(stackException0);
+
+        // Undeclared exception!
+        try {
+            stackException0.removeAll((Collection) null);
+            fail("Expecting exception: NullPointerException");
+
+        } catch (NullPointerException e) {
+            //
+            // no message in exception (getMessage() returned null)
+            //
+            verifyException("java.util.Objects", e);
+        }
+    }
+
+    @Test
+    public void test06()
+            throws Throwable {
+        Severity severity0 = Severity.WARNING;
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertNotNull(severity0);
+
+        StackException stackException0 = new StackException("", severity0);
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("WARNING", severity0.toString());
+        assertTrue(stackException0.isEmpty());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertNotNull(stackException0);
+
+        Object[] objectArray0 = new Object[0];
+        Object[] objectArray1 = stackException0.toArray(objectArray0);
+        assertSame(objectArray0, objectArray1);
+        assertSame(objectArray1, objectArray0);
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("WARNING", severity0.toString());
+        assertTrue(stackException0.isEmpty());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertNotNull(objectArray1);
+    }
+
+    @Test
+    public void test07()
+            throws Throwable {
+        Severity severity0 = Severity.DEBUG;
+        assertEquals("DEBUG", severity0.toString());
+        assertEquals(5, severity0.getIntLevel());
+        assertEquals("DEBUG", severity0.getName());
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertNotNull(severity0);
+
+        StackException stackException0 = new StackException("h/%*W}X4~L)>tV", severity0, (String) null);
+        assertEquals("DEBUG", severity0.toString());
+        assertEquals(5, severity0.getIntLevel());
+        assertEquals("DEBUG", severity0.getName());
+        assertEquals("h/%*W}X4~L)>tV", stackException0.getKeyCode());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertNotNull(stackException0);
+
+        stackException0.clear();
+        assertEquals("DEBUG", severity0.toString());
+        assertEquals(5, severity0.getIntLevel());
+        assertEquals("DEBUG", severity0.getName());
+        assertEquals("h/%*W}X4~L)>tV", stackException0.getKeyCode());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(1, Severity.FATAL_INT);
+    }
+
+    @Test
+    public void test08()
+            throws Throwable {
+        Severity severity0 = Severity.INFO;
+        assertEquals("INFO", severity0.toString());
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertNotNull(severity0);
+
+        StackException stackException0 = new StackException("", severity0, "");
+        assertEquals("INFO", severity0.toString());
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals("", stackException0.getKeyCode());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertNotNull(stackException0);
+
+        boolean boolean0 = stackException0.isEmpty();
+        assertEquals("INFO", severity0.toString());
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals("", stackException0.getKeyCode());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertTrue(boolean0);
+
+        Severity severity1 = Severity.getSeverity("");
+        assertNull(severity1);
+
+        PrintWriter printWriter0 = mock(PrintWriter.class, new ViolatedAssumptionAnswer());
+        PrintWriter printWriter1 = mock(PrintWriter.class, new ViolatedAssumptionAnswer());
+        doReturn(printWriter0, printWriter0, printWriter0, printWriter0, printWriter0).when(printWriter1).append(any(
+                java.lang.CharSequence.class));
+        stackException0.printStackTrace(printWriter1);
+        assertEquals("INFO", severity0.toString());
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertEquals("", stackException0.getExtendedMessage());
+        assertEquals("", stackException0.getKeyCode());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+
+        StackException stackException1 = new StackException((String) null, severity0, "");
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertEquals("INFO", severity0.toString());
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertTrue(stackException1.isEmpty());
+        assertNull(stackException1.getKeyCode());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertNotNull(stackException1);
+
+        Object object0 = new Object();
+        assertNotNull(object0);
+
+        boolean boolean1 = stackException1.remove(object0);
+        assertFalse(stackException1.equals((Object) stackException0));
+        assertFalse(boolean1 == boolean0);
+        assertNotSame(stackException1, stackException0);
+        assertEquals("INFO", severity0.toString());
+        assertEquals("INFO", severity0.getName());
+        assertEquals(4, severity0.getIntLevel());
+        assertTrue(stackException1.isEmpty());
+        assertNull(stackException1.getKeyCode());
+        assertEquals("", stackException1.getExtendedMessage());
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertFalse(boolean1);
+    }
+
+    @Test
+    public void test09()
+            throws Throwable {
+        Object[] objectArray0 = new Object[6];
+        Object object0 = new Object();
+        assertNotNull(object0);
+
+        Object object1 = new Object();
+        assertFalse(object1.equals((Object) object0));
+        assertNotNull(object1);
+    }
+
+    @Test
+    public void test10()
+            throws Throwable {
+        Severity severity0 = Severity.WARNING;
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertNotNull(severity0);
+
+        Collection collection0 = Severity.getSeverities();
+        assertNotNull(collection0);
+
+        StackException stackException0 = new StackException("com.araguacaima.commons.exception.core.StackException",
+                severity0,
+                "com.araguacaima.commons.exception.core.StackException");
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertNotNull(stackException0);
+
+        Collection collection1 = Severity.getSeverities();
+        assertSame(collection1, collection0);
+        assertNotNull(collection1);
+
+        Collection collection2 = Severity.getSeverities();
+        assertSame(collection2, collection1);
+        assertSame(collection2, collection0);
+        assertNotNull(collection2);
+
+        boolean boolean0 = stackException0.add(severity0);
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertFalse(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertTrue(boolean0);
+
+        Iterator iterator0 = stackException0.iterator();
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertFalse(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertNotNull(iterator0);
+
+        boolean boolean1 = stackException0.retainAll(collection0);
+        assertTrue(boolean1 == boolean0);
+        assertSame(collection0, collection1);
+        assertSame(collection0, collection2);
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertTrue(boolean1);
+
+        boolean boolean2 = stackException0.retainAll(collection0);
+        assertFalse(boolean2 == boolean0);
+        assertFalse(boolean2 == boolean1);
+        assertSame(collection0, collection1);
+        assertSame(collection0, collection2);
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertFalse(boolean2);
+
+        int int0 = stackException0.size();
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(0, int0);
+
+        Object[] objectArray0 = stackException0.toArray();
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertNotNull(objectArray0);
+
+        int int1 = stackException0.size();
+        assertTrue(int1 == int0);
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(0, int1);
+
+        Collection collection3 = Severity.getSeverities();
+        assertSame(collection3, collection2);
+        assertSame(collection3, collection0);
+        assertSame(collection3, collection1);
+        assertNotNull(collection3);
+
+        Collection collection4 = Severity.getSeverities();
+        assertSame(collection4, collection1);
+        assertSame(collection4, collection2);
+        assertSame(collection4, collection0);
+        assertSame(collection4, collection3);
+        assertNotNull(collection4);
+
+        boolean boolean3 = stackException0.isEmpty();
+        assertTrue(boolean3 == boolean0);
+        assertFalse(boolean3 == boolean2);
+        assertTrue(boolean3 == boolean1);
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertTrue(boolean3);
+
+        boolean boolean4 = stackException0.add(collection1);
+        assertTrue(boolean4 == boolean1);
+        assertTrue(boolean4 == boolean0);
+        assertTrue(boolean4 == boolean3);
+        assertFalse(boolean4 == boolean2);
+        assertSame(collection1, collection3);
+        assertSame(collection1, collection2);
+        assertSame(collection1, collection0);
+        assertSame(collection1, collection4);
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertFalse(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertTrue(boolean4);
+
+        Object[] objectArray1 = stackException0.toArray(objectArray0);
+        assertFalse(objectArray1.equals((Object) objectArray0));
+        assertNotSame(objectArray1, objectArray0);
+        assertNotSame(objectArray0, objectArray1);
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertFalse(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertNotNull(objectArray1);
+
+        int int2 = stackException0.size();
+        assertFalse(int2 == int1);
+        assertFalse(int2 == int0);
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertFalse(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(1, int2);
+
+        Object object0 = new Object();
+        assertNotNull(object0);
+
+        boolean boolean5 = stackException0.contains(object0);
+        assertFalse(boolean5 == boolean4);
+        assertTrue(boolean5 == boolean2);
+        assertFalse(boolean5 == boolean0);
+        assertFalse(boolean5 == boolean1);
+        assertFalse(boolean5 == boolean3);
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertFalse(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertFalse(boolean5);
+
+        boolean boolean6 = stackException0.containsAll(collection3);
+        assertTrue(boolean6 == boolean4);
+        assertTrue(boolean6 == boolean1);
+        assertFalse(boolean6 == boolean5);
+        assertTrue(boolean6 == boolean3);
+        assertTrue(boolean6 == boolean0);
+        assertFalse(boolean6 == boolean2);
+        assertSame(collection3, collection2);
+        assertSame(collection3, collection0);
+        assertSame(collection3, collection1);
+        assertSame(collection3, collection4);
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertFalse(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertTrue(boolean6);
+
+        boolean boolean7 = stackException0.contains(collection1);
+        assertTrue(boolean7 == boolean4);
+        assertTrue(boolean7 == boolean3);
+        assertFalse(boolean7 == boolean5);
+        assertTrue(boolean7 == boolean1);
+        assertTrue(boolean7 == boolean0);
+        assertFalse(boolean7 == boolean2);
+        assertTrue(boolean7 == boolean6);
+        assertSame(collection1, collection3);
+        assertSame(collection1, collection2);
+        assertSame(collection1, collection0);
+        assertSame(collection1, collection4);
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertFalse(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertTrue(boolean7);
+
+        boolean boolean8 = stackException0.isEmpty();
+        assertFalse(boolean8 == boolean0);
+        assertTrue(boolean8 == boolean5);
+        assertFalse(boolean8 == boolean6);
+        assertFalse(boolean8 == boolean1);
+        assertFalse(boolean8 == boolean3);
+        assertFalse(boolean8 == boolean7);
+        assertFalse(boolean8 == boolean4);
+        assertTrue(boolean8 == boolean2);
+        assertEquals("WARNING", severity0.toString());
+        assertEquals(3, severity0.getIntLevel());
+        assertEquals("WARNING", severity0.getName());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getKeyCode());
+        assertEquals("com.araguacaima.commons.exception.core.StackException", stackException0.getExtendedMessage());
+        assertFalse(stackException0.isEmpty());
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertFalse(boolean8);
+    }
+
+    @Test
+    public void test11()
+            throws Throwable {
+        String string0 = "";
+        Severity severity0 = Severity.ERROR;
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertNotNull(severity0);
+
+        Collection collection0 = Severity.getSeverities();
+        assertNotNull(collection0);
+
+        StackException stackException0 = new StackException("", severity0, ";9;UE~Zx6{5g5");
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals(";9;UE~Zx6{5g5", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertNotNull(stackException0);
+
+        PrintStream printStream0 = mock(PrintStream.class, new ViolatedAssumptionAnswer());
+        PrintStream printStream1 = mock(PrintStream.class, new ViolatedAssumptionAnswer());
+        PrintStream printStream2 = mock(PrintStream.class, new ViolatedAssumptionAnswer());
+        doReturn(printStream0, printStream0, printStream0, printStream1, printStream1).when(printStream2).append(any(
+                java.lang.CharSequence.class));
+        stackException0.printStackTrace(printStream2);
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals(";9;UE~Zx6{5g5", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+
+        Stream stream0 = stackException0.stream();
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals(";9;UE~Zx6{5g5", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertNotNull(stream0);
+
+        String string1 = stackException0.getMessage();
+        assertFalse(string1.equals((Object) string0));
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals(";9;UE~Zx6{5g5", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertNotNull(string1);
+        assertEquals("[[exceptions_en_.properties]] ;9;UE~Zx6{5g5", string1);
+
+        int int0 = stackException0.size();
+        assertEquals("ERROR", severity0.getName());
+        assertEquals("ERROR", severity0.toString());
+        assertEquals(2, severity0.getIntLevel());
+        assertEquals("", stackException0.getKeyCode());
+        assertEquals(";9;UE~Zx6{5g5", stackException0.getExtendedMessage());
+        assertTrue(stackException0.isEmpty());
+        assertEquals(1, Severity.FATAL_INT);
+        assertEquals(3, Severity.WARNING_INT);
+        assertEquals(2, Severity.ERROR_INT);
+        assertEquals(4, Severity.INFO_INT);
+        assertEquals(5, Severity.DEBUG_INT);
+        assertEquals(0, int0);
+
+        Object[] objectArray0 = null;
+        // Undeclared exception!
+        try {
+            stackException0.toArray((Object[]) null);
+            fail("Expecting exception: NullPointerException");
+
+        } catch (NullPointerException e) {
+            //
+            // no message in exception (getMessage() returned null)
+            //
+            verifyException("java.util.Vector", e);
+        }
+    }
+
+    @Test
+    public void test12()
+            throws Throwable {
+        Severity severity0 = Severity.DEBUG;
+        StackException stackException0 = new StackException("N,FOXdj7b!el*U-", severity0);
+        Severity.getSeverity("N,FOXdj7b!el*U-");
+        StackException stackException1 = new StackException("com.araguacaima.commons.exception.core.StackException",
+                severity0);
+        stackException1.clear();
+        Collection collection0 = Severity.getSeverities();
+        stackException0.removeAll(stackException1);
+        stackException1.isEmpty();
+        stackException0.addAll(collection0);
+        stackException1.setExtendedMessage("w.;F;G~XzKM.,l");
+        stackException0.retainAll(collection0);
+        Object[] objectArray0 = new Object[5];
+        objectArray0[0] = (Object) severity0;
+        objectArray0[1] = (Object) stackException0;
+        objectArray0[2] = (Object) severity0;
+        Severity.getSeverities();
+        objectArray0[3] = (Object) severity0;
+        objectArray0[4] = (Object) "com.araguacaima.commons.exception.core.StackException";
+        Object[] objectArray1 = stackException0.toArray(objectArray0);
+        Object object0 = new Object();
+        stackException1.contains(object0);
+        stackException0.iterator();
+        stackException0.toArray();
+        stackException1.remove("N,FOXdj7b!el*U-");
+        stackException0.toArray(objectArray1);
+        assertFalse(stackException0.isEmpty());
+
+        stackException0.retainAll(stackException1);
+        stackException0.containsAll(stackException1);
+        StackException stackException2 = new StackException("N,FOXdj7b!el*U-",
+                severity0,
+                "com.araguacaima.commons.exception.core.StackException");
+        stackException0.addAll(stackException2);
+        assertTrue(stackException0.isEmpty());
+
+        stackException2.addAll(stackException1);
+        boolean boolean0 = stackException2.isEmpty();
+        assertTrue(boolean0);
+    }
+
+    @Test
+    public void test13()
+            throws Throwable {
+        Severity severity0 = Severity.WARNING;
+        StackException stackException0 = new StackException("eW,yq=jo!zOU%s", severity0, "eW,yq=jo!zOU%s");
+        Severity.getSeverity("com.araguacaima.commons.exception.core.StackException");
+        Object[] objectArray0 = new Object[1];
+        Object[] objectArray1 = stackException0.toArray(objectArray0);
+        assertSame(objectArray0, objectArray1);
+    }
 }

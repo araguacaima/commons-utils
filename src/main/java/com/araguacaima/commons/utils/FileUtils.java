@@ -105,15 +105,12 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     private int recursionLevel;
     private int searchType;
     private StringUtils stringUtils;
-    private SystemInfo systemInfo;
 
     @Autowired
-    public FileUtils(SystemInfo systemInfo,
-                     DateUtils dateUtils,
+    public FileUtils(DateUtils dateUtils,
                      JarUtils jarUtils,
                      NumberUtils numberUtils,
                      StringUtils stringUtils) {
-        this.systemInfo = systemInfo;
         this.dateUtils = dateUtils;
         this.jarUtils = jarUtils;
         this.numberUtils = numberUtils;
@@ -910,7 +907,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
         char primerChar = path.charAt(0);
         log.debug("Path (1.5): '" + File.pathSeparator + "' vs '" + primerChar + "'");
-        if (systemInfo.isWindows() && (File.pathSeparator.equals(primerChar + ""))) {
+        if (File.pathSeparator.equals(primerChar + "")) {
             // Si el fileName trajo o no barra, puede que el path inicie con
             // barra antes de la unidad.
             path = path.substring(1);
