@@ -15,19 +15,18 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 @Component
-public class PropertiesHandlerUtil {
+public class PropertiesHandlerUtils {
 
     private static final Map<String, PropertiesHandler> instancesMap = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(PropertiesHandler.class);
-    private static PropertiesHandler instance;
     private FileUtils fileUtils;
     private MapUtils mapUtils;
     private NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate;
 
     @Autowired
-    public PropertiesHandlerUtil(MapUtils mapUtils,
-                                 FileUtils fileUtils,
-                                 NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate) {
+    public PropertiesHandlerUtils(MapUtils mapUtils,
+                                  FileUtils fileUtils,
+                                  NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate) {
         this.mapUtils = mapUtils;
         this.fileUtils = fileUtils;
         this.notNullOrEmptyStringPredicate = notNullOrEmptyStringPredicate;

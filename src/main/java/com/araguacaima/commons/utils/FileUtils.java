@@ -29,6 +29,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.net.ftp.FTPClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,17 +96,16 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public final String DEFAULT_PATH = "/";
-    private DateUtils dateUtils;
-    private JarUtils jarUtils;
     private final Logger log = LoggerFactory.getLogger(FileUtils.class);
-    private NumberUtils numberUtils;
-    private StringUtils stringUtils;
-    private SystemInfo systemInfo;
+    private DateUtils dateUtils;
     private String filterCriterion;
-    private NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters = new
-            NotNullsLinkedHashSet<>();
+    private NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters = new NotNullsLinkedHashSet<>();
+    private JarUtils jarUtils;
+    private NumberUtils numberUtils;
     private int recursionLevel;
     private int searchType;
+    private StringUtils stringUtils;
+    private SystemInfo systemInfo;
 
     @Autowired
     public FileUtils(SystemInfo systemInfo,
@@ -1251,6 +1251,102 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         }
     }
 
+    public File getFileFromFTP(String ftpServerDomain,
+                               String ftpServerDomainLogin,
+                               String ftpServerDomainPassword,
+                               String ftpRemoteFilePath,
+                               String ftpLocalFilePath) {
+
+        FTPClient client = new FTPClient();
+        FileOutputStream fos = null;
+
+        File file = new File(ftpLocalFilePath);
+        try {
+            if (file.exists()) {
+                file.delete();
+            }
+            file.createNewFile();
+        } catch (IOException e) {
+            log.error("Exception [" + e.getClass() + "] - " + e.getMessage());
+        }
+        file.deleteOnExit();
+        try {
+            client.connect(ftpServerDomain);
+            client.login(ftpServerDomainLogin, ftpServerDomainPassword);
+            fos = new FileOutputStream(file);
+            client.retrieveFile(ftpRemoteFilePath, fos);
+        } catch (IOException e) {
+            log.error("Exception [" + e.getClass() + "] - " + e.getMessage());
+        } finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+                client.disconnect();
+            } catch (Exception e) {
+                log.error("Exception [" + e.getClass() + "] - " + e.getMessage());
+            }
+        }
+        return file;
+    }
+
+    public File getFileFromURL(String urlLocalFilePath,
+                                char[] urlRemoteFilePath,
+                                char[] urlServerDomainAndPort,
+                                CharSequence urlServerDomainLogin,
+                                CharSequence urlServerDomainPassword) {
+
+        URL u;
+        InputStream is = null;
+        BufferedReader dis;
+        String s;
+        File file = new File(urlLocalFilePath);
+        try {
+            if (file.exists()) {
+                file.delete();
+            }
+            file.createNewFile();
+        } catch (IOException e) {
+            log.error("Exception [" + e.getClass() + "] - " + e.getMessage());
+        }
+        file.deleteOnExit();
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append("http://");
+            if (!StringUtils.isBlank(urlServerDomainLogin)) {
+                sb.append(urlServerDomainLogin);
+            }
+            if (!StringUtils.isBlank(urlServerDomainPassword)) {
+                sb.append("/").append(urlServerDomainPassword);
+            }
+            if (!StringUtils.isBlank(urlServerDomainLogin)) {
+                sb.append("@");
+            }
+            sb.append(urlServerDomainAndPort).append("/").append(urlRemoteFilePath);
+            u = new URL(sb.toString());
+            is = u.openStream();
+            dis = new BufferedReader(new InputStreamReader(is));
+            FileOutputStream fos = new FileOutputStream(file);
+            while ((s = dis.readLine()) != null) {
+                s = s.concat("\n");
+                fos.write(s.getBytes());
+            }
+
+        } catch (IOException ioe) {
+            log.error("Exception [" + ioe.getClass() + "] - " + ioe.getMessage());
+
+        } finally {
+
+            try {
+                is.close();
+            } catch (Exception e) {
+                log.error("Exception [" + e.getClass() + "] - " + e.getMessage());
+            }
+
+        }
+        return file;
+    }
+
     public NotNullsLinkedHashSet<FileUtilsFilenameFilter> getFilters() {
         return filters;
     }
@@ -1454,10 +1550,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * @noinspection ConstantConditions
      */
     public NotNullsLinkedHashSet<File> listFiles(final Collection<File> files,
-                                           final Collection<FileUtilsFilenameFilter> filters,
-                                           final int filteringType,
-                                           int recurse,
-                                           int searchType) {
+                                                 final Collection<FileUtilsFilenameFilter> filters,
+                                                 final int filteringType,
+                                                 int recurse,
+                                                 int searchType) {
 
         if (filters != null) {
             filters.addAll(getFilters());

@@ -19,7 +19,7 @@ package com.araguacaima.commons.utils;
  * Date: 19/08/11 12:08 PM
  */
 
-public class BaseConverterUtil {
+public class BaseConverterUtils {
 
     /**
      * Conjunto de caracteres que se utilizan para hacer la conversión, transformación y asociación producto del cambio

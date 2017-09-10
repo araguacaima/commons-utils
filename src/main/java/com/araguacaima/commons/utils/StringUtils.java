@@ -391,7 +391,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         return false;
     }
 
-    public int firstIndexOf(String input, Collection tokens) {
+    public static int firstIndexOf(String input, Collection tokens) {
         int firstIndexOf = input.length() + 1;
         for (Object token1 : tokens) {
             String token = (String) token1;

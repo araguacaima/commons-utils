@@ -17,12 +17,12 @@ public class RunningMode {
     public static final String RUNNING_MODE_TESTING = "running.mode_testing";
     private static final Logger log = LoggerFactory.getLogger(RunningMode.class);
     private String logFileSourceName;
-    private PropertiesHandlerUtil propertiesHandlerUtil;
+    private PropertiesHandlerUtils propertiesHandlerUtils;
     private String runningMode = RUNNING_MODE_DEFAULT;
 
     @Autowired
-    public RunningMode(PropertiesHandlerUtil propertiesHandlerUtil) {
-        this.propertiesHandlerUtil = propertiesHandlerUtil;
+    public RunningMode(PropertiesHandlerUtils propertiesHandlerUtils) {
+        this.propertiesHandlerUtils = propertiesHandlerUtils;
     }
 
     public String getRunningMode() {
@@ -51,7 +51,7 @@ public class RunningMode {
 
     public void setLogFile(String logFileSourceName) {
         try {
-            Properties properties = propertiesHandlerUtil.getHandler(logFileSourceName).getProperties();
+            Properties properties = propertiesHandlerUtils.getHandler(logFileSourceName).getProperties();
             runningMode = properties.getProperty("running_mode");
             if (StringUtils.isBlank(runningMode)) {
                 log.debug("Running mode (running_mode) is not found inside the file", 2);

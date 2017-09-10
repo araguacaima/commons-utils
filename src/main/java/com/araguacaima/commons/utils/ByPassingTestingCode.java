@@ -15,12 +15,12 @@ public class ByPassingTestingCode {
     private String logFileSourceName;
     private MapUtils mapUtils;
     private NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate;
-    private PropertiesHandlerUtil propertiesHandlerUtil;
+    private PropertiesHandlerUtils propertiesHandlerUtils;
 
-    public ByPassingTestingCode(PropertiesHandlerUtil propertiesHandlerUtil,
+    public ByPassingTestingCode(PropertiesHandlerUtils propertiesHandlerUtils,
                                 MapUtils mapUtils,
                                 NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate) {
-        this.propertiesHandlerUtil = propertiesHandlerUtil;
+        this.propertiesHandlerUtils = propertiesHandlerUtils;
         this.mapUtils = mapUtils;
         this.notNullOrEmptyStringPredicate = notNullOrEmptyStringPredicate;
     }
@@ -29,7 +29,7 @@ public class ByPassingTestingCode {
         final Properties properties;
 
         try {
-            properties = propertiesHandlerUtil.getHandler(logFileSourceName).getProperties();
+            properties = propertiesHandlerUtils.getHandler(logFileSourceName).getProperties();
             BYPASSING_TESTING_CODE_PARAMETERS_MAP = mapUtils.select(properties,
                     o -> ((String) o).startsWith(ByPassingTestingConstants.BYPASSING_TESTING_CODE_PARAMETER_PREFIX),
                     notNullOrEmptyStringPredicate);

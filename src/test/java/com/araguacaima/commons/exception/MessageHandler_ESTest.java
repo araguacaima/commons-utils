@@ -8,8 +8,8 @@ package com.araguacaima.commons.exception;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.evosuite.runtime.EvoAssertions.*;
-import com.araguacaima.commons.exception.MessageHandler;
-import com.araguacaima.commons.utils.PropertiesHandlerUtil;
+
+import com.araguacaima.commons.utils.PropertiesHandlerUtils;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -25,7 +25,7 @@ public class MessageHandler_ESTest extends MessageHandler_ESTest_scaffolding {
 
   @Test
   public void test00()  throws Throwable  {
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtil) null);
+      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
       Locale locale0 = Locale.UK;
       Locale locale1 = locale0.stripExtensions();
       messageHandler0.addDataFromFile("' value as int (", locale0);
@@ -66,7 +66,7 @@ public class MessageHandler_ESTest extends MessageHandler_ESTest_scaffolding {
       MessageHandler.buildNameAndLocale("UK-z!*:G=/OEqU)_de_", "UK-z!*:G=/OEqU)_de_");
       MessageHandler.get("UK-z!*:G=/OEqU)_de_", "UK-z!*:G=/OEqU)_de_");
       MessageHandler.buildNameAndLocale("com.araguacaima.commons.exception.MessageHandler", "");
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtil) null);
+      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
       messageHandler0.setDefaultFile("");
       messageHandler0.clearData();
       messageHandler0.get("");
@@ -91,7 +91,7 @@ public class MessageHandler_ESTest extends MessageHandler_ESTest_scaffolding {
       objectArray0[7] = (Object) "cCf\",OaZ";
       MessageHandler.get((String) null, objectArray0, "cCf\",OaZ_en_");
       MessageHandler.buildNameAndLocale("Uploaded ", "U*#Bxi.DAov@ 2cJ{");
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtil) null);
+      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
       messageHandler0.addDataFromFile("cCf\",OaZ");
       messageHandler0.getDefaultFile();
       // Undeclared exception!
@@ -119,7 +119,7 @@ public class MessageHandler_ESTest extends MessageHandler_ESTest_scaffolding {
       MessageHandler.get("", "");
       Object[] objectArray0 = new Object[0];
       MessageHandler.get("[[_en_]]", objectArray0, "");
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtil) null);
+      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
       messageHandler0.getLabels();
       MessageHandler.get("", "O0E=84FV");
       Locale locale0 = Locale.US;
@@ -140,7 +140,7 @@ public class MessageHandler_ESTest extends MessageHandler_ESTest_scaffolding {
 
   @Test
   public void test06()  throws Throwable  {
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtil) null);
+      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
       Hashtable hashtable0 = messageHandler0.getLabels();
       Object[] objectArray0 = new Object[2];
       objectArray0[0] = (Object) hashtable0;
@@ -190,7 +190,7 @@ public class MessageHandler_ESTest extends MessageHandler_ESTest_scaffolding {
 
   @Test
   public void test08()  throws Throwable  {
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtil) null);
+      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
       // Undeclared exception!
       try { 
         messageHandler0.put((String) null, (String) null, "Ncc");
@@ -220,7 +220,7 @@ public class MessageHandler_ESTest extends MessageHandler_ESTest_scaffolding {
   @Test
   public void test10()  throws Throwable  {
       MessageHandler.get("d&#%p:tFQXuWg", "");
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtil) null);
+      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
       messageHandler0.getLabels();
   }
 
@@ -231,7 +231,7 @@ public class MessageHandler_ESTest extends MessageHandler_ESTest_scaffolding {
 
   @Test
   public void test12()  throws Throwable  {
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtil) null);
+      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
       messageHandler0.put("OJGs?t", "OJGs?t", "OJGs?t");
       messageHandler0.getWithLocale("OJGs?t", (Locale) null);
       messageHandler0.setDefaultFile("");
@@ -239,7 +239,7 @@ public class MessageHandler_ESTest extends MessageHandler_ESTest_scaffolding {
 
   @Test
   public void test13()  throws Throwable  {
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtil) null);
+      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
       String string0 = "";
       messageHandler0.addDataFromFile("");
       String string1 = "";
@@ -296,7 +296,7 @@ public class MessageHandler_ESTest extends MessageHandler_ESTest_scaffolding {
   @Test
   public void test15()  throws Throwable  {
       MessageHandler.get("", "");
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtil) null);
+      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
       messageHandler0.getValue("^lTTT4s");
       messageHandler0.getDefaultFile();
       messageHandler0.setDefaultFile("");
@@ -316,7 +316,7 @@ public class MessageHandler_ESTest extends MessageHandler_ESTest_scaffolding {
 
   @Test
   public void test16()  throws Throwable  {
-      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtil) null);
+      MessageHandler messageHandler0 = new MessageHandler((PropertiesHandlerUtils) null);
       Object[] objectArray0 = new Object[2];
       messageHandler0.setDefaultFile("    Error buscando la clase '");
       Object object0 = new Object();

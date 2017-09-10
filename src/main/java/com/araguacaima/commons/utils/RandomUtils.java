@@ -2,7 +2,7 @@ package com.araguacaima.commons.utils;
 
 import java.util.Random;
 
-public class RandomUtil {
+public class RandomUtils {
 
     public static double getRandomDoubleInRange(double aStart, double aEnd, Random aRandom) {
         if (aStart > aEnd) {

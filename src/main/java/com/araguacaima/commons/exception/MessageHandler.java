@@ -19,8 +19,7 @@
 
 package com.araguacaima.commons.exception;
 
-import com.araguacaima.commons.utils.FileUtils;
-import com.araguacaima.commons.utils.PropertiesHandlerUtil;
+import com.araguacaima.commons.utils.PropertiesHandlerUtils;
 import com.araguacaima.commons.utils.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,12 +55,12 @@ public class MessageHandler {
     private static final Hashtable<String, Hashtable<String, String>> labels = new Hashtable<>();
     private static final Logger log = LoggerFactory.getLogger(MessageHandler.class);
     private static Locale forcedLocale;
-    private final PropertiesHandlerUtil propertiesHandlerUtil;
+    private final PropertiesHandlerUtils propertiesHandlerUtils;
     private String defaultFile = null;
 
     @Autowired
-    public MessageHandler(PropertiesHandlerUtil propertiesHandlerUtil) {
-        this.propertiesHandlerUtil = propertiesHandlerUtil;
+    public MessageHandler(PropertiesHandlerUtils propertiesHandlerUtils) {
+        this.propertiesHandlerUtils = propertiesHandlerUtils;
     }
 
     /**
@@ -250,7 +249,7 @@ public class MessageHandler {
         String bundleKey = buildNameAndLocale(filename, localeId);
 
         try {
-            Properties bundle = propertiesHandlerUtil.loadProperties(filename, locale, bundleKey);
+            Properties bundle = propertiesHandlerUtils.loadProperties(filename, locale, bundleKey);
             count = propertyToMap(count, bundleKey, bundle);
         } catch (Exception e) {
             log.error("Error adding data from file '" + filename + "', locale '" + localeId + "'.  No data will be "

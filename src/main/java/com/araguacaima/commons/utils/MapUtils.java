@@ -19,6 +19,7 @@
 
 package com.araguacaima.commons.utils;
 
+import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
@@ -26,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.util.*;
 
 @Component
@@ -37,7 +37,8 @@ public class MapUtils {
     public static final int EVALUATE_BOTH_KEY_OR_VALUE = 3;
     public static final int EVALUATE_JUST_KEY = 1;
     public static final int EVALUATE_JUST_VALUE = 2;
-    private final Logger log = LoggerFactory.getLogger(MapUtils.class);
+    public static final StringKeyHashMapUtil stringKeyHashMapUtil = new StringKeyHashMapUtil();
+    private static final Logger log = LoggerFactory.getLogger(MapUtils.class);
 
     /**
      * <code>MapUtils</code> should not normally be instantiated.
@@ -45,12 +46,12 @@ public class MapUtils {
     private MapUtils() {
     }
 
-    public Map<Object, Object> find(Map map, Predicate keyPredicate, Predicate valuePredicate, int evaluationType) {
-        Map<Object, Object> newMap = new HashMap<>();
+    public static Map find(Map map, Predicate keyPredicate, Predicate valuePredicate, int evaluationType) {
+        Map newMap = new HashMap();
         Object key;
         Object value;
-        for (Object o : map.entrySet()) {
-            Map.Entry entry = (Map.Entry) o;
+        for (Iterator it = map.entrySet().iterator(); it.hasNext(); ) {
+            java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
             key = entry.getKey();
             value = entry.getValue();
             if (existsInMap(key, value, keyPredicate, valuePredicate, evaluationType)) {
@@ -61,11 +62,11 @@ public class MapUtils {
         return newMap;
     }
 
-    private boolean existsInMap(Object key,
-                                Object value,
-                                Predicate keyPredicate,
-                                Predicate valuePredicate,
-                                int evaluationType) {
+    private static boolean existsInMap(Object key,
+                                       Object value,
+                                       Predicate keyPredicate,
+                                       Predicate valuePredicate,
+                                       int evaluationType) {
         boolean result = false;
         try {
             switch (evaluationType) {
@@ -89,13 +90,12 @@ public class MapUtils {
                     break;
             }
         } catch (Exception e) {
-            log.debug("Error evaluating predicates. " + e.getMessage());
+            log.debug("Error evaluating predicates. " + e.getMessage(), 1);
         }
         return result;
     }
 
-    public Object findObject(Map map, Predicate keyPredicate, Predicate valuePredicate, int evaluationType) {
-
+    public static Object findObject(Map map, Predicate keyPredicate, Predicate valuePredicate, int evaluationType) {
         Object key;
         Object value = null;
         for (Object o : map.entrySet()) {
@@ -109,12 +109,79 @@ public class MapUtils {
         return value;
     }
 
+    public static Map/*<String, String>*/ fromProperties(final Properties properties) {
+        final Map/*<String, String>*/ map = new HashMap/*<String, String>*/();
+        IterableUtils.forEach(properties.keySet(), new Closure() {
+            public void execute(Object o) {
+                Object key = o;
+                Object value = properties.get(key);
+                if (key != null) {
+                    key = String.valueOf(o);
+                    if (value != null) {
+                        value = String.valueOf(value);
+                    } else {
+                        value = StringUtils.EMPTY;
+                    }
+                    map.put(/*(String)*/ key, /*(String)*/ value);
+                }
+            }
+        });
+        return map;
+    }
+
+    public static StringKeyHashMapUtil getStringKeyHashMapUtil() {
+        return stringKeyHashMapUtil;
+    }
+
     public static boolean isEmpty(Map map) {
         return org.apache.commons.collections4.MapUtils.isEmpty(map);
     }
 
     public static boolean isNotEmpty(Map map) {
-       return org.apache.commons.collections4.MapUtils.isNotEmpty(map);
+        return org.apache.commons.collections4.MapUtils.isNotEmpty(map);
+    }
+
+    public static Map/*<String, String>*/ toMap(final Properties properties) {
+        final Map map = new HashMap();
+        IterableUtils.forEach(properties.keySet(), new Closure() {
+            public void execute(Object o) {
+                Object key = o;
+                Object value = properties.get(key);
+                if (key != null) {
+                    key = String.valueOf(o);
+                    if (value != null) {
+                        value = String.valueOf(value);
+                    } else {
+                        value = StringUtils.EMPTY;
+                    }
+                    map.put((String) key, (String) value);
+                }
+            }
+        });
+        return map;
+    }
+
+    public static Properties toProperties(final Map/*<String, String>*/ map) {
+        if (map instanceof Properties) {
+            return (Properties) map;
+        }
+        final Properties properties = new Properties();
+        IterableUtils.forEach(map.keySet(), new Closure() {
+            public void execute(Object o) {
+                Object key = o;
+                Object value = map.get(key);
+                if (key != null) {
+                    key = String.valueOf(o);
+                    if (value != null) {
+                        value = String.valueOf(value);
+                    } else {
+                        value = StringUtils.EMPTY;
+                    }
+                    properties.setProperty((String) key, (String) value);
+                }
+            }
+        });
+        return properties;
     }
 
     public void removeAll(final Map<?, ?> map, Collection<?> keys) {
@@ -147,16 +214,16 @@ public class MapUtils {
         }
     }
 
-    public Map transform(Map<Object, Object> map, Transformer keyTransformer, Transformer valueTransformer) {
-        Map<Object, Object> newMap = new HashMap<>(map);
+    public Map transform(Map map, Transformer keyTransformer, Transformer valueTransformer) {
+        Map newMap = new HashMap(map);
         Object key;
         Object value;
-        for (Iterator<Map.Entry<Object, Object>> it = map.entrySet().iterator(); it.hasNext(); appendIntoMap(key,
+        for (Iterator it = map.entrySet().iterator(); it.hasNext(); appendIntoMap(key,
                 value,
                 keyTransformer,
                 valueTransformer,
                 newMap)) {
-            Map.Entry<Object, Object> entry = it.next();
+            java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
             key = entry.getKey();
             value = entry.getValue();
         }
@@ -191,7 +258,7 @@ public class MapUtils {
         }
     }
 
-    public class StringKeyHashMapUtil extends HashMap<String, Object> {
+    public static class StringKeyHashMapUtil extends HashMap<String, Object> {
 
         private final long serialVersionUID = -8603163772769655779L;
 
