@@ -19,7 +19,8 @@
 
 package com.araguacaima.commons.utils;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +85,7 @@ public class EnumsUtils<T> {
         T result = null;
         if (constants != null) {
             List<T> enumConstants = Arrays.asList(constants);
-            result = (T) CollectionUtils.find(enumConstants, object -> object.toString().equals(name));
+            result = (T) IterableUtils.find(enumConstants, object -> object.toString().equals(name));
         }
         if (result != null)
             return result;
@@ -135,7 +136,7 @@ public class EnumsUtils<T> {
             Object[] constants = enumerateClazz.getEnumConstants();
             if (constants != null) {
                 List enumConstants = Arrays.asList(constants);
-                CollectionUtils.forAllDo(enumConstants, o -> result.add(((Enum) o).name()));
+                IterableUtils.forEach(enumConstants, o -> result.add(((Enum) o).name()));
             }
             return result;
 
@@ -170,7 +171,7 @@ public class EnumsUtils<T> {
             Object[] constants = enumerateClazz.getEnumConstants();
             if (constants != null) {
                 List enumConstants = Arrays.asList(constants);
-                CollectionUtils.forAllDo(enumConstants, o -> {
+                IterableUtils.forEach(enumConstants, o -> {
                     try {
                         final Method value = o.getClass().getMethod("value");
                         java.security.AccessController.doPrivileged((PrivilegedAction<Object>) () -> {

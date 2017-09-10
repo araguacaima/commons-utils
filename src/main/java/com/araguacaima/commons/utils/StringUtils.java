@@ -19,7 +19,8 @@
 
 package com.araguacaima.commons.utils;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -718,7 +719,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
      * @return null, if str is null, otherwise string will be returned
      * without character prefixed
      */
-    public String leftTrim(String str, char ch) {
+    public static String leftTrim(String str, char ch) {
         if (str == null) {
             return null;
         }
@@ -943,7 +944,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     public String transformsCollectionIntoString(Collection<String> tokens) {
         final StringBuilder result = new StringBuilder();
-        CollectionUtils.forAllDo(tokens, result::append);
+        IterableUtils.forEach(tokens, result::append);
         return result.toString();
     }
 
@@ -951,7 +952,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     public String transformsCollectionIntoStringWithSeperator(Collection<Object> tokens, final String separator) {
         final StringBuffer result = new StringBuffer();
-        CollectionUtils.forAllDo(tokens, o -> result.append(o).append(separator));
+        IterableUtils.forEach(tokens, o -> result.append(o).append(separator));
         result.replace(result.length() - 1, result.length(), EMPTY);
         return result.toString();
     }
@@ -960,7 +961,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
                                                                           final String separator,
                                                                           final String demarcation) {
         final StringBuffer result = new StringBuffer();
-        CollectionUtils.forAllDo(tokens,
+        IterableUtils.forEach(tokens,
                 o -> result.append(demarcation).append(o).append(demarcation).append(separator));
         result.replace(result.length() - 1, result.length(), EMPTY);
         return result.toString();

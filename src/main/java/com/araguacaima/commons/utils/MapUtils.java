@@ -19,20 +19,18 @@
 
 package com.araguacaima.commons.utils;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.Transformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.io.File;
+import java.util.*;
 
 @Component
-public class MapUtils extends org.apache.commons.collections.MapUtils {
+public class MapUtils {
 
     public static final int EVALUATE_BOTH_KEY_AND_VALUE = 0;
     public static final int DEFAULT_EVALUATION_TYPE = EVALUATE_BOTH_KEY_AND_VALUE;
@@ -41,11 +39,13 @@ public class MapUtils extends org.apache.commons.collections.MapUtils {
     public static final int EVALUATE_JUST_VALUE = 2;
     private final Logger log = LoggerFactory.getLogger(MapUtils.class);
 
-    public MapUtils() {
-
+    /**
+     * <code>MapUtils</code> should not normally be instantiated.
+     */
+    private MapUtils() {
     }
 
-    public Map find(Map map, Predicate keyPredicate, Predicate valuePredicate, int evaluationType) {
+    public Map<Object, Object> find(Map map, Predicate keyPredicate, Predicate valuePredicate, int evaluationType) {
         Map<Object, Object> newMap = new HashMap<>();
         Object key;
         Object value;
@@ -109,9 +109,16 @@ public class MapUtils extends org.apache.commons.collections.MapUtils {
         return value;
     }
 
-    public void removeAll(final Map map, Collection keys) {
+    public static boolean isEmpty(Map map) {
+        return org.apache.commons.collections4.MapUtils.isEmpty(map);
+    }
 
-        CollectionUtils.forAllDo(keys, map::remove);
+    public static boolean isNotEmpty(Map map) {
+       return org.apache.commons.collections4.MapUtils.isNotEmpty(map);
+    }
+
+    public void removeAll(final Map<?, ?> map, Collection<?> keys) {
+        IterableUtils.forEach(keys, map::remove);
     }
 
     public Map select(Map<Object, Object> map, Predicate keyPredicate, Predicate valuePredicate) {
@@ -144,12 +151,12 @@ public class MapUtils extends org.apache.commons.collections.MapUtils {
         Map<Object, Object> newMap = new HashMap<>(map);
         Object key;
         Object value;
-        for (Iterator it = map.entrySet().iterator(); it.hasNext(); appendIntoMap(key,
+        for (Iterator<Map.Entry<Object, Object>> it = map.entrySet().iterator(); it.hasNext(); appendIntoMap(key,
                 value,
                 keyTransformer,
                 valueTransformer,
                 newMap)) {
-            java.util.Map.Entry entry = (java.util.Map.Entry) it.next();
+            Map.Entry<Object, Object> entry = it.next();
             key = entry.getKey();
             value = entry.getValue();
         }
@@ -184,7 +191,7 @@ public class MapUtils extends org.apache.commons.collections.MapUtils {
         }
     }
 
-    public class StringKeyHashMapUtil extends HashMap {
+    public class StringKeyHashMapUtil extends HashMap<String, Object> {
 
         private final long serialVersionUID = -8603163772769655779L;
 
@@ -201,9 +208,8 @@ public class MapUtils extends org.apache.commons.collections.MapUtils {
          * key.
          */
         public boolean containsKeySubstring(String substring) {
-            for (Object o : this.keySet()) {
-                String key = (String) o;
-                if (key.contains(substring)) {
+            for (String o : this.keySet()) {
+                if (o.contains(substring)) {
                     return true;
                 }
             }
@@ -219,8 +225,8 @@ public class MapUtils extends org.apache.commons.collections.MapUtils {
          * key.
          */
         public Object getKeySubstringValue(String substring) {
-            for (Object o : this.keySet()) {
-                String key = (String) o;
+            for (String o : this.keySet()) {
+                String key = o;
                 if (key.contains(substring)) {
                     return this.get(key);
                 }
@@ -237,8 +243,8 @@ public class MapUtils extends org.apache.commons.collections.MapUtils {
          * key.
          */
         public Object getSubstringKeyValue(String key) {
-            for (Object o : this.keySet()) {
-                String substring = (String) o;
+            for (String o : this.keySet()) {
+                String substring = o;
                 if (key.contains(substring)) {
                     return this.get(substring);
                 }

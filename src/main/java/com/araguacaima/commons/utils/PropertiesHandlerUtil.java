@@ -2,7 +2,8 @@ package com.araguacaima.commons.utils;
 
 import com.araguacaima.commons.exception.MessageHandler;
 import com.araguacaima.commons.exception.core.PropertiesUtilException;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,7 +125,7 @@ public class PropertiesHandlerUtil {
                 notNullOrEmptyStringPredicate,
                 MapUtils.EVALUATE_BOTH_KEY_AND_VALUE);
 
-        CollectionUtils.forAllDo(propertiesStartedWith.values(),
+        IterableUtils.forEach(propertiesStartedWith.values(),
                 o -> propertyValues[0] = ((String) o).split(tokenSeparator));
         Collection result;
         try {

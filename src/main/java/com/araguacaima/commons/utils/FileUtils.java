@@ -19,7 +19,13 @@
 
 package com.araguacaima.commons.utils;
 
-import org.apache.commons.collections.CollectionUtils;
+import com.araguacaima.commons.utils.file.FileUtilsFilenameFilter;
+import com.araguacaima.commons.utils.file.FileUtilsFilenameFilterImpl;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections4.Closure;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -29,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -51,20 +58,254 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     public static final String EXTENSION_GSG = "gsg"; // Test
     public static final String EXTENSION_TXT = "txt";
     public static final String EXTENSION_XML = "xml";
+    public static final int FILTER_INCLUDE_BOTH_HIDDEN_OR_NOT = -1;
+    public static final int FILTER_TYPE_ALL = 0;
+    public static final int FILTER_TYPE_NONE = 2;
+    public static final int FILTER_TYPE_SOME = 1;
+    public static final int FILTER_TYPE_UNKNOWN = -1;
+    public static final int RECURSION_LEVEL_ALL = -1;
+    public static final int RECURSION_LIMIT = 50;
+    public static final int SEARCH_EXCLUDE_TYPE_ALL = -1;
+    public static final int SEARCH_EXCLUDE_TYPE_COMPRESSED_FILE = 2;
+    public static final int SEARCH_INCLUDE_ONLY_PATH = 3;
+    public static final int SEARCH_INCLUDE_TYPE_ALL = 0;
+    public static final int SEARCH_INCLUDE_TYPE_COMPRESSED_FILE = 1;
+    private static final FileUtilsFilenameFilterCompare FILE_UTIL_FILENAME_FILTER_COMPARE = new
+            FileUtilsFilenameFilterCompare();
+    private static final FileUtilsFilenameFilterCompareIgnoreCase FILE_UTIL_FILENAME_FILTER_COMPARE_IGNORE_CASE = new
+            FileUtilsFilenameFilterCompareIgnoreCase();
+    private static final FileUtilsFilenameFilterImpl hiddenFilter = new FileUtilsFilenameFilterImpl() {
+        public boolean accept(File dir, String name) {
+            return (new File(dir.getPath() + File.separator + name)).isHidden();
+        }
+    };
+    private static final FileUtilsFilenameFilterImpl notHiddenFilter = new FileUtilsFilenameFilterImpl() {
+        public boolean accept(File dir, String name) {
+            return !(new File(dir.getPath() + File.separator + name)).isHidden();
+        }
+    };
+    public static int DEFAULT_FILTER_TYPE;
+    public static int DEFAULT_RECURSION_LEVEL;
+    public static int DEFAULT_SEARCH_TYPE;
+
+    static {
+        DEFAULT_FILTER_TYPE = FILTER_TYPE_ALL;
+        DEFAULT_RECURSION_LEVEL = RECURSION_LEVEL_ALL;
+        DEFAULT_SEARCH_TYPE = SEARCH_INCLUDE_TYPE_ALL;
+    }
+
     public final String DEFAULT_PATH = "/";
-    private final DateUtils dateUtils;
-    private final JarUtils jarUtils;
+    private DateUtils dateUtils;
+    private JarUtils jarUtils;
     private final Logger log = LoggerFactory.getLogger(FileUtils.class);
-    private final NumberUtils numberUtils;
-    private final SystemInfo systemInfo;
+    private NumberUtils numberUtils;
+    private StringUtils stringUtils;
+    private SystemInfo systemInfo;
     private String filterCriterion;
+    private NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters = new
+            NotNullsLinkedHashSet<>();
+    private int recursionLevel;
+    private int searchType;
 
     @Autowired
-    public FileUtils(SystemInfo systemInfo, DateUtils dateUtils, JarUtils jarUtils, NumberUtils numberUtils) {
+    public FileUtils(SystemInfo systemInfo,
+                     DateUtils dateUtils,
+                     JarUtils jarUtils,
+                     NumberUtils numberUtils,
+                     StringUtils stringUtils) {
         this.systemInfo = systemInfo;
         this.dateUtils = dateUtils;
         this.jarUtils = jarUtils;
         this.numberUtils = numberUtils;
+        this.stringUtils = stringUtils;
+    }
+
+    public FileUtils() {
+        setSearchType(DEFAULT_SEARCH_TYPE);
+    }
+
+    public FileUtils(int recursionLevel) {
+        setSearchType(DEFAULT_SEARCH_TYPE);
+        setRecursionLevel(recursionLevel);
+        DEFAULT_RECURSION_LEVEL = recursionLevel;
+    }
+
+    /**
+     * @param sourcefile
+     * @param orderedFields
+     * @param fieldSeparator
+     * @param classToBind
+     * @throws Exception
+     */
+
+    public static Collection/*<Object>*/ bindRecordsFromFileToObject(String sourcefile,
+                                                                     Collection orderedFields,
+                                                                     char fieldSeparator,
+                                                                     Class classToBind)
+            throws Exception {
+        return bindRecordsFromFileToObject(new File(sourcefile), orderedFields, fieldSeparator, classToBind);
+    }
+
+    /**
+     * @param orderedFields
+     * @param fieldSeparator
+     * @param classToBind
+     * @throws Exception
+     */
+
+    public static Collection/*<Object>*/ bindRecordsFromFileToObject(File file,
+                                                                     Collection orderedFields,
+                                                                     char fieldSeparator,
+                                                                     Class classToBind)
+            throws Exception {
+        RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
+        String buffer;
+        Collection result = new ArrayList();
+        while ((buffer = randomAccessFile.readLine()) != null) {
+            final Iterator bufferSpplitted = Arrays.asList(buffer.split(Character.toString(fieldSeparator))).iterator();
+            final Object objectToBind = classToBind.newInstance();
+            CollectionUtils.forAllDo(orderedFields, new Closure() {
+                public void execute(Object o) {
+                    try {
+                        Object value = bufferSpplitted.next();
+                        String methodName = (String) o;
+                        BeanUtils.setProperty(objectToBind, methodName, value);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            result.add(objectToBind);
+        }
+        return result;
+    }
+
+    public static File getFileFromClassPath(String fileName) {
+        return new File(FileUtils.class.getClassLoader().getResource(fileName).getPath());
+    }
+
+    public static FileUtilsFilenameFilterCompare getFileUtilsFilenameFilterCompare() {
+        return FILE_UTIL_FILENAME_FILTER_COMPARE;
+    }
+
+    public static FileUtilsFilenameFilterCompareIgnoreCase getFileUtilsFilenameFilterCompareIgnoreCase() {
+        return FILE_UTIL_FILENAME_FILTER_COMPARE_IGNORE_CASE;
+    }
+
+    public static FileUtilsFilenameFilter getHiddenFilter() {
+        return hiddenFilter;
+    }
+
+    public static FileUtilsFilenameFilter getNotHiddenFilter() {
+        return notHiddenFilter;
+    }
+
+    /**
+     * Obtains the String staring from the initial position until refered word
+     *
+     * @param sourcefile    The path for the file to searching for
+     * @param startPosition The relative initial position to start to searching for
+     * @param searchFor     The String to be searched
+     * @return total number of occurences of the String especified in searchFor parameter in a text file identified
+     * by sourcefile
+     * @throws Exception If any error occur
+     */
+
+    public static String getStringFromStartPositionEnclosedBy(String sourcefile, long startPosition, String searchFor)
+            throws Exception {
+        File file = new File(sourcefile);
+        RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
+        long fileLength = randomAccessFile.length();
+        String buffer = StringUtils.EMPTY;
+        if (startPosition < fileLength) {
+            randomAccessFile.seek(startPosition);
+            boolean recordStartingPointFound = false;
+            long i = startPosition - 1;
+
+            for (; i > 0 && !recordStartingPointFound; randomAccessFile.seek(i--)) {
+                Character character = new Character(randomAccessFile.readChar());
+                buffer = character + buffer;
+                if (buffer.startsWith(searchFor)) {
+                    recordStartingPointFound = true;
+                }
+            }
+            recordStartingPointFound = false;
+            i = startPosition;
+            for (; i < fileLength && !recordStartingPointFound; ) {
+                Character character = new Character(randomAccessFile.readChar());
+                buffer = character + buffer;
+                if (buffer.endsWith(searchFor)) {
+                    recordStartingPointFound = true;
+                }
+                randomAccessFile.seek(i++);
+            }
+        }
+        return buffer;
+    }
+
+    /**
+     * Obtains the String staring from the initial position until refered word
+     *
+     * @param sourcefile    The path for the file to searching for
+     * @param startPosition The relative initial position to start to searching for
+     * @param searchFor     The String to be searched
+     * @return total number of occurences of the String especified in searchFor parameter in a text file identified
+     * by sourcefile
+     * @throws Exception If any error occur
+     */
+
+    public static String getStringFromStartPositionUntilWord(String sourcefile, long startPosition, String searchFor)
+            throws Exception {
+        File file = new File(sourcefile);
+        BufferedReader bout = new BufferedReader(new FileReader(file));
+        char character;
+        StringBuffer buffer = new StringBuffer();
+        int i = 0;
+        if (startPosition < file.length()) {
+            while ((character = (char) bout.read()) != 0 && i < startPosition) {
+                i++;
+            }
+            if (character != 0) {
+                while (character != 0) {
+                    buffer.append(character);
+                    if (buffer.toString().endsWith(searchFor)) {
+                        buffer.delete(buffer.length() - searchFor.length(), buffer.length());
+                        break;
+                    }
+                    character = (char) bout.read();
+                }
+            }
+        }
+        return buffer.toString();
+    }
+
+    public static boolean isCompressedFile(File file) {
+        return file.getPath().indexOf(".jar") != -1 || file.getPath().indexOf(".zip") != -1 || file.getPath().indexOf(
+                ".tar") != -1;
+    }
+
+    /**
+     * Count total number of occurences of a String in a text file
+     *
+     * @param sourcefile The path for the file to searching for
+     * @param searchFor  The String to be searched
+     * @return total number of occurences of the String especified in searchFor parameter in a text file identified
+     * by sourcefile
+     * @throws Exception If any error occur
+     */
+
+    public static long wordCount(String sourcefile, String searchFor)
+            throws Exception {
+
+        long searchCount = 0;
+        BufferedReader bout = new BufferedReader(new FileReader(sourcefile));
+        String ffline;
+        while ((ffline = bout.readLine()) != null) {
+            searchCount += ffline.split(searchFor).length;
+        }
+        return searchCount;
     }
 
     /**
@@ -86,6 +327,19 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         if (filter == null || filter.accept(root)) {
             list.add(root);
         }
+    }
+
+    public void addFilter(FileUtilsFilenameFilter filterImpl) {
+        this.filters.add(filterImpl);
+    }
+
+    public void addFilters(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters) {
+        CollectionUtils.predicatedCollection(filters, new Predicate() {
+            public boolean evaluate(Object o) {
+                return o instanceof FileUtilsFilenameFilterImpl;
+            }
+        });
+        this.filters.addAll(filters);
     }
 
     /**
@@ -173,7 +427,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                 File root = entry.getKey();
                 if (root != null) {
                     Collection<File> files = entry.getValue();
-                    if (org.apache.commons.collections.CollectionUtils.isNotEmpty(files)) {
+                    if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(files)) {
                         for (File file : files) {
                             if (file.equals(root)) {
                                 continue;
@@ -320,6 +574,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             }
         }
     }
+
+    // public  void main(String[] args) {
+    // generateFile("Hola mundo!", "c:\\pepe.txt");
+    // }
 
     public void copyResourceToDirectory(URL url, File dest, String basePath, boolean forceDelete)
             throws IOException {
@@ -505,8 +763,8 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
             Class clazz = myClassForName(nativeNotation);
             final Class[] interfaces = clazz.getInterfaces();
-            Collection<?> classes = Arrays.asList(interfaces);
-            classes = CollectionUtils.transformedCollection(classes, input -> ((Class) input).getName());
+            Collection<String> classes = CollectionUtils.collect(Arrays.asList(interfaces),
+                    ReflectionUtils.CLASS_NAME_TRANSFORMER);
             if (classes.contains(implementedClassName)) {
                 results.add(clazz);
             }
@@ -608,7 +866,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     public String findFilePath(String fileName) {
         //log.debug(" Thread.currentThread().getContextClassLoader() "
         // + Thread.currentThread().getContextClassLoader());
-        log.debug("{524 - FileUtil.java} Cargando archivo  " + fileName);
+        log.debug("{524 - FileUtils.java} Cargando archivo  " + fileName);
 
         String path;
 
@@ -642,10 +900,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         // de ClassLoader cargados en Runtime, intenta ubicar el archivo considerando la variable "path"
         // como una ruta absoluta.
 
-        //        if (StringUtil.isEmptyOrNullValue(path)) {
+        //        if (StringUtils.isEmptyOrNullValue(path)) {
         //            try {
         //                path = FileAndPropertiesHandlerUtil.getInstance(fileName,
-        //                        FileUtil.class.getClassLoader()).getFile().getPath();
+        //                        FileUtils.class.getClassLoader()).getFile().getPath();
         //            }   catch (Throwable ignored) {
         //            }
         //        }
@@ -677,6 +935,9 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         out.close();
     }
 
+    // Inicio de los metodos usados en SICAM
+    // Validar que funcionen y sean utiles
+
     public File createFile(String filepath)
             throws IOException {
         File file = new File(filepath);
@@ -694,7 +955,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * @return String with the file's final name if created, null otherwise
      */
     public String generateFile(String data, String path, String fileName, String extension) {
-        // String guiDGen = FileUtil.getUniqueName(fileName, false);
+        // String guiDGen = FileUtils.getUniqueName(fileName, false);
         String fullFileName = path + fileName + extension;
         return generateFile(data, fullFileName);
     }
@@ -745,6 +1006,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         String fullFileName = path + "_" + guiDGen + extension;
         return generateFile(data, fullFileName);
     }
+
+    // public  void main(String[] args) {
+    // getClassesThatImplementsFromJar(IReseteableDao.clas, "C:\\bea", true);
+    // }
 
     /**
      * Generates a unique name for a file, adding a unique number and a unique
@@ -837,6 +1102,9 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         File jar = new File(jarName);
         return findClassesThatImplementedFromJar(jar, implementedClassName, jarName);
     }
+
+    // Validar que funcionen y sean utiles
+    // Final de los metodos usados en SICAM
 
     /**
      * Get all clazz that implemets of superClass from Jar
@@ -937,10 +1205,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return nativeNotation.replaceAll(pattern, ".");
     }
 
-    // public  void main(String[] args) {
-    // generateFile("Hola mundo!", "c:\\pepe.txt");
-    // }
-
     /**
      * @param nativeNotation className
      * @return Class
@@ -987,6 +1251,14 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         }
     }
 
+    public NotNullsLinkedHashSet<FileUtilsFilenameFilter> getFilters() {
+        return filters;
+    }
+
+    public void setFilters(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters) {
+        this.filters = filters;
+    }
+
     private String getPath() {
         /*
            * String path = properties.getProperty(BASE_PATH_PROPERTY_NAME); // No
@@ -994,6 +1266,14 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
            * DEFAULT_PATH : path;
            */
         return DEFAULT_PATH;
+    }
+
+    public int getRecursionLevel() {
+        return recursionLevel;
+    }
+
+    public void setRecursionLevel(int recursionLevel) {
+        this.recursionLevel = recursionLevel;
     }
 
     /**
@@ -1058,6 +1338,14 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return rows;
     }
 
+    public int getSearchType() {
+        return searchType;
+    }
+
+    public void setSearchType(int searchType) {
+        this.searchType = searchType;
+    }
+
     /**
      * Take a text extract get its content into a String
      *
@@ -1114,8 +1402,238 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return new File(directory).list();
     }
 
-    // Inicio de los metodos usados en SICAM
-    // Validar que funcionen y sean utiles
+    public NotNullsLinkedHashSet<File> listFiles(Collection<File> files) {
+        return listFiles(files, filters, DEFAULT_FILTER_TYPE, DEFAULT_RECURSION_LEVEL, DEFAULT_SEARCH_TYPE);
+    }
+
+    public NotNullsLinkedHashSet<File> listFiles(Collection<File> files, int filteringType) {
+        return listFiles(files, filters, filteringType, DEFAULT_RECURSION_LEVEL, DEFAULT_SEARCH_TYPE);
+    }
+
+    public NotNullsLinkedHashSet<File> listFiles(File file, int filteringType) {
+        NotNullsLinkedHashSet files = new NotNullsLinkedHashSet();
+        files.add(file);
+        return listFiles(files, filters, filteringType, DEFAULT_RECURSION_LEVEL, DEFAULT_SEARCH_TYPE);
+    }
+
+    public NotNullsLinkedHashSet<File> listFiles(File file) {
+        NotNullsLinkedHashSet files = new NotNullsLinkedHashSet();
+        files.add(file);
+        return listFiles(files, filters, DEFAULT_FILTER_TYPE, DEFAULT_RECURSION_LEVEL, DEFAULT_SEARCH_TYPE);
+    }
+
+    public NotNullsLinkedHashSet<File> listFiles(NotNullsLinkedHashSet<File> files,
+                                                 int filteringType,
+                                                 int recursionLevel) {
+        return listFiles(files, filters, filteringType, recursionLevel, DEFAULT_SEARCH_TYPE);
+    }
+
+    public NotNullsLinkedHashSet<File> listFiles(File file, int filteringType, int recursionLevel, int searchType) {
+        NotNullsLinkedHashSet files = new NotNullsLinkedHashSet();
+        files.add(file);
+        return listFiles(files, filters, filteringType, recursionLevel, searchType);
+    }
+
+    public NotNullsLinkedHashSet<File> listFiles(File file,
+                                                 Collection<FileUtilsFilenameFilter> filters,
+                                                 int filteringType,
+                                                 int recursionLevel,
+                                                 int searchType) {
+        NotNullsLinkedHashSet files = new NotNullsLinkedHashSet();
+        files.add(file);
+        return listFiles(files, filters, filteringType, recursionLevel, searchType);
+    }
+
+    /**
+     * @param files         File to filtering
+     * @param filters       Filters to be applied
+     * @param filteringType Type of evaluation of the filters list
+     * @param recurse       Recursion level
+     * @param searchType    Searching type
+     * @return Collection of files that has matched filters
+     * @noinspection ConstantConditions
+     */
+    public NotNullsLinkedHashSet<File> listFiles(final Collection<File> files,
+                                           final Collection<FileUtilsFilenameFilter> filters,
+                                           final int filteringType,
+                                           int recurse,
+                                           int searchType) {
+
+        if (filters != null) {
+            filters.addAll(getFilters());
+        }
+        final NotNullsLinkedHashSet<File> listedFiles = new NotNullsLinkedHashSet<>();
+
+        for (File file1 : files) {
+            final NotNullsLinkedHashSet filteredFiles = new NotNullsLinkedHashSet<>();
+            final File entry = file1;
+            try {
+                JarFile module = new JarFile(entry);
+                filteredFiles.addAll(Collections.list(module.entries()));
+            } catch (IOException ignored) {
+                try {
+                    filteredFiles.addAll(Arrays.asList(entry.listFiles()));
+                } catch (NullPointerException npe) {
+                    filteredFiles.add(entry);
+                }
+            }
+
+            CollectionUtils.filter(filteredFiles, new Predicate() {
+                public boolean evaluate(Object o) {
+                    String value = o.toString();
+                    return !value.endsWith(StringUtils.SLASH) && !value.endsWith("CVS") && !value.endsWith(".svn") &&
+                            !value.endsWith(
+                            "cvs") && !value.endsWith(".SVN");
+                }
+            });
+
+            CollectionUtils.transform(filteredFiles, new Transformer() {
+                public Object transform(Object o) {
+                    if (o instanceof JarEntry) {
+                        return new File(entry + File.separator + o.toString());
+                    } else {
+                        return o;
+                    }
+                }
+            });
+
+            final NotNullsLinkedHashSet filteredFilesTemp = new NotNullsLinkedHashSet();
+            final NotNullsLinkedHashSet filesToRemove = new NotNullsLinkedHashSet();
+            for (Iterator filteredFilesIter = filteredFiles.iterator(); filteredFilesIter.hasNext(); ) {
+                File fileEntry = (File) filteredFilesIter.next();
+                try {
+                    new JarFile(fileEntry);
+                    filesToRemove.add(fileEntry);
+                    filteredFilesTemp.addAll(listFiles(new NotNullsLinkedHashSet(Arrays.asList(new File[]{fileEntry})),
+                            filters,
+                            filteringType,
+                            recurse,
+                            searchType));
+                } catch (IOException ignored) {
+                }
+            }
+            filteredFiles.removeAll(filesToRemove);
+            filteredFiles.addAll(filteredFilesTemp);
+
+            for (Iterator filteredFilesIter = filteredFiles.iterator(); filteredFilesIter.hasNext(); ) {
+                File fileEntry = (File) filteredFilesIter.next();
+                String directory;
+                String file;
+                File incomingFile;
+
+                String entryPath = fileEntry.getPath();
+                incomingFile = new File(entryPath);
+
+                String[] jarTokens = entryPath.split("!");
+                try {
+                    directory = jarTokens[1].replaceAll(StringUtils.DOUBLEBACKSLASH, StringUtils.SLASH);
+                    incomingFile = new File(jarTokens[0]);
+                    if (directory.startsWith(StringUtils.SLASH)) {
+                        directory = directory.replaceFirst(StringUtils.SLASH, StringUtils.EMPTY);
+                    }
+                    file = incomingFile.getName();
+                } catch (Exception ignored2) {
+                    try {
+                        jarTokens = entryPath.split(".jar");
+                        directory = jarTokens[1].replaceAll(StringUtils.DOUBLEBACKSLASH, StringUtils.SLASH);
+                        incomingFile = new File(jarTokens[0] + ".jar");
+                        if (directory.startsWith(StringUtils.SLASH)) {
+                            directory = directory.replaceFirst(StringUtils.SLASH, StringUtils.EMPTY);
+                        }
+                        file = directory;
+                        directory = incomingFile.getPath();
+                    } catch (Exception ignored3) {
+                        directory = incomingFile.getPath();
+                        file = incomingFile.getName();
+                        if (incomingFile.isFile()) {
+                            directory = stringUtils.replaceLast(directory, file, StringUtils.EMPTY);
+                            if (directory.lastIndexOf("\\") == directory.length() - 1) {
+                                directory = stringUtils.replaceLast(directory,
+                                        StringUtils.DOUBLEBACKSLASH,
+                                        StringUtils.EMPTY);
+                            }
+                            if (directory.lastIndexOf(StringUtils.SLASH) == directory.length() - 1) {
+                                directory = stringUtils.replaceLast(directory, StringUtils.SLASH, StringUtils.EMPTY);
+                            }
+                        } else {
+                            file = StringUtils.EMPTY;
+                        }
+                    }
+                }
+
+                final String fileName = file;
+                final File directoryFile = new File(directory);
+
+                boolean applyFilter = filters != null;
+
+                Collection filteredEntries;
+
+                if (applyFilter) {
+                    filteredEntries = CollectionUtils.select(filters, new Predicate() {
+                        public boolean evaluate(Object o) {
+                            FileUtilsFilenameFilter filterImpl = (FileUtilsFilenameFilter) o;
+                            return filterImpl.accept(directoryFile, fileName);
+                        }
+                    });
+
+                    switch (filteringType) {
+                        case FILTER_TYPE_ALL:
+                            applyFilter = filteredEntries.size() == filters.size();
+                            break;
+                        case FILTER_TYPE_SOME:
+                            applyFilter = filteredEntries.size() > 0;
+                            break;
+                        case FILTER_TYPE_NONE:
+                            applyFilter = filteredEntries.size() == 0;
+                            break;
+                        case FILTER_TYPE_UNKNOWN:
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (applyFilter) {
+                        listedFiles.add(fileEntry);
+                    }
+
+                    if (isCompressedFile(fileEntry)) {
+                        if (Math.abs(recurse) < RECURSION_LIMIT && !incomingFile.getPath().equals(entryPath) &&
+                                fileEntry.getName().indexOf(
+                                ".") == -1) {
+                            recurse--;
+                            listedFiles.addAll(listFiles(incomingFile, filters, filteringType, recurse, searchType));
+                            recurse++;
+                        }
+                    } else if (Math.abs(recurse) < RECURSION_LIMIT && !fileEntry.isFile() && ((recurse <= -1) ||
+                            (recurse > 0 && fileEntry.isDirectory()))) {
+                        recurse--;
+                        listedFiles.addAll(listFiles(fileEntry, filters, filteringType, recurse, searchType));
+                        recurse++;
+                    }
+                } else {
+                    if (Math.abs(recurse) < RECURSION_LIMIT && !fileEntry.isFile() && ((recurse <= -1) || (recurse >
+                            0 && fileEntry.isDirectory()))) {
+                        recurse--;
+                        listedFiles.addAll(listFiles(filteredFiles, filters, filteringType, recurse, searchType));
+                        recurse++;
+                    }
+                }
+
+            }
+        }
+        //        log.debug("listedFiles: " + listedFiles);
+        return listedFiles;
+    }
+
+    public NotNullsLinkedHashSet<File> listPaths(File file) {
+        NotNullsLinkedHashSet files = new NotNullsLinkedHashSet();
+        files.add(file);
+        return listFiles(files, filters, DEFAULT_FILTER_TYPE, DEFAULT_RECURSION_LEVEL, SEARCH_INCLUDE_ONLY_PATH);
+    }
+
+    public NotNullsLinkedHashSet<File> listPaths(Collection<File> files) {
+        return listFiles(files, filters, DEFAULT_FILTER_TYPE, DEFAULT_RECURSION_LEVEL, SEARCH_INCLUDE_ONLY_PATH);
+    }
 
     /**
      * Metodo que busca archivos como recursos del class loader.  Ideal para leer archivos dentro de un .jar.
@@ -1176,31 +1694,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         }
     }
 
-    public void main(String[] args) {
-        // searchForClassOnDirRec("ConfigBeanManager", "C:\\bea", true);
-        // searchForClassOnDirRec("applicationContextDAO.xml",
-        // "C:\\integra\\proyectos\\digitel\\feu\\trunk\\SMSConfirmationCodeGeneration",
-        // false);
-
-        //        searchForClassOnDirRec("applicationContextStoredRequest.xml",
-        //                "C:\\integra\\proyectos\\digitel\\feu\\trunk", false);
-        //        searchForClassOnDirRec("LineTokenizer",
-        //                "C:\\integra\\proyectos\\integra\\IntegraUtils\\lib\\", false);
-
-        searchForClassOnDirRec("TypeSystemHolder", "C:\\integra\\proyectos\\digitel\\cdaVirtual\\", false);
-        searchForClassOnDirRec("TypeSystemHolder", "C:\\Documents and Settings\\consultor\\.m2\\repository\\", false);
-
-        // SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddhhmmss");
-        // String fileName = "consultaSolicitud" + sdf.format(new Date()) +
-        // ".xls";
-        //log.debug("fileName = " + fileName);
-        // sdf = new SimpleDateFormat("yyyyMMddhhmmssSSS");
-        // fileName = "consultaSolicitud" + sdf.format(new Date()) + ".xls";
-        //log.debug("fileName = " + fileName);
-        // fileName = "consultaSolicitud" + sdf.format(new Date()) + ".xls";
-        //log.debug("fileName = " + fileName);
-    }
-
     public void prepareFile(File file)
             throws IOException {
         if (file.exists()) {
@@ -1216,10 +1709,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             }
         }
     }
-
-    // public  void main(String[] args) {
-    // getClassesThatImplementsFromJar(IReseteableDao.clas, "C:\\bea", true);
-    // }
 
     public List<String> readFileTextToList(String file) {
         List<String> lines = new ArrayList<>();
@@ -1289,6 +1778,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         }
     }
 
+    public void removeFilter(FileUtilsFilenameFilter filterImpl) {
+        this.filters.remove(filterImpl);
+    }
+
     /**
      * Take a file and replace the text from each line that match with an regular expression, with the incoming text,
      * returning a new temp file with the same incoming lines including the replacements
@@ -1318,9 +1811,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         }
         return result;
     }
-
-    // Validar que funcionen y sean utiles
-    // Final de los metodos usados en SICAM
 
     /**
      * Take a file and apply a filter according to a regular expression, returning a new temp file with just those
@@ -1403,6 +1893,22 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
     public boolean searchForClassOnDirRec(String fileName, String folderName, boolean onlyOne, int tab) {
         return findFileOnDirRecursive(fileName, folderName, onlyOne, tab) != null;
+    }
+
+    private static class FileUtilsFilenameFilterCompare implements Comparator {
+        public int compare(Object o1, Object o2) {
+            String path1 = ((File) o1).getPath();
+            String path2 = ((File) o2).getPath();
+            return path1.compareTo(path2);
+        }
+    }
+
+    private static class FileUtilsFilenameFilterCompareIgnoreCase implements Comparator {
+        public int compare(Object o1, Object o2) {
+            String path1 = ((File) o1).getPath();
+            String path2 = ((File) o2).getPath();
+            return path1.compareToIgnoreCase(path2);
+        }
     }
 
 }

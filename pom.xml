@@ -17,6 +17,7 @@
         * commons-lang3 (apache)
         * commons-io (apache)
         * commons-math3 (apache)
+        * commons-collections4
     </description>
     <url>http://maven.apache.org</url>
 
@@ -60,12 +61,17 @@
         <joda-time-joda-time>2.9.9</joda-time-joda-time>
         <com.google.collections-google-collections>1.0</com.google.collections-google-collections>
         <commons-io-commons-io>2.5</commons-io-commons-io>
+        <org.apache.commons-commons-collections4>4.1</org.apache.commons-commons-collections4>
         <javax.servlet-servlet-api>2.5</javax.servlet-servlet-api>
         <commons-httpclient-commons-httpclient>3.1</commons-httpclient-commons-httpclient>
         <org.apache.commons-commons-math3>3.6.1</org.apache.commons-commons-math3>
         <org.apache.logging.log4j>2.9.0</org.apache.logging.log4j>
         <aspectj.version>1.8.4</aspectj.version>
-
+        <org.reflections-reflections>0.9.10</org.reflections-reflections>
+        <com.fasterxml.jackson.core-jackson-databind>2.7.1-1</com.fasterxml.jackson.core-jackson-databind>
+        <com.fasterxml.jackson.core-jackson-core>2.7.1</com.fasterxml.jackson.core-jackson-core>
+        <com.fasterxml.jackson.module-jackson-module-jsonSchema>2.7.1
+        </com.fasterxml.jackson.module-jackson-module-jsonSchema>
 
         <!-- Generic properties -->
         <java.version>1.8</java.version>
@@ -95,7 +101,7 @@
         <org.sonatype.plugins-nexus-staging-maven-plugin>1.6.8</org.sonatype.plugins-nexus-staging-maven-plugin>
         <org.apache.maven.plugins-maven-gpg-plugin>1.6</org.apache.maven.plugins-maven-gpg-plugin>
         <org.apache.maven.plugins-maven-release-plugin>2.5.3</org.apache.maven.plugins-maven-release-plugin>
-        
+
     </properties>
 
     <dependencies>
@@ -110,6 +116,12 @@
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>${commons-beanutils-commons-beanutils}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -149,6 +161,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${org.apache.commons-commons-collections4}</version>
+        </dependency>
+
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>${javax.servlet-servlet-api}</version>
@@ -176,6 +194,36 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
             <version>${aspectj.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>${org.reflections-reflections}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${com.fasterxml.jackson.core-jackson-databind}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${com.fasterxml.jackson.core-jackson-core}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jsonSchema</artifactId>
+            <version>${com.fasterxml.jackson.module-jackson-module-jsonSchema}</version>
         </dependency>
 
         <!-- Tests -->
@@ -298,7 +346,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                    
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
@@ -405,8 +453,6 @@
                 <configuration>
                     <numberOfCores>2</numberOfCores>
                     <memoryInMB>2000</memoryInMB>
-                    <cuts>com.araguacaima.commons.utils.DataTypesConverter</cuts>
-                    <extraArgs>-Dtools_jar_location=D:\.m2 -Dtimeout=0</extraArgs>
                 </configuration>
                 <executions>
                     <execution>

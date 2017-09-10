@@ -48,6 +48,7 @@ public class ExceptionsAspect {
     /**
      * Catch the exception thrown and wrap it in a new exception
      *
+     * @param ex Exception to be thrown
      * @throws GeneralException after original exception is handled
      */
     @AfterThrowing(pointcut = "execution(* *..*())",

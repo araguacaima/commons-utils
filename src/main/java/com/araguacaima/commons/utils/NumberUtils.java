@@ -273,7 +273,7 @@ public class NumberUtils {
         } else {
             parteEntera = number;
             parteDecimal = "";
-            // parteDecimal = StringUtil.leftPadString("", decimalDigits, '0');
+            // parteDecimal = StringUtils.leftPadString("", decimalDigits, '0');
         }
 
         isNegativo = ((new BigDecimal(parteEntera)).compareTo(new BigDecimal("0")) < 0);
