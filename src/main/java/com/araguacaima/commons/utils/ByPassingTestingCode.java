@@ -14,15 +14,15 @@ public class ByPassingTestingCode {
     public Map BYPASSING_TESTING_CODE_PARAMETERS_MAP;
     private String logFileSourceName;
     private MapUtils mapUtils;
-    private NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate;
+    private NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate;
     private PropertiesHandlerUtils propertiesHandlerUtils;
 
     public ByPassingTestingCode(PropertiesHandlerUtils propertiesHandlerUtils,
                                 MapUtils mapUtils,
-                                NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate) {
+                                NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate) {
         this.propertiesHandlerUtils = propertiesHandlerUtils;
         this.mapUtils = mapUtils;
-        this.notNullOrEmptyStringPredicate = notNullOrEmptyStringPredicate;
+        this.notNullOrEmptyStringObjectPredicate = notNullOrEmptyStringObjectPredicate;
     }
 
     public void init(String logFileSourceName) {
@@ -31,8 +31,9 @@ public class ByPassingTestingCode {
         try {
             properties = propertiesHandlerUtils.getHandler(logFileSourceName).getProperties();
             BYPASSING_TESTING_CODE_PARAMETERS_MAP = mapUtils.select(properties,
-                    o -> ((String) o).startsWith(ByPassingTestingConstants.BYPASSING_TESTING_CODE_PARAMETER_PREFIX),
-                    notNullOrEmptyStringPredicate);
+                    object -> object.toString().startsWith(ByPassingTestingConstants
+                            .BYPASSING_TESTING_CODE_PARAMETER_PREFIX),
+                    notNullOrEmptyStringObjectPredicate);
 
         } catch (Exception exception) {
             log.debug("Config file (" + logFileSourceName + ") is null or empty. No Bypassing Testing Code", 2);

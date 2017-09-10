@@ -138,7 +138,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * @throws Exception
      */
 
-    public static Collection/*<Object>*/ bindRecordsFromFileToObject(String sourcefile,
+    public static Collection<Object> bindRecordsFromFileToObject(String sourcefile,
                                                                      Collection orderedFields,
                                                                      char fieldSeparator,
                                                                      Class classToBind)
@@ -153,7 +153,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * @throws Exception
      */
 
-    public static Collection/*<Object>*/ bindRecordsFromFileToObject(File file,
+    public static Collection<Object> bindRecordsFromFileToObject(File file,
                                                                      Collection orderedFields,
                                                                      char fieldSeparator,
                                                                      Class classToBind)
@@ -1261,14 +1261,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         FileOutputStream fos = null;
 
         File file = new File(ftpLocalFilePath);
-        try {
-            if (file.exists()) {
-                file.delete();
-            }
-            file.createNewFile();
-        } catch (IOException e) {
-            log.error("Exception [" + e.getClass() + "] - " + e.getMessage());
-        }
+        forceCreateNewFile(file);
         file.deleteOnExit();
         try {
             client.connect(ftpServerDomain);
@@ -1291,24 +1284,17 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public File getFileFromURL(String urlLocalFilePath,
-                                char[] urlRemoteFilePath,
-                                char[] urlServerDomainAndPort,
-                                CharSequence urlServerDomainLogin,
-                                CharSequence urlServerDomainPassword) {
+                               String urlRemoteFilePath,
+                               String urlServerDomainAndPort,
+                               String urlServerDomainLogin,
+                               String urlServerDomainPassword) {
 
         URL u;
         InputStream is = null;
         BufferedReader dis;
         String s;
         File file = new File(urlLocalFilePath);
-        try {
-            if (file.exists()) {
-                file.delete();
-            }
-            file.createNewFile();
-        } catch (IOException e) {
-            log.error("Exception [" + e.getClass() + "] - " + e.getMessage());
-        }
+        forceCreateNewFile(file);
         file.deleteOnExit();
         try {
             StringBuilder sb = new StringBuilder();
@@ -1345,6 +1331,17 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
         }
         return file;
+    }
+
+    public void forceCreateNewFile(File file) {
+        try {
+            if (file.exists()) {
+                file.delete();
+            }
+            file.createNewFile();
+        } catch (IOException e) {
+            log.error("Exception [" + e.getClass() + "] - " + e.getMessage());
+        }
     }
 
     public NotNullsLinkedHashSet<FileUtilsFilenameFilter> getFilters() {

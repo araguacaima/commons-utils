@@ -21,15 +21,15 @@ public class PropertiesHandlerUtils {
     private static final Logger log = LoggerFactory.getLogger(PropertiesHandler.class);
     private FileUtils fileUtils;
     private MapUtils mapUtils;
-    private NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate;
+    private NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate;
 
     @Autowired
     public PropertiesHandlerUtils(MapUtils mapUtils,
                                   FileUtils fileUtils,
-                                  NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate) {
+                                  NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate) {
         this.mapUtils = mapUtils;
         this.fileUtils = fileUtils;
-        this.notNullOrEmptyStringPredicate = notNullOrEmptyStringPredicate;
+        this.notNullOrEmptyStringObjectPredicate = notNullOrEmptyStringObjectPredicate;
     }
 
     public PropertiesHandler getHandler(String logFileSourceName) {
@@ -75,13 +75,13 @@ public class PropertiesHandlerUtils {
         return instance;
     }
 
-    public Map loadConfig(String logFileSourceName,
-                          Class clazz,
-                          String propertyName,
-                          String tokenSeparator,
-                          String valueSeparator)
+    public Map<String, String> loadConfig(String logFileSourceName,
+                                          Class clazz,
+                                          String propertyName,
+                                          String tokenSeparator,
+                                          String valueSeparator)
             throws PropertiesUtilException {
-        Map result = new Hashtable();
+        Map<String, String> result = new Hashtable<String, String>();
         Collection properties = loadConfig(logFileSourceName, clazz, propertyName, tokenSeparator);
         String key;
         String value;
@@ -121,7 +121,7 @@ public class PropertiesHandlerUtils {
         final Object[] propertyValues = new Object[1];
         Map propertiesStartedWith = mapUtils.find(properties,
                 o -> ((String) o).equalsIgnoreCase(propertyName),
-                notNullOrEmptyStringPredicate,
+                notNullOrEmptyStringObjectPredicate,
                 MapUtils.EVALUATE_BOTH_KEY_AND_VALUE);
 
         IterableUtils.forEach(propertiesStartedWith.values(),

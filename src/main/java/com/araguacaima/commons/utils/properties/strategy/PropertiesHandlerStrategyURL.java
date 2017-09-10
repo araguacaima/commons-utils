@@ -76,7 +76,7 @@ public class PropertiesHandlerStrategyURL extends PropertiesHandlerStrategy {
     public Properties getProperties()
             throws PropertiesUtilException {
 
-        File file = fileUtils.getFileFromURL();
+        File file = fileUtils.getFileFromURL(urlLocalFilePath, urlRemoteFilePath, urlServerDomainAndPort, urlServerDomainLogin, urlServerDomainPassword);
         if (file != null) {
             properties = propertiesHandlerUtils.getHandler(file.getPath(), true).getProperties();
         }

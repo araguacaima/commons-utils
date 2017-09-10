@@ -520,7 +520,7 @@ public class ClassLoaderUtils {
     }
 
     public String getPathForResource(final String resource) {
-        NotNullsLinkedHashSet result = new NotNullsLinkedHashSet(((Map) mapUtils.find(resourcesAndPaths,
+        NotNullsLinkedHashSet result = new NotNullsLinkedHashSet((mapUtils.find(resourcesAndPaths,
                 new Predicate() {
                     public boolean evaluate(Object o) {
                         String file = (String) o;
