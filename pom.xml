@@ -3,12 +3,22 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.araguacaima</groupId>
+    <groupId>com.araguacaima</groupId>
     <artifactId>commons-utils</artifactId>
-    <version>1.0</version>
+    <version>1.0-RELEASE</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <description>The maven main core project description</description>
+    <description>Common utilities is a set of java utilities for managing commmon actions when working with enums,
+        files, exceptions, zip/jar files, classes (via Reflection), maps, numbers and so on.
+
+        Most of the utilities extend functionalities covered in amazing libraries like:
+
+        * commons-beanutils (apache)
+        * commons-lang3 (apache)
+        * commons-io (apache)
+        * commons-math3 (apache)
+        * commons-collections4
+    </description>
     <url>http://maven.apache.org</url>
 
     <licenses>
@@ -32,6 +42,17 @@
         <url>https://github.com/araguacaima/commons-utils/tree/master</url>
     </scm>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
     <properties>
         <slf4j.version>1.7.25</slf4j.version>
         <commons-beanutils-commons-beanutils>1.9.3</commons-beanutils-commons-beanutils>
@@ -40,10 +61,17 @@
         <joda-time-joda-time>2.9.9</joda-time-joda-time>
         <com.google.collections-google-collections>1.0</com.google.collections-google-collections>
         <commons-io-commons-io>2.5</commons-io-commons-io>
+        <org.apache.commons-commons-collections4>4.1</org.apache.commons-commons-collections4>
         <javax.servlet-servlet-api>2.5</javax.servlet-servlet-api>
         <commons-httpclient-commons-httpclient>3.1</commons-httpclient-commons-httpclient>
         <org.apache.commons-commons-math3>3.6.1</org.apache.commons-commons-math3>
         <org.apache.logging.log4j>2.9.0</org.apache.logging.log4j>
+        <aspectj.version>1.8.4</aspectj.version>
+        <org.reflections-reflections>0.9.10</org.reflections-reflections>
+        <com.fasterxml.jackson.core-jackson-databind>2.7.1-1</com.fasterxml.jackson.core-jackson-databind>
+        <com.fasterxml.jackson.core-jackson-core>2.7.1</com.fasterxml.jackson.core-jackson-core>
+        <com.fasterxml.jackson.module-jackson-module-jsonSchema>2.7.1
+        </com.fasterxml.jackson.module-jackson-module-jsonSchema>
 
         <!-- Generic properties -->
         <java.version>1.8</java.version>
@@ -60,6 +88,8 @@
         <org.apache.maven.plugins-maven-enforcer-plugin>3.0.0-M1</org.apache.maven.plugins-maven-enforcer-plugin>
         <org.apache.maven.plugin-maven-jar-plugin>3.0.2</org.apache.maven.plugin-maven-jar-plugin>
         <org.apache.maven.plugin-maven-dependency-plugin>3.0.1</org.apache.maven.plugin-maven-dependency-plugin>
+        <org.codehaus.mojo-aspectj-maven-plugin>1.8</org.codehaus.mojo-aspectj-maven-plugin>
+        <org.apache.maven.plugins-maven-jar-plugin>3.0.2</org.apache.maven.plugins-maven-jar-plugin>
         <maven.skip.tests>true</maven.skip.tests>
 
         <!-- tests -->
@@ -67,16 +97,14 @@
         <org.evosuite.plugins-evosuite-maven-plugin>1.0.5</org.evosuite.plugins-evosuite-maven-plugin>
         <junit-junit>4.12</junit-junit>
 
+        <!-- deployment -->
+        <org.sonatype.plugins-nexus-staging-maven-plugin>1.6.8</org.sonatype.plugins-nexus-staging-maven-plugin>
+        <org.apache.maven.plugins-maven-gpg-plugin>1.6</org.apache.maven.plugins-maven-gpg-plugin>
+        <org.apache.maven.plugins-maven-release-plugin>2.5.3</org.apache.maven.plugins-maven-release-plugin>
+
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit-junit}</version>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -85,30 +113,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${org.apache.logging.log4j}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${org.apache.logging.log4j}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>${org.apache.logging.log4j}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>${commons-beanutils-commons-beanutils}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -148,6 +161,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${org.apache.commons-commons-collections4}</version>
+        </dependency>
+
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>${javax.servlet-servlet-api}</version>
@@ -166,9 +185,81 @@
         </dependency>
 
         <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>${aspectj.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${aspectj.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>${org.reflections-reflections}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${com.fasterxml.jackson.core-jackson-databind}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${com.fasterxml.jackson.core-jackson-core}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jsonSchema</artifactId>
+            <version>${com.fasterxml.jackson.module-jackson-module-jsonSchema}</version>
+        </dependency>
+
+        <!-- Tests -->
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit-junit}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.evosuite</groupId>
             <artifactId>evosuite-standalone-runtime</artifactId>
             <version>${org.evosuite-evosuite-standalone-runtime}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${org.apache.logging.log4j}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${org.apache.logging.log4j}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${org.apache.logging.log4j}</version>
             <scope>test</scope>
         </dependency>
 
@@ -177,8 +268,185 @@
             <artifactId>evosuite-maven-plugin</artifactId>
             <version>${org.evosuite.plugins-evosuite-maven-plugin}</version>
         </dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>2.0</version>
+        </dependency>
 
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <defaultGoal>clean deploy -P release:clean release:prepare release:perform</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>${org.sonatype.plugins-nexus-staging-maven-plugin}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>${org.apache.maven.plugins-maven-compiler-plugin}</version>
+                        <configuration>
+                            <source>${maven.compiler.source}</source>
+                            <target>${maven.compiler.target}</target>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${org.apache.maven.plugins-maven-source-plugin}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.0.0-M1</version>
+                        <configuration>
+                            <show>private</show>
+                            <nohelp>true</nohelp>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${org.apache.maven.plugins-maven-gpg-plugin}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>${org.apache.maven.plugins-maven-release-plugin}</version>
+                        <configuration>
+                            <autoVersionSubmodules>true</autoVersionSubmodules>
+                            <useReleaseProfile>false</useReleaseProfile>
+                            <releaseProfiles>release</releaseProfiles>
+                            <goals>deploy</goals>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>snapshot</id>
+            <build>
+                <defaultGoal>clean deploy</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>${org.sonatype.plugins-nexus-staging-maven-plugin}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>${org.apache.maven.plugins-maven-compiler-plugin}</version>
+                        <configuration>
+                            <source>${maven.compiler.source}</source>
+                            <target>${maven.compiler.target}</target>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${org.apache.maven.plugins-maven-source-plugin}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.0.0-M1</version>
+                        <configuration>
+                            <show>private</show>
+                            <nohelp>true</nohelp>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${org.apache.maven.plugins-maven-gpg-plugin}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
 
     <build>
         <defaultGoal>clean install</defaultGoal>
@@ -190,7 +458,6 @@
                 <configuration>
                     <numberOfCores>2</numberOfCores>
                     <memoryInMB>2000</memoryInMB>
-                    <cuts>org.araguacaima.commons.utils.DataTypesConverter</cuts>
                 </configuration>
                 <executions>
                     <execution>
@@ -201,6 +468,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -211,38 +479,6 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>${org.apache.maven.plugins-maven-source-plugin}</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.0.0-M1</version>
-                <configuration>
-                    <show>private</show>
-                    <nohelp>true</nohelp>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -260,6 +496,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -273,6 +510,7 @@
                     </properties>
                 </configuration>
             </plugin>
+
             <plugin>
                 <inherited>true</inherited>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -297,5 +535,6 @@
             </plugin>
         </plugins>
     </build>
+
 
 </project>
