@@ -1,5 +1,5 @@
-/**
- * @(#)AppConstants.java JReversePro - Java Decompiler / Disassembler.
+/*
+  @(#)AppConstants.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
  * <p>
@@ -17,7 +17,7 @@
  * The Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- **/
+ */
 package jreversepro.common;
 
 import java.util.Date;

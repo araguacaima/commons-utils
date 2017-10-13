@@ -61,17 +61,17 @@ public class JClassInfo implements KeyWords {
      * The class file name would be in the JVM format as mentioned
      * above.
      */
-    private final List interfaces;
+    private final List<String> interfaces;
     /**
      * List of fields present in the class.
      * All the members in the list are JField.
      */
-    private final List memFields;
+    private final List<JField> memFields;
     /**
      * List of methods present in the class.
      * All the members in the list are JMethod.
      */
-    private final List memMethods;
+    private final List<JMethod> memMethods;
     /**
      * Absolute path where the class' source file was located.
      */
@@ -120,9 +120,9 @@ public class JClassInfo implements KeyWords {
      * Empty constructor
      */
     public JClassInfo() {
-        memFields = new ArrayList();
-        memMethods = new ArrayList();
-        interfaces = new ArrayList();
+        memFields = new ArrayList<>();
+        memMethods = new ArrayList<>();
+        interfaces = new ArrayList<>();
         cpInfo = new JConstantPool(2);
 
         /*
@@ -325,7 +325,7 @@ public class JClassInfo implements KeyWords {
                     sb.append(" ,");
                 }
                 sb.append(JImport.
-                        getClassName((String) interfaces.get(i)));
+                        getClassName(interfaces.get(i)));
             }
         }
         return sb;
@@ -542,18 +542,4 @@ public class JClassInfo implements KeyWords {
         minorNumber = rhsMinor;
     }
 
-    /**
-     * Sets the package to which this class belongs to.
-     *
-     * @param packageName name of the package to be set.
-     */
-    public void setPackageName(String packageName) {
-        /*
-      Name of the package of the current class in the JVM format.
-      That is the fully qualified name of the class is
-      java.lang.String. then the package name would contain
-      java/lang.
-     */
-        String packageName1 = packageName;
-    }
 }

@@ -47,9 +47,9 @@ public class JJvmSet implements JJvmOpcodes {
      */
     private static final String[] sOpCode;
 
-    /**
-     * Initializes thr JVM Opcode set.
-     **/
+    /*
+      Initializes thr JVM Opcode set.
+     */
     static {
         sOpCode = new String[256];
         sLength = new int[256];

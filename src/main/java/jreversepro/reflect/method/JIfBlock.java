@@ -46,7 +46,6 @@ public class JIfBlock extends JBlockObject {
         /*
       Associated Branch Entry
      */
-        JBranchEntry branch = _jbe;
         expr = _expr;
     }
 

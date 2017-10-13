@@ -1,5 +1,5 @@
-/**
- * @(#)JCollatingTable.java JReversePro - Java Decompiler / Disassembler.
+/*
+  @(#)JCollatingTable.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
  * <p>
@@ -17,7 +17,7 @@
  * The Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- **/
+ */
 
 package jreversepro.revengine;
 
@@ -43,7 +43,7 @@ public class JCollatingTable implements BranchConstants, KeyWords {
     /**
      * List of branches. The individual members are JBranchEntry.
      */
-    private List branches;
+    private List<JBranchEntry> branches;
     /**
      * List of entries in an array format.
      */
@@ -55,7 +55,7 @@ public class JCollatingTable implements BranchConstants, KeyWords {
      */
     public JCollatingTable(JMethod method) {
         this.method = method;
-        branches = new Vector();
+        branches = new Vector<>();
         entries = null;
     }
 
@@ -98,7 +98,7 @@ public class JCollatingTable implements BranchConstants, KeyWords {
         boolean ifBranch;
         for (int i = numBranches - 1; i > 0; ) {
             ifBranch = entries[i].collate();
-            int j = i - 1;
+            int j;
             for (j = i - 1; j >= 0; j--) {
                 if (entries[j].getNextPc() != entries[j + 1].getStartPc()) {
                     break;
@@ -132,7 +132,7 @@ public class JCollatingTable implements BranchConstants, KeyWords {
         int size = branches.size();
         entries = new JBranchEntry[size];
         for (int i = 0; i < size; i++) {
-            entries[i] = (JBranchEntry) branches.get(i);
+            entries[i] = branches.get(i);
         }
         return size;
     }
@@ -204,8 +204,8 @@ public class JCollatingTable implements BranchConstants, KeyWords {
      * @return List of branch of entries all of which are significant.
      * The members of the entries are all - JBranchEntry.
      */
-    public List getEffectiveBranches() {
-        List listBranches = new Vector();
+    public List<JBranchEntry> getEffectiveBranches() {
+        List<JBranchEntry> listBranches = new Vector<>();
         for (JBranchEntry entry : entries) {
             if (entry.getType() != TYPE_INVALID) {
                 listBranches.add(entry);
@@ -220,17 +220,16 @@ public class JCollatingTable implements BranchConstants, KeyWords {
      * @param mapGotos Map containing the goto entries in the
      *                 method.
      */
-    public void identifyWhileLoops(Map mapGotos) {
-        for (Object branche : branches) {
-            JBranchEntry ent = (JBranchEntry) branche;
-            if (ent.getType() == TYPE_IF) {
-                int targetPc = ent.getTargetPc();
-                int startPc = ent.getStartPc();
-                Object obj = mapGotos.get(targetPc - 3);
+    public void identifyWhileLoops(Map<Object, Integer> mapGotos) {
+        for (JBranchEntry branche : branches) {
+            if (branche.getType() == TYPE_IF) {
+                int targetPc = branche.getTargetPc();
+                int startPc = branche.getStartPc();
+                Integer obj = mapGotos.get(targetPc - 3);
                 if (obj != null) {
-                    int gotoTarget = (Integer) obj;
+                    int gotoTarget = obj;
                     if (startPc == gotoTarget) {
-                        ent.convertToWhile();
+                        branche.convertToWhile();
                     }
                 }
             }
@@ -241,14 +240,13 @@ public class JCollatingTable implements BranchConstants, KeyWords {
      * Sorts the branches - List.
      */
     public void sort() {
-        branches.sort(new JBranchComparator());
+        branches.sort(new JBranchComparator<>());
     }
 
     /**
      * @return Returns a Stringified format of the class.
      */
     public String toString() {
-        String sb = "\n" + branches + "\n" + "\n";
-        return sb;
+        return "\n" + branches + "\n" + "\n";
     }
 }

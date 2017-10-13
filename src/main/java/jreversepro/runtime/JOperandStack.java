@@ -1,25 +1,25 @@
-/**
- * JOperandStack.java
- * <p>
- * JReversePro - Java Decompiler / Disassembler.
- * Copyright (C) 2000 2001 Karthik Kumar.
- * EMail: akkumar@users.sourceforge.net
- * <p>
- * This program is free software; you can redistribute it and/or modify
- * it , under the terms of the GNU General Public License as published
- * by the Free Software Foundation; either version 2 of the License,
- * or (at your option) any later version.
- * <p>
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program.If not, write to
- * The Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- **/
+/*
+  JOperandStack.java
+  <p>
+  JReversePro - Java Decompiler / Disassembler.
+  Copyright (C) 2000 2001 Karthik Kumar.
+  EMail: akkumar@users.sourceforge.net
+  <p>
+  This program is free software; you can redistribute it and/or modify
+  it , under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 2 of the License,
+  or (at your option) any later version.
+  <p>
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License
+  along with this program.If not, write to
+  The Free Software Foundation, Inc.,
+  59 Temple Place - Suite 330,
+  Boston, MA 02111-1307, USA.
+ */
 package jreversepro.runtime;
 
 import jreversepro.common.KeyWords;
@@ -35,7 +35,7 @@ import java.util.Vector;
  *
  * @author Karthik Kumar.
  */
-public class JOperandStack extends Stack implements KeyWords, OperandConstants {
+public class JOperandStack extends Stack<Operand> implements KeyWords, OperandConstants {
     /**
      * A Vector of constants. The  individual members of this
      * vector are 'String'. They are primarily used in the following
@@ -44,13 +44,13 @@ public class JOperandStack extends Stack implements KeyWords, OperandConstants {
      * In this case all the individual members of the array
      * namely args come into the constants.
      */
-    final Vector constants;
+    final Vector<String> constants;
 
     /**
      * Empty constructor
      */
     public JOperandStack() {
-        constants = new Vector();
+        constants = new Vector<>();
     }
 
     /**
@@ -83,7 +83,7 @@ public class JOperandStack extends Stack implements KeyWords, OperandConstants {
     /**
      * @return List of constants that were stored.
      */
-    public List getConstants() {
+    public List<String> getConstants() {
         return constants;
     }
 
@@ -99,7 +99,7 @@ public class JOperandStack extends Stack implements KeyWords, OperandConstants {
         if (this.empty()) {
             return false;
         } else {
-            String dataType = ((Operand) this.peek()).getDatatype();
+            String dataType = ( this.peek()).getDatatype();
             return dataType.equals(FOREIGN_CLASS) || dataType.contains("<");
         }
     }
@@ -122,8 +122,8 @@ public class JOperandStack extends Stack implements KeyWords, OperandConstants {
         if (this.size() < 2) {
             throw new RevEngineException("Cannot merge ternary expressions");
         }
-        Operand op1 = (Operand) this.pop();
-        Operand op2 = (Operand) this.pop();
+        Operand op1 = this.pop();
+        Operand op2 = this.pop();
 
         push(new Operand(op2.getValue() + op1.getValue(), op2.getDatatype(), L_TERN));
     }
@@ -161,6 +161,6 @@ public class JOperandStack extends Stack implements KeyWords, OperandConstants {
      * stack.
      */
     public String topDatatype() {
-        return ((Operand) this.peek()).datatype;
+        return this.peek().datatype;
     }
 }

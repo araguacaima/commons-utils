@@ -497,8 +497,6 @@ public class JClassParser implements AppConstants {
             mInfoClass.setSourceFile(JAttribute.manipSourceFile(mDis, mCpInfo));
         } else if (attrName.compareTo(JAttribute.DEPRECATED) == 0) {
             JAttribute.manipDeprecated(mDis);
-        } else {
-            //          log.info("Attribute "  + AttrName );
         }
     }
 

@@ -1,5 +1,5 @@
-/**
- * @(#)JSerializer.java JReversePro - Java Decompiler / Disassembler.
+/*
+  @(#)JSerializer.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
  * <p>
@@ -17,7 +17,7 @@
  * The Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- **/
+ */
 package jreversepro.revengine;
 
 import jreversepro.common.KeyWords;
@@ -44,9 +44,9 @@ public class JSerializer implements KeyWords {
     static final JClassParser classParser;
     private static final Logger log = LoggerFactory.getLogger(JSerializer.class);
 
-    /**
-     * static initializer.
-     **/
+    /*
+      static initializer.
+     */
     static {
         classParser = new JClassParser();
     }

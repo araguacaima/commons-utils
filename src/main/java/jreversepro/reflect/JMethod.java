@@ -1,5 +1,5 @@
-/**
- * @(#)JMethod.java JReversePro - Java Decompiler / Disassembler.
+/*
+  @(#)JMethod.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 2002 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
  * <p>
@@ -17,7 +17,7 @@
  * The Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- **/
+ */
 package jreversepro.reflect;
 
 import jreversepro.common.Helper;
@@ -45,14 +45,14 @@ public class JMethod extends JMember implements KeyWords {
      * Structure used during method building containing stack of
      * code blocks currently open
      */
-    private final Stack blockStack;
+    private final Stack<JBlockObject> blockStack;
     /**
      * This list contains the exception tables that are
      * defined for this method.
      * The members of this list are -
      * JException
      */
-    private final List exceptionBlocks; // exception table
+    private final List<JException> exceptionBlocks; // exception table
     /**
      * Information about fields, methods of the class being reverse engineered.
      */
@@ -81,7 +81,7 @@ public class JMethod extends JMember implements KeyWords {
      * The members of this list are -
      * JException
      */
-    private List instructions; //  Instructions here.
+    private List<JInstruction> instructions; //  Instructions here.
 
     /**
      * This contains the LineNumberTable that may be
@@ -128,11 +128,11 @@ public class JMethod extends JMember implements KeyWords {
 
         mInfoClass = info;
 
-        blockStack = new Stack();
+        blockStack = new Stack<>();
         methodBlock = new JMethodBlock();
         blockStack.push(methodBlock);
 
-        exceptionBlocks = new ArrayList();
+        exceptionBlocks = new ArrayList<>();
 
         throwsClasses = new ArrayList(2);
         firstIns = null;
@@ -145,7 +145,7 @@ public class JMethod extends JMember implements KeyWords {
      * @param jbo JBlockObject to be added.
      */
     public void addBlock(JBlockObject jbo) {
-        JBlockObject peekjbo = (JBlockObject) blockStack.peek();
+        JBlockObject peekjbo = blockStack.peek();
         peekjbo.addBlock(jbo);
         blockStack.push(jbo); //push new block as the current open block
     }
@@ -168,7 +168,7 @@ public class JMethod extends JMember implements KeyWords {
         if (tryIndex == -1) {
             exceptionBlocks.add(exc);
         } else {
-            JException oldTry = (JException) exceptionBlocks.get(tryIndex);
+            JException oldTry = exceptionBlocks.get(tryIndex);
             oldTry.addCatchBlock(handlerPc, datatype);
         }
     }
@@ -179,7 +179,7 @@ public class JMethod extends JMember implements KeyWords {
      * @param loc Line Of Code to be added.
      */
     public void addLineOfCode(JLineOfCode loc) {
-        JBlockObject jbo = (JBlockObject) blockStack.peek();
+        JBlockObject jbo = blockStack.peek();
         if (jbo == null) {
             //yikes! Should NEVER happen, here for debugging
             log.info("*** No blocks on the stack -- " + " cannot add code!!! ***");
@@ -202,10 +202,10 @@ public class JMethod extends JMember implements KeyWords {
      *
      * @return Returns a map of exception tables.
      */
-    public Map getAllCatchJExceptions() {
-        Map newMap = new HashMap();
-        for (Object exceptionBlock : exceptionBlocks) {
-            newMap.putAll(((JException) exceptionBlock).excCatchTable);
+    public Map<Object, Object> getAllCatchJExceptions() {
+        Map<Object, Object> newMap = new HashMap<>();
+        for (JException exceptionBlock : exceptionBlocks) {
+            newMap.putAll((exceptionBlock).excCatchTable);
         }
         return newMap;
     }
@@ -251,10 +251,9 @@ public class JMethod extends JMember implements KeyWords {
 
         //now search for the ins
         JInstruction tIns = null;
-        for (Object instruction : instructions) {
-            JInstruction sIns = (JInstruction) instruction;
-            if (sIns.index == ind) {
-                tIns = sIns;
+        for (JInstruction instruction : instructions) {
+            if (instruction.index == ind) {
+                tIns = instruction;
                 break;
             }
         }
@@ -268,7 +267,7 @@ public class JMethod extends JMember implements KeyWords {
      *
      * @return Returns the bytecodes in the method.
      */
-    public List getInstructions() {
+    public List<JInstruction> getInstructions() {
         if (instructions == null) {
             normalize();
         }
@@ -288,14 +287,14 @@ public class JMethod extends JMember implements KeyWords {
      * all the possible targets.
      */
     public void normalize() {
-        instructions = new ArrayList();
+        instructions = new ArrayList<>();
         if (bytecodes == null) {
             return;
         }
         int maxCode = bytecodes.length;
         int index = 0;
-        int nextPc = -1;
-        int startPc = -1;
+        int nextPc;
+        int startPc;
         boolean bWide = false;
         JInstruction curIns = firstIns;
 
@@ -402,7 +401,7 @@ public class JMethod extends JMember implements KeyWords {
             return null;
         } else {
             byte[] result = new byte[end - start];
-            System.arraycopy(bytecodes, start, result, start - start, end - start);
+            System.arraycopy(bytecodes, start, result, 0, end - start);
             return result;
         }
     }
@@ -492,10 +491,8 @@ public class JMethod extends JMember implements KeyWords {
      */
     public String getMethodAsString(boolean getBytecode, boolean includeStackInfo) {
 
-        String sb = getMethodHeader(includeStackInfo) + (getBytecode ? getStringifiedBytecode() : getBlock().toString
+        return getMethodHeader(includeStackInfo) + (getBytecode ? getStringifiedBytecode() : getBlock().toString
                 ());
-
-        return sb;
     }
 
     /**
@@ -643,12 +640,12 @@ public class JMethod extends JMember implements KeyWords {
         result.append("\n\t  // Max Locals ").append(maxLocals);
         result.append("  , Max Stack ").append(maxStack);
         if (exceptionBlocks != null) {
-            Enumeration enumBlocks = Collections.enumeration(exceptionBlocks);
+            Enumeration<JException> enumBlocks = Collections.enumeration(exceptionBlocks);
             if (enumBlocks.hasMoreElements()) {
                 result.append("\n\n\t  /**");
                 result.append("\n\t\tFrom  To  Handler\tClass\n");
                 while (enumBlocks.hasMoreElements()) {
-                    JException exc = (JException) enumBlocks.nextElement();
+                    JException exc = enumBlocks.nextElement();
                     result.append(exc.toString());
                 }
                 result.append("\t  **/\n");
@@ -682,12 +679,12 @@ public class JMethod extends JMember implements KeyWords {
         //now search for the ins
         JInstruction tIns = null;
         for (int i = 0; i < instructions.size(); i++) {
-            JInstruction sIns = (JInstruction) instructions.get(i);
+            JInstruction sIns = instructions.get(i);
             if (sIns.index == ind) {
                 i++;
                 //now make sure it's not the last ins
                 if (i < instructions.size()) {
-                    tIns = (JInstruction) instructions.get(i);
+                    tIns = instructions.get(i);
                 }
                 break;
             }
@@ -739,7 +736,7 @@ public class JMethod extends JMember implements KeyWords {
      *
      * @return Returns the exception table.
      */
-    public List getexceptionBlocks() {
+    public List<JException> getexceptionBlocks() {
         return exceptionBlocks;
     }
 
@@ -748,10 +745,10 @@ public class JMethod extends JMember implements KeyWords {
      */
     public void removeCurrentBlock() {
 
-        JBlockObject remove = (JBlockObject) blockStack.pop();
+        JBlockObject remove = blockStack.pop();
         //POP block off stack
 
-        JBlockObject jbo = (JBlockObject) blockStack.peek();
+        JBlockObject jbo = blockStack.peek();
         //Get new current block
 
         jbo.removeLastBlock();//remove old (sub) block from current block
@@ -763,7 +760,7 @@ public class JMethod extends JMember implements KeyWords {
      * @return Returns the last line of code added to the current block.
      */
     public JLineOfCode removeLastLineOfCode() {
-        JBlockObject jbo = (JBlockObject) blockStack.peek();
+        JBlockObject jbo = blockStack.peek();
         if (jbo == null) {
             //yikes! Should NEVER happen, here for debugging
             log.info("*** No blocks on the stack -- " + " cannot add code!!! ***");

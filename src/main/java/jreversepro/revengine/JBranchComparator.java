@@ -1,5 +1,5 @@
-/**
- * @(#)JBranchComparator.java JReversePro - Java Decompiler / Disassembler.
+/*
+  @(#)JBranchComparator.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 2002 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
  * <p>
@@ -17,7 +17,7 @@
  * The Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- **/
+ */
 
 package jreversepro.revengine;
 
@@ -31,7 +31,7 @@ import java.util.Comparator;
  *
  * @author Karthik Kumar.
  */
-public class JBranchComparator implements Comparator {
+public class JBranchComparator <T> implements Comparator<T> {
     private static final Logger log = LoggerFactory.getLogger(JBranchComparator.class);
 
     /**

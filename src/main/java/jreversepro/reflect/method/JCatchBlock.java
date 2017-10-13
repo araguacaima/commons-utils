@@ -52,7 +52,6 @@ public class JCatchBlock extends JBlockObject {
         /*
       Associated Branch Entry
      */
-        JBranchEntry branch = _jbe;
         exceptionCls = _cls;
         exceptionVar = _var;
     }

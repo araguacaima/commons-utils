@@ -47,9 +47,9 @@ public class Helper implements KeyWords {
      */
     static boolean debugFlag;
 
-    /**
-     * static initializer method.
-     **/
+    /*
+      static initializer method.
+     */
     static {
         debugFlag = false;
     }
@@ -72,7 +72,7 @@ public class Helper implements KeyWords {
      * @return The method arguments as a List
      */
     public static List getArguments(String aSignature) {
-        List args = new ArrayList();
+        List<String> args = new ArrayList<>();
         int endIndex = aSignature.indexOf(")");
         if (endIndex != 1) {
             aSignature = aSignature.substring(1, endIndex);
@@ -274,9 +274,7 @@ public class Helper implements KeyWords {
         String val1 = value.substring(lastQIndex + 1, lastColonIndex);
         String val2 = value.substring(lastColonIndex + 1);
 
-        String result = condition + "? " + getAtomicValue(val1, datatype) + ": " + getAtomicValue(val2, datatype);
-
-        return result;
+        return condition + "? " + getAtomicValue(val1, datatype) + ": " + getAtomicValue(val2, datatype);
     }
 
     /**
@@ -433,7 +431,7 @@ public class Helper implements KeyWords {
      * @return unsigned integer equivalent of aByteVal.
      */
     public static int signedToUnsigned(int aByteVal) {
-        return (aByteVal < 0) ? (aByteVal += 256) : aByteVal;
+        return (aByteVal < 0) ? aByteVal + 256 : aByteVal;
     }
 
     /**

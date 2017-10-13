@@ -46,7 +46,7 @@ public class JCaseEntry implements KeyWords {
      * <br>
      * In this case there will be three entries in the list.
      */
-    final List values;
+    final List<String> values;
     /**
      * End Pc of this case target and the beginnin of the next target.
      */
@@ -60,7 +60,7 @@ public class JCaseEntry implements KeyWords {
      * Empty constructor.
      */
     public JCaseEntry() {
-        values = new Vector();
+        values = new Vector<>();
     }
 
     /**
@@ -70,7 +70,7 @@ public class JCaseEntry implements KeyWords {
      */
     public JCaseEntry(String name, int targetPc) {
         target = targetPc;
-        values = new Vector();
+        values = new Vector<>();
         values.add(name);
     }
 
@@ -119,7 +119,7 @@ public class JCaseEntry implements KeyWords {
      * @return Returns the List of case targets.
      * Members are 'String'.
      */
-    public List getValues() {
+    public List<String> getValues() {
         return values;
     }
 
@@ -138,8 +138,8 @@ public class JCaseEntry implements KeyWords {
      */
     public String disAssemble() {
         StringBuilder sb = new StringBuilder();
-        for (Object value : values) {
-            sb.append(value + ":\n\t\t\t");
+        for (String value : values) {
+            sb.append(value).append(":\n\t\t\t");
         }
         sb.append("\n\t\t\t\t" + GOTO + " ").append(target);
         return sb.toString();

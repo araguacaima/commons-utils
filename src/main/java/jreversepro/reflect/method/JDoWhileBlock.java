@@ -47,7 +47,6 @@ public class JDoWhileBlock extends JBlockObject {
         /*
       Associated Branch Entry
      */
-        JBranchEntry branch = _jbe;
         var1 = _var1;
         oper = _oper;
         var2 = _var2;

@@ -49,7 +49,7 @@ public class JDisAssembler implements JReverseEngineer, JJvmOpcodes {
      * byteIns is the Vector of instructions. Individual elements are
      * JInstruction.
      */
-    final List byteIns;
+    final List<JInstruction> byteIns;
 
     /**
      * ConstantPool Information.
@@ -92,23 +92,23 @@ public class JDisAssembler implements JReverseEngineer, JJvmOpcodes {
             JImport importInfo = cpInfo.getImportedClasses();
             curMethod.setSymbolTable(new JSymbolTable(curMethod, importInfo));
 
-            Enumeration enumIns = Collections.enumeration(byteIns);
+            Enumeration<JInstruction> enumIns = Collections.enumeration(byteIns);
             while (enumIns.hasMoreElements()) {
-                JInstruction thisIns = (JInstruction) enumIns.nextElement();
-                if (thisIns.opcode == OPCODE_TABLESWITCH) {
-                    JSwitchTable switches = new JSwitchTable(curMethod, thisIns, null);
-                    assembly.append("\n\t\t").append(thisIns.index).append(": ");
-                    assembly.append("tableswitch ");
-                    assembly.append(switches.disassemble());
-                } else if (thisIns.opcode == OPCODE_LOOKUPSWITCH) {
-                    JSwitchTable switches = new JSwitchTable(curMethod, thisIns, null);
-                    assembly.append("\n\t\t").append(thisIns.index).append(": ");
-                    assembly.append("lookupswitch ");
-                    assembly.append(switches.disassemble());
-                } else if (thisIns.opcode == OPCODE_WIDE) {
-                    //Handling to be done here.
-                } else {
-                    dealDefault(assembly, thisIns);
+                JInstruction thisIns = enumIns.nextElement();
+                if (thisIns.opcode != OPCODE_WIDE) {
+                    if (thisIns.opcode == OPCODE_TABLESWITCH) {
+                        JSwitchTable switches = new JSwitchTable(curMethod, thisIns, null);
+                        assembly.append("\n\t\t").append(thisIns.index).append(": ");
+                        assembly.append("tableswitch ");
+                        assembly.append(switches.disassemble());
+                    } else if (thisIns.opcode == OPCODE_LOOKUPSWITCH) {
+                        JSwitchTable switches = new JSwitchTable(curMethod, thisIns, null);
+                        assembly.append("\n\t\t").append(thisIns.index).append(": ");
+                        assembly.append("lookupswitch ");
+                        assembly.append(switches.disassemble());
+                    } else {
+                        dealDefault(assembly, thisIns);
+                    }
                 }
             }
         } catch (RevEngineException ree) {

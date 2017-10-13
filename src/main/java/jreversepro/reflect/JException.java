@@ -1,5 +1,5 @@
-/**
- * @(#)JException.java JReversePro - Java Decompiler / Disassembler.
+/*
+  @(#)JException.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
  * <p>
@@ -17,7 +17,7 @@
  * The Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- **/
+ */
 package jreversepro.reflect;
 
 import jreversepro.common.Helper;
@@ -39,7 +39,7 @@ public class JException {
      * Key - Handler Pc beginning
      * value -Handler datatype.
      */
-    final Map excCatchTable;
+    final Map<Object, String> excCatchTable;
     /**
      * Set if the exception handler is for ANY data type for
      * the block - { startpc, endpc }
@@ -68,7 +68,7 @@ public class JException {
         endPc = rhsEnd;
         any = (rhsType.equals(KeyWords.ANY));
 
-        excCatchTable = new HashMap();
+        excCatchTable = new HashMap<>();
         addCatchBlock(rhsHandler, rhsType);
     }
 
@@ -128,10 +128,10 @@ public class JException {
      * @return Effective endPc of the try ..block
      * *
      */
-    public int getEffectiveEndPc(List instructions) {
+    public int getEffectiveEndPc(List<JInstruction> instructions) {
         int insIndex = instructions.indexOf(new JInstruction(endPc, JJvmOpcodes.OPCODE_ACONST_NULL, null, true));
         if (insIndex != -1) {
-            return ((JInstruction) instructions.get(insIndex)).
+            return (instructions.get(insIndex)).
                     getNextIndex();
         } else {
             Helper.log("JException Err: " + endPc);
@@ -156,18 +156,18 @@ public class JException {
      * exists beginning with rhsHandlerPc. null, otherwise.
      */
     public String getExceptionClass(int rhsHandlerPc) {
-        Object obj = excCatchTable.get(rhsHandlerPc);
+        String obj = excCatchTable.get(rhsHandlerPc);
         if (obj == null) {
             return null;
         } else {
-            return (String) obj;
+            return obj;
         }
     }
 
     /**
      * @return Returns the Enumeration of handler types.
      */
-    public Enumeration getHandlers() {
+    public Enumeration<Map.Entry<Object, String>> getHandlers() {
         return Collections.enumeration(excCatchTable.entrySet());
     }
 

@@ -99,7 +99,7 @@ public class JConstantPool implements KeyWords {
      * The individual elements of the list are
      * JConstantPoolEntry.
      */
-    private final List listEntries;
+    private final List<JConstantPoolEntry> listEntries;
 
     /**
      * Reference to importedClasses that contains the list
@@ -113,7 +113,7 @@ public class JConstantPool implements KeyWords {
      * @param cpMax Maximum size of the ConstantPool.
      */
     public JConstantPool(int cpMax) {
-        listEntries = new ArrayList(cpMax);
+        listEntries = new ArrayList<>(cpMax);
         importedClasses = null;
         //Initially set to null.
     }
@@ -314,7 +314,7 @@ public class JConstantPool implements KeyWords {
      * @return Returns the tag byte.
      */
     public int getTagByte(int index) {
-        return ((JConstantPoolEntry) listEntries.get(index)).getTagByte();
+        return (listEntries.get(index)).getTagByte();
     }
 
     /**
@@ -324,7 +324,7 @@ public class JConstantPool implements KeyWords {
      * @return Returns the value of that cp entry.
      */
     public String getCpValue(int index) {
-        return ((JConstantPoolEntry) listEntries.get(index)).getValue();
+        return (listEntries.get(index)).getValue();
     }
 
     /**
@@ -338,9 +338,9 @@ public class JConstantPool implements KeyWords {
      * @return Returns a String a Utf8 value.
      */
     public String getFirstDirectName(int index) {
-        int ptr1 = ((JConstantPoolEntry) listEntries.get(index)).
+        int ptr1 = (listEntries.get(index)).
                 getPtr1();
-        return ((JConstantPoolEntry) listEntries.get(ptr1)).
+        return (listEntries.get(ptr1)).
                 getValue();
     }
 
@@ -371,7 +371,7 @@ public class JConstantPool implements KeyWords {
      *
      * @return Returns list of constantpool entries.
      */
-    public List getEntries() {
+    public List<JConstantPoolEntry> getEntries() {
         return listEntries;
     }
 
@@ -436,9 +436,9 @@ public class JConstantPool implements KeyWords {
      * @return Returns a String a Utf8 value.
      */
     public String getSecondDirectName(int index) {
-        int ptr2 = ((JConstantPoolEntry) listEntries.get(index)).
+        int ptr2 = (listEntries.get(index)).
                 getPtr2();
-        return ((JConstantPoolEntry) listEntries.get(ptr2)).
+        return (listEntries.get(ptr2)).
                 getValue();
     }
 
@@ -458,7 +458,7 @@ public class JConstantPool implements KeyWords {
         } else {
             importedClasses = new JImport();
             for (int i = 0; i < listEntries.size(); i++) {
-                JConstantPoolEntry ent = (JConstantPoolEntry) listEntries.get(i);
+                JConstantPoolEntry ent = listEntries.get(i);
                 switch (ent.getTagByte()) {
                     case TAG_CLASS:
                         importedClasses.addClass(Helper.getJavaDataType(getFirstDirectName(i), true));
@@ -495,8 +495,8 @@ public class JConstantPool implements KeyWords {
      * pointed to by the Constant Pool Entry.
      */
     public String getType(JConstantPoolEntry ent) {
-        JConstantPoolEntry entNameType = (JConstantPoolEntry) listEntries.get(ent.getPtr2());
-        JConstantPoolEntry entType = (JConstantPoolEntry) listEntries.get(entNameType.getPtr2());
+        JConstantPoolEntry entNameType = listEntries.get(ent.getPtr2());
+        JConstantPoolEntry entType = listEntries.get(entNameType.getPtr2());
         return entType.getValue();
     }
 
@@ -516,7 +516,7 @@ public class JConstantPool implements KeyWords {
      * @return Returns the integer.
      */
     public int getPtr1(int index) {
-        return ((JConstantPoolEntry) listEntries.get(index)).getPtr1();
+        return (listEntries.get(index)).getPtr1();
     }
 
     /**
@@ -526,7 +526,7 @@ public class JConstantPool implements KeyWords {
      * @return Returns the integer.
      */
     public int getPtr2(int index) {
-        return ((JConstantPoolEntry) listEntries.get(index)).getPtr2();
+        return (listEntries.get(index)).getPtr2();
     }
 
     /**
@@ -542,7 +542,7 @@ public class JConstantPool implements KeyWords {
      */
     private void getSingleEntryInfo(StringBuffer sb, int cpIndex) {
         if (cpIndex >= 1 && cpIndex < listEntries.size()) {
-            JConstantPoolEntry ent = (JConstantPoolEntry) listEntries.get(cpIndex);
+            JConstantPoolEntry ent = listEntries.get(cpIndex);
             sb.append("\n").append(cpIndex).append(" : ").append(ent);
             getSingleEntryInfo(sb, ent.getPtr1());
             getSingleEntryInfo(sb, ent.getPtr2());
@@ -567,7 +567,7 @@ public class JConstantPool implements KeyWords {
             case TAG_METHODREF:
             case TAG_FIELDREF:
             case TAG_INTERFACEREF:
-                JConstantPoolEntry ent = (JConstantPoolEntry) listEntries.get(index);
+                JConstantPoolEntry ent = listEntries.get(index);
                 result.append(getType(ent)).append(",").append(getName(ent));
                 break;
             case TAG_STRING:
@@ -590,8 +590,8 @@ public class JConstantPool implements KeyWords {
      * pointed to by the Constant Pool Entry.
      */
     public String getName(JConstantPoolEntry ent) {
-        JConstantPoolEntry entNameType = (JConstantPoolEntry) listEntries.get(ent.getPtr2());
-        JConstantPoolEntry entName = (JConstantPoolEntry) listEntries.get(entNameType.getPtr1());
+        JConstantPoolEntry entNameType = listEntries.get(ent.getPtr2());
+        JConstantPoolEntry entName = listEntries.get(entNameType.getPtr1());
         return entName.getValue();
     }
 
@@ -609,7 +609,7 @@ public class JConstantPool implements KeyWords {
      */
     public String getLdcString(int index)
             throws ClassParserException {
-        String result = STR_INVALID;
+        String result;
         int tagByte = getTagByte(index);
 
         if (tagByte == TAG_STRING) {

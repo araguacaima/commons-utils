@@ -1,5 +1,5 @@
-/**
- * @(#)JAttribute.java JReversePro - Java Decompiler / Disassembler.
+/*
+  @(#)JAttribute.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
  * <p>
@@ -17,7 +17,7 @@
  * The Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- **/
+ */
 package jreversepro.parser;
 
 import jreversepro.reflect.JConstantPool;
@@ -174,7 +174,6 @@ public final class JAttribute {
         //TODONew: Do some manipulation with the LineNumberTable
         // attribute..
         aDis.readFully(btRead);
-        btRead = null;
     }
 
     /**
@@ -203,7 +202,6 @@ public final class JAttribute {
         int len = aDis.readInt();
         byte[] btRead = new byte[len];
         aDis.readFully(btRead);
-        btRead = null;
     }
 
     /**
@@ -264,7 +262,7 @@ public final class JAttribute {
     public static List manipExceptions(DataInputStream aDis, JConstantPool aCpInfo)
             throws IOException {
         //Responsible for the 'throws' clause
-        List classes = new ArrayList(2);
+        List<String> classes = new ArrayList<>(2);
         aDis.readInt();
         short numException = aDis.readShort();
         for (int i = 0; i < numException; i++) {

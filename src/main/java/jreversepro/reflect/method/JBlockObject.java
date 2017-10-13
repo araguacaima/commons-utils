@@ -36,7 +36,7 @@ public abstract class JBlockObject {
     /**
      * Contains list of all blocks and stmts contained within this block
      */
-    private final Vector blocksNstmts;
+    private final Vector<Object> blocksNstmts;
 
     /**
      * Default indentation
@@ -52,7 +52,7 @@ public abstract class JBlockObject {
      * Creates a new instance of BranchObject
      */
     public JBlockObject() {
-        blocksNstmts = new Vector();
+        blocksNstmts = new Vector<>();
     }
 
     /**
@@ -107,10 +107,10 @@ public abstract class JBlockObject {
      * @return Outputs the method code contained in this block
      * (and sub-blocks) as a vector of JLineOfCode objects
      */
-    public Vector getFlattenedCode(String _indent) {
+    public Vector<Object> getFlattenedCode(String _indent) {
 
         indent = _indent;
-        Vector locs = new Vector();
+        Vector<Object> locs = new Vector<>();
 
         //Adds block entry code as a JLineOfCode
         locs.add(getEntryLineOfCode());
@@ -145,7 +145,6 @@ public abstract class JBlockObject {
     public void removeLastBlock() {
         if (blocksNstmts.size() > 0) {
             blocksNstmts.removeElementAt(blocksNstmts.size() - 1);
-        } else {
         }
     }
 

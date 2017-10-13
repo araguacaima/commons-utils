@@ -1,5 +1,5 @@
-/**
- * @(#)JBranchTable.java JReversePro - Java Decompiler / Disassembler.
+/*
+  @(#)JBranchTable.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
  * <p>
@@ -17,7 +17,7 @@
  * The Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- **/
+ */
 
 package jreversepro.revengine;
 
@@ -42,11 +42,11 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      * It is a Vector of 'Integer's.
      * The integers are the target of the jump sub routine instruction.
      */
-    final Vector mJSRTarget;
+    final Vector<Integer> mJSRTarget;
     /**
      * Map of monitor instructions.
      */
-    final Map mMonitor;
+    final Map<Integer, String> mMonitor;
     /**
      * Method reference *
      */
@@ -60,23 +60,23 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      * Branches is a list, with the individual elemens containing
      * 'JBranchEntry'.
      */
-    List branches;
+    List<Object> branches;
     /**
      * gotos
      * Key - StartPc ( java.lang.Integer )
      * Value - TargetPc ( Absolute target -java.lang.Integer).
      */
-    Map gotos;
+    Map<Object, Integer> gotos;
 
     /**
      * @param method Method reference.
      */
     public JBranchTable(JMethod method) {
-        mJSRTarget = new Vector();
-        mMonitor = new HashMap();
-        branches = new Vector();
+        mJSRTarget = new Vector<>();
+        mMonitor = new HashMap<>();
+        branches = new Vector<>();
         switches = new Vector();
-        gotos = new HashMap();
+        gotos = new HashMap<>();
         this.method = method;
     }
 
@@ -132,8 +132,7 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      * @param retPc PC of the instruction which is a RET.
      */
     public void addRetPc(int retPc) {
-        Object obj = mJSRTarget.lastElement();
-        int startPc = (Integer) obj;
+        int startPc = mJSRTarget.lastElement();
         branches.add(new JBranchEntry(method, startPc, startPc, retPc, TYPE_JSR, "", "", ""));
     }
 
@@ -145,18 +144,17 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      *                    statements.
      */
     public void addSwitch(JSwitchTable switchEntry) {
-        List enumCases = switchEntry.getCases();
+        List<JCaseEntry> enumCases = switchEntry.getCases();
 
         Helper.log("No: Case Entries " + enumCases.size());
-        for (Object enumCase : enumCases) {
-            JCaseEntry singleCase = (JCaseEntry) enumCase;
-            int caseTarget = singleCase.getTarget();
-            int endCase = singleCase.getEndTarget();
+        for (JCaseEntry enumCase : enumCases) {
+            int caseTarget = enumCase.getTarget();
+            int endCase = enumCase.getEndTarget();
 
-            List caseValues = singleCase.getValues();
+            List<String> caseValues = enumCase.getValues();
             StringBuilder sb = new StringBuilder();
-            for (Object caseValue : caseValues) {
-                sb.append(caseValue + ",");
+            for (String caseValue : caseValues) {
+                sb.append(caseValue).append(",");
             }
             JBranchEntry ent = new JBranchEntry(method,
                     caseTarget,
@@ -176,16 +174,15 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      *
      * @param excTryTable Individual entries being JException.
      */
-    public void addTryBlocks(List excTryTable) {
+    public void addTryBlocks(List<JException> excTryTable) {
         Helper.log("Number of Try..blocks " + excTryTable.size());
-        for (Object anExcTryTable : excTryTable) {
-            JException exc = (JException) anExcTryTable;
-            int insIndex = exc.getStartPc();
+        for (JException anExcTryTable : excTryTable) {
+            int insIndex = anExcTryTable.getStartPc();
             if (insIndex == -1) {
                 continue;
             }
 
-            int endPc = exc.getEffectiveEndPc(method.getInstructions());
+            int endPc = anExcTryTable.getEffectiveEndPc(method.getInstructions());
             String syncLock = doesMonitorBegin(insIndex - 1);
             if (syncLock != null) {
                 branches.add(new JBranchEntry(method, insIndex, insIndex, endPc, TYPE_SYNC, syncLock, "", ""));
@@ -194,7 +191,7 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
                         insIndex,
                         insIndex,
                         endPc,
-                        (exc.isAny()) ? TYPE_TRY_ANY : TYPE_TRY,
+                        (anExcTryTable.isAny()) ? TYPE_TRY_ANY : TYPE_TRY,
                         "",
                         "",
                         ""));
@@ -210,7 +207,7 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      * @return monitor object associated with this branch.
      */
     public String doesMonitorBegin(int monitorBeginPc) {
-        return (String) mMonitor.get(monitorBeginPc);
+        return mMonitor.get(monitorBeginPc);
     }
 
     /**
@@ -243,14 +240,14 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      * @param end     EndPc.
      * @return Returns a JInstruction reference.
      */
-    public JInstruction findGotoIns(List byteIns, int start, int end) {
+    public JInstruction findGotoIns(List<JInstruction> byteIns, int start, int end) {
         int i;
         for (i = 0; i < byteIns.size(); i++) {
-            if (((JInstruction) byteIns.get(i)).index == start) {
+            if ((byteIns.get(i)).index == start) {
                 break;
             }
         }
-        JInstruction curIns = (JInstruction) byteIns.get(i);
+        JInstruction curIns = byteIns.get(i);
         while (curIns != null && curIns.opcode != OPCODE_GOTO && curIns.opcode != OPCODE_GOTOW) {
             if (curIns.index == end) {
                 curIns = null;
@@ -273,11 +270,11 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      * startPc
      */
     public int findGotoTarget(int startPc) {
-        Object obj = gotos.get(startPc);
+        Integer obj = gotos.get(startPc);
         if (obj == null) {
             return -1;
         } else {
-            return (Integer) obj;
+            return obj;
         }
     }
 
@@ -288,7 +285,7 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      * key - goto pc.
      * value - target of that goto table.
      */
-    public Map getGotoTable() {
+    public Map<Object, Integer> getGotoTable() {
         return gotos;
     }
 
@@ -305,13 +302,13 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
             JBranchEntry jbe = (JBranchEntry) branches.get(i);
             int gotoStartPc = jbe.getEndBlockPc() - 3;
             int gotoNextPc = gotoStartPc + 3;
-            Object obj = gotos.get(gotoStartPc);
+            Integer obj = gotos.get(gotoStartPc);
             switch (jbe.getType()) {
                 case TYPE_IF:
                 case TYPE_ELSE_IF:
                     if (obj != null) {
                         //Before adding else, check for else if.
-                        int gotoTargetPc = (Integer) obj;
+                        int gotoTargetPc = obj;
                         if (gotoTargetPc - gotoStartPc == 3) {
                             break;
                         }
@@ -353,14 +350,13 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      * @return first branch entry that matches the type mentioned
      * in the list given.
      */
-    public static JBranchEntry contains(List listBranchEntries, int type) {
+    public static JBranchEntry contains(List<JBranchEntry> listBranchEntries, int type) {
         if (listBranchEntries.size() == 0) {
             return null;
         }
-        for (Object listBranchEntry : listBranchEntries) {
-            JBranchEntry ent = (JBranchEntry) listBranchEntry;
-            if (ent.getType() == type) {
-                return ent;
+        for (JBranchEntry listBranchEntry : listBranchEntries) {
+            if (listBranchEntry.getType() == type) {
+                return listBranchEntry;
             }
         }
         return null;
@@ -376,10 +372,10 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      * instruction index.
      * @throws RevEngineException thrown in case of an error.
      */
-    public List startsWith(int aInsIndex)
+    public List<JBranchEntry> startsWith(int aInsIndex)
             throws RevEngineException {
 
-        List branchEntries = new Vector();
+        List<JBranchEntry> branchEntries = new Vector<>();
         for (Object branche : branches) {
             JBranchEntry jbe = (JBranchEntry) branche;
             if (jbe.doesStartWith(aInsIndex)) {
@@ -407,7 +403,7 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      *
      * @param aBranches Branches to be added.
      */
-    public void setTables(List aBranches) {
+    public void setTables(List<JBranchEntry> aBranches) {
         branches.addAll(aBranches);
     }
 
@@ -417,7 +413,7 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      * See JBranchComparator for more details.
      */
     public void sort() {
-        branches.sort(new JBranchComparator());
+        branches.sort(new JBranchComparator<>());
     }
 
     /**
@@ -429,7 +425,7 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
         int size = gotos.size();
         if (size > 0) {
             sb.append("Gotos:\n");
-            Iterator it = gotos.entrySet().iterator();
+            Iterator<Map.Entry<Object, Integer>> it = gotos.entrySet().iterator();
             for (int i = 0; i < size; i++) {
                 sb.append(it.next()).append("\n");
             }
@@ -455,7 +451,7 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
         if (size > 0) {
             sb.append("Branches:\n");
             for (Object branche : branches) {
-                sb.append((JBranchEntry) branche + "\n");
+                sb.append(branche).append("\n");
             }
         }
         return sb.toString();

@@ -46,7 +46,6 @@ public class JSynchBlock extends JBlockObject {
         /*
       Associated Branch Entry
      */
-        JBranchEntry branch = _jbe;
         synchVar = _var;
     }
 

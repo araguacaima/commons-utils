@@ -1,5 +1,5 @@
-/**
- * @(#)JSwitchTable.java JReversePro - Java Decompiler / Disassembler.
+/*
+  @(#)JSwitchTable.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
  * <p>
@@ -17,7 +17,7 @@
  * The Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- **/
+ */
 package jreversepro.revengine;
 
 import jreversepro.common.Helper;
@@ -56,7 +56,7 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
      * List of cases that are available.
      * Individual elements are JCaseEntry.
      */
-    List cases;
+    List<JCaseEntry> cases;
     /**
      * Datatype of the variable for which switch is used.
      */
@@ -83,12 +83,12 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
      * @throws RevEngineException if the instruction passed is not
      *                            a switch opcode.
      */
-    public JSwitchTable(JMethod method, JInstruction ins, Map gotos)
+    public JSwitchTable(JMethod method, JInstruction ins, Map<Object, Integer> gotos)
             throws RevEngineException, IOException {
 
         this.method = method;
         insIndex = ins.index;
-        cases = new Vector();
+        cases = new Vector<>();
 
         if (ins.opcode == OPCODE_TABLESWITCH) {
             createTableSwitch(ins.args, ins.index, gotos);
@@ -112,26 +112,25 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
      * @throws IOException Thrown in case of an i/o error when reading
      *                     from the bytes.
      */
-    private void createTableSwitch(byte[] entries, int offset, Map gotos)
+    private void createTableSwitch(byte[] entries, int offset, Map<Object, Integer> gotos)
             throws IOException {
         DataInputStream dis = new DataInputStream(new ByteArrayInputStream(entries));
         defaultByte = dis.readInt() + offset;
         int lowVal = dis.readInt();
         int highVal = dis.readInt();
 
-        Map mapCases = new HashMap();
+        Map<Integer, JCaseEntry> mapCases = new HashMap<>();
         for (int i = lowVal; i <= highVal; i++) {
             int curTarget = dis.readInt() + offset;
             String value = Helper.getValue(String.valueOf(i), this.datatype);
-            Object obj = mapCases.get(curTarget);
+            JCaseEntry obj = mapCases.get(curTarget);
             if (obj == null) {
                 mapCases.put(curTarget, new JCaseEntry(value, curTarget));
             } else {
-                JCaseEntry ent = (JCaseEntry) obj;
-                ent.addValue(value);
+                obj.addValue(value);
             }
         }
-        cases = new Vector(mapCases.values());
+        cases = new Vector<>(mapCases.values());
         dis.close();
         processData(gotos);
     }
@@ -148,28 +147,27 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
      * @throws IOException Thrown in case of an i/o error when reading
      *                     from the bytes.
      */
-    private void createLookupSwitch(byte[] entries, int offset, Map gotos)
+    private void createLookupSwitch(byte[] entries, int offset, Map<Object, Integer> gotos)
             throws IOException {
         DataInputStream dis = new DataInputStream(new ByteArrayInputStream(entries));
 
         defaultByte = dis.readInt() + offset;
         int numVal = dis.readInt();
 
-        Map mapCases = new HashMap();
+        Map<Integer, JCaseEntry> mapCases = new HashMap<>();
 
         for (int i = 0; i < numVal; i++) {
             String value = Helper.getValue(String.valueOf(dis.readInt()), datatype);
             int curTarget = dis.readInt() + offset;
 
-            Object obj = mapCases.get(curTarget);
+            JCaseEntry obj = mapCases.get(curTarget);
             if (obj == null) {
                 mapCases.put(curTarget, new JCaseEntry(value, curTarget));
             } else {
-                JCaseEntry ent = (JCaseEntry) obj;
-                ent.addValue(value);
+                obj.addValue(value);
             }
         }
-        cases = new Vector(mapCases.values());
+        cases = new Vector<>(mapCases.values());
         dis.close();
         processData(gotos);
     }
@@ -180,21 +178,21 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
      *
      * @param gotos Map of goto statements.
      */
-    public void processData(Map gotos) {
+    public void processData(Map<Object, Integer> gotos) {
         maxTarget = defaultByte;
         if (gotos != null) {
             for (int i = 0; i < cases.size() - 1; i++) {
-                JCaseEntry ent = (JCaseEntry) cases.get(i);
-                Object obj = gotos.get(ent.getTarget() - 3);
+                JCaseEntry ent = cases.get(i);
+                Integer obj = gotos.get(ent.getTarget() - 3);
                 if (obj != null) {
-                    int tempVal = (Integer) obj;
+                    int tempVal = obj;
                     maxTarget = (maxTarget > tempVal) ? maxTarget : tempVal;
                 }
             }
             if (maxTarget > defaultByte) {
                 boolean targetPresent = false;
                 for (int i = 0; i < cases.size() - 1; i++) {
-                    JCaseEntry ent = (JCaseEntry) cases.get(i);
+                    JCaseEntry ent = cases.get(i);
                     if (ent.getTarget() == defaultByte) {
                         ent.addValue(DEFAULT);
                         //ent.setTarget(defa);
@@ -208,16 +206,16 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
         }
 
         //Sort the entries
-        cases.sort(new JCaseComparator());
+        cases.sort(new JCaseComparator<>());
 
         //Assign endTargets for all of them.
         int i = 0;
         for (; i < cases.size() - 1; i++) {
-            JCaseEntry ent = (JCaseEntry) cases.get(i);
-            JCaseEntry entNext = (JCaseEntry) cases.get(i + 1);
+            JCaseEntry ent = cases.get(i);
+            JCaseEntry entNext = cases.get(i + 1);
             ent.setEndTarget(entNext.getTarget());
         }
-        JCaseEntry entLast = (JCaseEntry) cases.get(i);
+        JCaseEntry entLast = cases.get(i);
         entLast.setEndTarget(maxTarget);
     }
 
@@ -231,7 +229,7 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
      * @throws RevEngineException if the instruction passed is not
      *                            a switch opcode.
      */
-    public JSwitchTable(JMethod method, JInstruction ins, Operand op1, Map gotos)
+    public JSwitchTable(JMethod method, JInstruction ins, Operand op1, Map<Object, Integer> gotos)
             throws RevEngineException, IOException {
         this.datatype = op1.getDatatype();
         this.varName = op1.getValue();
@@ -239,7 +237,7 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
         //Copy - paste from prev. constructor.
         this.method = method;
         insIndex = ins.index;
-        cases = new Vector();
+        cases = new Vector<>();
 
         if (ins.opcode == OPCODE_TABLESWITCH) {
             createTableSwitch(ins.args, ins.index, gotos);
@@ -266,8 +264,8 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
      */
     public String disassemble() {
         StringBuilder sb = new StringBuilder("");
-        for (Object aCase : cases) {
-            sb.append("\n\t\t\t" + aCase);
+        for (JCaseEntry aCase : cases) {
+            sb.append("\n\t\t\t").append(aCase);
         }
         sb.append("\n\t\t\tDefault Byte ").append(defaultByte);
         return sb.toString();
@@ -284,7 +282,7 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
      * @return Returns the list of cases.
      * Individual elements are JCaseEntry.
      */
-    public List getCases() {
+    public List<JCaseEntry> getCases() {
         return cases;
     }
 

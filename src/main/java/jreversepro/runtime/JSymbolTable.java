@@ -44,11 +44,11 @@ public class JSymbolTable implements KeyWords {
     /**
      * List of keywords in the language
      */
-    static final List keywords;
+    static final List<String> keywords;
 
-    /**
-     * Static initializers - Keywords
-     **/
+    /*
+      Static initializers - Keywords
+     */
     static {
         keywords = getKeyWordsList();
     }
@@ -74,7 +74,7 @@ public class JSymbolTable implements KeyWords {
      * Key - Symbol Name
      * Value - JLocalEntry.
      */
-    Map symNames;
+    Map<String, JLocalEntry> symNames;
     /**
      * Map of the Symbols -
      * Key - local variable index - java.lang.Integer
@@ -82,7 +82,7 @@ public class JSymbolTable implements KeyWords {
      * since for the same localvariable index more than one
      * datatype may exist.
      */
-    Map symbols;
+    Map<Integer, List<JLocalEntry>> symbols;
 
     /**
      * @param rhsMethod Method for which this symbol table
@@ -93,14 +93,14 @@ public class JSymbolTable implements KeyWords {
 
         this.imports = imports;
         List args = rhsMethod.getArgList();
-        int startIndex = 1;
+        int startIndex;
 
         maxSymbols = rhsMethod.getMaxLocals();
         maxArgs = args.size();
 
         //Symbols = new HashSet();
-        symbols = new HashMap();
-        symNames = new HashMap();
+        symbols = new HashMap<>();
+        symNames = new HashMap<>();
 
         basicIndex = (int) ('i');
         //Starts with variable 'i'.
@@ -123,8 +123,8 @@ public class JSymbolTable implements KeyWords {
      * @return Returns a list containing the keywords of the
      * java language. All the individual members are String.
      */
-    public static List getKeyWordsList() {
-        List keywordList = new Vector();
+    public static List<String> getKeyWordsList() {
+        List<String> keywordList = new Vector<>();
         keywordList.add("abstract");
         keywordList.add("double");
         keywordList.add("int");
@@ -197,7 +197,7 @@ public class JSymbolTable implements KeyWords {
             //Not necessary to keep track of referenced line numbers.
             //Since the variable is an argument.
         }
-        List currentList = (List) symbols.get(aVarIndex);
+        List currentList = symbols.get(aVarIndex);
         JLocalEntry createEntry = new JLocalEntry(-1, //VarIndex irrelevant
                 -1, //StoreIndex irrelevant.
                 aDatatype, "", //Name irrelevant
@@ -206,8 +206,6 @@ public class JSymbolTable implements KeyWords {
         if (objIndex != -1) {
             JLocalEntry ent = (JLocalEntry) currentList.get(objIndex);
             ent.setLastReferredIndex(aIndex);
-        } else {
-            //Helper.log("Something seriously wrong");
         }
     }
 
@@ -275,14 +273,14 @@ public class JSymbolTable implements KeyWords {
         Helper.log("Adding entry " + aVarIndex);
         aDeclared |= (aDatatype.contains("<"));
 
-        Object obj = symbols.get(aVarIndex);
+        List<JLocalEntry> obj = symbols.get(aVarIndex);
 
-        List currentList;
+        List<JLocalEntry> currentList;
         if (obj == null) {
-            currentList = new Vector();
+            currentList = new Vector<>();
             symbols.put(aVarIndex, currentList);
         } else {
-            currentList = (List) obj;
+            currentList = obj;
         }
         String name = genName(aDatatype, aVarIndex);
         JLocalEntry ent = new JLocalEntry(aVarIndex, aStoreIndex, aDatatype, name, aDeclared);
@@ -354,13 +352,16 @@ public class JSymbolTable implements KeyWords {
             return null;
         }
         JLocalEntry ent = getMatchingEntry(aVarIndex, aInsIndex);
-        if (!ent.isDeclared()) {
-            String declareType = ent.getDeclarationType();
-            ent.declareVariable();
-            return JImport.getClassName(Helper.getJavaDataType(declareType, false));
-        } else {
-            return null;
+        if (ent != null) {
+            if (!ent.isDeclared()) {
+                String declareType = ent.getDeclarationType();
+                ent.declareVariable();
+                return JImport.getClassName(Helper.getJavaDataType(declareType, false));
+            } else {
+                return null;
+            }
         }
+        return null;
     }
 
     /**
@@ -375,8 +376,8 @@ public class JSymbolTable implements KeyWords {
      * @return Returns a List containing Strings in the above mentioned
      * format.
      */
-    public List defineVariable(int endOfBranch) {
-        List result = new Vector();
+    public List<String> defineVariable(int endOfBranch) {
+        List<String> result = new Vector<>();
         Enumeration enumValues = Collections.enumeration(symbols.values());
         while (enumValues.hasMoreElements()) {
             List list = (List) enumValues.nextElement();
@@ -401,8 +402,12 @@ public class JSymbolTable implements KeyWords {
      * variable index and the instruction index.
      */
     public String getDataType(int aVarIndex, int aInsIndex) {
-        return getMatchingEntry(aVarIndex, aInsIndex).
-                getDeclarationType();
+        final JLocalEntry matchingEntry = getMatchingEntry(aVarIndex, aInsIndex);
+        if (matchingEntry != null) {
+            return matchingEntry.
+                    getDeclarationType();
+        }
+        return null;
     }
 
     /**
@@ -421,7 +426,11 @@ public class JSymbolTable implements KeyWords {
      * variable index and the instruction index.
      */
     public String getName(int aVarIndex, int aInsIndex) {
-        return getMatchingEntry(aVarIndex, aInsIndex).getName();
+        final JLocalEntry matchingEntry = getMatchingEntry(aVarIndex, aInsIndex);
+        if (matchingEntry != null) {
+            return matchingEntry.getName();
+        }
+        return null;
     }
 
     /**
@@ -478,24 +487,20 @@ public class JSymbolTable implements KeyWords {
      * @param aNewType New Datatype
      */
     public void touchVariable(String aVarName, String aNewType) {
-        Object obj = symNames.get(aVarName);
+        JLocalEntry obj = symNames.get(aVarName);
         if (obj != null) {
-            JLocalEntry ent = (JLocalEntry) obj;
-            if (!ent.isDeclared()) {
-                String oldType = ent.getDeclarationType();
+            if (!obj.isDeclared()) {
+                String oldType = obj.getDeclarationType();
                 if (!oldType.equals(aNewType)) {
-                    String newName = genName(aNewType, ent.getVarIndex());
-                    ent.setName(newName);//Rename it again.
-                    ent.setDeclarationType(aNewType);
+                    String newName = genName(aNewType, obj.getVarIndex());
+                    obj.setName(newName);//Rename it again.
+                    obj.setDeclarationType(aNewType);
 
                     //Modify the map of names again.
                     symNames.remove(aVarName);
-                    symNames.put(newName, ent);
+                    symNames.put(newName, obj);
                 }
             }
-
-        } else {
-            //Helper.log("touchVariable: DANGEROUS ");
         }
     }
 }

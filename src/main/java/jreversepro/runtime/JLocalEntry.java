@@ -36,7 +36,7 @@ public class JLocalEntry {
     /**
      * set of opcode indexes when this variable was referred to.
      */
-    final Set references;
+    final Set<Integer> references;
     /**
      * Opcode index when this was first stored / loaded into the
      * symbol table with a value. For arguments to method this value
@@ -80,7 +80,7 @@ public class JLocalEntry {
         this.name = aName;
         this.declared = aDeclared;
         lastReferredIndex = 0;
-        references = new HashSet();
+        references = new HashSet<>();
     }
 
     /**
@@ -175,6 +175,7 @@ public class JLocalEntry {
     /**
      * @return Returns if the variable is declared/not.
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isDeclared() {
         return declared;
     }
@@ -203,12 +204,12 @@ public class JLocalEntry {
         StringBuilder sb = new StringBuilder();
         sb.append("{ ").append(declared).append("  ").append(datatype).append("  ").append(name).append("  ").append(
                 storeIndex).append(" LastRef  ").append(lastReferredIndex).append(" }\n");
-        Iterator i = references.iterator();
+        Iterator<Integer> i = references.iterator();
 
         if (i.hasNext()) {
             sb.append(" Ref [ ");
             while (i.hasNext()) {
-                sb.append((Integer) i.next()).append(" ");
+                sb.append(i.next()).append(" ");
             }
             sb.append("]");
         }

@@ -1,5 +1,5 @@
-/**
- * @(#)JRunTimeContext.java JReversePro - Java Decompiler / Disassembler.
+/*
+  @(#)JRunTimeContext.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
  * <p>
@@ -17,7 +17,7 @@
  * The Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- **/
+ */
 package jreversepro.runtime;
 
 import jreversepro.common.Helper;
@@ -53,7 +53,7 @@ public class JRunTimeContext implements KeyWords, BranchConstants {
      * This Stack contains the individual control blocks.
      * Individual elements are BranchEntry.
      */
-    final Stack jcs;
+    final Stack<JBranchEntry> jcs;
     /**
      * Operand Stack reference.
      */
@@ -107,7 +107,7 @@ public class JRunTimeContext implements KeyWords, BranchConstants {
 
         mergeStack = false;
         writtenCode = false;
-        this.jcs = new Stack();
+        this.jcs = new Stack<>();
     }
 
     /**
@@ -188,7 +188,6 @@ public class JRunTimeContext implements KeyWords, BranchConstants {
 
         for (Object listBranche : listBranches) {
             JBranchEntry ent = (JBranchEntry) listBranche;
-            validatePairings(ent);
             writeVariableDeclarations(ent, symTable);
             ent.appendStartBlockStmtX(decomp);
             setBlockWrittenFlag();
@@ -208,52 +207,6 @@ public class JRunTimeContext implements KeyWords, BranchConstants {
                     }
                 }
             }
-        }
-    }
-
-    /**
-     * Check correct branch pairings for IF/ELSEIF/ELSE/TRY/CATCH/FINALLY.
-     *
-     * @param ent This is the entry that needs to be evaluated.
-     *            If a branch of type TYPE_ELSE / TYPE_ELSE_IF is to be ended then
-     *            the last ended must be TYPE_IF.
-     *            If a branch ent is of type TYPE_CATCH then last poppped entry
-     *            must be TYPE_TRY.
-     * @throws RevEngineException Thrown if these validations are not
-     *                            satisfied.
-     */
-    public void validatePairings(JBranchEntry ent)
-            throws RevEngineException {
-        if (ent.independent()) {
-            return;
-        }
-        if (prevBlock == null) {
-            Helper.log("Matching block for " + ent + " is null");
-            return;
-        }
-        int entryStartPc = ent.getStartPc();
-        int cType = ent.getType();
-        int pType = prevBlock.getType();
-        boolean pairExistsFlag = false;
-        if (cType == TYPE_ELSE || cType == TYPE_ELSE_IF) {
-            // can be only after if or else if
-            pairExistsFlag = (pType == TYPE_IF || pType == TYPE_ELSE_IF) && entryStartPc == prevBlock.getEndBlockPc();
-
-        } else if (cType == TYPE_CATCH) {
-            // can be only after try or catch
-            pairExistsFlag = (pType == TYPE_TRY || pType == TYPE_CATCH) && !writtenCode;
-        } else if (cType == TYPE_CATCH_ANY) {
-            // can be only after try (any) or catch
-            pairExistsFlag = (pType == TYPE_TRY_ANY || pType == TYPE_CATCH) && !writtenCode;
-        } else if (cType == TYPE_JSR) {
-            // can be only after catch (any)
-            pairExistsFlag = (pType == TYPE_CATCH_ANY);
-        }
-        if (!pairExistsFlag) {
-            /**
-             Helper.log("Last popped " + prevBlock
-             + "\n\t\tis not a valid preceding entry for " +  ent);
-             **/
         }
     }
 
@@ -287,7 +240,7 @@ public class JRunTimeContext implements KeyWords, BranchConstants {
 
         if (!jcs.empty()) {
             if (newent.getEndBlockPc() == -1) {
-                JBranchEntry topEnt = (JBranchEntry) jcs.peek();
+                JBranchEntry topEnt = jcs.peek();
                 newent.setEndBlockPc(topEnt.getEndBlockPc());
                 //This case is for
                 // } catch ( )  {
@@ -340,7 +293,7 @@ public class JRunTimeContext implements KeyWords, BranchConstants {
      */
     public JBranchEntry getImmediateOuterLoop() {
         for (int i = jcs.size() - 1; i >= 0; i--) {
-            JBranchEntry ent = (JBranchEntry) jcs.get(i);
+            JBranchEntry ent = jcs.get(i);
             if (ent.getType() == TYPE_DO_WHILE || ent.getType() == TYPE_WHILE || ent.getType() == TYPE_SWITCH) {
                 return ent;
             }
@@ -362,8 +315,8 @@ public class JRunTimeContext implements KeyWords, BranchConstants {
         while (currBlock != null && currBlock.getEndBlockPc() == insIndex) {
             mergeStack |= currBlock.appendEndBlockStmt(decomp, jos);
             writtenCode = false;
-            prevBlock = (JBranchEntry) jcs.pop();
-            currBlock = (jcs.empty()) ? null : (JBranchEntry) jcs.peek();
+            prevBlock = jcs.pop();
+            currBlock = (jcs.empty()) ? null : jcs.peek();
         }
     }
 
@@ -373,7 +326,7 @@ public class JRunTimeContext implements KeyWords, BranchConstants {
      */
     public void getFinalBlockStmt() {
         while (!jcs.empty()) {
-            prevBlock = (JBranchEntry) jcs.pop();
+            prevBlock = jcs.pop();
             prevBlock.appendEndBlockStmt(decomp, jos);
         }
     }

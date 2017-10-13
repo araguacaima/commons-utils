@@ -1,5 +1,5 @@
-/**
- * @(#)JCaseComparator.java JReversePro - Java Decompiler / Disassembler.
+/*
+  @(#)JCaseComparator.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
  * <p>
@@ -17,7 +17,7 @@
  * The Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- **/
+ */
 
 package jreversepro.revengine;
 
@@ -30,7 +30,7 @@ import java.util.Comparator;
  *
  * @author Karthik Kumar.
  */
-public class JCaseComparator implements Comparator {
+public class JCaseComparator <T> implements Comparator<T> {
 
     /**
      * @param o1 First Object to be compared.

@@ -66,7 +66,6 @@ public class JForBlock extends JBlockObject {
         /*
       Associated Branch Entry
      */
-        JBranchEntry branch = _jbe;
         init = _init;
         test = _test;
         loop = _loop;

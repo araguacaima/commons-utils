@@ -40,7 +40,6 @@ public class JFinallyBlock extends JBlockObject {
         /*
       Associated Branch Entry
      */
-        JBranchEntry branch = _jbe;
     }
 
     /**

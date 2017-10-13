@@ -31,7 +31,6 @@ public class JCaseBlock extends JBlockObject implements KeyWords {
         /*
       Associated Branch Entry
      */
-        JBranchEntry branch = _jbe;
         expr = _expr;
     }
 

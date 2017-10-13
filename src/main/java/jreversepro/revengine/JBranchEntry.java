@@ -1,5 +1,5 @@
-/**
- * @(#)JBranchEntry.java JReversePro - Java Decompiler / Disassembler.
+/*
+  @(#)JBranchEntry.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
  * <p>
@@ -17,7 +17,7 @@
  * The Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- **/
+ */
 package jreversepro.revengine;
 
 import jreversepro.common.Helper;
@@ -88,9 +88,6 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
      */
     public JBranchEntry(JMethod method, int startPc, int targetPc, int type) {
         this(method, startPc, startPc, targetPc, type, "", "", "");
-        if (type == TYPE_JSR) {
-            startPc = targetPc;
-        }
         written = false;
     }
 
@@ -158,7 +155,7 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
                     } else if (!jos.empty()) {
                         //Rollback (remove current IF block)
                         method.removeCurrentBlock();
-                        Operand op1 = (Operand) jos.pop();
+                        Operand op1 = jos.pop();
                         String expr = getExpression();
                         jos.push(new Operand("(" + expr + ") ? " + op1.getValueEx(L_TERN) + " : ",
                                 op1.getDatatype(),
@@ -235,8 +232,8 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
 
                     //Set the index ptr to the ins after the end of this
                     //block, IF no other catch follows
-                    /**
-                     *                  JInstruction sIns = method.getInstruction(targetPc);
+                    /*
+                                       JInstruction sIns = method.getInstruction(targetPc);
                      if (targetPc > 0) {
                      // Verified that this works for catch stmts
                      decomp.setLastIns(sIns.index);
@@ -308,7 +305,7 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
      * @param decomp Reference to decempiler.
      */
     public final void appendStartBlockStmtX(JDecompiler decomp) {
-        JInstruction sIns = null;
+        JInstruction sIns;
 
         Helper.log("Branch Begins " + this);
         if (!(type == TYPE_CATCH_ANY || type == TYPE_TRY_ANY)) {

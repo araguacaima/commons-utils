@@ -40,13 +40,13 @@ public class JImport {
      * List of classes that are referenced by this class.
      * The elements of this list are 'String'.
      */
-    private final List classes;
+    private final List<String> classes;
 
     /**
      * no-arg constructor
      */
     public JImport() {
-        this.classes = new ArrayList(5);
+        this.classes = new ArrayList<>(5);
     }
 
     /**
@@ -99,12 +99,12 @@ public class JImport {
         //Code to be written here.
         Collections.sort(classes);
         StringBuilder sb = new StringBuilder();
-        List restrictPackages = new ArrayList(2);
+        List<String> restrictPackages = new ArrayList<>(2);
         restrictPackages.add(packageName);
         restrictPackages.add(KeyWords.DEFAULT_PACKAGE);
 
-        for (Object aClass : classes) {
-            String currentClass = (String) aClass;
+        for (String aClass : classes) {
+            String currentClass = aClass;
             if (currentClass.indexOf('/') != -1) {
                 String currentPackage = Helper.getPackageName(currentClass);
                 if (!restrictPackages.contains(currentPackage)) {

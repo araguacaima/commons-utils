@@ -1,5 +1,5 @@
-/**
- * @(#)JDecompiler.java JReversePro - Java Decompiler / Disassembler.
+/*
+  @(#)JDecompiler.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
  * <p>
@@ -17,7 +17,7 @@
  * The Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- **/
+ */
 
 package jreversepro.revengine;
 
@@ -56,7 +56,7 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
      * Vector of JBranchEntry of TYPE_CATCH
      * and TYPE_CATCH_ANY
      */
-    final Vector catchBranches;
+    final Vector<JBranchEntry> catchBranches;
     /**
      * Reference to ConsantPoolInformation.
      */
@@ -100,7 +100,7 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
         cpInfo = rhsCpInfo;
         symTable = new JSymbolTable(rhsMethod, importInfo);
         branches = new JBranchTable(curMethod);
-        catchBranches = new Vector();
+        catchBranches = new Vector<>();
 
         byteIns = rhsMethod.getInstructions();
         mapCatchJExceptions = rhsMethod.getAllCatchJExceptions();
@@ -130,9 +130,7 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
 
         curMethod.setSymbolTable(this.getSymbolTable());
 
-        if (byteIns.size() == 0) {
-            //Indicates either an abstract class or an interface.
-        } else {
+        if (byteIns.size() != 0) {
             try {
                 //Start decompiling code.
                 JCollatingTable collatter = loadBranchTable();
@@ -153,7 +151,7 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
             } catch (Exception ex) {
                 ex.printStackTrace();
                 throw new RevEngineException(curMethod.getName() + " decompilation failed. Please feel " + " free to " +
-                        "" + " report the problem to me at " + " akkumar@users.sourceforge.net. ");
+                        "" + "" + " report the problem to me at " + " akkumar@users.sourceforge.net. ");
             }
         }
     }
@@ -219,8 +217,6 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
                     branches.addJSRPc(ins.getTargetPcW());
                 }
             }
-            jos = null;
-            rtf = null;
             //          Helper.log("Loaded Symbol Table **********");
             //          Helper.log(symTable.toString());
         }
@@ -297,7 +293,7 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
             }
 
             if (thisIns.opcode == OPCODE_TABLESWITCH || thisIns.opcode == OPCODE_LOOKUPSWITCH) {
-                branches.addSwitch(new JSwitchTable(curMethod, thisIns, (Operand) jos.peek(), branches.getGotoTable()));
+                branches.addSwitch(new JSwitchTable(curMethod, thisIns, jos.peek(), branches.getGotoTable()));
                 eolFlag = true;
             }
             try {
@@ -325,8 +321,6 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
         // add try or try (any) branch to branch table
         branches.addTryBlocks(curMethod.getexceptionBlocks());
 
-        rtf = null;
-        jos = null;
         return collatter;
     }
 
@@ -370,7 +364,7 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
      */
     private void closeCatchBranch(int closeIndex) {
         if (catchBranches.size() != 0) {
-            JBranchEntry lastEnt = (JBranchEntry) catchBranches.lastElement();
+            JBranchEntry lastEnt = catchBranches.lastElement();
             if (lastEnt.getTargetPc() == -1) {
                 lastEnt.setTargetPc(closeIndex);
                 catchBranches.remove(lastEnt);
@@ -400,12 +394,6 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
     private JRunTimeContext createRuntimeContext() {
         JRunTimeFrame rtf = new JRunTimeFrame(cpInfo, symTable, curMethod.getReturnType());
         JOperandStack jos = new JOperandStack();
-
-        List restrict = new Vector();
-        if (curMethod.getName().equals(INIT) || curMethod.getName().equals(CLINIT)) {
-            restrict.add(RETURN);
-        }
-
         return new JRunTimeContext(this, curMethod, rtf, jos, branches);
     }
 
