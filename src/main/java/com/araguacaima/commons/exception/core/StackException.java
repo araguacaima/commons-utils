@@ -45,7 +45,7 @@ public class StackException extends ApplicationException implements Collection, 
 
     private static final long serialVersionUID = -3432443583065897052L;
 
-    private final Collection<Object> detailedMsgs;
+    private final Collection detailedMsgs;
 
     public StackException(String detailMessage, Severity severity) {
         super(detailMessage, severity);

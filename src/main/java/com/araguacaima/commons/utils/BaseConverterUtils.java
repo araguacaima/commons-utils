@@ -107,6 +107,99 @@ public class BaseConverterUtils {
     }
 
     /**
+     * Obtiene la representación en base decimal del numero en base X, representado por el parámetro de entrada 'radix'
+     *
+     * @param stringRepresentationOfNumberInBaseX El número en base X, representado por el parámetro de entrada 'radix',
+     *                                            al cual se le desea obtener su representación en base decimal
+     * @param radix                               La base en la cual está el parámetro de entrada
+     *                                            'stringRepresentationOfNumberInBaseX'
+     * @return Un double con la representación del número de entrada en base X, representado por el parámetro de entrada
+     * 'radix', convertido a base decimal
+     * @throws NumberFormatException Si no es posible obtener un número en base decimal a partir del parametro de
+     *                               entrada en base X, o si la representación en base X del parametro de entrada
+     *                               no es correcta, según la definición del conjunto ordenado de caracteres de
+     *                               representación <code>digits</code>
+     */
+
+    public static long fromBaseXToDecimal(String stringRepresentationOfNumberInBaseX, int radix)
+            throws NumberFormatException {
+        if (stringRepresentationOfNumberInBaseX == null) {
+            throw new NumberFormatException("null");
+        }
+
+        if (radix > digits.length) {
+            throw new NumberFormatException(
+                    "Is not possible to convert from decimal base to any other base greather than " + digits.length +
+                            ", because of the defined set of characters to represent the returning value has fixed " +
+                            "to" + " the following " + digits.length + " characteres: " + new String(
+                            digits));
+        }
+
+        if (radix < Character.MIN_RADIX) {
+            throw new NumberFormatException(
+                    "Is not possible to convert from decimal base to any other base lesser than " + Character
+                            .MIN_RADIX);
+        }
+
+        long result = 0;
+        boolean negative = false;
+        int i = 0, max = stringRepresentationOfNumberInBaseX.length();
+        long limit;
+        long multmin;
+        int digit;
+        String digitsString = new String(digits);
+
+        if (max > 0) {
+            if (stringRepresentationOfNumberInBaseX.charAt(0) == '-') {
+                negative = true;
+                limit = Long.MIN_VALUE;
+                i++;
+            } else {
+                limit = -Long.MAX_VALUE;
+            }
+            multmin = limit / radix;
+            if (i < max) {
+                digit = digitsString.indexOf(stringRepresentationOfNumberInBaseX.charAt(i++));
+                if (digit < 0) {
+                    throw new NumberFormatException("For input string: \"" + stringRepresentationOfNumberInBaseX +
+                            "\"");
+                } else {
+                    result = -digit;
+                }
+            }
+            while (i < max) {
+                // Accumulating negatively avoids surprises near MAX_VALUE
+                digit = digitsString.indexOf(stringRepresentationOfNumberInBaseX.charAt(i++));
+                if (digit < 0) {
+                    throw new NumberFormatException("For input string: \"" + stringRepresentationOfNumberInBaseX +
+                            "\"");
+                }
+                if (result < multmin) {
+                    throw new NumberFormatException("For input string: \"" + stringRepresentationOfNumberInBaseX +
+                            "\"");
+                }
+                result *= radix;
+                if (result < limit + digit) {
+                    throw new NumberFormatException("For input string: \"" + stringRepresentationOfNumberInBaseX +
+                            "\"");
+                }
+                result -= digit;
+            }
+        } else {
+            throw new NumberFormatException("For input string: \"" + stringRepresentationOfNumberInBaseX + "\"");
+        }
+        if (negative) {
+            if (i > 1) {
+                return result;
+            } else {    /* Only got "-" */
+                throw new NumberFormatException("For input string: \"" + stringRepresentationOfNumberInBaseX + "\"");
+            }
+        } else {
+            return -result;
+        }
+    }
+
+    /**
      * Obtiene la representación en base decimal del numero en base 16 representado por el parámetro de entrada pero
      * suprimiendo previamente todos los caracteres identificados por el parametro de entrada 'characterToLeftTriming'
      * que existan del lado izquierdo de parametro de entrada, antes de efectuar la conversión
@@ -126,6 +219,34 @@ public class BaseConverterUtils {
     }
 
     /**
+     * Obtiene la representación en base decimal del numero en base X, representado por el parámetro de entrada 'radix'
+     * al cual se le suprimen todas las apariciones del caracter descrito por el parametro 'paddingCharacter' antes de
+     * realizar la conversión
+     *
+     * @param stringRepresentationOfNumberInBaseX El número en base X, representado por el parámetro de entrada 'radix',
+     *                                            al cual se le desea obtener su representación en base decimal
+     * @param radix                               La base en la cual está el parámetro de entrada
+     *                                            'stringRepresentationOfNumberInBaseX'
+     * @param paddingCharacter                    El caracter que se queire sufrimir de la izquierda del paramétro de
+     *                                            entrada
+     *                                            'stringRepresentationOfNumberInBaseX'
+     * @return Un double con la representación del número de entrada en base X, representado por el parámetro de entrada
+     * 'radix', convertido a base decimal
+     * @throws NumberFormatException Si no es posible obtener un número en base decimal a partir del parametro de
+     *                               entrada en base X, o si la representación en base X del parametro de entrada
+     *                               no es correcta, según la definición del conjunto ordenado de caracteres de
+     *                               representación <code>digits</code>
+     */
+
+    public static long fromBaseXToDecimalLeftTrimmed(String stringRepresentationOfNumberInBaseX,
+                                                     int radix,
+                                                     char paddingCharacter)
+            throws NumberFormatException {
+        String trimmedNumberInBaseX = StringUtils.leftTrim(stringRepresentationOfNumberInBaseX, paddingCharacter);
+        return fromBaseXToDecimal(trimmedNumberInBaseX, radix);
+    }
+
+    /**
      * Obtiene la representación en base decimal del numero en base 16 representado por el parámetro de entrada pero
      * suprimiendo previamente todos los ceros que existan del lado izquierdo de parametro de entrada, antes de
      * efectuar la conversión
@@ -141,6 +262,27 @@ public class BaseConverterUtils {
     public static long fromBase16ToDecimalZeroLeftTrimmed(String base16Number)
             throws NumberFormatException {
         return fromBaseXToDecimalZeroLeftTrimmed(base16Number, 16);
+    }
+
+    /**
+     * Obtiene la representación en base decimal del numero en base X, representado por el parámetro de entrada 'radix'
+     * al cual se le suprimen todos los 0's antes de realizar la conversión
+     *
+     * @param stringRepresentationOfNumberInBaseX El número en base X, representado por el parámetro de entrada 'radix',
+     *                                            al cual se le desea obtener su representación en base decimal
+     * @param radix                               La base en la cual está el parámetro de entrada
+     *                                            'stringRepresentationOfNumberInBaseX'
+     * @return Un double con la representación del número de entrada en base X, representado por el parámetro de entrada
+     * 'radix', convertido a base decimal
+     * @throws NumberFormatException Si no es posible obtener un número en base decimal a partir del parametro de
+     *                               entrada en base X, o si la representación en base X del parametro de entrada
+     *                               no es correcta, según la definición del conjunto ordenado de caracteres de
+     *                               representación <code>digits</code>
+     */
+
+    public static long fromBaseXToDecimalZeroLeftTrimmed(String stringRepresentationOfNumberInBaseX, int radix)
+            throws NumberFormatException {
+        return fromBaseXToDecimalLeftTrimmed(stringRepresentationOfNumberInBaseX, radix, '0');
     }
 
     /**
@@ -319,99 +461,6 @@ public class BaseConverterUtils {
     }
 
     /**
-     * Obtiene la representación en base decimal del numero en base X, representado por el parámetro de entrada 'radix'
-     *
-     * @param stringRepresentationOfNumberInBaseX El número en base X, representado por el parámetro de entrada 'radix',
-     *                                            al cual se le desea obtener su representación en base decimal
-     * @param radix                               La base en la cual está el parámetro de entrada
-     *                                            'stringRepresentationOfNumberInBaseX'
-     * @return Un double con la representación del número de entrada en base X, representado por el parámetro de entrada
-     * 'radix', convertido a base decimal
-     * @throws NumberFormatException Si no es posible obtener un número en base decimal a partir del parametro de
-     *                               entrada en base X, o si la representación en base X del parametro de entrada
-     *                               no es correcta, según la definición del conjunto ordenado de caracteres de
-     *                               representación <code>digits</code>
-     */
-
-    public static long fromBaseXToDecimal(String stringRepresentationOfNumberInBaseX, int radix)
-            throws NumberFormatException {
-        if (stringRepresentationOfNumberInBaseX == null) {
-            throw new NumberFormatException("null");
-        }
-
-        if (radix > digits.length) {
-            throw new NumberFormatException(
-                    "Is not possible to convert from decimal base to any other base greather than " + digits.length +
-                            ", because of the defined set of characters to represent the returning value has fixed to" +
-                            " the following " + digits.length + " characteres: " + new String(
-                            digits));
-        }
-
-        if (radix < Character.MIN_RADIX) {
-            throw new NumberFormatException(
-                    "Is not possible to convert from decimal base to any other base lesser than " + Character
-                            .MIN_RADIX);
-        }
-
-        long result = 0;
-        boolean negative = false;
-        int i = 0, max = stringRepresentationOfNumberInBaseX.length();
-        long limit;
-        long multmin;
-        int digit;
-        String digitsString = new String(digits);
-
-        if (max > 0) {
-            if (stringRepresentationOfNumberInBaseX.charAt(0) == '-') {
-                negative = true;
-                limit = Long.MIN_VALUE;
-                i++;
-            } else {
-                limit = -Long.MAX_VALUE;
-            }
-            multmin = limit / radix;
-            if (i < max) {
-                digit = digitsString.indexOf(stringRepresentationOfNumberInBaseX.charAt(i++));
-                if (digit < 0) {
-                    throw new NumberFormatException("For input string: \"" + stringRepresentationOfNumberInBaseX +
-                            "\"");
-                } else {
-                    result = -digit;
-                }
-            }
-            while (i < max) {
-                // Accumulating negatively avoids surprises near MAX_VALUE
-                digit = digitsString.indexOf(stringRepresentationOfNumberInBaseX.charAt(i++));
-                if (digit < 0) {
-                    throw new NumberFormatException("For input string: \"" + stringRepresentationOfNumberInBaseX +
-                            "\"");
-                }
-                if (result < multmin) {
-                    throw new NumberFormatException("For input string: \"" + stringRepresentationOfNumberInBaseX +
-                            "\"");
-                }
-                result *= radix;
-                if (result < limit + digit) {
-                    throw new NumberFormatException("For input string: \"" + stringRepresentationOfNumberInBaseX +
-                            "\"");
-                }
-                result -= digit;
-            }
-        } else {
-            throw new NumberFormatException("For input string: \"" + stringRepresentationOfNumberInBaseX + "\"");
-        }
-        if (negative) {
-            if (i > 1) {
-                return result;
-            } else {    /* Only got "-" */
-                throw new NumberFormatException("For input string: \"" + stringRepresentationOfNumberInBaseX + "\"");
-            }
-        } else {
-            return -result;
-        }
-    }
-
-    /**
      * Obtiene la representación en base decimal del numero en base 62 representado por el parámetro de entrada pero
      * suprimiendo previamente todos los caracteres identificados por el parametro de entrada 'characterToLeftTriming'
      * que existan del lado izquierdo de parametro de entrada, antes de efectuar la conversión
@@ -446,55 +495,6 @@ public class BaseConverterUtils {
     public static long fromBase62ToDecimalZeroLeftTrimmed(String base62Number)
             throws NumberFormatException {
         return fromBaseXToDecimalZeroLeftTrimmed(base62Number, 62);
-    }
-
-    /**
-     * Obtiene la representación en base decimal del numero en base X, representado por el parámetro de entrada 'radix'
-     * al cual se le suprimen todos los 0's antes de realizar la conversión
-     *
-     * @param stringRepresentationOfNumberInBaseX El número en base X, representado por el parámetro de entrada 'radix',
-     *                                            al cual se le desea obtener su representación en base decimal
-     * @param radix                               La base en la cual está el parámetro de entrada
-     *                                            'stringRepresentationOfNumberInBaseX'
-     * @return Un double con la representación del número de entrada en base X, representado por el parámetro de entrada
-     * 'radix', convertido a base decimal
-     * @throws NumberFormatException Si no es posible obtener un número en base decimal a partir del parametro de
-     *                               entrada en base X, o si la representación en base X del parametro de entrada
-     *                               no es correcta, según la definición del conjunto ordenado de caracteres de
-     *                               representación <code>digits</code>
-     */
-
-    public static long fromBaseXToDecimalZeroLeftTrimmed(String stringRepresentationOfNumberInBaseX, int radix)
-            throws NumberFormatException {
-        return fromBaseXToDecimalLeftTrimmed(stringRepresentationOfNumberInBaseX, radix, '0');
-    }
-
-    /**
-     * Obtiene la representación en base decimal del numero en base X, representado por el parámetro de entrada 'radix'
-     * al cual se le suprimen todas las apariciones del caracter descrito por el parametro 'paddingCharacter' antes de
-     * realizar la conversión
-     *
-     * @param stringRepresentationOfNumberInBaseX El número en base X, representado por el parámetro de entrada 'radix',
-     *                                            al cual se le desea obtener su representación en base decimal
-     * @param radix                               La base en la cual está el parámetro de entrada
-     *                                            'stringRepresentationOfNumberInBaseX'
-     * @param paddingCharacter                    El caracter que se queire sufrimir de la izquierda del paramétro de
-     *                                           entrada
-     *                                            'stringRepresentationOfNumberInBaseX'
-     * @return Un double con la representación del número de entrada en base X, representado por el parámetro de entrada
-     * 'radix', convertido a base decimal
-     * @throws NumberFormatException Si no es posible obtener un número en base decimal a partir del parametro de
-     *                               entrada en base X, o si la representación en base X del parametro de entrada
-     *                               no es correcta, según la definición del conjunto ordenado de caracteres de
-     *                               representación <code>digits</code>
-     */
-
-    public static long fromBaseXToDecimalLeftTrimmed(String stringRepresentationOfNumberInBaseX,
-                                                     int radix,
-                                                     char paddingCharacter)
-            throws NumberFormatException {
-        String trimmedNumberInBaseX = StringUtils.leftTrim(stringRepresentationOfNumberInBaseX, paddingCharacter);
-        return fromBaseXToDecimal(trimmedNumberInBaseX, radix);
     }
 
     /**
@@ -565,6 +565,52 @@ public class BaseConverterUtils {
     }
 
     /**
+     * Obtiene la representación en base X, descrita por el parametro de entrada 'radix', del numero en base decimal
+     * representado por el parámetro de entrada 'decimalNumber'
+     *
+     * @param decimalNumber El número en base decimal al cual se le desea obtener su representación en base X,
+     *                      descrita por el parametro de entrada 'radix'
+     * @param radix         La base en la cual se quiere hacer la conversión
+     * @return Un String con la representación del número de entrada en base decimal convertido a base X
+     * @throws IllegalArgumentException Si no existen al menos 'radix' caracteres para representar el numero en base
+     *                                  decimal de entrada en base X
+     */
+
+    public static String fromDecimalToBaseX(long decimalNumber, int radix)
+            throws IllegalArgumentException {
+        if (radix > digits.length) {
+            throw new IllegalArgumentException(
+                    "Is not possible to convert from decimal base to any other base greather than " + digits.length +
+                            ", because of the defined set of characters to represent the returning value has fixed " +
+                            "to" + " the following " + digits.length + " characteres: " + new String(
+                            digits));
+        }
+        if (radix == 10) {
+            return Long.toString(decimalNumber);
+        }
+
+        char[] buf = new char[65];
+        int charPos = 64;
+        boolean negative = (decimalNumber < 0);
+
+        if (!negative) {
+            decimalNumber = -decimalNumber;
+        }
+
+        while (decimalNumber <= -radix) {
+            buf[charPos--] = digits[(int) (-(decimalNumber % radix))];
+            decimalNumber = decimalNumber / radix;
+        }
+        buf[charPos] = digits[(int) (-decimalNumber)];
+
+        if (negative) {
+            buf[--charPos] = '-';
+        }
+
+        return new String(buf, charPos, (65 - charPos));
+    }
+
+    /**
      * Obtiene la representación en base 16 del numero en base decimal representado por el parámetro de entrada,
      * rellenando con el caracter descrito por el parámetro 'paddingCharacter' a la izquierda para completar un tamaño
      * identificado por el parámetro de entrada 'size'
@@ -585,6 +631,40 @@ public class BaseConverterUtils {
     }
 
     /**
+     * Obtiene la representación en base X, descrita por el parametro de entrada 'radix', del numero en base decimal
+     * representado por el parámetro de entrada 'decimalNumber', con ceros rellenando el String de salida hasta
+     * completar el tamaño descrito por el parámetro de entrada 'size'
+     *
+     * @param decimalNumber    El número en base decimal al cual se le desea obtener su representación en base X,
+     *                         descrita por el parametro de entrada 'radix'
+     * @param size             El tamaño de salida deseado. Si el tamaño es menor que el tamaño del String que
+     *                         representa el
+     *                         número convertido a base X dicho tamaño se ignora
+     * @param radix            La base en la cual se quiere hacer la conversión
+     * @param paddingCharacter El caracter con el que se quiere rellenar a las izquierda del numero convertido a
+     *                         base X
+     * @return Un String con la representación del número de entrada en base decimal convertido a base X
+     * @throws IllegalArgumentException Si no existen al menos 'radix' caracteres para representar el numero en base
+     *                                  decimal de entrada en base X
+     */
+
+    public static String fromDecimalToBaseXLeftPaddedToXCharacters(long decimalNumber,
+                                                                   int size,
+                                                                   int radix,
+                                                                   char paddingCharacter)
+            throws IllegalArgumentException {
+        String result = fromDecimalToBaseX(decimalNumber, radix);
+        if (size > result.length()) {
+            return StringUtils.leftPad(result, size, paddingCharacter);
+        } else if (size < result.length()) {
+            throw new IllegalArgumentException("La conversión en base '" + radix + "' del número en base decimal '" +
+                    decimalNumber + "' no debe exceder el tamaño especificado '" + size + "'");
+        } else {
+            return result;
+        }
+    }
+
+    /**
      * Obtiene la representación en base 16 del numero en base decimal representado por el parámetro de entrada,
      * rellenando con ceros a la izquierda para completar un tamaño identificado por el parámetro de entrada 'size'
      *
@@ -599,6 +679,27 @@ public class BaseConverterUtils {
     public static String fromDecimalToBase16ZeroLeftPaddedToXCharacters(long number, int size)
             throws IllegalArgumentException {
         return fromDecimalToBaseXZeroLeftPaddedToXCharacters(number, size, 16);
+    }
+
+    /**
+     * Obtiene la representación en base X, descrita por el parametro de entrada 'radix', del numero en base decimal
+     * representado por el parámetro de entrada 'decimalNumber', con ceros rellenando el String de salida hasta
+     * completar el tamaño descrito por el parámetro de entrada 'size'
+     *
+     * @param decimalNumber El número en base decimal al cual se le desea obtener su representación en base X,
+     *                      descrita por el parametro de entrada 'radix'
+     * @param size          El tamaño de salida deseado. Si el tamaño es menor que el tamaño del String que
+     *                      representa el
+     *                      número convertido a base X dicho tamaño se ignora
+     * @param radix         La base en la cual se quiere hacer la conversión
+     * @return Un String con la representación del número de entrada en base decimal convertido a base X
+     * @throws IllegalArgumentException Si no existen al menos 'radix' caracteres para representar el numero en base
+     *                                  decimal de entrada en base X
+     */
+
+    public static String fromDecimalToBaseXZeroLeftPaddedToXCharacters(long decimalNumber, int size, int radix)
+            throws IllegalArgumentException {
+        return fromDecimalToBaseXLeftPaddedToXCharacters(decimalNumber, size, radix, '0');
     }
 
     /**
@@ -774,52 +875,6 @@ public class BaseConverterUtils {
     }
 
     /**
-     * Obtiene la representación en base X, descrita por el parametro de entrada 'radix', del numero en base decimal
-     * representado por el parámetro de entrada 'decimalNumber'
-     *
-     * @param decimalNumber El número en base decimal al cual se le desea obtener su representación en base X,
-     *                      descrita por el parametro de entrada 'radix'
-     * @param radix         La base en la cual se quiere hacer la conversión
-     * @return Un String con la representación del número de entrada en base decimal convertido a base X
-     * @throws IllegalArgumentException Si no existen al menos 'radix' caracteres para representar el numero en base
-     *                                  decimal de entrada en base X
-     */
-
-    public static String fromDecimalToBaseX(long decimalNumber, int radix)
-            throws IllegalArgumentException {
-        if (radix > digits.length) {
-            throw new IllegalArgumentException(
-                    "Is not possible to convert from decimal base to any other base greather than " + digits.length +
-                            ", because of the defined set of characters to represent the returning value has fixed to" +
-                            " the following " + digits.length + " characteres: " + new String(
-                            digits));
-        }
-        if (radix == 10) {
-            return Long.toString(decimalNumber);
-        }
-
-        char[] buf = new char[65];
-        int charPos = 64;
-        boolean negative = (decimalNumber < 0);
-
-        if (!negative) {
-            decimalNumber = -decimalNumber;
-        }
-
-        while (decimalNumber <= -radix) {
-            buf[charPos--] = digits[(int) (-(decimalNumber % radix))];
-            decimalNumber = decimalNumber / radix;
-        }
-        buf[charPos] = digits[(int) (-decimalNumber)];
-
-        if (negative) {
-            buf[--charPos] = '-';
-        }
-
-        return new String(buf, charPos, (65 - charPos));
-    }
-
-    /**
      * Obtiene la representación en base 62 del numero en base decimal representado por el parámetro de entrada,
      * rellenando con el caracter descrito por el parámetro 'paddingCharacter' a la izquierda para completar un tamaño
      * identificado por el parámetro de entrada 'size'
@@ -855,61 +910,6 @@ public class BaseConverterUtils {
     public static String fromDecimalToBase62ZeroLeftPaddedToXCharacters(long number, int size)
             throws IllegalArgumentException {
         return fromDecimalToBaseXZeroLeftPaddedToXCharacters(number, size, 62);
-    }
-
-    /**
-     * Obtiene la representación en base X, descrita por el parametro de entrada 'radix', del numero en base decimal
-     * representado por el parámetro de entrada 'decimalNumber', con ceros rellenando el String de salida hasta
-     * completar el tamaño descrito por el parámetro de entrada 'size'
-     *
-     * @param decimalNumber El número en base decimal al cual se le desea obtener su representación en base X,
-     *                      descrita por el parametro de entrada 'radix'
-     * @param size          El tamaño de salida deseado. Si el tamaño es menor que el tamaño del String que
-     *                      representa el
-     *                      número convertido a base X dicho tamaño se ignora
-     * @param radix         La base en la cual se quiere hacer la conversión
-     * @return Un String con la representación del número de entrada en base decimal convertido a base X
-     * @throws IllegalArgumentException Si no existen al menos 'radix' caracteres para representar el numero en base
-     *                                  decimal de entrada en base X
-     */
-
-    public static String fromDecimalToBaseXZeroLeftPaddedToXCharacters(long decimalNumber, int size, int radix)
-            throws IllegalArgumentException {
-        return fromDecimalToBaseXLeftPaddedToXCharacters(decimalNumber, size, radix, '0');
-    }
-
-    /**
-     * Obtiene la representación en base X, descrita por el parametro de entrada 'radix', del numero en base decimal
-     * representado por el parámetro de entrada 'decimalNumber', con ceros rellenando el String de salida hasta
-     * completar el tamaño descrito por el parámetro de entrada 'size'
-     *
-     * @param decimalNumber    El número en base decimal al cual se le desea obtener su representación en base X,
-     *                         descrita por el parametro de entrada 'radix'
-     * @param size             El tamaño de salida deseado. Si el tamaño es menor que el tamaño del String que
-     *                         representa el
-     *                         número convertido a base X dicho tamaño se ignora
-     * @param radix            La base en la cual se quiere hacer la conversión
-     * @param paddingCharacter El caracter con el que se quiere rellenar a las izquierda del numero convertido a
-     *                         base X
-     * @return Un String con la representación del número de entrada en base decimal convertido a base X
-     * @throws IllegalArgumentException Si no existen al menos 'radix' caracteres para representar el numero en base
-     *                                  decimal de entrada en base X
-     */
-
-    public static String fromDecimalToBaseXLeftPaddedToXCharacters(long decimalNumber,
-                                                                   int size,
-                                                                   int radix,
-                                                                   char paddingCharacter)
-            throws IllegalArgumentException {
-        String result = fromDecimalToBaseX(decimalNumber, radix);
-        if (size > result.length()) {
-            return StringUtils.leftPad(result, size, paddingCharacter);
-        } else if (size < result.length()) {
-            throw new IllegalArgumentException("La conversión en base '" + radix + "' del número en base decimal '" +
-                    decimalNumber + "' no debe exceder el tamaño especificado '" + size + "'");
-        } else {
-            return result;
-        }
     }
 
     /**

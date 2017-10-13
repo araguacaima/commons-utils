@@ -21,7 +21,6 @@ package com.araguacaima.commons.utils;
 
 import com.google.common.collect.ObjectArrays;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
@@ -231,6 +230,79 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
+    public static Class extractGenerics(Class clazz) {
+        if (clazz == null) {
+            return null;
+        }
+        if (!isCollectionImplementation(clazz)) {
+            return clazz;
+        }
+        Class generics;
+        if (Collection.class.isAssignableFrom(clazz)) {
+            Type genericSuperclass = clazz.getGenericSuperclass();
+            if (genericSuperclass == null) {
+                generics = Object.class;
+            } else {
+                try {
+                    Object type = ((ParameterizedType) genericSuperclass).getActualTypeArguments()[0];
+                    generics = (Class) type;
+                } catch (ClassCastException ignored) {
+                    try {
+                        generics = (Class) clazz.getGenericInterfaces()[0];
+                    } catch (Throwable t) {
+                        generics = Object.class;
+                    }
+                }
+            }
+        } else
+            generics = getClass(clazz);
+
+        return generics;
+
+    }
+
+    private static Object getObject_(Class<?> clazz, Object value, Class<?> generics) {
+        Object result = null;
+        if (Object[].class.isAssignableFrom(clazz) || clazz.isArray()) {
+            try {
+                result = ObjectArrays.newArray(generics, 0);
+                result = ObjectArrays.concat((Object[]) result, value);
+            } catch (Exception ignored) {
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid Type. Incoming type must be a collection implementation");
+        }
+        return result;
+    }
+
+    public static boolean isCollectionImplementation(Class clazz) {
+        return clazz != null && (Collection.class.isAssignableFrom(clazz) || Object[].class.isAssignableFrom(clazz)
+                || clazz.isArray());
+    }
+
+    private static Class getClass(Class clazz) {
+        Class generics = null;
+        if (Object[].class.isAssignableFrom(clazz)) {
+            try {
+                generics = Class.forName(clazz.toString().replaceFirst("class \\[L", StringUtils.EMPTY).replace(";",
+                        StringUtils.EMPTY));
+            } catch (ClassNotFoundException e) {
+                log.error(e.getMessage());
+            }
+
+        } else if (clazz.isArray()) {
+            try {
+                Method method = Class.class.getDeclaredMethod("getPrimitiveClass", String.class);
+                method.setAccessible(true);
+                generics = (Class) method.invoke(Class.forName("java.lang.Class"),
+                        clazz.getSimpleName().replace("[]", StringUtils.EMPTY));
+            } catch (InvocationTargetException | ClassNotFoundException | NoSuchMethodException |
+                    IllegalAccessException | NullPointerException ignored) {
+            }
+        }
+        return generics;
+    }
+
     @SuppressWarnings("JavaReflectionMemberAccess")
     public static Class extractGenerics(Field field) {
         Class clazz = null;
@@ -303,6 +375,41 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return getAllFieldsNamesOfType(object.getClass(), null, type);
     }
 
+    public static Collection<String> getAllFieldsNamesOfType(Class clazz,
+                                                             Collection<String> excludeFields,
+                                                             final Class type) {
+        return CollectionUtils.collect(getAllFieldsOfType(clazz, excludeFields, type), FIELD_NAME_TRANSFORMER);
+    }
+
+    public static Collection<Field> getAllFieldsOfType(Class clazz,
+                                                       Collection<String> excludeFields,
+                                                       final Class type) {
+        final Collection<Field> result = new ArrayList();
+        if (clazz != null) {
+            IterableUtils.forEach(getAllFieldsIncludingParents(clazz, excludeFields), field -> {
+                if (field.getType().getName().equals(type.getName())) {
+                    result.add(field);
+                }
+            });
+        }
+        return result;
+    }
+
+    public static Collection<Field> getAllFieldsIncludingParents(Class clazz, Collection<String> excludeFields) {
+        Collection<Field> result = getAllFieldsIncludingParents(clazz);
+        if (CollectionUtils.isEmpty(excludeFields)) {
+            return result;
+        }
+        CollectionUtils.filterInverse(result, field -> fieldIsContainedIn(field, excludeFields));
+        return result;
+    }
+
+    public static Collection<Field> getAllFieldsIncludingParents(Class clazz) {
+        return getAllFieldsIncludingParents(clazz,
+                null,
+                Modifier.STATIC | Modifier.VOLATILE | Modifier.NATIVE | Modifier.TRANSIENT);
+    }
+
     public static String getExtractedGenerics(String s) {
         String s1 = s.trim();
         try {
@@ -369,6 +476,22 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
      */
     public static String getSimpleClassName(Object object) {
         return getSimpleClassName(object.getClass());
+    }
+
+    public static String getSimpleClassName(Class clazz) {
+        String className = null;
+        if (clazz != null) {
+            className = clazz.getName();
+            try {
+                className = clazz.getName().substring(clazz.getName().lastIndexOf(".") + 1);
+                className = className.substring(className.lastIndexOf("$") + 1);
+                className = className.replaceAll(";", "[]");
+            } catch (Exception e) {
+                log.error("Impossible to get the simple name for the class: " + clazz.getName() + ". It'll be taken: " +
+                        "" + "" + className);
+            }
+        }
+        return className;
     }
 
     public static String getSimpleJavaTypeOrNull(Class type) {
@@ -643,37 +766,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return getObject(clazz, value, generics);
     }
 
-    public static Class extractGenerics(Class clazz) {
-        if (clazz == null) {
-            return null;
-        }
-        if (!isCollectionImplementation(clazz)) {
-            return clazz;
-        }
-        Class generics;
-        if (Collection.class.isAssignableFrom(clazz)) {
-            Type genericSuperclass = clazz.getGenericSuperclass();
-            if (genericSuperclass == null) {
-                generics = Object.class;
-            } else {
-                try {
-                    Object type = ((ParameterizedType) genericSuperclass).getActualTypeArguments()[0];
-                    generics = (Class) type;
-                } catch (ClassCastException ignored) {
-                    try {
-                        generics = (Class) clazz.getGenericInterfaces()[0];
-                    } catch (Throwable t) {
-                        generics = Object.class;
-                    }
-                }
-            }
-        } else
-            generics = getClass(clazz);
-
-        return generics;
-
-    }
-
     private Object getObject(Class<?> clazz, Object value, Class<?> generics) {
         Object result;
         if (Collection.class.isAssignableFrom(clazz)) {
@@ -685,48 +777,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             }
         } else
             result = getObject_(clazz, value, generics);
-        return result;
-    }
-
-    public static boolean isCollectionImplementation(Class clazz) {
-        return clazz != null && (Collection.class.isAssignableFrom(clazz) || Object[].class.isAssignableFrom(clazz)
-                || clazz.isArray());
-    }
-
-    private static Class getClass(Class clazz) {
-        Class generics = null;
-        if (Object[].class.isAssignableFrom(clazz)) {
-            try {
-                generics = Class.forName(clazz.toString().replaceFirst("class \\[L", StringUtils.EMPTY).replace(";",
-                        StringUtils.EMPTY));
-            } catch (ClassNotFoundException e) {
-                log.error(e.getMessage());
-            }
-
-        } else if (clazz.isArray()) {
-            try {
-                Method method = Class.class.getDeclaredMethod("getPrimitiveClass", String.class);
-                method.setAccessible(true);
-                generics = (Class) method.invoke(Class.forName("java.lang.Class"),
-                        clazz.getSimpleName().replace("[]", StringUtils.EMPTY));
-            } catch (InvocationTargetException | ClassNotFoundException | NoSuchMethodException |
-                    IllegalAccessException | NullPointerException ignored) {
-            }
-        }
-        return generics;
-    }
-
-    private static Object getObject_(Class<?> clazz, Object value, Class<?> generics) {
-        Object result = null;
-        if (Object[].class.isAssignableFrom(clazz) || clazz.isArray()) {
-            try {
-                result = ObjectArrays.newArray(generics, 0);
-                result = ObjectArrays.concat((Object[]) result, value);
-            } catch (Exception ignored) {
-            }
-        } else {
-            throw new IllegalArgumentException("Invalid Type. Incoming type must be a collection implementation");
-        }
         return result;
     }
 
@@ -1309,41 +1359,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return getAllFieldsNamesOfType(clazz, null, type);
     }
 
-    public static Collection<String> getAllFieldsNamesOfType(Class clazz,
-                                                             Collection<String> excludeFields,
-                                                             final Class type) {
-        return CollectionUtils.collect(getAllFieldsOfType(clazz, excludeFields, type), FIELD_NAME_TRANSFORMER);
-    }
-
-    public static Collection<Field> getAllFieldsOfType(Class clazz,
-                                                       Collection<String> excludeFields,
-                                                       final Class type) {
-        final Collection<Field> result = new ArrayList();
-        if (clazz != null) {
-            IterableUtils.forEach(getAllFieldsIncludingParents(clazz, excludeFields), field -> {
-                if (field.getType().getName().equals(type.getName())) {
-                    result.add(field);
-                }
-            });
-        }
-        return result;
-    }
-
-    public static Collection<Field> getAllFieldsIncludingParents(Class clazz, Collection<String> excludeFields) {
-        Collection<Field> result = getAllFieldsIncludingParents(clazz);
-        if (CollectionUtils.isEmpty(excludeFields)) {
-            return result;
-        }
-        CollectionUtils.filterInverse(result, field -> fieldIsContainedIn(field, excludeFields));
-        return result;
-    }
-
-    public static Collection<Field> getAllFieldsIncludingParents(Class clazz) {
-        return getAllFieldsIncludingParents(clazz,
-                null,
-                Modifier.STATIC | Modifier.VOLATILE | Modifier.NATIVE | Modifier.TRANSIENT);
-    }
-
     public Collection<Field> getAllFieldsOfType(Object object, final Class type) {
         return getAllFieldsOfType(object.getClass(), null, type);
     }
@@ -1571,22 +1586,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             }
         }
         return value;
-    }
-
-    public static String getSimpleClassName(Class clazz) {
-        String className = null;
-        if (clazz != null) {
-            className = clazz.getName();
-            try {
-                className = clazz.getName().substring(clazz.getName().lastIndexOf(".") + 1);
-                className = className.substring(className.lastIndexOf("$") + 1);
-                className = className.replaceAll(";", "[]");
-            } catch (Exception e) {
-                log.error("Impossible to get the simple name for the class: " + clazz.getName() + ". It'll be taken: " +
-                        "" + className);
-            }
-        }
-        return className;
     }
 
     public Collection<Method> getGetterMethods(Class clazz) {

@@ -2,8 +2,7 @@ package com.araguacaima.commons.utils.json.parser;
 
 import com.araguacaima.commons.utils.ReflectionUtils;
 import com.araguacaima.commons.utils.StringUtils;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.IterableUtils;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Field;
@@ -203,10 +202,17 @@ public class Beanspector<T> {
             String[] genericTokens = splittedGetterOrSetterName[1].split(">");
             final String generic = genericTokens[0];
             Class<?> clazz = getTopLevelAccesorType(property, getters, setters, fields);
-            Reflections reflections = new Reflections(clazz.getPackage().getName(), tclassloader);
-            Set<? extends Class<?>> classes = reflections.getSubTypesOf(clazz);
-            return (Class) CollectionUtils.find(classes,
-                    (Predicate) object -> ((Class) object).getSimpleName().equals(StringUtils.capitalize(generic)));
+            Reflections reflections = null;
+            if (clazz != null) {
+                reflections = new Reflections(clazz.getPackage().getName(), tclassloader);
+            }
+            Set<? extends Class<?>> classes = null;
+            if (reflections != null) {
+                classes = reflections.getSubTypesOf(clazz);
+            }
+
+            return IterableUtils.find(classes,
+                    object -> object.getSimpleName().equals(StringUtils.capitalize(generic)));
         }
 
         Method m = getters.get(property);

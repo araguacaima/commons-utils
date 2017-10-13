@@ -3,7 +3,6 @@ package com.araguacaima.commons.utils.file;
 import com.araguacaima.commons.utils.FileUtils;
 import com.araguacaima.commons.utils.NotNullsLinkedHashSet;
 import com.araguacaima.commons.utils.StringUtils;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 
 import java.io.File;
@@ -236,7 +235,7 @@ public class FileUtilsFilenameFilterPackage extends FileUtilsFilenameFilterImpl 
                 String packageCriteriaTransformed = stringUtils.replaceLast(packageCriteria, "/\\*", StringUtils.EMPTY);
                 Collection<URL> resourcesPath = classLoaderUtils.getResources(packageCriteriaTransformed);
                 IterableUtils.forEach(resourcesPath, url -> {
-                    File transformedClassPath = null;
+                    File transformedClassPath;
                     try {
                         transformedClassPath = new File((URL.class).isInstance(url) ? url.getFile() : url.toString());
                         String fileNameDecoded = URLDecoder.decode(transformedClassPath.getPath(), "UTF-8");

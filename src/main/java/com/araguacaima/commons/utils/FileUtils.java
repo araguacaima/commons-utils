@@ -22,7 +22,6 @@ package com.araguacaima.commons.utils;
 import com.araguacaima.commons.utils.file.FileUtilsFilenameFilter;
 import com.araguacaima.commons.utils.file.FileUtilsFilenameFilterImpl;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
@@ -180,7 +179,11 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public static File getFileFromClassPath(String fileName) {
-        return new File(FileUtils.class.getClassLoader().getResource(fileName).getPath());
+        final URL resource = FileUtils.class.getClassLoader().getResource(fileName);
+        if (resource != null) {
+            return new File(resource.getPath());
+        }
+        return null;
     }
 
     public static FileUtilsFilenameFilterCompare getFileUtilsFilenameFilterCompare() {
@@ -1327,7 +1330,9 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         } finally {
 
             try {
-                is.close();
+                if (is != null) {
+                    is.close();
+                }
             } catch (Exception e) {
                 log.error("Exception [" + e.getClass() + "] - " + e.getMessage());
             }
@@ -1386,7 +1391,9 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             stream = FileUtils.class.getClassLoader().getResourceAsStream("/" + fileName);
         }
         if (stream != null) {
-            copyInputStreamToFile(stream, file);
+            if (file != null) {
+                copyInputStreamToFile(stream, file);
+            }
         }
         return file;
     }
@@ -1537,6 +1544,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * @param searchType    Searching type
      * @return Collection of files that has matched filters
      */
+    @SuppressWarnings("ConstantConditions")
     public NotNullsLinkedHashSet<File> listFiles(final Collection<File> files,
                                                  final Collection<FileUtilsFilenameFilter> filters,
                                                  final int filteringType,

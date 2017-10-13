@@ -1,9 +1,5 @@
 package com.araguacaima.commons.utils.json.parser;
 
-/**
- * Created by Alejandro on 20/11/2014.
- */
-
 import com.araguacaima.commons.utils.ReflectionUtils;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParseException;

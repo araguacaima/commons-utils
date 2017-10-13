@@ -6,7 +6,6 @@ import jreversepro.reflect.JClassInfo;
 import jreversepro.revengine.JSerializer;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -500,13 +499,13 @@ public class ClassLoaderUtils {
 
     public String getPathForResource(final String resource) {
         NotNullsLinkedHashSet<Object> result = new NotNullsLinkedHashSet<Object>((mapUtils.find(resourcesAndPaths,
-                (Predicate) o -> {
+                o -> {
                     String file = (String) o;
                     return file.equals(resource) || file.endsWith(resource);
                 },
                 null,
                 MapUtils.EVALUATE_JUST_KEY)).values());
-        if (result != null && result.size() > 0) {
+        if (result.size() > 0) {
             try {
                 String file = ((URL) result.toArray()[0]).getFile();
                 if (file.indexOf(StringUtils.SLASH) == 0) {
@@ -522,7 +521,7 @@ public class ClassLoaderUtils {
     }
 
     public Collection<URL> getResources(String path) {
-        Collection<URL> resources = new ArrayList<URL>();
+        Collection<URL> resources = new ArrayList<>();
         try {
             resources = Collections.list(ClassLoaderUtils.class.getClassLoader().getResources(path));
         } catch (Exception ignored) {
@@ -532,9 +531,7 @@ public class ClassLoaderUtils {
         if (resourceAndPaths != null) {
             result.addAll(resourceAndPaths);
         }
-        if (resources != null) {
-            result.addAll(resources);
-        }
+        result.addAll(resources);
         return result;
     }
 
@@ -860,7 +857,7 @@ public class ClassLoaderUtils {
                         cl.close();
                     } catch (Throwable t) {
                         log.debug("Class '" + className + "' skiped from Classloader unloading step because of it is " +
-                                "" + "" + "" + "not loaded into it");
+                                "" + "" + "" + "" + "" + "not loaded into it");
                     }
                 }
             } catch (FileNotFoundException ignored) {

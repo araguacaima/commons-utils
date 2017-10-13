@@ -1,7 +1,6 @@
 package com.araguacaima.commons.utils;
 
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 
@@ -17,7 +16,7 @@ public class CollectionUtils {
 
     private static final PropertyUtilsBean propertyUtilsBean = new PropertyUtilsBean();
 
-    public static List buildEmptyList(List collection) {
+    public static List<Object> buildEmptyList(List collection) {
         return new ArrayList<Object>(collection);
     }
 
@@ -37,7 +36,7 @@ public class CollectionUtils {
         Object value_ = null;
 
         if (collection == null || collection.isEmpty()) {
-            return value_;
+            return null;
         }
 
         if (collection.contains(value)) {
@@ -72,18 +71,16 @@ public class CollectionUtils {
     }
 
     public static boolean isPrefixedByAny(final Collection<String> collection, final String value) {
-        return org.apache.commons.collections4.CollectionUtils.find(collection,
-                (Predicate) object -> value.startsWith((String) object)) != null;
+        return org.apache.commons.collections4.IterableUtils.find(collection, value::startsWith) != null;
     }
 
     public static boolean startsWithAny(final Collection<String> collection, final String value) {
-        return org.apache.commons.collections4.CollectionUtils.find(collection,
-                (Predicate) object -> value.startsWith((String) object)) != null;
+        return org.apache.commons.collections4.IterableUtils.find(collection, value::startsWith) != null;
     }
 
-    public static List transformByGetterOfField(Collection collection, final String fieldName) {
-        final List collection1 = new ArrayList(collection);
-        org.apache.commons.collections4.CollectionUtils.transform(collection1, (Transformer) input -> {
+    public static List transformByGetterOfField(Collection<Object> collection, final String fieldName) {
+        final List<Object> collection1 = new ArrayList<>(collection);
+        org.apache.commons.collections4.CollectionUtils.transform(collection1, input -> {
             if (input != null) {
                 try {
                     return propertyUtilsBean.getSimpleProperty(input, fieldName);
@@ -103,7 +100,6 @@ public class CollectionUtils {
     public static NotNullsLinkedHashSet<String> wrapListToString(Collection<Object> collection) {
         Collection<String> collection_ = org.apache.commons.collections4.CollectionUtils.transformingCollection(
                 collection,
-
                 (Transformer) input -> input == null ? StringUtils.EMPTY : input.toString());
         return new NotNullsLinkedHashSet<>(false, null, collection_);
     }

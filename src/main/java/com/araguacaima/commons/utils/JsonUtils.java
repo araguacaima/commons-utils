@@ -134,7 +134,7 @@ public class JsonUtils {
 
         // Si no se encuentra en el mapa interno, buscar en el modelo no canónico
 
-        Collection<String> subTypes = new ArrayList<>();
+        Collection<String> subTypes;
         try {
             subTypes = (Collection<String>) org.apache.commons.collections4.CollectionUtils.select(reflections
                             .getAllTypes(),
@@ -218,7 +218,7 @@ public class JsonUtils {
                                             } catch (StringIndexOutOfBoundsException ignored) {
                                             }
                                             final String finalGeneric1 = finalGeneric;
-                                            generic = org.apache.commons.collections4.CollectionUtils.find(classes,
+                                            generic = org.apache.commons.collections4.IterableUtils.find(classes,
                                                     (Predicate) object -> ((Class) object).getSimpleName().equals(
                                                             StringUtils.capitalize(finalGeneric1)));
                                         }
