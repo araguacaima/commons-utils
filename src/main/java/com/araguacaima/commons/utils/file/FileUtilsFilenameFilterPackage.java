@@ -4,6 +4,7 @@ import com.araguacaima.commons.utils.FileUtils;
 import com.araguacaima.commons.utils.NotNullsLinkedHashSet;
 import com.araguacaima.commons.utils.StringUtils;
 import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.File;
 import java.io.IOException;

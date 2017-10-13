@@ -22,6 +22,7 @@ package com.araguacaima.commons.utils;
 import com.google.common.collect.ObjectArrays;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.builder.StandardToStringStyle;

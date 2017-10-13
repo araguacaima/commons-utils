@@ -22,6 +22,7 @@ package com.araguacaima.commons.utils;
 import com.araguacaima.commons.utils.file.FileUtilsFilenameFilter;
 import com.araguacaima.commons.utils.file.FileUtilsFilenameFilterImpl;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
