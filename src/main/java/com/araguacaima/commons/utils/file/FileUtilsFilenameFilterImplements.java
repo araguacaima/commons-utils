@@ -17,7 +17,7 @@ import java.util.List;
 public class FileUtilsFilenameFilterImplements extends FileUtilsFilenameFilterImpl {
 
     public static final int DEFAULT_FILTER_TYPE = FileUtilsFilenameFilter.RESOURCE_DIR_OR_FILE_FILTER_EQUALS;
-    private ClassLoader classLoader;
+    private final ClassLoader classLoader;
     private Class interfaceCriteria;
 
     public FileUtilsFilenameFilterImplements() {
@@ -226,9 +226,8 @@ public class FileUtilsFilenameFilterImplements extends FileUtilsFilenameFilterIm
         return transformURLIntoStringPaths(getResources(classLoader));
     }
 
-    public Collection<URL> getResources()
-            throws IOException {
-        String interfaceCriteriaTransformed = interfaceCriteria.getName().indexOf(".") != -1 ? interfaceCriteria
+    public Collection<URL> getResources() {
+        String interfaceCriteriaTransformed = interfaceCriteria.getName().contains(".") ? interfaceCriteria
                 .getName().substring(
                 0,
                 interfaceCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;

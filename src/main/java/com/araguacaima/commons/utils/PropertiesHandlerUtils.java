@@ -19,9 +19,9 @@ public class PropertiesHandlerUtils {
 
     private static final Map<String, PropertiesHandler> instancesMap = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(PropertiesHandler.class);
-    private FileUtils fileUtils;
-    private MapUtils mapUtils;
-    private NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate;
+    private final FileUtils fileUtils;
+    private final MapUtils mapUtils;
+    private final NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate;
 
     @Autowired
     public PropertiesHandlerUtils(MapUtils mapUtils,
@@ -81,7 +81,7 @@ public class PropertiesHandlerUtils {
                                           String tokenSeparator,
                                           String valueSeparator)
             throws PropertiesUtilException {
-        Map<String, String> result = new Hashtable<String, String>();
+        Map<String, String> result = new Hashtable<>();
         Collection properties = loadConfig(logFileSourceName, clazz, propertyName, tokenSeparator);
         String key;
         String value;
@@ -153,7 +153,7 @@ public class PropertiesHandlerUtils {
                 instance = new PropertiesHandler();
             }
         } else {
-            instance = (PropertiesHandler) instancesMap.get(logFileSourceName);
+            instance = instancesMap.get(logFileSourceName);
         }
         return instance;
     }

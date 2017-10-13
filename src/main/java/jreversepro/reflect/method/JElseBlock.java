@@ -24,7 +24,6 @@
 
 package jreversepro.reflect.method;
 
-import jreversepro.reflect.*;
 import jreversepro.revengine.JBranchEntry;
 
 /**
@@ -33,19 +32,19 @@ import jreversepro.revengine.JBranchEntry;
 public class JElseBlock extends JBlockObject {
 
     /**
-     * Associated Branch Entry
-     */
-    private JBranchEntry branch;
-
-    /**
      * Creates a new instance of JElseBranch
+     * @param _jbe Branch
      */
     public JElseBlock(JBranchEntry _jbe) {
-        branch = _jbe;
+        /*
+      Associated Branch Entry
+     */
+        JBranchEntry branch = _jbe;
     }
 
     /**
      * Outputs any starting code to open the block
+     * @return The starting code to open the block
      */
     protected String getEntryCode() {
         if (isSimpleBlock()) {

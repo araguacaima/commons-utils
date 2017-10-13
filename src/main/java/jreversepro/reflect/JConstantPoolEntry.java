@@ -37,7 +37,7 @@ public class JConstantPoolEntry {
      * In that case the ptr1 of TAG_CLASS entry would give
      * lead to TAG_UTF8.
      */
-    int ptr1;
+    final int ptr1;
 
     /**
      * ptr2 is the second pointer from this ConstantPoolEntry.
@@ -46,15 +46,7 @@ public class JConstantPoolEntry {
      * to TAG_NAMETYPE.In this case ptr2 would have the number of
      * TAG_NAMETYPE index.
      */
-    int ptr2;
-
-    /**
-     * This is applicable to TAG_UTF8 TAG_INTEGER
-     * TAG_FLOAT TAG_DOUBLE TAG_LONG that contains the
-     * actual value of the tag.
-     */
-    String value;
-
+    final int ptr2;
     /**
      * Tag Byte tells us about what tag it is.
      * It can be one of the following.
@@ -70,7 +62,13 @@ public class JConstantPoolEntry {
      * TAG_INTERFACEREF corresponds to CONSTANT_INTERFACEREF
      * TAG_NAMETYPE  corresponds to CONSTANT_NAMETYPE
      */
-    int tagByte;
+    final int tagByte;
+    /**
+     * This is applicable to TAG_UTF8 TAG_INTEGER
+     * TAG_FLOAT TAG_DOUBLE TAG_LONG that contains the
+     * actual value of the tag.
+     */
+    final String value;
 
     /**
      * Constructor
@@ -102,13 +100,6 @@ public class JConstantPoolEntry {
     }
 
     /**
-     * @return Returns value of this ConstantPoolEntry.
-     */
-    public String getValue() {
-        return value;
-    }
-
-    /**
      * @return Returns Tag Byte
      */
     public int getTagByte() {
@@ -116,10 +107,17 @@ public class JConstantPoolEntry {
     }
 
     /**
+     * @return Returns value of this ConstantPoolEntry.
+     */
+    public String getValue() {
+        return value;
+    }
+
+    /**
      * @return Returns stringified form of this class.
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(JConstantPool.getTagName(tagByte));
         sb.append(",");
         if (ptr1 == -1) {

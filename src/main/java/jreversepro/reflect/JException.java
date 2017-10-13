@@ -1,36 +1,30 @@
 /**
- * @(#)JException.java
- *
- * JReversePro - Java Decompiler / Disassembler.
+ * @(#)JException.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
- *
+ * <p>
  * This program is free software; you can redistribute it and/or modify
  * it , under the terms of the GNU General Public License as published
  * by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with this program.If not, write to
- *  The Free Software Foundation, Inc.,
- *  59 Temple Place - Suite 330,
- *  Boston, MA 02111-1307, USA.
+ * The Free Software Foundation, Inc.,
+ * 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
  **/
 package jreversepro.reflect;
 
-import jreversepro.common.KeyWords;
 import jreversepro.common.Helper;
 import jreversepro.common.JJvmOpcodes;
+import jreversepro.common.KeyWords;
 
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Enumeration;
-import java.util.Collections;
+import java.util.*;
 
 /**
  * <b>JException</b> is an abstraction of the exception table , that is
@@ -41,27 +35,24 @@ import java.util.Collections;
 public class JException {
 
     /**
-     * Start Pc of the exception handler.
-     */
-    private int startPc;
-
-    /**
-     * End Pc of the exception handler
-     */
-    private int endPc;
-
-    /**
-     * Set if the exception handler is for ANY data type for
-     * the block - { startpc, endpc }
-     */
-    private boolean any;
-
-    /**
      * Map -
      * Key - Handler Pc beginning
      * value -Handler datatype.
      */
-    Map excCatchTable;
+    final Map excCatchTable;
+    /**
+     * Set if the exception handler is for ANY data type for
+     * the block - { startpc, endpc }
+     */
+    private final boolean any;
+    /**
+     * End Pc of the exception handler
+     */
+    private final int endPc;
+    /**
+     * Start Pc of the exception handler.
+     */
+    private final int startPc;
 
     /**
      * Constructor.
@@ -88,24 +79,37 @@ public class JException {
      * @param rhsType      Handler data type.
      */
     public void addCatchBlock(int rhsHandlerPc, String rhsType) {
-        rhsType = (rhsType != null)
-                  ? rhsType
-                  : KeyWords.ANY;
-        excCatchTable.put(new Integer(rhsHandlerPc), rhsType);
+        rhsType = (rhsType != null) ? rhsType : KeyWords.ANY;
+        excCatchTable.put(rhsHandlerPc, rhsType);
     }
 
     /**
-     * @return Returns startpc of this code block.
+     * @return true. if at least one of the exception handlers
+     *         is for ANY block. false, otherwise.
      */
-    public int getStartPc() {
-        return startPc;
+    public boolean containsANYCatchBlock() {
+        return excCatchTable.containsValue(KeyWords.ANY);
     }
 
     /**
-     * @return Returns endpc of this code block.
+     * @param obj Object to be compared with.
+     * @return if two JException objects are equal.
+     *         false, otherwise.
      */
-    public int getEndPc() {
-        return endPc;
+    public boolean equals(Object obj) {
+        return obj instanceof JException && sameTryBlock((JException) obj);
+    }
+
+    /**
+     * Checks if the new exception block passed as parameter
+     * has the same code block { startpc, endpc } as the current one.
+     *
+     * @param exc New Exception Block
+     * @return Returns true if the code blocks are same for both of
+     *         them. false, otherwise.
+     */
+    public boolean sameTryBlock(JException exc) {
+        return (startPc == exc.startPc && endPc == exc.endPc);
     }
 
     /**
@@ -116,7 +120,7 @@ public class JException {
      * beginning of the first handler beginning pc.
      * Javac generates such that the endPc of try..block is
      * 1 less than the one where the handler block begins.
-     * <p/>
+     * <br>
      * Bug with javac/jikes/jreversepro ???
      * Any clues ??
      *
@@ -136,10 +140,10 @@ public class JException {
     }
 
     /**
-     * @return Returns the Enumeration of handler types.
+     * @return Returns endpc of this code block.
      */
-    public Enumeration getHandlers() {
-        return Collections.enumeration(excCatchTable.entrySet());
+    public int getEndPc() {
+        return endPc;
     }
 
     /**
@@ -152,7 +156,7 @@ public class JException {
      *         exists beginning with rhsHandlerPc. null, otherwise.
      */
     public String getExceptionClass(int rhsHandlerPc) {
-        Object obj = excCatchTable.get(new Integer(rhsHandlerPc));
+        Object obj = excCatchTable.get(rhsHandlerPc);
         if (obj == null) {
             return null;
         } else {
@@ -161,36 +165,17 @@ public class JException {
     }
 
     /**
-     * @param obj Object to be compared with.
-     * @return if two JException objects are equal.
-     *         false, otherwise.
+     * @return Returns the Enumeration of handler types.
      */
-    public boolean equals(Object obj) {
-        if (!(obj instanceof JException)) {
-            return false;
-        } else {
-            return sameTryBlock((JException) obj);
-        }
+    public Enumeration getHandlers() {
+        return Collections.enumeration(excCatchTable.entrySet());
     }
 
     /**
-     * Checks if the new exception block passed as parameter
-     * has the same code block { startpc, endpc } as the current one.
-     *
-     * @param exc New Exception Block
-     * @return Returns true if the code blocks are same for both of
-     *         them. false, otherwise.
+     * @return Returns startpc of this code block.
      */
-    public boolean sameTryBlock(JException exc) {
-        return (startPc == exc.startPc && endPc == exc.endPc);
-    }
-
-    /**
-     * @return true. if at least one of the exception handlers
-     *         is for ANY block. false, otherwise.
-     */
-    public boolean containsANYCatchBlock() {
-        return excCatchTable.containsValue(KeyWords.ANY);
+    public int getStartPc() {
+        return startPc;
     }
 
     /**
@@ -204,14 +189,14 @@ public class JException {
      * @return Stringified form of the class.
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer("");
+        StringBuilder sb = new StringBuilder("");
         Enumeration enum1 = Collections.enumeration(excCatchTable.keySet());
         Enumeration enum2 = Collections.enumeration(excCatchTable.values());
 
         while (enum1.hasMoreElements()) {
-            sb.append("\t\t" + startPc + "\t" + endPc);
-            sb.append("\t" + enum1.nextElement());
-            sb.append(" " + enum2.nextElement() + "\n");
+            sb.append("\t\t").append(startPc).append("\t").append(endPc);
+            sb.append("\t").append(enum1.nextElement());
+            sb.append(" ").append(enum2.nextElement()).append("\n");
         }
         return sb.toString();
     }

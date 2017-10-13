@@ -25,8 +25,8 @@ package jreversepro.common;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper contains a list of assorted methods that 'helps'
@@ -36,19 +36,11 @@ import java.util.ArrayList;
  */
 public class Helper implements KeyWords {
 
-    private static Logger log = LoggerFactory.getLogger(Helper.class);
-
-    /**
-     * Private constructor to prevent any instance from being created.
-     */
-    private Helper() {
-    }
-
     /**
      * Working Version Could be compromised
      */
     static final String DEFAULT_VERSION = "1.2.2";
-
+    private static final Logger log = LoggerFactory.getLogger(Helper.class);
     /**
      * Debug flag
      * Default value = false.
@@ -63,79 +55,53 @@ public class Helper implements KeyWords {
     }
 
     /**
-     * @param logMsg Message to be logged.
+     * Private constructor to prevent any instance from being created.
      */
-    public static void log(String logMsg) {
-        if (debugFlag) {
-            log.info(logMsg);
-        }
+    private Helper() {
     }
 
     /**
-     * @param ex Exception to be logged.
-     */
-    public static void log(Exception ex) {
-        if (debugFlag) {
-            ex.printStackTrace(System.out);
-        }
-    }
-
-    /**
-     * Log without end-of-line at the end.
+     * Returns the arguments in array form
+     * given the JVM signature.
+     * <br>
+     * For example , <code>IILjava/lang/String</code>
+     * could be returned as <br>
+     * <code>( int , int , java/lang/String )</code>.
      *
-     * @param logMsg Message to be logged.
+     * @param aSignature Signature of the method.
+     * @return The method arguments as a List
      */
-    public static void logNoEol(String logMsg) {
-        if (debugFlag) {
-            System.out.print(logMsg);
+    public static List getArguments(String aSignature) {
+        List args = new ArrayList();
+        int endIndex = aSignature.indexOf(")");
+        if (endIndex != 1) {
+            aSignature = aSignature.substring(1, endIndex);
+
+            String origStr = aSignature;
+            int length = origStr.length();
+            //Start Processing Rhs
+            int curIndex = 0;
+
+            while (curIndex < length) {
+                aSignature = origStr.substring(curIndex);
+                int tokenLength = getSignTokenLength(aSignature);
+                String tokenString = aSignature.substring(0, tokenLength);
+                int semiColon = tokenString.indexOf(";");
+                if (semiColon != -1) {
+                    tokenString = tokenString.substring(0, semiColon);
+                }
+                args.add(tokenString);
+                curIndex += tokenLength;
+            }
         }
-    }
-
-    /**
-     * Toggles the debug flag.
-     *
-     * @return Returns the new debug flag after toggling.
-     */
-    public static boolean toggleDebug() {
-        debugFlag = !debugFlag;
-        return debugFlag;
-    }
-
-    /**
-     * @return the value of debug flag.
-     */
-    public static boolean isDebug() {
-        return debugFlag;
-    }
-
-    /**
-     * Returns the Package name alone from a fully qualified name.
-     * <p/>
-     * For Example , if <code>FullName = java/lang/StringBuffer,</code>
-     * <br>then a call to <code>getPackageName(arg)</code> returns the
-     * value <code>java.lang</code>.
-     * <p/>
-     *
-     * @param aFullName A Fully Qualified Name.
-     * @return the package name , alone with the dots separating the
-     *         classes.
-     */
-    public static String getPackageName(String aFullName) {
-        aFullName = Helper.getJavaDataType(aFullName, false);
-        aFullName = aFullName.replace('/', '.');
-        int dotIndex = aFullName.lastIndexOf(".");
-        if (dotIndex != -1) {
-            return aFullName.substring(0, dotIndex);
-        } else {
-            return "";
-        }
+        return args;
     }
 
     /**
      * Determines the Java representation , given the JVM representation
      * of data types.
-     * <p/>
-     * <table>
+     * <br>
+     * <table summary="">
      * <tr><th><code>dataType</code> </th>
      * <th><code>formatDataType(dataType)</code></th></tr>
      * <tr><td><code>B</code></td><td>byte</td></tr>
@@ -193,7 +159,7 @@ public class Helper implements KeyWords {
             }
         } else if (firstChar == 'L') {
             int len = aDataType.length();
-            if (aDataType.indexOf(";") == -1) {
+            if (!aDataType.contains(";")) {
                 return aDataType.substring(1);
             } else {
                 return aDataType.substring(1, len - 1);
@@ -203,10 +169,47 @@ public class Helper implements KeyWords {
     }
 
     /**
+     * Returns the Package name alone from a fully qualified name.
+     * <br>
+     * For Example , if <code>FullName = java/lang/StringBuffer,</code>
+     * <br>then a call to <code>getPackageName(arg)</code> returns the
+     * value <code>java.lang</code>.
+     * <br>
+     *
+     * @param aFullName A Fully Qualified Name.
+     * @return the package name , alone with the dots separating the
+     * classes.
+     */
+    public static String getPackageName(String aFullName) {
+        aFullName = Helper.getJavaDataType(aFullName, false);
+        aFullName = aFullName.replace('/', '.');
+        int dotIndex = aFullName.lastIndexOf(".");
+        if (dotIndex != -1) {
+            return aFullName.substring(0, dotIndex);
+        } else {
+            return "";
+        }
+    }
+
+    /**
+     * Given the Signature of the method , this provides us the
+     * return type.
+     * <br>
+     *
+     * @param aSignature Signature of the method.
+     * @return the return type associated with the method signature,
+     * The type returned corresponds to JVM representation.
+     */
+    public static String getReturnType(String aSignature) {
+        int index = aSignature.indexOf(")");
+        return aSignature.substring(index + 1);
+    }
+
+    /**
      * Determines the length of the JVM datatype representation
      * given the JVM signature.
-     * <p/>
-     * <table>
+     * <br>
+     * <table summary="">
      * <tr><th><code>dataType</code> </th>
      * <th><code>getSignTokenLength(dataType)(dataType)</code></th></tr>
      * <tr><td><code>all basic data types</code></td><td>1</td></tr>
@@ -249,61 +252,120 @@ public class Helper implements KeyWords {
     }
 
     /**
-     * Returns the arguments in array form
-     * given the JVM signature.
-     * <p/>
-     * For example , <code>IILjava/lang/String</code>
-     * could be returned as <br>
-     * <code>( int , int , java/lang/String )</code>.
+     * Both boolean and char are represented as integers .
+     * This takes care of the conversions
      *
-     * @param aSignature Signature of the method.
-     * @return The method arguments as a List
+     * @param value    Old Value.
+     * @param datatype Datatype of the value.
+     * @return Returns the new value after making appropriate
+     * changes.
      */
-    public static List getArguments(String aSignature) {
-        List args = new ArrayList();
-        int endIndex = aSignature.indexOf(")");
-        if (endIndex != 1) {
-            aSignature = aSignature.substring(1, endIndex);
-
-            String origStr = aSignature;
-            int length = origStr.length();
-            //Start Processing Rhs
-            int curIndex = 0;
-
-            while (curIndex < length) {
-                aSignature = origStr.substring(curIndex);
-                int tokenLength = getSignTokenLength(aSignature);
-                String tokenString = aSignature.substring(0, tokenLength);
-                int semiColon = tokenString.indexOf(";");
-                if (semiColon != -1) {
-                    tokenString = tokenString.substring(0, semiColon);
-                }
-                args.add(tokenString);
-                curIndex += tokenLength;
-            }
+    public static String getValue(String value, String datatype) {
+        if (datatype == null) {
+            return value;
         }
-        return args;
+        int lastQIndex = value.lastIndexOf('?');
+        int lastColonIndex = value.lastIndexOf(":");
+
+        if (lastQIndex == -1 || lastColonIndex == -1 || lastQIndex > lastColonIndex) {
+            return getAtomicValue(value, datatype);
+        }
+        String condition = value.substring(0, lastQIndex);
+        String val1 = value.substring(lastQIndex + 1, lastColonIndex);
+        String val2 = value.substring(lastColonIndex + 1);
+
+        String result = condition + "? " + getAtomicValue(val1, datatype) + ": " + getAtomicValue(val2, datatype);
+
+        return result;
     }
 
     /**
-     * Given the Signature of the method , this provides us the
-     * return type.
-     * <p/>
+     * Both boolean and char are represented as integers .
+     * This takes care of the conversions
      *
-     * @param aSignature Signature of the method.
-     * @return the return type associated with the method signature,
-     *         The type returned corresponds to JVM representation.
+     * @param value    Old Value.
+     * @param datatype Datatype of the value.
+     * @return Returns the new value after making appropriate
+     * changes.
      */
-    public static String getReturnType(String aSignature) {
-        int index = aSignature.indexOf(")");
-        return aSignature.substring(index + 1);
+    private static String getAtomicValue(String value, String datatype) {
+        value = value.trim();
+        if (datatype.equals(JVM_BOOLEAN)) { //boolean
+            if (value.compareTo("1") == 0) {
+                return TRUE;
+            } else if (value.compareTo("0") == 0) {
+                return FALSE;
+            } else {
+                return value;
+            }
+        } else if (datatype.equals(JVM_CHAR)) {  //Character
+            try {
+                StringBuilder sb = new StringBuilder("");
+                int intvalue = Integer.parseInt(value);
+                sb.append("'").append((char) intvalue).append("'");
+                return sb.toString();
+            } catch (NumberFormatException _ex) {
+                return value;
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Checks if the given datatype is a basic data type or not.
+     *
+     * @param type the datatype to be checked.
+     * @return true , if it is.
+     * false , otherwise.
+     */
+    public static boolean isBasicType(String type) {
+        return (type.equals(KeyWords.INT) || type.equals(KeyWords.BOOLEAN) || type.equals(KeyWords.BYTE) || type.equals(
+                KeyWords.CHAR) || type.equals(KeyWords.SHORT) || type.equals(KeyWords.FLOAT) || type.equals(KeyWords
+                .LONG) || type.equals(
+                KeyWords.DOUBLE));
+    }
+
+    /**
+     * @return the value of debug flag.
+     */
+    public static boolean isDebug() {
+        return debugFlag;
+    }
+
+    /**
+     * @param logMsg Message to be logged.
+     */
+    public static void log(String logMsg) {
+        if (debugFlag) {
+            log.info(logMsg);
+        }
+    }
+
+    /**
+     * @param ex Exception to be logged.
+     */
+    public static void log(Exception ex) {
+        if (debugFlag) {
+            ex.printStackTrace(System.out);
+        }
+    }
+
+    /**
+     * Log without end-of-line at the end.
+     *
+     * @param logMsg Message to be logged.
+     */
+    public static void logNoEol(String logMsg) {
+        if (debugFlag) {
+            System.out.print(logMsg);
+        }
     }
 
     /**
      * Extracts the value of a particular number of bits.
-     * <p/>
+     * <br>
      * For example <code>lowNBits(169 , 5 )</code>
-     * returns <code> (10101001,5) -> 10101 i.e  21 </code> <br>.
+     * returns <code> (10101001,5) -&gt; 10101 i.e  21 </code> <br>.
      *
      * @param aValue   Value containing the integer in string form.
      * @param aNumBits Number of bits that is to be extracted.
@@ -328,14 +390,14 @@ public class Helper implements KeyWords {
     /**
      * Inserts a '\' before all the escape characters ,
      * line '\n' , '\t' to provide better readability.
-     * <p/>
+     * <br>
      *
      * @param aLiteral String containing the escape characters.
      * @return the new String containing the new escape sequence
-     *         of characters.
+     * of characters.
      */
     public static String replaceEscapeChars(String aLiteral) {
-        StringBuffer result = new StringBuffer("");
+        StringBuilder result = new StringBuilder("");
         for (int i = 0; i < aLiteral.length(); i++) {
             result.append(representChar(aLiteral.charAt(i)));
         }
@@ -364,11 +426,32 @@ public class Helper implements KeyWords {
     }
 
     /**
+     * Converts a signed 'byte' to an unsigned integer.
+     * <br>
+     *
+     * @param aByteVal a Byte Value.
+     * @return unsigned integer equivalent of aByteVal.
+     */
+    public static int signedToUnsigned(int aByteVal) {
+        return (aByteVal < 0) ? (aByteVal += 256) : aByteVal;
+    }
+
+    /**
+     * Toggles the debug flag.
+     *
+     * @return Returns the new debug flag after toggling.
+     */
+    public static boolean toggleDebug() {
+        debugFlag = !debugFlag;
+        return debugFlag;
+    }
+
+    /**
      * Checks for the version compatibility between the system JRE
      * and the JRE for which the application is written for.
      *
-     * @return true , if System JRE is >= DEFAULT_VERISON ( 1.2.2 ).<br>
-     *         false , otherwise.
+     * @return true , if System JRE is &gt;= DEFAULT_VERISON ( 1.2.2 ).<br>
+     * false , otherwise.
      */
     public static boolean versionCheck() {
         String version = System.getProperty("java.version");
@@ -379,105 +462,11 @@ public class Helper implements KeyWords {
                 return true;
             } else if (versionVal < workingVal) {
                 log.error("This Software is designed to run under " + DEFAULT_VERSION);
-                log.error("Please upgrade your JRE"
-                          + " from http://java.sun.com/products/j2se"
-                          + " for your operating system");
+                log.error("Please upgrade your JRE" + " from http://java.sun.com/products/j2se" + " for your " +
+                        "operating system");
                 return false;
             }
         }
         return true;
-    }
-
-    /**
-     * Checks if the given datatype is a basic data type or not.
-     *
-     * @param type the datatype to be checked.
-     * @return true , if it is.
-     *         false , otherwise.
-     */
-    public static boolean isBasicType(String type) {
-        return (type.equals(KeyWords.INT)
-                || type.equals(KeyWords.BOOLEAN)
-                || type.equals(KeyWords.BYTE)
-                || type.equals(KeyWords.CHAR)
-                || type.equals(KeyWords.SHORT)
-                || type.equals(KeyWords.FLOAT)
-                || type.equals(KeyWords.LONG)
-                || type.equals(KeyWords.DOUBLE));
-    }
-
-    /**
-     * Both boolean and char are represented as integers .
-     * This takes care of the conversions
-     *
-     * @param value    Old Value.
-     * @param datatype Datatype of the value.
-     * @return Returns the new value after making appropriate
-     *         changes.
-     */
-    public static String getValue(String value, String datatype) {
-        if (datatype == null) {
-            return value;
-        }
-        int lastQIndex = value.lastIndexOf('?');
-        int lastColonIndex = value.lastIndexOf(":");
-
-        if (lastQIndex == -1 || lastColonIndex == -1 || lastQIndex > lastColonIndex) {
-            return getAtomicValue(value, datatype);
-        }
-        String condition = value.substring(0, lastQIndex);
-        String val1 = value.substring(lastQIndex + 1, lastColonIndex);
-        String val2 = value.substring(lastColonIndex + 1);
-
-        StringBuffer result = new StringBuffer(condition);
-        result.append("? " + getAtomicValue(val1, datatype));
-        result.append(": " + getAtomicValue(val2, datatype));
-
-        return result.toString();
-    }
-
-    /**
-     * Both boolean and char are represented as integers .
-     * This takes care of the conversions
-     *
-     * @param value    Old Value.
-     * @param datatype Datatype of the value.
-     * @return Returns the new value after making appropriate
-     *         changes.
-     */
-    private static String getAtomicValue(String value, String datatype) {
-        value = value.trim();
-        if (datatype.equals(JVM_BOOLEAN)) { //boolean
-            if (value.compareTo("1") == 0) {
-                return TRUE;
-            } else if (value.compareTo("0") == 0) {
-                return FALSE;
-            } else {
-                return value;
-            }
-        } else if (datatype.equals(JVM_CHAR)) {  //Character
-            try {
-                StringBuffer sb = new StringBuffer("");
-                int intvalue = Integer.parseInt(value);
-                sb.append("'" + (char) intvalue + "'");
-                return sb.toString();
-            } catch (NumberFormatException _ex) {
-                return value;
-            }
-        }
-        return value;
-    }
-
-    /**
-     * Converts a signed 'byte' to an unsigned integer.
-     * <p/>
-     *
-     * @param aByteVal a Byte Value.
-     * @return unsigned integer equivalent of aByteVal.
-     */
-    public static int signedToUnsigned(int aByteVal) {
-        return (aByteVal < 0)
-               ? (aByteVal += 256)
-               : aByteVal;
     }
 }

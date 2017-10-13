@@ -45,7 +45,7 @@ public class PropertiesHandlerStrategyPath extends PropertiesHandlerStrategy {
     }
 
     public Map<String, String> getOriginProperties() {
-        Map<String, String> originProperties = new HashMap<String, String>();
+        Map<String, String> originProperties = new HashMap<>();
         originProperties.put(PROPERTIES_FILE_PATH, fileInPath);
         return originProperties;
     }

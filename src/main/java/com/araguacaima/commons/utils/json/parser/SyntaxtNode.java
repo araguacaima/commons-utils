@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import java.lang.reflect.Field;
 
 public interface SyntaxtNode<T> {
-    T getBean() throws JsonParseException;
+    T getBean();
 
     String getName();
 

@@ -24,7 +24,6 @@
 
 package jreversepro.reflect.method;
 
-import jreversepro.reflect.*;
 import jreversepro.revengine.JBranchEntry;
 
 /**
@@ -35,18 +34,18 @@ public class JIfBlock extends JBlockObject {
     /**
      * Contains stringified IF expression
      */
-    private String expr;
-
-    /**
-     * Associated Branch Entry
-     */
-    private JBranchEntry branch;
+    private final String expr;
 
     /**
      * Creates a new instance of JIfBlock
+     * @param _jbe Branch
+     * @param _expr The expression
      */
     public JIfBlock(JBranchEntry _jbe, String _expr) {
-        branch = _jbe;
+        /*
+      Associated Branch Entry
+     */
+        JBranchEntry branch = _jbe;
         expr = _expr;
     }
 

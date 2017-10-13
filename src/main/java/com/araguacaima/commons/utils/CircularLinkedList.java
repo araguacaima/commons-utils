@@ -22,8 +22,7 @@ public class CircularLinkedList {
         if (!(isEmpty())) {
             index++;
         }
-        ListNode listNode = new ListNode(data, head);
-        head = listNode;
+        head = new ListNode(data, head);
         numberOfElements++;
     }
 
@@ -32,8 +31,7 @@ public class CircularLinkedList {
             insertFirst(data);
             goToNextElement();
         } else {
-            ListNode listNode = new ListNode(data, actualElement.next);
-            actualElement.next = listNode;
+            actualElement.next = new ListNode(data, actualElement.next);
             numberOfElements++;
         }
     }
@@ -53,7 +51,7 @@ public class CircularLinkedList {
             numberOfElements--;
             index--;
             ListNode listNode = head;
-            while (listNode.next.equals(actualElement) == false)
+            while (!listNode.next.equals(actualElement))
                 listNode = listNode.next;
             listNode.next = actualElement.next;
             actualElement = listNode;

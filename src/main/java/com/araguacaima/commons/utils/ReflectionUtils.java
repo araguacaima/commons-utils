@@ -835,18 +835,23 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     @SuppressWarnings("JavaReflectionMemberAccess")
     public static Class extractGenerics(Field field) {
         Class clazz = null;
-        try {
-            clazz = (Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-        } catch (ClassCastException ignored) {
-            Type type = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+        final Type genericType = field.getGenericType();
+        if (genericType instanceof Class) {
+            clazz = (Class) genericType;
+        } else {
             try {
-                Field rawTypeField = type.getClass().getDeclaredField("rawType");
-                rawTypeField.setAccessible(true);
-                clazz = (Class) rawTypeField.get(type);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                log.error(e.getMessage());
+                clazz = (Class) ((ParameterizedType) genericType).getActualTypeArguments()[0];
+            } catch (ClassCastException ignored) {
+                Type type = ((ParameterizedType) genericType).getActualTypeArguments()[0];
+                try {
+                    Field rawTypeField = type.getClass().getDeclaredField("rawType");
+                    rawTypeField.setAccessible(true);
+                    clazz = (Class) rawTypeField.get(type);
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            } catch (Throwable ignored) {
             }
-        } catch (Throwable ignored) {
         }
         if (clazz == null) {
             clazz = field.getType();
@@ -934,7 +939,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
      * @param object    The object for simple setter invokation
      * @param fieldName The field on which the simple setter will be performed
      * @param value     The value to be assigned as parameter to the setter method
-     * @noinspection UnusedAssignment
      */
     public void invokeSimpleSetter(Object object, final String fieldName, final Object value) {
         Method method = IterableUtils.find(getDeclaredSetterMethods(object.getClass()), innerMethod -> {

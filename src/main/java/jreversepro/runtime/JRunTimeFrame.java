@@ -1,39 +1,34 @@
 /**
- * @(#)JRunTimeFrame.java
- *
- * JReversePro - Java Decompiler / Disassembler.
+ * @(#)JRunTimeFrame.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
- *
+ * <p>
  * This program is free software; you can redistribute it and/or modify
  * it , under the terms of the GNU General Public License as published
  * by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with this program.If not, write to
- *  The Free Software Foundation, Inc.,
- *  59 Temple Place - Suite 330,
- *  Boston, MA 02111-1307, USA.
+ * The Free Software Foundation, Inc.,
+ * 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
  **/
 package jreversepro.runtime;
 
-import jreversepro.common.KeyWords;
-import jreversepro.common.JJvmOpcodes;
 import jreversepro.common.Helper;
-
+import jreversepro.common.JJvmOpcodes;
+import jreversepro.common.KeyWords;
+import jreversepro.parser.ClassParserException;
 import jreversepro.reflect.JConstantPool;
-import jreversepro.reflect.JInstruction;
 import jreversepro.reflect.JImport;
-
+import jreversepro.reflect.JInstruction;
 import jreversepro.revengine.BranchConstants;
 import jreversepro.revengine.RevEngineException;
-
-import jreversepro.parser.ClassParserException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,54 +44,45 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
      * ConstantPool reference
      */
     final JConstantPool cpInfo;
-
-    /**
-     * SymbolTable reference.
-     */
-    JSymbolTable symLocal;
-
     /**
      * Information related to imported classes.
      */
-    JImport importInfo;
-
+    final JImport importInfo;
     /**
      * Return type of the method that is decompiled
      * currently
      */
-    String returnType;
-
+    final String returnType;
     /**
-     * Appends the source code that is necessary for this.
+     * SymbolTable reference.
      */
-    String statement;
-
-    /**
-     * Precedence
-     */
-    int precedence;
-
-    /**
-     * One of the operands in case of a if condition.
-     */
-    String strOp1;
-
-    /**
-     * Second operand in case of a if condition.
-     */
-    String strOp2;
-
-    /**
-     * Opcode that was previously examined in this frame.
-     */
-    int prevCode;
-
+    final JSymbolTable symLocal;
     /**
      * Operand of the object invoked. aMainly in the case
      * of invokestatic invokespecial invokeinterface
      * invokevirtual opcodes.
      */
     Operand invokedObject;
+    /**
+     * Precedence
+     */
+    int precedence;
+    /**
+     * Opcode that was previously examined in this frame.
+     */
+    int prevCode;
+    /**
+     * Appends the source code that is necessary for this.
+     */
+    String statement;
+    /**
+     * One of the operands in case of a if condition.
+     */
+    String strOp1;
+    /**
+     * Second operand in case of a if condition.
+     */
+    String strOp2;
 
     /**
      * @param rhsCpInfo     ConstantPool Information
@@ -109,6 +95,13 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
         returnType = rhsReturnType;
         this.importInfo = rhsCpInfo.getImportedClasses();
 
+    }
+
+    /**
+     * @return Returns object that is invoked.
+     */
+    public Operand getInvokedObject() {
+        return invokedObject;
     }
 
     /**
@@ -133,13 +126,6 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
     }
 
     /**
-     * @return Returns object that is invoked.
-     */
-    public Operand getInvokedObject() {
-        return invokedObject;
-    }
-
-    /**
      * @param thisIns Current Instruction that is to be
      *                operated on the JVM stack.
      * @param myStack The JVM OperandStack of the current method
@@ -151,8 +137,7 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
      *                              constantpool reference.
      */
     public void operateStack(final JInstruction thisIns, JOperandStack myStack)
-            throws RevEngineException, ClassParserException
-    {
+            throws RevEngineException, ClassParserException {
 
         int opcode = thisIns.opcode;
         if (opcode >= 0 && opcode < 32) {
@@ -192,7 +177,8 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
      * @throws ClassParserException Thrown in case of any error
      *                              in constantpool reference.
      */
-    void opr0to31(final JInstruction thisIns, JOperandStack myStack) throws RevEngineException, ClassParserException {
+    void opr0to31(final JInstruction thisIns, JOperandStack myStack)
+            throws RevEngineException, ClassParserException {
 
         switch (thisIns.opcode) {
             case 0: { // null
@@ -281,9 +267,7 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
                     dataType = INT;
                 }
 
-                Operand op1 = (myStack.size() == 0)
-                              ? null
-                              : (Operand) myStack.peek();
+                Operand op1 = (myStack.size() == 0) ? null : (Operand) myStack.peek();
 
                 if (op1 != null && (op1.getValue().equals("++") || op1.getValue().equals("--"))) {
 
@@ -331,9 +315,7 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
                     datatype = INT;
                 }
 
-                Operand op1 = (myStack.size() == 0)
-                              ? null
-                              : (Operand) myStack.peek();
+                Operand op1 = (myStack.size() == 0) ? null : (Operand) myStack.peek();
 
                 if (op1 != null && (op1.getValue().equals("++") || op1.getValue().equals("--"))) {
                     op1 = (Operand) myStack.pop();
@@ -367,7 +349,8 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
      *                            while operating the current instruction on the current
      *                            JVM stack.
      */
-    void opr32to53(final JInstruction thisIns, JOperandStack myStack) throws RevEngineException {
+    void opr32to53(final JInstruction thisIns, JOperandStack myStack)
+            throws RevEngineException {
         switch (thisIns.opcode) {
             case 32: { //lload_2
                 String localVar = symLocal.getName(2, thisIns.index);
@@ -506,7 +489,8 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
      *                            while operating the current instruction on the current
      *                            JVM stack.
      */
-    void opr54to86(final JInstruction thisIns, JOperandStack myStack) throws RevEngineException {
+    void opr54to86(final JInstruction thisIns, JOperandStack myStack)
+            throws RevEngineException {
         switch (thisIns.opcode) {
             case 54: // istore
             {
@@ -530,7 +514,7 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
                 String localVar = symLocal.getName(thisIns.getArgUnsignedWide(), thisIns.index);
 
                 String varValue = op1.getValue();
-                if (op1.getDatatype().indexOf("[") != -1) {
+                if (op1.getDatatype().contains("[")) {
                     List constants = myStack.getConstants();
                     if (constants.size() != 0) {
                         varValue = myStack.getConstantValues();
@@ -625,7 +609,7 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
                 String index = op2.getValue();
                 String arrayRef = op1.getValue();
 
-                if (arrayRef.indexOf("new") == -1) {
+                if (!arrayRef.contains("new")) {
                     statement = arrayRef + OPEN_BRACKET + index + CLOSE_BRACKET + EQUALTO + value;
                 } else {
                     statement = "";
@@ -644,11 +628,8 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
      *                operated on the JVM stack.
      * @param myStack The JVM OperandStack of the current method
      *                that is under reference.
-     * @throws RevEngineException Thrown in case we get any error
-     *                            while operating the current instruction on the current
-     *                            JVM stack.
      */
-    void opr87to100(final JInstruction thisIns, JOperandStack myStack) throws RevEngineException {
+    void opr87to100(final JInstruction thisIns, JOperandStack myStack) {
         switch (thisIns.opcode) {
             case OPCODE_POP: { //pop
                 Operand op1 = (Operand) myStack.pop();
@@ -671,7 +652,7 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
                 break;
             }
             case OPCODE_DUP: { //dup
-                myStack.push((Operand) myStack.peek());
+                myStack.push(myStack.peek());
                 break;
             }
             case OPCODE_DUP_X1: { //dup_x1
@@ -820,11 +801,8 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
      *                operated on the JVM stack.
      * @param myStack The JVM OperandStack of the current method
      *                that is under reference.
-     * @throws RevEngineException Thrown in case we get any error
-     *                            while operating the current instruction on the current
-     *                            JVM stack.
      */
-    void opr101to127(final JInstruction thisIns, JOperandStack myStack) throws RevEngineException {
+    void opr101to127(final JInstruction thisIns, JOperandStack myStack) {
         switch (thisIns.opcode) {
             case 101: { //lsub
                 Operand op2 = (Operand) myStack.pop();
@@ -1009,7 +987,8 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
      *                            while operating the current instruction on the current
      *                            JVM stack.
      */
-    void opr128to147(final JInstruction thisIns, JOperandStack myStack) throws RevEngineException {
+    void opr128to147(final JInstruction thisIns, JOperandStack myStack)
+            throws RevEngineException {
         switch (thisIns.opcode) {
             case 128: { //ior
                 Operand op2 = (Operand) myStack.pop();
@@ -1041,9 +1020,7 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
                 int constant = thisIns.getArgWide(1);
 
                 if (constant == -1) {
-                    Operand op1 = (myStack.size() == 0)
-                                  ? null
-                                  : (Operand) myStack.peek();
+                    Operand op1 = (myStack.size() == 0) ? null : (Operand) myStack.peek();
                     if (op1 != null) {
                         if (op1.getValue().equals(localVar)) {
                             op1 = (Operand) myStack.pop();
@@ -1058,9 +1035,7 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
                         precedence = L_UNARY;
                     }
                 } else if (constant == 1) {
-                    Operand op1 = (myStack.size() == 0)
-                                  ? null
-                                  : (Operand) myStack.peek();
+                    Operand op1 = (myStack.size() == 0) ? null : (Operand) myStack.peek();
                     if (op1 != null) {
                         if (op1.getValue().equals(localVar)) {
                             op1 = (Operand) myStack.pop();
@@ -1141,11 +1116,8 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
      *                operated on the JVM stack.
      * @param myStack The JVM OperandStack of the current method
      *                that is under reference.
-     * @throws RevEngineException Thrown in case we get any error
-     *                            while operating the current instruction on the current
-     *                            JVM stack.
      */
-    void opr148to171(final JInstruction thisIns, JOperandStack myStack) throws RevEngineException {
+    void opr148to171(final JInstruction thisIns, JOperandStack myStack) {
         switch (thisIns.opcode) {
             case 148: // lcmp
             case 149: // fcmpl
@@ -1310,10 +1282,10 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
                 break;
             case 168: { // jsr
                 // Address of the immediately following instruction
-/**
- myStack.push(String.valueOf(thisIns.index +3) ,
- RET_ADDR);
- **/
+                /**
+                 myStack.push(String.valueOf(thisIns.index +3) ,
+                 RET_ADDR);
+                 **/
                 // Represents finally
                 break;
             }
@@ -1342,7 +1314,8 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
      *                            while operating the current instruction on the current
      *                            JVM stack.
      */
-    void opr172to186(final JInstruction thisIns, JOperandStack myStack) throws RevEngineException {
+    void opr172to186(final JInstruction thisIns, JOperandStack myStack)
+            throws RevEngineException {
         switch (thisIns.opcode) {
             case 172: //ireturn
             {
@@ -1375,12 +1348,12 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
 
                 String classType = Helper.getJavaDataType(cpInfo.getClassName(classPtr), false);
 
-                classType = importInfo.getClassName(classType);
+                classType = JImport.getClassName(classType);
 
                 String fieldName = cpInfo.getFieldName(fieldPtr);
                 String fieldType = cpInfo.getFieldType(fieldPtr);
 
-//              FieldType = Helper.formatDataType(FieldType);
+                //              FieldType = Helper.formatDataType(FieldType);
                 myStack.push(classType + "." + fieldName, fieldType, VALUE);
                 break;
             }
@@ -1392,7 +1365,7 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
 
                 String classType = Helper.getJavaDataType(cpInfo.getClassName(classPtr), false);
 
-                classType = importInfo.getClassName(classType);
+                classType = JImport.getClassName(classType);
 
                 String fieldName = cpInfo.getFieldName(fieldPtr);
 
@@ -1456,7 +1429,7 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
             case 184: { //invokestatic
                 int offset = thisIns.getArgUnsignedShort();
                 int classIndex = cpInfo.getPtr1(offset);
-                String classType = importInfo.getClassName(cpInfo.getClassName(classIndex));
+                String classType = JImport.getClassName(cpInfo.getClassName(classIndex));
 
                 // GetMethodName
                 int nameIndex = cpInfo.getPtr2(offset);
@@ -1498,18 +1471,15 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
      *                operated on the JVM stack.
      * @param myStack The JVM OperandStack of the current method
      *                that is under reference.
-     * @throws RevEngineException Thrown in case we get any error
-     *                            while operating the current instruction on the current
-     *                            JVM stack.
      */
-    void opr187to201(final JInstruction thisIns, JOperandStack myStack) throws RevEngineException {
+    void opr187to201(final JInstruction thisIns, JOperandStack myStack) {
 
         switch (thisIns.opcode) {
             case 187: { //new
                 int offset = thisIns.getArgUnsignedShort();
 
                 String classType = cpInfo.getClassName(offset);
-                String className = importInfo.getClassName(Helper.getJavaDataType(classType, false));
+                String className = JImport.getClassName(Helper.getJavaDataType(classType, false));
 
                 myStack.push("new " + className, classType, L_REF);
                 break;
@@ -1560,7 +1530,7 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
                 int offset = thisIns.getArgUnsignedShort();
 
                 String classType = cpInfo.getClassName(offset);
-                String className = importInfo.getClassName(Helper.getJavaDataType(classType, true));
+                String className = JImport.getClassName(Helper.getJavaDataType(classType, true));
 
                 //Get Class Name
                 Operand op1 = (Operand) myStack.pop();
@@ -1589,9 +1559,9 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
 
                 String castType = cpInfo.getClassName(offset);
 
-                String javaCastType = importInfo.getClassName(Helper.getJavaDataType(castType, false));
+                String javaCastType = JImport.getClassName(Helper.getJavaDataType(castType, false));
 
-                String value = new String("(" + javaCastType + ")");
+                String value = "(" + javaCastType + ")";
                 value = value + op1.getValueEx(L_CAST);
                 myStack.push(value, castType, L_CAST);
                 //No Change to JVM Stack
@@ -1605,7 +1575,7 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
                 // Class Type found here
                 String classType = Helper.getJavaDataType(cpInfo.getClassName(offset), false);
 
-                classType = importInfo.getClassName(classType);
+                classType = JImport.getClassName(classType);
 
                 myStack.push(op1.getValue() + SPACE + INSTANCEOF + SPACE + classType, BOOLEAN, L_LOGIOF);
                 break;
@@ -1632,24 +1602,24 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
                 // ClassType
                 String classType = Helper.getJavaDataType(cpInfo.getClassName(offset), false);
 
-                classType = importInfo.getClassName(classType);
+                classType = JImport.getClassName(classType);
 
                 // For Output
                 for (int i = dimensions - 1; i >= 0; i--) {
                     strIndex[i] = ((Operand) myStack.pop()).getValue();
                 }
 
-                StringBuffer arrayIndex = new StringBuffer();
-                arrayIndex.append(NEW + SPACE + classType);
-                StringBuffer arrayType = new StringBuffer();
+                StringBuilder arrayIndex = new StringBuilder();
+                arrayIndex.append(NEW + SPACE).append(classType);
+                StringBuilder arrayType = new StringBuilder();
                 for (int i = 0; i < dimensions; i++) {
-                    arrayIndex.append("[ " + strIndex[i] + " ]");
+                    arrayIndex.append("[ ").append(strIndex[i]).append(" ]");
                     arrayType.append("[");
                 }
 
                 statement = arrayIndex.toString();
                 precedence = L_REF;
-                myStack.push(arrayIndex.toString(), arrayType.append("L" + classType).toString(), L_REF);
+                myStack.push(arrayIndex.toString(), arrayType.append("L").append(classType).toString(), L_REF);
                 break;
             }
             case 198: {  //ifnull
@@ -1694,7 +1664,8 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
      *                            while operating the current instruction on the current
      *                            JVM stack.
      */
-    void opr202to255(final JInstruction thisIns, JOperandStack myStack) throws RevEngineException {
+    void opr202to255(final JInstruction thisIns, JOperandStack myStack)
+            throws RevEngineException {
 
         throw new RevEngineException("OpCode not allowed in a valid class file");
     }
@@ -1706,7 +1677,8 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
      * @param insIndex Instruction Index
      * @throws RevEngineException Thrown in case of any error.
      */
-    private void dealIntegerStore(String popValue, int intIndex, int insIndex) throws RevEngineException {
+    private void dealIntegerStore(String popValue, int intIndex, int insIndex)
+            throws RevEngineException {
 
         String localVar = symLocal.getName(intIndex, insIndex);
         String localType = symLocal.getDataType(intIndex, insIndex);
@@ -1788,7 +1760,7 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
      * @return Returns a String.
      */
     private String getArgValues(List args, List argValues) {
-        StringBuffer result = new StringBuffer("(");
+        StringBuilder result = new StringBuilder("(");
         for (int i = 0; i < args.size(); i++) {
             String value = Helper.getValue((String) argValues.get(i), (String) args.get(i));
             if (i != 0) {

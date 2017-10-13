@@ -12,7 +12,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Parses <a
@@ -33,12 +32,12 @@ public class JsonPathParser<T> {
      *               tree. Class T must have accessible no-arg constructor and
      *               complementary setters to these used in Json expressions.
      */
-    public JsonPathParser(final Class<T> tclass) throws InstantiationException, IllegalAccessException {
+    public JsonPathParser(final Class<T> tclass) {
         this(tclass, tclass.getClassLoader());
     }
 
-    public JsonPathParser(Class<T> tClass, ClassLoader classLoader) throws IllegalAccessException, InstantiationException {
-        beanspector = new Beanspector<T>(tClass, classLoader);
+    public JsonPathParser(Class<T> tClass, ClassLoader classLoader) {
+        beanspector = new Beanspector<>(tClass, classLoader);
     }
 
     /**
@@ -49,6 +48,10 @@ public class JsonPathParser<T> {
      * @return tree of {@link T}
      * objects representing runtime structure.
      * @throws JsonParseException when expression does not follow JSON_PATH grammar
+     * @throws NoSuchMethodException when expression does not follow JSON_PATH grammar
+     * @throws InstantiationException when expression does not follow JSON_PATH grammar
+     * @throws IllegalAccessException when expression does not follow JSON_PATH grammar
+     * @throws InvocationTargetException when expression does not follow JSON_PATH grammar
      */
     public Map<T, Field> parse(final String jsonPathExpression)
             throws JsonParseException, NoSuchMethodException, InstantiationException,
@@ -60,8 +63,7 @@ public class JsonPathParser<T> {
     }
 
     private SyntaxtNode<T> parseDatatype(final String setter)
-            throws JsonParseException, InvocationTargetException, NoSuchMethodException,
-            InstantiationException, IllegalAccessException {
+            throws JsonParseException, InstantiationException, IllegalAccessException {
         Class<?> firstTokenType;
         Class<?> valueType;
         boolean isCollection = false;
@@ -135,8 +137,8 @@ public class JsonPathParser<T> {
         }
 
         @Override
-        public T getBean() throws JsonParseException {
-            return (T) beanspector.getBean();
+        public T getBean() {
+            return beanspector.getBean();
         }
 
         @Override

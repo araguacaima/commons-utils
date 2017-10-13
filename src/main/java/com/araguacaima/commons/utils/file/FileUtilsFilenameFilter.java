@@ -63,7 +63,6 @@ public interface FileUtilsFilenameFilter<T> extends FilenameFilter {
      * @param classLoader The classLoader on witch find resources
      * @return A collection of URL with requeried resources
      * @throws IOException If any I/O Exception occurs
-     * @deprecated use Collection getResources() throws IOException; instead
      */
     Collection<URL> getResources(ClassLoader classLoader) throws IOException;
 
@@ -76,7 +75,7 @@ public interface FileUtilsFilenameFilter<T> extends FilenameFilter {
      */
     Collection <String> getResourcePaths(ClassLoader classLoader) throws IOException;
 
-    Collection <URL> getResources() throws IOException;
+    Collection <URL> getResources();
 
     String printCriterias();
 }

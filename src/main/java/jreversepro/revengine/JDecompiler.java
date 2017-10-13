@@ -1,55 +1,40 @@
 /**
- * @(#)JDecompiler.java
- *
- * JReversePro - Java Decompiler / Disassembler.
+ * @(#)JDecompiler.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
- *
+ * <p>
  * This program is free software; you can redistribute it and/or modify
  * it , under the terms of the GNU General Public License as published
  * by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with this program.If not, write to
- *  The Free Software Foundation, Inc.,
- *  59 Temple Place - Suite 330,
- *  Boston, MA 02111-1307, USA.
+ * The Free Software Foundation, Inc.,
+ * 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
  **/
 
 package jreversepro.revengine;
 
-import java.io.IOException;
-
-import jreversepro.reflect.JMethod;
-import jreversepro.reflect.JConstantPool;
-import jreversepro.reflect.JInstruction;
-import jreversepro.reflect.JImport;
-
-import jreversepro.parser.ClassParserException;
-
-import jreversepro.runtime.JSymbolTable;
-
-import jreversepro.common.JJvmOpcodes;
-
 import jreversepro.common.Helper;
+import jreversepro.common.JJvmOpcodes;
 import jreversepro.common.KeyWords;
+import jreversepro.parser.ClassParserException;
+import jreversepro.reflect.JConstantPool;
+import jreversepro.reflect.JImport;
+import jreversepro.reflect.JInstruction;
+import jreversepro.reflect.JMethod;
+import jreversepro.runtime.*;
 
-import jreversepro.runtime.JRunTimeFrame;
-import jreversepro.runtime.JOperandStack;
-
-import jreversepro.runtime.JRunTimeContext;
-import jreversepro.runtime.Operand;
-import jreversepro.runtime.OperandConstants;
-
-import java.util.Vector;
-import java.util.ListIterator;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 /**
  * This decompiles the source code.
@@ -59,47 +44,39 @@ import java.util.Map;
 public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer, JJvmOpcodes, OperandConstants {
 
     /**
+     * Reference to classes imported by this class.
+     */
+    static JImport importInfo;
+    /**
      * List containing the bytecode instructions.
      * List of 'JInstruction'.
      */
-    List byteIns;
-
+    final List byteIns;
     /**
      * Vector of JBranchEntry of TYPE_CATCH
      * and TYPE_CATCH_ANY
      */
-    Vector catchBranches;
-
+    final Vector catchBranches;
     /**
      * Reference to ConsantPoolInformation.
      */
-    JConstantPool cpInfo;
-
+    final JConstantPool cpInfo;
     /**
      * Current Method for which code is to be decompiled.
      */
-    JMethod curMethod;
-
+    final JMethod curMethod;
+    /**
+     * Map of exceptions in the given block.
+     */
+    final Map mapCatchJExceptions;
     /**
      * SymbolTable generated for the current method.
      */
-    JSymbolTable symTable;
-
+    final JSymbolTable symTable;
     /**
      * Class containing the reference to branch table.
      */
     JBranchTable branches;
-
-    /**
-     * Reference to classes imported by this class.
-     */
-    static JImport importInfo;
-
-    /**
-     * Map of exceptions in the given block.
-     */
-    Map mapCatchJExceptions;
-
     /**
      * Last encountered instruction.
      */
@@ -118,7 +95,7 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
      */
     public JDecompiler(JMethod rhsMethod, JConstantPool rhsCpInfo) {
 
-        this.importInfo = rhsCpInfo.getImportedClasses();
+        importInfo = rhsCpInfo.getImportedClasses();
         curMethod = rhsMethod;
         cpInfo = rhsCpInfo;
         symTable = new JSymbolTable(rhsMethod, importInfo);
@@ -137,45 +114,6 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
     }
 
     /**
-     * set bytecode offset of current stmt
-     *
-     * @param li Last Instruction Offset
-     */
-    public void setLastIns(int li) {
-        lastIns = li;
-    }
-
-    /**
-     * @return Returns get bytecode offset of current stmt
-     */
-    public int getLastIns() {
-        return lastIns;
-    }
-
-    /**
-     * set index offset into bytecode array of current stmt.
-     *
-     * @param lip Last Instruction Position.
-     */
-    public void setLastInsPos(int lip) {
-        lastInsPos = lip;
-    }
-
-    /**
-     * @return Returns index offset into bytecode array of current stmt.
-     */
-    public int getLastInsPos() {
-        return lastInsPos;
-    }
-
-    /**
-     * @return Returns the SymbolTable.
-     */
-    public JSymbolTable getSymbolTable() {
-        return symTable;
-    }
-
-    /**
      * Don't depend on LineNumberTable Attribute of a method,
      * as it is optional. Available only if compiled with
      * debugging options on. ( -g ).
@@ -185,7 +123,8 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
      * @throws IOException          thrown in case of a generic i/o error.
      * @throws ClassParserException Thrown in case of constantpool reference.
      */
-    public void genCode() throws RevEngineException, IOException, ClassParserException {
+    public void genCode()
+            throws RevEngineException, IOException, ClassParserException {
 
         loadSymbolTable();
 
@@ -204,7 +143,7 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
                 Helper.log("After collation " + collatter.toString());
                 branches.setTables(collatter.getEffectiveBranches());
 
-//              branches.setEndTryCatch(byteIns);
+                //              branches.setEndTryCatch(byteIns);
                 branches.identifyMoreBranches();
 
                 branches.sort();
@@ -213,10 +152,8 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
                 //End Decompile
             } catch (Exception ex) {
                 ex.printStackTrace();
-                throw new RevEngineException(curMethod.getName()
-                                             + " decompilation failed. Please feel "
-                                             + " free to  report the problem to me at "
-                                             + " akkumar@users.sourceforge.net. ");
+                throw new RevEngineException(curMethod.getName() + " decompilation failed. Please feel " + " free to " +
+                        " report the problem to me at " + " akkumar@users.sourceforge.net. ");
             }
         }
     }
@@ -229,18 +166,19 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
      * @throws ClassParserException Thrown in case of invalid
      *                              constantpool reference.
      */
-    public void loadSymbolTable() throws RevEngineException, ClassParserException {
+    public void loadSymbolTable()
+            throws RevEngineException, ClassParserException {
         if (byteIns != null) {
-//          Helper.log("Loading Symbol Table **********");
+            //          Helper.log("Loading Symbol Table **********");
 
             JRunTimeFrame rtf = new JRunTimeFrame(cpInfo, symTable, curMethod.getReturnType());
 
             JOperandStack jos = new JOperandStack();
 
-            for (int i = 0; i < byteIns.size(); i++) {
-                JInstruction ins = (JInstruction) byteIns.get(i);
+            for (Object byteIn : byteIns) {
+                JInstruction ins = (JInstruction) byteIn;
                 int varIndex = ins.isStoreInstruction();
-                String excDataType = (String) mapCatchJExceptions.get(new Integer(ins.index));
+                String excDataType = (String) mapCatchJExceptions.get(ins.index);
                 if (excDataType != null) {
                     if (varIndex == JInstruction.INVALID_VAR_INDEX && excDataType.equals(ANY)) {
                         varIndex = ins.referredVariable();
@@ -283,9 +221,16 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
             }
             jos = null;
             rtf = null;
-//          Helper.log("Loaded Symbol Table **********");
-//          Helper.log(symTable.toString());
+            //          Helper.log("Loaded Symbol Table **********");
+            //          Helper.log(symTable.toString());
         }
+    }
+
+    /**
+     * @return Returns the SymbolTable.
+     */
+    public JSymbolTable getSymbolTable() {
+        return symTable;
     }
 
     /**
@@ -297,10 +242,10 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
      * @throws IOException          Thrown in case of any i/o error.
      * @throws RevEngineException   Thrown in case any error with the
      *                              decompiling engine.
-     * @throws ClassParserException Thrown in case of invalid symbol
-     *                              table reference.
+     * @throws IOException Thrown in case an IO error.
      */
-    private JCollatingTable loadBranchTable() throws RevEngineException, IOException, ClassParserException {
+    private JCollatingTable loadBranchTable()
+            throws RevEngineException, IOException {
         JRunTimeFrame rtf = new JRunTimeFrame(cpInfo, symTable, curMethod.getReturnType());
 
         JOperandStack jos = new JOperandStack();
@@ -308,8 +253,8 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
 
         int prevCode = 0;
         boolean eolFlag = false;
-        for (int i = 0; i < byteIns.size(); i++) {
-            JInstruction thisIns = (JInstruction) byteIns.get(i);
+        for (Object byteIn : byteIns) {
+            JInstruction thisIns = (JInstruction) byteIn;
             if (thisIns.isEndOfCatch()) {
                 closeCatchBranch(thisIns.getNextIndex());
             }
@@ -318,7 +263,7 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
                 eolFlag = false;
             }
             int insIndex = thisIns.index;
-            String exc = (String) mapCatchJExceptions.get(new Integer(insIndex));
+            String exc = (String) mapCatchJExceptions.get(insIndex);
             if (exc != null) {
                 // push exception on the operand stack for catch
                 jos.push(FOREIGN_OBJ, FOREIGN_CLASS, VALUE);
@@ -331,25 +276,18 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
                 String className = exc;
                 if (exc.equals(ANY)) {
                     addCatchBranch(insIndex,
-                                   new JBranchEntry(curMethod,
-                                                    insIndex,
-                                                    insIndex,
-                                                    -1,
-                                                    TYPE_CATCH_ANY,
-                                                    className,
-                                                    varName,
-                                                    ""));
+                            new JBranchEntry(curMethod,
+                                    insIndex,
+                                    insIndex,
+                                    -1,
+                                    TYPE_CATCH_ANY,
+                                    className,
+                                    varName,
+                                    ""));
                 } else {
-                    className = importInfo.getClassName(symTable.getDataType(storeIndex, insIndex));
+                    className = JImport.getClassName(symTable.getDataType(storeIndex, insIndex));
                     addCatchBranch(insIndex,
-                                   new JBranchEntry(curMethod,
-                                                    insIndex,
-                                                    insIndex,
-                                                    -1,
-                                                    TYPE_CATCH,
-                                                    className,
-                                                    varName,
-                                                    ""));
+                            new JBranchEntry(curMethod, insIndex, insIndex, -1, TYPE_CATCH, className, varName, ""));
                 }
                 eolFlag = true;
             } else if (branches.isJSRTarget(thisIns.index)) {
@@ -378,13 +316,9 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
                 branches.addMonitorPc(thisIns.index, rtf.getStatement());
                 eolFlag = true;
             } else {
-                eolFlag |= thisIns.isEndOfLine()
-                           || (thisIns.isInvokeIns() && jos.empty())
-                           || thisIns.opcode == OPCODE_GOTO
-                           || thisIns.opcode == OPCODE_GOTOW
-                           || thisIns.opcode == OPCODE_JSR
-                           || thisIns.opcode == OPCODE_JSRW
-                           || thisIns.opcode == OPCODE_RET;
+                eolFlag |= thisIns.isEndOfLine() || (thisIns.isInvokeIns() && jos.empty()) || thisIns.opcode ==
+                        OPCODE_GOTO || thisIns.opcode == OPCODE_GOTOW || thisIns.opcode == OPCODE_JSR || thisIns
+                        .opcode == OPCODE_JSRW || thisIns.opcode == OPCODE_RET;
             }
         }
 
@@ -397,24 +331,6 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
     }
 
     /**
-     * Creates a runtime context afresh for use for decompilation.
-     *
-     * @return A Runtime context created afresh.
-     */
-    private JRunTimeContext createRuntimeContext() {
-        JRunTimeFrame rtf = new JRunTimeFrame(cpInfo, symTable, curMethod.getReturnType());
-        JOperandStack jos = new JOperandStack();
-
-        List restrict = new Vector();
-        if (curMethod.getName().equals(INIT) || curMethod.getName().equals(CLINIT)) {
-            restrict.add(RETURN);
-        }
-
-        JRunTimeContext context = new JRunTimeContext(this, curMethod, rtf, jos, branches);
-        return context;
-    }
-
-    /**
      * Generates the source code for the given method.
      *
      * @throws RevEngineException   Thrown in case of any error
@@ -422,13 +338,13 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
      * @throws ClassParserException Thrown in case of an invalid
      *                              constantpool reference.
      */
-    private void genSource() throws RevEngineException, ClassParserException {
+    private void genSource()
+            throws RevEngineException, ClassParserException {
 
         JRunTimeContext context = createRuntimeContext();
-        ListIterator li = byteIns.listIterator();
 
-        while (li.hasNext()) {
-            JInstruction ins = (JInstruction) li.next();
+        for (Object byteIn : byteIns) {
+            JInstruction ins = (JInstruction) byteIn;
 
             //Begin Control Blocks.
             List brEnt = branches.startsWith(ins.index);
@@ -446,6 +362,54 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
     }
 
     /**
+     * Closes the Catch Branch if the given instruction
+     * is an end-of-catch instruction
+     *
+     * @param closeIndex Current Instruction to examine if the
+     *                   catch block can be closed.
+     */
+    private void closeCatchBranch(int closeIndex) {
+        if (catchBranches.size() != 0) {
+            JBranchEntry lastEnt = (JBranchEntry) catchBranches.lastElement();
+            if (lastEnt.getTargetPc() == -1) {
+                lastEnt.setTargetPc(closeIndex);
+                catchBranches.remove(lastEnt);
+            }
+            // Else the target of catch is already set.
+            // We dont need to do anything here.
+        }
+    }
+
+    /**
+     * Adds a Catch Branch entry.
+     *
+     * @param insIndex Instruction Index.
+     * @param brent    BranchEntry for the catch branch to be added.
+     */
+    private void addCatchBranch(int insIndex, JBranchEntry brent) {
+        closeCatchBranch(insIndex);
+        branches.add(brent);
+        catchBranches.add(brent);
+    }
+
+    /**
+     * Creates a runtime context afresh for use for decompilation.
+     *
+     * @return A Runtime context created afresh.
+     */
+    private JRunTimeContext createRuntimeContext() {
+        JRunTimeFrame rtf = new JRunTimeFrame(cpInfo, symTable, curMethod.getReturnType());
+        JOperandStack jos = new JOperandStack();
+
+        List restrict = new Vector();
+        if (curMethod.getName().equals(INIT) || curMethod.getName().equals(CLINIT)) {
+            restrict.add(RETURN);
+        }
+
+        return new JRunTimeContext(this, curMethod, rtf, jos, branches);
+    }
+
+    /**
      * Process a single JVM instruction.
      *
      * @param ins     Instruction to be processed.
@@ -456,12 +420,11 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
      *                              constantpool reference.
      */
     private void processJVMInstruction(JInstruction ins, JRunTimeContext context)
-            throws RevEngineException, ClassParserException
-    {
+            throws RevEngineException, ClassParserException {
 
         JOperandStack jos = context.getOperandStack();
 
-        if (mapCatchJExceptions.get(new Integer(ins.index)) != null) {
+        if (mapCatchJExceptions.get(ins.index) != null) {
             jos.push(FOREIGN_OBJ, FOREIGN_CLASS, VALUE);
         } else if (branches.isJSRTarget(ins.index)) {
             jos.push(FOREIGN_OBJ, FOREIGN_CLASS, VALUE);
@@ -473,7 +436,7 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
 
         context.executeInstruction(ins);
 
-//        Helper.log(ins  + " " + jos.toString());
+        //        Helper.log(ins  + " " + jos.toString());
         if (Helper.isDebug()) {
             context.addTextCode("// " + ins);
         }
@@ -506,33 +469,34 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
     }
 
     /**
-     * Adds a Catch Branch entry.
-     *
-     * @param insIndex Instruction Index.
-     * @param brent    BranchEntry for the catch branch to be added.
+     * @return Returns get bytecode offset of current stmt
      */
-    private void addCatchBranch(int insIndex, JBranchEntry brent) {
-        closeCatchBranch(insIndex);
-        branches.add(brent);
-        catchBranches.add(brent);
+    public int getLastIns() {
+        return lastIns;
     }
 
     /**
-     * Closes the Catch Branch if the given instruction
-     * is an end-of-catch instruction
+     * set bytecode offset of current stmt
      *
-     * @param closeIndex Current Instruction to examine if the
-     *                   catch block can be closed.
+     * @param li Last Instruction Offset
      */
-    private void closeCatchBranch(int closeIndex) {
-        if (catchBranches.size() != 0) {
-            JBranchEntry lastEnt = (JBranchEntry) catchBranches.lastElement();
-            if (lastEnt.getTargetPc() == -1) {
-                lastEnt.setTargetPc(closeIndex);
-                catchBranches.remove(lastEnt);
-            }
-            // Else the target of catch is already set.
-            // We dont need to do anything here.
-        }
+    public void setLastIns(int li) {
+        lastIns = li;
+    }
+
+    /**
+     * @return Returns index offset into bytecode array of current stmt.
+     */
+    public int getLastInsPos() {
+        return lastInsPos;
+    }
+
+    /**
+     * set index offset into bytecode array of current stmt.
+     *
+     * @param lip Last Instruction Position.
+     */
+    public void setLastInsPos(int lip) {
+        lastInsPos = lip;
     }
 }

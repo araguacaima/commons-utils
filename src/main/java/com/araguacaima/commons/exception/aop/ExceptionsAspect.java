@@ -45,17 +45,4 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExceptionsAspect {
 
-    /**
-     * Catch the exception thrown and wrap it in a new exception
-     *
-     * @param ex Exception to be thrown
-     * @throws GeneralException after original exception is handled
-     */
-    @AfterThrowing(pointcut = "execution(* *..*())",
-                   throwing = "ex")
-    public void errorInterceptor(Throwable ex)
-            throws GeneralException {
-        //TODO Call Chain of responsibility
-
-    }
 }

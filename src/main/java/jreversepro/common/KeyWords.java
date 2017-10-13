@@ -23,166 +23,123 @@
 package jreversepro.common;
 
 public interface KeyWords {
-    //Constants containing KeyWords
-    String FOREIGN_CLASS = "<ForeignClass>";
-    String FOREIGN_OBJ = "<ForeignObject>";
-
+    /**
+     * Exception Class of type 'any'.
+     */
+    String ANY = "<any>";
+    /**
+     * 'boolean' datatype.
+     */
+    String BOOLEAN = "Z";
     String BREAK = "break";
+    /**
+     * 'byte' datatype.
+     */
+    String BYTE = "B";
+    String CASE = "case";
+    /**
+     * 'char' datatype.
+     */
+    String CHAR = "C";
+    String CLASS = "class";
+    /**
+     * JVM Representation of java.lang.String
+     */
+    String CLASS_STRING = "java/lang/String";
+    /**
+     * JVM representation of the method static {.. }
+     */
+    String CLINIT = "<clinit>";
+    String CLOSE_BRACKET = "]";
+    String COND_AND = "&&";
+    String COND_NOT = "!";
+    String COND_OR = "||";
     String CONTINUE = "continue";
     String DEFAULT = "default";
-
-    String CASE = "case";
-    String GOTO = "goto";
-
     /**
      * Default Package that is included when the JVM is
      * launched in the beginning.
      */
     String DEFAULT_PACKAGE = "java.lang";
-
-    /**
-     * JVM Representation of java.lang.String
-     */
-    String CLASS_STRING = "java/lang/String";
-
-    String JVM_BOOLEAN = "Z";
-
-    String JVM_CHAR = "C";
-
-    String JVM_VOID = "V";
-
-    /**
-     * 'boolean' datatype.
-     */
-    String BOOLEAN = "Z";
-
-    /**
-     * 'char' datatype.
-     */
-    String CHAR = "C";
-
-    /**
-     * 'byte' datatype.
-     */
-    String BYTE = "B";
-
-    /**
-     * 'int' datatype.
-     */
-    String INT = "I";
-
-    /**
-     * 'short' datatype.
-     */
-    String SHORT = "S";
-
-    /**
-     * 'float' datatype.
-     */
-    String FLOAT = "F";
-
-    /**
-     * 'long' datatype.
-     */
-    String LONG = "J";
-
     /**
      * 'double' datatype.
      */
     String DOUBLE = "D";
-
+    String EQUALTO = " = ";
+    String FALSE = "false";
     /**
-     * datatype is a reference to an object
+     * 'float' datatype.
      */
-    String REFERENCE = "reference";
-
-    /**
-     * 'null' datatype.
-     */
-    String NULL = "null";
-
-    /**
-     * datatype is of type returnaddress
-     */
-    String RET_ADDR = "returnaddress";
-
-    /**
-     * 'void' datatype.
-     */
-    String VOID = "void";
-
-    /**
-     * this pointer variable name
-     */
-    String THIS = "this";
-
-    /**
-     * Refers to the name of the current class type.
-     */
-    String THISCLASS = "**this_class**";
-
-    /**
-     * JVM representation of the method static {.. }
-     */
-    String CLINIT = "<clinit>";
-
+    String FLOAT = "F";
+    //Constants containing KeyWords
+    String FOREIGN_CLASS = "<ForeignClass>";
+    String FOREIGN_OBJ = "<ForeignObject>";
+    String GOTO = "goto";
     /**
      * JVM representation of the constructor method.
      */
     String INIT = "<init>";
-
+    String INSTANCEOF = "instanceof";
+    /**
+     * 'int' datatype.
+     */
+    String INT = "I";
+    String INTERFACE = "interface";
+    String JVM_BOOLEAN = "Z";
+    String JVM_CHAR = "C";
+    String JVM_VOID = "V";
     /**
      * JVM representation of the class java.lang.Object
      */
     String LANG_OBJECT = "java/lang/Object";
-
-    /**
-     * Exception Class of type 'any'.
-     */
-    String ANY = "<any>";
-
-    String TRUE = "true";
-
-    String FALSE = "false";
-
-    String CLASS = "class";
-
-    String INTERFACE = "interface";
-
     String LENGTH = "length";
-
-    String THROW = "throw";
-
-    String INSTANCEOF = "instanceof";
-
+    /**
+     * 'long' datatype.
+     */
+    String LONG = "J";
     String NEW = "new";
-
-    char SPACE = ' ';
-
+    /**
+     * 'null' datatype.
+     */
+    String NULL = "null";
     String OPEN_BRACKET = "[";
-
-    String CLOSE_BRACKET = "]";
-
-    String EQUALTO = " = ";
-
-    String RETURN = "return";
-
-    String SWITCH = "switch";
-
-    String STATIC = "static";
-
-    String SUPER = "super";
-
+    String OPR_EQ = "==";
+    String OPR_GE = ">=";
     // Operators
     String OPR_GT = ">";
-    String OPR_GE = ">=";
-    String OPR_LT = "<";
     String OPR_LE = "<=";
+    String OPR_LT = "<";
     String OPR_NE = "!=";
-    String OPR_EQ = "==";
     String OPR_NOT = "!";
-
-    String COND_OR = "||";
-    String COND_AND = "&&";
-    String COND_NOT = "!";
+    /**
+     * datatype is a reference to an object
+     */
+    String REFERENCE = "reference";
+    String RETURN = "return";
+    /**
+     * datatype is of type returnaddress
+     */
+    String RET_ADDR = "returnaddress";
+    /**
+     * 'short' datatype.
+     */
+    String SHORT = "S";
+    char SPACE = ' ';
+    String STATIC = "static";
+    String SUPER = "super";
+    String SWITCH = "switch";
+    /**
+     * this pointer variable name
+     */
+    String THIS = "this";
+    /**
+     * Refers to the name of the current class type.
+     */
+    String THISCLASS = "**this_class**";
+    String THROW = "throw";
+    String TRUE = "true";
+    /**
+     * 'void' datatype.
+     */
+    String VOID = "void";
 }

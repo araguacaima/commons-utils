@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.araguacaima</groupId>
     <artifactId>commons-utils</artifactId>
-    <version>1.0-RELEASE</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>Common utilities is a set of java utilities for managing commmon actions when working with enums,
@@ -17,7 +17,8 @@
         * commons-lang3 (apache)
         * commons-io (apache)
         * commons-math3 (apache)
-        * commons-collections4
+        * commons-collections4 (apache)
+        * jreversepro (akkumar)
     </description>
     <url>http://maven.apache.org</url>
 
@@ -263,11 +264,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.evosuite.plugins</groupId>
-            <artifactId>evosuite-maven-plugin</artifactId>
-            <version>${org.evosuite.plugins-evosuite-maven-plugin}</version>
-        </dependency>
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>

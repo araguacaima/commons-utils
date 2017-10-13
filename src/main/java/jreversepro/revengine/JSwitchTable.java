@@ -1,45 +1,39 @@
 /**
- * @(#)JSwitchTable.java
- *
- * JReversePro - Java Decompiler / Disassembler.
+ * @(#)JSwitchTable.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
- *
+ * <p>
  * This program is free software; you can redistribute it and/or modify
  * it , under the terms of the GNU General Public License as published
  * by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with this program.If not, write to
- *  The Free Software Foundation, Inc.,
- *  59 Temple Place - Suite 330,
- *  Boston, MA 02111-1307, USA.
+ * The Free Software Foundation, Inc.,
+ * 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
  **/
 package jreversepro.revengine;
 
 import jreversepro.common.Helper;
-import jreversepro.common.KeyWords;
 import jreversepro.common.JJvmOpcodes;
-
+import jreversepro.common.KeyWords;
 import jreversepro.reflect.JInstruction;
 import jreversepro.reflect.JMethod;
-
 import jreversepro.runtime.Operand;
 
-import java.io.DataInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
-
-import java.util.Vector;
-import java.util.Collections;
-import java.util.Map;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 /**
  * JSwitchTable represents the 'switch' statement as entry pairs as
@@ -52,39 +46,33 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
     /**
      * Instruction index of the switch statement.
      */
-    int insIndex;
-
+    final int insIndex;
+    /**
+     * Reference to method to which this
+     * switch table belongs.
+     */
+    final JMethod method;
     /**
      * List of cases that are available.
      * Individual elements are JCaseEntry.
      */
     List cases;
-
-    /**
-     * DefaultByte for this switch statement.
-     */
-    int defaultByte;
-
-    /**
-     * Max Target from this switch statement group *
-     */
-    int maxTarget;
-
-    /**
-     * Name of the variable that is put under switch statement.
-     */
-    String varName;
-
     /**
      * Datatype of the variable for which switch is used.
      */
     String datatype;
-
     /**
-     * Reference to method to which this
-     * switch table belongs.
+     * DefaultByte for this switch statement.
      */
-    JMethod method;
+    int defaultByte;
+    /**
+     * Max Target from this switch statement group *
+     */
+    int maxTarget;
+    /**
+     * Name of the variable that is put under switch statement.
+     */
+    String varName;
 
     /**
      * @param method Reference to current method.
@@ -95,7 +83,8 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
      * @throws RevEngineException if the instruction passed is not
      *                            a switch opcode.
      */
-    public JSwitchTable(JMethod method, JInstruction ins, Map gotos) throws RevEngineException, IOException {
+    public JSwitchTable(JMethod method, JInstruction ins, Map gotos)
+            throws RevEngineException, IOException {
 
         this.method = method;
         insIndex = ins.index;
@@ -112,44 +101,6 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
     }
 
     /**
-     * @param method Reference to current method.
-     * @param ins    Instruction that corresponds to a
-     *               tableswitch or a  lookupswitch instruction.
-     * @param op1    Operand that is to be used inside the switch statement.
-     * @param gotos  Map of goto statements.
-     * @throws IOException        thrown in case of any error.
-     * @throws RevEngineException if the instruction passed is not
-     *                            a switch opcode.
-     */
-    public JSwitchTable(JMethod method, JInstruction ins, Operand op1, Map gotos)
-            throws RevEngineException, IOException
-    {
-        this.datatype = op1.getDatatype();
-        this.varName = op1.getValue();
-
-        //Copy - paste from prev. constructor.
-        this.method = method;
-        insIndex = ins.index;
-        cases = new Vector();
-
-        if (ins.opcode == OPCODE_TABLESWITCH) {
-            createTableSwitch(ins.args, ins.index, gotos);
-        } else if (ins.opcode == OPCODE_LOOKUPSWITCH) {
-            createLookupSwitch(ins.args, ins.index, gotos);
-        } else {
-            throw new RevEngineException("Not a switch statement");
-        }
-        Helper.log("switch datatype " + datatype);
-    }
-
-    /**
-     * @return Returns the default byte of this switch block.
-     */
-    public int getDefaultByte() {
-        return defaultByte;
-    }
-
-    /**
      * For 'tableswitch' opcode this fills the data structure -
      * JSwitchTable.
      *
@@ -161,7 +112,8 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
      * @throws IOException Thrown in case of an i/o error when reading
      *                     from the bytes.
      */
-    private void createTableSwitch(byte[] entries, int offset, Map gotos) throws IOException {
+    private void createTableSwitch(byte[] entries, int offset, Map gotos)
+            throws IOException {
         DataInputStream dis = new DataInputStream(new ByteArrayInputStream(entries));
         defaultByte = dis.readInt() + offset;
         int lowVal = dis.readInt();
@@ -171,9 +123,9 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
         for (int i = lowVal; i <= highVal; i++) {
             int curTarget = dis.readInt() + offset;
             String value = Helper.getValue(String.valueOf(i), this.datatype);
-            Object obj = mapCases.get(new Integer(curTarget));
+            Object obj = mapCases.get(curTarget);
             if (obj == null) {
-                mapCases.put(new Integer(curTarget), new JCaseEntry(value, curTarget));
+                mapCases.put(curTarget, new JCaseEntry(value, curTarget));
             } else {
                 JCaseEntry ent = (JCaseEntry) obj;
                 ent.addValue(value);
@@ -196,7 +148,8 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
      * @throws IOException Thrown in case of an i/o error when reading
      *                     from the bytes.
      */
-    private void createLookupSwitch(byte[] entries, int offset, Map gotos) throws IOException {
+    private void createLookupSwitch(byte[] entries, int offset, Map gotos)
+            throws IOException {
         DataInputStream dis = new DataInputStream(new ByteArrayInputStream(entries));
 
         defaultByte = dis.readInt() + offset;
@@ -208,9 +161,9 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
             String value = Helper.getValue(String.valueOf(dis.readInt()), datatype);
             int curTarget = dis.readInt() + offset;
 
-            Object obj = mapCases.get(new Integer(curTarget));
+            Object obj = mapCases.get(curTarget);
             if (obj == null) {
-                mapCases.put(new Integer(curTarget), new JCaseEntry(value, curTarget));
+                mapCases.put(curTarget, new JCaseEntry(value, curTarget));
             } else {
                 JCaseEntry ent = (JCaseEntry) obj;
                 ent.addValue(value);
@@ -219,38 +172,6 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
         cases = new Vector(mapCases.values());
         dis.close();
         processData(gotos);
-    }
-
-    /**
-     * @return Returns the list of cases.
-     *         Individual elements are JCaseEntry.
-     */
-    public List getCases() {
-        return cases;
-    }
-
-    /**
-     * @return Returns the disassembled string for this switch
-     *         statement block.
-     */
-    public String disassemble() {
-        StringBuffer sb = new StringBuffer("");
-        for (int i = 0; i < cases.size(); i++) {
-            sb.append("\n\t\t\t" + cases.get(i));
-        }
-        sb.append("\n\t\t\tDefault Byte " + defaultByte);
-        return sb.toString();
-    }
-
-    /**
-     * @param rhsType  Type of the switch variable of this block.
-     * @param rhsValue Value ( name ) of the switch variable for this
-     *                 block.
-     */
-    public void setTypeValue(String rhsType, String rhsValue) {
-        varName = rhsValue;
-        datatype = rhsType;
-        //dataType could be either int or char.
     }
 
     /**
@@ -264,12 +185,10 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
         if (gotos != null) {
             for (int i = 0; i < cases.size() - 1; i++) {
                 JCaseEntry ent = (JCaseEntry) cases.get(i);
-                Object obj = gotos.get(new Integer(ent.getTarget() - 3));
+                Object obj = gotos.get(ent.getTarget() - 3);
                 if (obj != null) {
-                    int tempVal = ((Integer) obj).intValue();
-                    maxTarget = (maxTarget > tempVal)
-                                ? maxTarget
-                                : tempVal;
+                    int tempVal = (Integer) obj;
+                    maxTarget = (maxTarget > tempVal) ? maxTarget : tempVal;
                 }
             }
             if (maxTarget > defaultByte) {
@@ -289,7 +208,7 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
         }
 
         //Sort the entries
-        Collections.sort(cases, new JCaseComparator());
+        cases.sort(new JCaseComparator());
 
         //Assign endTargets for all of them.
         int i = 0;
@@ -303,10 +222,33 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
     }
 
     /**
-     * @return Returns a branch entry for this switch statement.
+     * @param method Reference to current method.
+     * @param ins    Instruction that corresponds to a
+     *               tableswitch or a  lookupswitch instruction.
+     * @param op1    Operand that is to be used inside the switch statement.
+     * @param gotos  Map of goto statements.
+     * @throws IOException        thrown in case of any error.
+     * @throws RevEngineException if the instruction passed is not
+     *                            a switch opcode.
      */
-    public JBranchEntry getBranchEntry() {
-        return new JBranchEntry(method, insIndex, maxTarget, maxTarget, BranchConstants.TYPE_SWITCH, varName, "", "");
+    public JSwitchTable(JMethod method, JInstruction ins, Operand op1, Map gotos)
+            throws RevEngineException, IOException {
+        this.datatype = op1.getDatatype();
+        this.varName = op1.getValue();
+
+        //Copy - paste from prev. constructor.
+        this.method = method;
+        insIndex = ins.index;
+        cases = new Vector();
+
+        if (ins.opcode == OPCODE_TABLESWITCH) {
+            createTableSwitch(ins.args, ins.index, gotos);
+        } else if (ins.opcode == OPCODE_LOOKUPSWITCH) {
+            createLookupSwitch(ins.args, ins.index, gotos);
+        } else {
+            throw new RevEngineException("Not a switch statement");
+        }
+        Helper.log("switch datatype " + datatype);
     }
 
     /**
@@ -316,6 +258,52 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
      */
     public void addCaseEntry(JCaseEntry caseEntry) {
         cases.add(caseEntry);
+    }
+
+    /**
+     * @return Returns the disassembled string for this switch
+     *         statement block.
+     */
+    public String disassemble() {
+        StringBuilder sb = new StringBuilder("");
+        for (Object aCase : cases) {
+            sb.append("\n\t\t\t" + aCase);
+        }
+        sb.append("\n\t\t\tDefault Byte ").append(defaultByte);
+        return sb.toString();
+    }
+
+    /**
+     * @return Returns a branch entry for this switch statement.
+     */
+    public JBranchEntry getBranchEntry() {
+        return new JBranchEntry(method, insIndex, maxTarget, maxTarget, BranchConstants.TYPE_SWITCH, varName, "", "");
+    }
+
+    /**
+     * @return Returns the list of cases.
+     *         Individual elements are JCaseEntry.
+     */
+    public List getCases() {
+        return cases;
+    }
+
+    /**
+     * @return Returns the default byte of this switch block.
+     */
+    public int getDefaultByte() {
+        return defaultByte;
+    }
+
+    /**
+     * @param rhsType  Type of the switch variable of this block.
+     * @param rhsValue Value ( name ) of the switch variable for this
+     *                 block.
+     */
+    public void setTypeValue(String rhsType, String rhsValue) {
+        varName = rhsValue;
+        datatype = rhsType;
+        //dataType could be either int or char.
     }
 
     /**

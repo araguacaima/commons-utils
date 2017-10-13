@@ -93,6 +93,7 @@ public class Exceptions {
      * Sets the exceptions bundle name for all exceptions instances.
      *
      * @param bundleName The exceptions bundle name
+     * @throws IOException If bundle name could not be loaded
      */
     public static void setBundleName(String bundleName)
             throws IOException {

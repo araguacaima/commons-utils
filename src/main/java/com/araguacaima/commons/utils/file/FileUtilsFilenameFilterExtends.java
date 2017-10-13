@@ -17,7 +17,7 @@ import java.util.*;
 public class FileUtilsFilenameFilterExtends extends FileUtilsFilenameFilterImpl {
 
     private Class superClassCriteria;
-    private ClassLoader classLoader;
+    private final ClassLoader classLoader;
     private StringUtils stringUtils;
     public static final int DEFAULT_FILTER_TYPE = FileUtilsFilenameFilter.RESOURCE_DIR_OR_FILE_FILTER_EQUALS;
 
@@ -138,7 +138,7 @@ public class FileUtilsFilenameFilterExtends extends FileUtilsFilenameFilterImpl 
         return Collections.list(classLoader.getResources(superClassCriteriaTransformed));
     }
 
-    public Collection<URL> getResources() throws IOException {
+    public Collection<URL> getResources() {
         String superClassCriteriaTransformed = superClassCriteria.getName().contains(".")
                                                ? superClassCriteria.getName()
                 .substring(0, superClassCriteria.getName().lastIndexOf("."))

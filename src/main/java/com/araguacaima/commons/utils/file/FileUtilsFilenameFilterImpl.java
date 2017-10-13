@@ -23,7 +23,7 @@ public abstract class FileUtilsFilenameFilterImpl implements FileUtilsFilenameFi
 
     protected static Logger log = LoggerFactory.getLogger(FileUtilsFilenameFilter.class);
     protected ClassLoaderUtils classLoaderUtils;
-    protected FileUtils fileUtils = new FileUtils();
+    protected final FileUtils fileUtils = new FileUtils();
     protected int filterType;
     protected StringUtils stringUtils;
 
@@ -64,8 +64,7 @@ public abstract class FileUtilsFilenameFilterImpl implements FileUtilsFilenameFi
         return transformURLIntoStringPaths(getResources(classLoader));
     }
 
-    public Collection<URL> getResources()
-            throws IOException {
+    public Collection<URL> getResources() {
         return new ArrayList<>();
     }
 

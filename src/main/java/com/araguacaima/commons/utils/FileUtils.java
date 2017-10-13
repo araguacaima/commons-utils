@@ -22,10 +22,9 @@ package com.araguacaima.commons.utils;
 import com.araguacaima.commons.utils.file.FileUtilsFilenameFilter;
 import com.araguacaima.commons.utils.file.FileUtilsFilenameFilterImpl;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -56,6 +55,8 @@ import java.util.zip.ZipOutputStream;
 @Component
 public class FileUtils extends org.apache.commons.io.FileUtils {
 
+    public static final int DEFAULT_FILTER_TYPE;
+    public static final int DEFAULT_SEARCH_TYPE;
     public static final String EXTENSION_GSG = "gsg"; // Test
     public static final String EXTENSION_TXT = "txt";
     public static final String EXTENSION_XML = "xml";
@@ -85,9 +86,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             return !(new File(dir.getPath() + File.separator + name)).isHidden();
         }
     };
-    public static int DEFAULT_FILTER_TYPE;
     public static int DEFAULT_RECURSION_LEVEL;
-    public static int DEFAULT_SEARCH_TYPE;
 
     static {
         DEFAULT_FILTER_TYPE = FILTER_TYPE_ALL;
@@ -107,10 +106,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     private StringUtils stringUtils;
 
     @Autowired
-    public FileUtils(DateUtils dateUtils,
-                     JarUtils jarUtils,
-                     NumberUtils numberUtils,
-                     StringUtils stringUtils) {
+    public FileUtils(DateUtils dateUtils, JarUtils jarUtils, NumberUtils numberUtils, StringUtils stringUtils) {
         this.dateUtils = dateUtils;
         this.jarUtils = jarUtils;
         this.numberUtils = numberUtils;
@@ -128,50 +124,54 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     /**
-     * @param sourcefile
-     * @param orderedFields
-     * @param fieldSeparator
-     * @param classToBind
-     * @throws Exception
+     * Bind the information stored in a file to a collection of objets that represents it. Each line in the file
+     * corresponds with an object
+     *
+     * @param sourcefile     File name for searching about objects to bind
+     * @param orderedFields  Fields of the object that will be associated to the file read
+     * @param fieldSeparator Separator for identifying each field
+     * @param classToBind    Class to bind objects
+     * @return A collection of objects resulting from binding source file with incoming class
+     * @throws Exception If it's not possible to read the file or if internal information could not be ssociated to
+     *                   the desired class
      */
 
     public static Collection<Object> bindRecordsFromFileToObject(String sourcefile,
-                                                                     Collection orderedFields,
-                                                                     char fieldSeparator,
-                                                                     Class classToBind)
+                                                                 Collection<String> orderedFields,
+                                                                 char fieldSeparator,
+                                                                 Class classToBind)
             throws Exception {
         return bindRecordsFromFileToObject(new File(sourcefile), orderedFields, fieldSeparator, classToBind);
     }
 
     /**
-     * @param orderedFields
-     * @param fieldSeparator
-     * @param classToBind
-     * @throws Exception
+     * @param file File for searching about objects to bind
+     * @param orderedFields  Fields of the object that will be associated to the file read
+     * @param fieldSeparator Separator for identifying each field
+     * @param classToBind    Class to bind objects
+     * @return A collection of objects resulting from binding source file with incoming class
+     * @throws Exception If it's not possible to read the file or if internal information could not be ssociated to
+     *                   the desired class
      */
 
     public static Collection<Object> bindRecordsFromFileToObject(File file,
-                                                                     Collection orderedFields,
-                                                                     char fieldSeparator,
-                                                                     Class classToBind)
+                                                                 Collection<String> orderedFields,
+                                                                 char fieldSeparator,
+                                                                 Class classToBind)
             throws Exception {
         RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
         String buffer;
-        Collection result = new ArrayList();
+        Collection<Object> result = new ArrayList<>();
         while ((buffer = randomAccessFile.readLine()) != null) {
-            final Iterator bufferSpplitted = Arrays.asList(buffer.split(Character.toString(fieldSeparator))).iterator();
+            final Iterator<String> bufferSplitted = Arrays.asList(buffer.split(Character.toString(fieldSeparator)))
+                    .iterator();
             final Object objectToBind = classToBind.newInstance();
-            CollectionUtils.forAllDo(orderedFields, new Closure() {
-                public void execute(Object o) {
-                    try {
-                        Object value = bufferSpplitted.next();
-                        String methodName = (String) o;
-                        BeanUtils.setProperty(objectToBind, methodName, value);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
+            IterableUtils.forEach(orderedFields, methodName -> {
+                try {
+                    String value = bufferSplitted.next();
+                    BeanUtils.setProperty(objectToBind, methodName, value);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    e.printStackTrace();
                 }
             });
             result.add(objectToBind);
@@ -191,11 +191,11 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return FILE_UTIL_FILENAME_FILTER_COMPARE_IGNORE_CASE;
     }
 
-    public static FileUtilsFilenameFilter getHiddenFilter() {
+    public static FileUtilsFilenameFilter<File> getHiddenFilter() {
         return hiddenFilter;
     }
 
-    public static FileUtilsFilenameFilter getNotHiddenFilter() {
+    public static FileUtilsFilenameFilter<File> getNotHiddenFilter() {
         return notHiddenFilter;
     }
 
@@ -215,31 +215,31 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         File file = new File(sourcefile);
         RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
         long fileLength = randomAccessFile.length();
-        String buffer = StringUtils.EMPTY;
+        StringBuilder buffer = new StringBuilder(StringUtils.EMPTY);
         if (startPosition < fileLength) {
             randomAccessFile.seek(startPosition);
             boolean recordStartingPointFound = false;
             long i = startPosition - 1;
 
             for (; i > 0 && !recordStartingPointFound; randomAccessFile.seek(i--)) {
-                Character character = new Character(randomAccessFile.readChar());
-                buffer = character + buffer;
-                if (buffer.startsWith(searchFor)) {
+                Character character = randomAccessFile.readChar();
+                buffer.insert(0, character);
+                if (buffer.toString().startsWith(searchFor)) {
                     recordStartingPointFound = true;
                 }
             }
             recordStartingPointFound = false;
             i = startPosition;
             for (; i < fileLength && !recordStartingPointFound; ) {
-                Character character = new Character(randomAccessFile.readChar());
-                buffer = character + buffer;
-                if (buffer.endsWith(searchFor)) {
+                Character character = randomAccessFile.readChar();
+                buffer.insert(0, character);
+                if (buffer.toString().endsWith(searchFor)) {
                     recordStartingPointFound = true;
                 }
                 randomAccessFile.seek(i++);
             }
         }
-        return buffer;
+        return buffer.toString();
     }
 
     /**
@@ -258,7 +258,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         File file = new File(sourcefile);
         BufferedReader bout = new BufferedReader(new FileReader(file));
         char character;
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         int i = 0;
         if (startPosition < file.length()) {
             while ((character = (char) bout.read()) != 0 && i < startPosition) {
@@ -279,8 +279,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public static boolean isCompressedFile(File file) {
-        return file.getPath().indexOf(".jar") != -1 || file.getPath().indexOf(".zip") != -1 || file.getPath().indexOf(
-                ".tar") != -1;
+        return file.getPath().contains(".jar") || file.getPath().contains(".zip") || file.getPath().contains(".tar");
     }
 
     /**
@@ -331,11 +330,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public void addFilters(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters) {
-        CollectionUtils.predicatedCollection(filters, new Predicate() {
-            public boolean evaluate(Object o) {
-                return o instanceof FileUtilsFilenameFilterImpl;
-            }
-        });
+        CollectionUtils.predicatedCollection(filters, (Predicate) o -> o instanceof FileUtilsFilenameFilterImpl);
         this.filters.addAll(filters);
     }
 
@@ -1123,9 +1118,9 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
         if (isFile && endsWithJar) {
             //log.debug("[fJAR] jar valido");
-            ArrayList clazzez = jarUtils.listClassesOnJar(jarName);
-            for (Object aClasses : clazzez) {
-                String nativeNotation = (String) aClasses;
+            ArrayList<String> clazzez = jarUtils.listClassesOnJar(jarName);
+            for (String aClasses : clazzez) {
+                String nativeNotation = aClasses;
                 if (nativeNotation.contains("$")) {
                     log.debug("*** Clase interna " + nativeNotation + " sera ignorada.");
                     // TODO: Estamos ignorando las clases internas. Se puede
@@ -1280,6 +1275,17 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return file;
     }
 
+    public void forceCreateNewFile(File file) {
+        try {
+            if (file.exists()) {
+                file.delete();
+            }
+            file.createNewFile();
+        } catch (IOException e) {
+            log.error("Exception [" + e.getClass() + "] - " + e.getMessage());
+        }
+    }
+
     public File getFileFromURL(String urlLocalFilePath,
                                String urlRemoteFilePath,
                                String urlServerDomainAndPort,
@@ -1328,17 +1334,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
         }
         return file;
-    }
-
-    public void forceCreateNewFile(File file) {
-        try {
-            if (file.exists()) {
-                file.delete();
-            }
-            file.createNewFile();
-        } catch (IOException e) {
-            log.error("Exception [" + e.getClass() + "] - " + e.getMessage());
-        }
     }
 
     public NotNullsLinkedHashSet<FileUtilsFilenameFilter> getFilters() {
@@ -1501,13 +1496,13 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public NotNullsLinkedHashSet<File> listFiles(File file, int filteringType) {
-        NotNullsLinkedHashSet files = new NotNullsLinkedHashSet();
+        NotNullsLinkedHashSet<File> files = new NotNullsLinkedHashSet<>();
         files.add(file);
         return listFiles(files, filters, filteringType, DEFAULT_RECURSION_LEVEL, DEFAULT_SEARCH_TYPE);
     }
 
     public NotNullsLinkedHashSet<File> listFiles(File file) {
-        NotNullsLinkedHashSet files = new NotNullsLinkedHashSet();
+        NotNullsLinkedHashSet<File> files = new NotNullsLinkedHashSet<>();
         files.add(file);
         return listFiles(files, filters, DEFAULT_FILTER_TYPE, DEFAULT_RECURSION_LEVEL, DEFAULT_SEARCH_TYPE);
     }
@@ -1519,7 +1514,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public NotNullsLinkedHashSet<File> listFiles(File file, int filteringType, int recursionLevel, int searchType) {
-        NotNullsLinkedHashSet files = new NotNullsLinkedHashSet();
+        NotNullsLinkedHashSet<File> files = new NotNullsLinkedHashSet<>();
         files.add(file);
         return listFiles(files, filters, filteringType, recursionLevel, searchType);
     }
@@ -1529,7 +1524,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                                                  int filteringType,
                                                  int recursionLevel,
                                                  int searchType) {
-        NotNullsLinkedHashSet files = new NotNullsLinkedHashSet();
+        NotNullsLinkedHashSet<File> files = new NotNullsLinkedHashSet<>();
         files.add(file);
         return listFiles(files, filters, filteringType, recursionLevel, searchType);
     }
@@ -1541,7 +1536,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * @param recurse       Recursion level
      * @param searchType    Searching type
      * @return Collection of files that has matched filters
-     * @noinspection ConstantConditions
      */
     public NotNullsLinkedHashSet<File> listFiles(final Collection<File> files,
                                                  final Collection<FileUtilsFilenameFilter> filters,
@@ -1555,46 +1549,38 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         final NotNullsLinkedHashSet<File> listedFiles = new NotNullsLinkedHashSet<>();
 
         for (File file1 : files) {
-            final NotNullsLinkedHashSet filteredFiles = new NotNullsLinkedHashSet<>();
+            final NotNullsLinkedHashSet<File> filteredFiles = new NotNullsLinkedHashSet<>();
             final File entry = file1;
             try {
                 JarFile module = new JarFile(entry);
-                filteredFiles.addAll(Collections.list(module.entries()));
+                final ArrayList<JarEntry> list = Collections.list(module.entries());
+                IterableUtils.forEach(list, o -> filteredFiles.add(new File(entry + File.separator + o.toString())));
             } catch (IOException ignored) {
                 try {
-                    filteredFiles.addAll(Arrays.asList(entry.listFiles()));
+                    final File[] listFiles = entry.listFiles();
+                    assert listFiles != null;
+                    filteredFiles.addAll(Arrays.asList(listFiles));
                 } catch (NullPointerException npe) {
                     filteredFiles.add(entry);
                 }
             }
 
-            CollectionUtils.filter(filteredFiles, new Predicate() {
-                public boolean evaluate(Object o) {
-                    String value = o.toString();
-                    return !value.endsWith(StringUtils.SLASH) && !value.endsWith("CVS") && !value.endsWith(".svn") &&
-                            !value.endsWith(
-                            "cvs") && !value.endsWith(".SVN");
-                }
+            CollectionUtils.filter(filteredFiles, o -> {
+                String value = o.toString();
+                return !value.endsWith(StringUtils.SLASH) && !value.endsWith("CVS") && !value.endsWith(".svn") &&
+                        !value.endsWith(
+                        "cvs") && !value.endsWith(".SVN");
             });
 
-            CollectionUtils.transform(filteredFiles, new Transformer() {
-                public Object transform(Object o) {
-                    if (o instanceof JarEntry) {
-                        return new File(entry + File.separator + o.toString());
-                    } else {
-                        return o;
-                    }
-                }
-            });
-
-            final NotNullsLinkedHashSet filteredFilesTemp = new NotNullsLinkedHashSet();
-            final NotNullsLinkedHashSet filesToRemove = new NotNullsLinkedHashSet();
-            for (Iterator filteredFilesIter = filteredFiles.iterator(); filteredFilesIter.hasNext(); ) {
-                File fileEntry = (File) filteredFilesIter.next();
+            final NotNullsLinkedHashSet<File> filteredFilesTemp = new NotNullsLinkedHashSet<>();
+            final NotNullsLinkedHashSet<File> filesToRemove = new NotNullsLinkedHashSet<>();
+            for (Object filteredFile : filteredFiles) {
+                File fileEntry = (File) filteredFile;
                 try {
                     new JarFile(fileEntry);
                     filesToRemove.add(fileEntry);
-                    filteredFilesTemp.addAll(listFiles(new NotNullsLinkedHashSet(Arrays.asList(new File[]{fileEntry})),
+                    filteredFilesTemp.addAll(listFiles(new NotNullsLinkedHashSet<>(Collections.singletonList
+                                    (fileEntry)),
                             filters,
                             filteringType,
                             recurse,
@@ -1605,8 +1591,8 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             filteredFiles.removeAll(filesToRemove);
             filteredFiles.addAll(filteredFilesTemp);
 
-            for (Iterator filteredFilesIter = filteredFiles.iterator(); filteredFilesIter.hasNext(); ) {
-                File fileEntry = (File) filteredFilesIter.next();
+            for (Object filteredFile : filteredFiles) {
+                File fileEntry = (File) filteredFile;
                 String directory;
                 String file;
                 File incomingFile;
@@ -1656,15 +1642,11 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
                 boolean applyFilter = filters != null;
 
-                Collection filteredEntries;
+                Collection<FileUtilsFilenameFilter> filteredEntries;
 
                 if (applyFilter) {
-                    filteredEntries = CollectionUtils.select(filters, new Predicate() {
-                        public boolean evaluate(Object o) {
-                            FileUtilsFilenameFilter filterImpl = (FileUtilsFilenameFilter) o;
-                            return filterImpl.accept(directoryFile, fileName);
-                        }
-                    });
+                    filteredEntries = CollectionUtils.select(filters,
+                            filterImpl -> filterImpl.accept(directoryFile, fileName));
 
                     switch (filteringType) {
                         case FILTER_TYPE_ALL:
@@ -1688,8 +1670,8 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
                     if (isCompressedFile(fileEntry)) {
                         if (Math.abs(recurse) < RECURSION_LIMIT && !incomingFile.getPath().equals(entryPath) &&
-                                fileEntry.getName().indexOf(
-                                ".") == -1) {
+                                !fileEntry.getName().contains(
+                                ".")) {
                             recurse--;
                             listedFiles.addAll(listFiles(incomingFile, filters, filteringType, recurse, searchType));
                             recurse++;
@@ -1711,12 +1693,11 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
             }
         }
-        //        log.debug("listedFiles: " + listedFiles);
         return listedFiles;
     }
 
     public NotNullsLinkedHashSet<File> listPaths(File file) {
-        NotNullsLinkedHashSet files = new NotNullsLinkedHashSet();
+        NotNullsLinkedHashSet<File> files = new NotNullsLinkedHashSet<>();
         files.add(file);
         return listFiles(files, filters, DEFAULT_FILTER_TYPE, DEFAULT_RECURSION_LEVEL, SEARCH_INCLUDE_ONLY_PATH);
     }

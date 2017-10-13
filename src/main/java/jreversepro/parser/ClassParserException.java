@@ -33,7 +33,7 @@ public class ClassParserException extends Exception {
     /**
      * Exception message.
      */
-    private String msg;
+    private final String msg;
 
     /**
      * Constructor.

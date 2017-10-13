@@ -25,21 +25,22 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
+@SuppressWarnings("Annotator")
 @Component
 public class JsonUtils {
 
+    private final Map<String, Class> classesFound = new HashMap<>();
+    private final SimpleModule module = new SimpleModule("serializers", Version.unknownVersion());
     private ClassLoaderUtils classLoaderUtils;
-    private Map<String, Class> classesFound = new HashMap<>();
     private MapUtils mapUtils;
     private ObjectMapper mapper;
-    private SimpleModule module = new SimpleModule("serializers", Version.unknownVersion());
     private Reflections reflections;
 
-    @Autowired
-    public JsonUtils(ClassLoaderUtils classLoaderUtils,
-                     MapUtils mapUtils,
-                     @Qualifier("reflections") Reflections reflections) {
+    public JsonUtils() {
+        init();
+    }
 
+    private void init() {
         mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         mapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.ANY);
@@ -54,7 +55,16 @@ public class JsonUtils {
         module.addDeserializer(DateTime.class, new DateTimeDeserializer());
         module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
         mapper.registerModule(module);
+    }
+
+    @Autowired
+    public JsonUtils(ClassLoaderUtils classLoaderUtils,
+                     MapUtils mapUtils,
+                     @Qualifier("reflections") Reflections reflections) {
+        init();
+        this.classLoaderUtils = classLoaderUtils;
         this.mapUtils = mapUtils;
+        this.reflections = reflections;
     }
 
     public void addDeserializer(Class clazz, JsonDeserializer deserializer) {
@@ -128,25 +138,19 @@ public class JsonUtils {
         try {
             subTypes = (Collection<String>) org.apache.commons.collections4.CollectionUtils.select(reflections
                             .getAllTypes(),
-                    new Predicate() {
-                        @Override
-                        public boolean evaluate(Object object) {
-                            String type = (String) object;
-                            return type.endsWith("." + capitalizedSubType);
-                        }
+                    (Predicate) object -> {
+                        String type12 = (String) object;
+                        return type12.endsWith("." + capitalizedSubType);
                     });
         } catch (ReflectionsException re) {
-            Set<String> classPathList = new TreeSet<String>();
+            Set<String> classPathList = new TreeSet<>();
             classPathList.addAll(fullArtifactsPath);
             classLoaderUtils.loadResourcesIntoClassLoader(classPathList);
             subTypes = (Collection<String>) org.apache.commons.collections4.CollectionUtils.select(reflections
                             .getAllTypes(),
-                    new Predicate() {
-                        @Override
-                        public boolean evaluate(Object object) {
-                            String type = (String) object;
-                            return type.endsWith("." + capitalizedSubType);
-                        }
+                    (Predicate) object -> {
+                        String type1 = (String) object;
+                        return type1.endsWith("." + capitalizedSubType);
                     });
         }
 
@@ -166,7 +170,7 @@ public class JsonUtils {
                                                                      ClassLoader classLoader)
             throws IllegalArgumentException, IllegalAccessException, InstantiationException {
 
-        JsonPathParser<T> parser = new JsonPathParser<T>(dtoExtClass, classLoader);
+        JsonPathParser<T> parser = new JsonPathParser<>(dtoExtClass, classLoader);
         Set<DataTypeInfo> result = new LinkedHashSet<>();
         try {
             if (StringUtils.isNotBlank(jsonPath)) {
@@ -214,16 +218,9 @@ public class JsonUtils {
                                             } catch (StringIndexOutOfBoundsException ignored) {
                                             }
                                             final String finalGeneric1 = finalGeneric;
-                                            generic = (Class) org.apache.commons.collections4.CollectionUtils.find(
-                                                    classes,
-                                                    new Predicate() {
-                                                        @Override
-                                                        public boolean evaluate(Object object) {
-                                                            return ((Class) object).getSimpleName().equals
-                                                                    (StringUtils.capitalize(
-                                                                    finalGeneric1));
-                                                        }
-                                                    });
+                                            generic = org.apache.commons.collections4.CollectionUtils.find(classes,
+                                                    (Predicate) object -> ((Class) object).getSimpleName().equals(
+                                                            StringUtils.capitalize(finalGeneric1)));
                                         }
                                         dataTypeInfo.setType(generic);
                                         dataTypeInfo.setCollection(true);
@@ -297,12 +294,10 @@ public class JsonUtils {
                     Class extClass = priorityClass.getClazz();
                     map = createNewBeanFromJsonPath(jsonPath, extClass, classLoader);
                     if (map != null && map.size() > 0) {
-                        Field field = (Field) mapUtils.findObject(map, new Predicate() {
-                            @Override
-                            public boolean evaluate(Object object) {
-                                return object.getClass().getName().equals(priorityClass.getName());
-                            }
-                        }, null, MapUtils.EVALUATE_JUST_KEY);
+                        Field field = (Field) mapUtils.findObject(map,
+                                (Predicate) object -> object.getClass().getName().equals(priorityClass.getName()),
+                                null,
+                                MapUtils.EVALUATE_JUST_KEY);
                         result.put(extClass, field);
                         break;
                     }
@@ -316,7 +311,7 @@ public class JsonUtils {
     public <T> Map<T, Field> createNewBeanFromJsonPath(String jsonPath, Class<T> dtoExtClass, ClassLoader classLoader)
             throws IllegalArgumentException, IllegalAccessException, InstantiationException {
 
-        JsonPathParser<T> parser = new JsonPathParser<T>(dtoExtClass, classLoader);
+        JsonPathParser<T> parser = new JsonPathParser<>(dtoExtClass, classLoader);
         try {
             if (StringUtils.isNotBlank(jsonPath)) {
                 return parser.parse(jsonPath);

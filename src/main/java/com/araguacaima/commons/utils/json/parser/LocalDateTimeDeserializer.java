@@ -21,8 +21,7 @@ public class LocalDateTimeDeserializer extends StdScalarDeserializer<LocalDateTi
     }
 
     @Override
-    public LocalDateTime deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException,
-            JsonProcessingException {
+    public LocalDateTime deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         String dateStr = null;
         String timeStr = null;
         String fieldName = null;
@@ -44,8 +43,7 @@ public class LocalDateTimeDeserializer extends StdScalarDeserializer<LocalDateTi
             }
         }
         if (dateStr != null && timeStr != null) {
-            LocalDateTime dateTime = LocalDateTime.parse(dateStr + "T" + timeStr, DATETIME_FORMAT);
-            return dateTime;
+            return LocalDateTime.parse(dateStr + "T" + timeStr, DATETIME_FORMAT);
         }
         return null;
     }

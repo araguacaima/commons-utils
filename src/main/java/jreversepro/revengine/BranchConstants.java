@@ -30,89 +30,73 @@ package jreversepro.revengine;
 public interface BranchConstants {
 
     /**
-     * Invalid Type.
-     */
-    int TYPE_INVALID = 0;
-
-    /**
-     * A goto branch.
-     */
-    int TYPE_GOTO = 1;
-
-    /**
      * A conditinal branch.
      */
     int TYPE_BRANCH = 2;
-
     /**
-     * Branch of Jump Sub Routine type.
+     * Branch signifiying case block
      */
-    int TYPE_JSR = 3;
-
-    /**
-     * Branch signifying return type.
-     */
-    int TYPE_RET = 4;
-
-    /**
-     * If branch.
-     */
-    int TYPE_IF = 10;
-
-    /**
-     * Else branch.
-     */
-    int TYPE_ELSE = 11;
-
-    /**
-     * Else..If branch.
-     */
-    int TYPE_ELSE_IF = 12;
-
-    /**
-     * while branch.
-     */
-    int TYPE_WHILE = 13;
-
-    /**
-     * Do..while branch
-     */
-    int TYPE_DO_WHILE = 14;
-
-    /**
-     * try branch.
-     */
-    int TYPE_TRY = 15;
-
-    /**
-     * try branch that contains one implicit catch any block.
-     * for synchronized and finally these kind of branches appear.
-     */
-    int TYPE_TRY_ANY = 16;
-
+    int TYPE_CASE = 21;
     /**
      * Branch signifying catch block
      */
     int TYPE_CATCH = 17;
-
     /**
      * Branch signifying catch block whose catch datatype /
      * handler type is 'ANY'.
      */
     int TYPE_CATCH_ANY = 18;
-
     /**
-     * Branch signifying 'synchronized' block.
+     * Do..while branch
      */
-    int TYPE_SYNC = 19;
-
+    int TYPE_DO_WHILE = 14;
+    /**
+     * Else branch.
+     */
+    int TYPE_ELSE = 11;
+    /**
+     * Else..If branch.
+     */
+    int TYPE_ELSE_IF = 12;
+    /**
+     * A goto branch.
+     */
+    int TYPE_GOTO = 1;
+    /**
+     * If branch.
+     */
+    int TYPE_IF = 10;
+    /**
+     * Invalid Type.
+     */
+    int TYPE_INVALID = 0;
+    /**
+     * Branch of Jump Sub Routine type.
+     */
+    int TYPE_JSR = 3;
+    /**
+     * Branch signifying return type.
+     */
+    int TYPE_RET = 4;
     /**
      * Branch signifiying switch block.
      */
     int TYPE_SWITCH = 20;
-
     /**
-     * Branch signifiying case block
+     * Branch signifying 'synchronized' block.
      */
-    int TYPE_CASE = 21;
+    int TYPE_SYNC = 19;
+    /**
+     * try branch.
+     */
+    int TYPE_TRY = 15;
+    /**
+     * try branch that contains one implicit catch any block.
+     * for synchronized and finally these kind of branches appear.
+     */
+    int TYPE_TRY_ANY = 16;
+    /**
+     * while branch.
+     */
+    int TYPE_WHILE = 13;
 }

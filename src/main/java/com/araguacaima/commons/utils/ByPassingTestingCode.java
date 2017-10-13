@@ -13,9 +13,9 @@ public class ByPassingTestingCode {
     private static final Logger log = LoggerFactory.getLogger(ByPassingTestingCode.class);
     public Map BYPASSING_TESTING_CODE_PARAMETERS_MAP;
     private String logFileSourceName;
-    private MapUtils mapUtils;
-    private NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate;
-    private PropertiesHandlerUtils propertiesHandlerUtils;
+    private final MapUtils mapUtils;
+    private final NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate;
+    private final PropertiesHandlerUtils propertiesHandlerUtils;
 
     public ByPassingTestingCode(PropertiesHandlerUtils propertiesHandlerUtils,
                                 MapUtils mapUtils,

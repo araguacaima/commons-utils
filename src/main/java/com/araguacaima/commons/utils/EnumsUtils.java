@@ -19,7 +19,6 @@
 
 package com.araguacaima.commons.utils;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.slf4j.Logger;
@@ -85,7 +84,7 @@ public class EnumsUtils<T> {
         T result = null;
         if (constants != null) {
             List<T> enumConstants = Arrays.asList(constants);
-            result = (T) IterableUtils.find(enumConstants, object -> object.toString().equals(name));
+            result = IterableUtils.find(enumConstants, object -> object.toString().equals(name));
         }
         if (result != null)
             return result;

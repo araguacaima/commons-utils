@@ -63,7 +63,7 @@ public class PropertiesHandlerStrategyURL extends PropertiesHandlerStrategy {
 
     @Override
     public Map<String, String> getOriginProperties() {
-        Map<String, String> originProperties = new HashMap<String, String>();
+        Map<String, String> originProperties = new HashMap<>();
         originProperties.put(PROPERTIES_URL_REMOTE_FILE_PATH, PROPERTIES_URL_REMOTE_FILE_PATH);
         originProperties.put(PROPERTIES_URL_LOCAL_FILE_PATH, PROPERTIES_URL_LOCAL_FILE_PATH);
         originProperties.put(PROPERTIES_URL_SERVER_DOMAIN_AND_PORT, PROPERTIES_URL_SERVER_DOMAIN_AND_PORT);
@@ -85,7 +85,6 @@ public class PropertiesHandlerStrategyURL extends PropertiesHandlerStrategy {
 
     /**
      * @return the file obtained from URL
-     * @noinspection ResultOfMethodCallIgnored
      */
 
     @Override

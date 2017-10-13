@@ -17,11 +17,12 @@ import java.util.regex.Pattern;
 /**
  * Bean introspection utility.
  */
+@SuppressWarnings("Annotator")
 public class Beanspector<T> {
 
-    private final Map<String, Method> getters = new HashMap<String, Method>();
-    private final Map<String, Method> setters = new HashMap<String, Method>();
-    private final Map<String, Field> fields = new HashMap<String, Field>();
+    private final Map<String, Method> getters = new HashMap<>();
+    private final Map<String, Method> setters = new HashMap<>();
+    private final Map<String, Field> fields = new HashMap<>();
     private final ClassLoader tclassloader;
     private Class<T> tclass;
     private T tobj;
@@ -74,7 +75,7 @@ public class Beanspector<T> {
                 }
             }
             // check type equality for getter-setter pairs
-            final Set<String> pairs = new HashSet<String>(getters.keySet());
+            final Set<String> pairs = new HashSet<>(getters.keySet());
             pairs.retainAll(setters.keySet());
             for (final String accessor : pairs) {
                 final Class<?> getterClass = getters.get(accessor).getReturnType();
@@ -131,16 +132,16 @@ public class Beanspector<T> {
             }
         } else {
             if (this.tobj == null) {
-                this.tobj = (T) getTclass().newInstance();
+                this.tobj = getTclass().newInstance();
             }
             return getTopLevelAccesorType(getterOrSetterName, getters, setters, fields);
         }
     }
 
     private Class<?> getAccessorType(final Class clazz, final String getterOrSetterName) throws Exception {
-        final Map<String, Method> getters = new HashMap<String, Method>();
-        final Map<String, Method> setters = new HashMap<String, Method>();
-        final Map<String, Field> fields = new HashMap<String, Field>();
+        final Map<String, Method> getters = new HashMap<>();
+        final Map<String, Method> setters = new HashMap<>();
+        final Map<String, Field> fields = new HashMap<>();
         fill(clazz, null, getters, setters, fields);
         final String[] tokens = getterOrSetterName.split("\\.");
         if (tokens.length > 1) {
@@ -159,7 +160,7 @@ public class Beanspector<T> {
 
     private Class<?> getTopLevelAccesorType(final String getterOrSetterName, final Map<String, Method> getters,
                                             final Map<String, Method> setters,
-                                            final Map<String, Field> fields) throws IntrospectionException {
+                                            final Map<String, Field> fields) {
 
         String[] splittedGetterOrSetterName = getterOrSetterName.split("<");
         String property = splittedGetterOrSetterName[0].replaceFirst("\\[.*?\\]", StringUtils.EMPTY);
@@ -169,12 +170,8 @@ public class Beanspector<T> {
             Class<?> clazz = getTopLevelAccesorType(property, getters, setters, fields);
             Reflections reflections = new Reflections(clazz.getPackage().getName(), tclassloader);
             Set<? extends Class<?>> classes = reflections.getSubTypesOf(clazz);
-            return (Class) CollectionUtils.find(classes, new Predicate() {
-                @Override
-                public boolean evaluate(Object object) {
-                    return ((Class) object).getSimpleName().equals(StringUtils.capitalize(generic));
-                }
-            });
+            return (Class) CollectionUtils.find(classes,
+                    (Predicate) object -> ((Class) object).getSimpleName().equals(StringUtils.capitalize(generic)));
         }
 
         Method m = getters.get(property);

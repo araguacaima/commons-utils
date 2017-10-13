@@ -15,8 +15,8 @@ import java.util.Map;
 public class NotNullsLinkedHashSet<T> extends LinkedHashSet<T> {
 
     private static final long serialVersionUID = 4462897959138488249L;
-    private boolean traverseFields;
-    private static Predicate NULL_PREDICATE = e -> {
+    private final boolean traverseFields;
+    private static final Predicate NULL_PREDICATE = e -> {
         try {
             final Map<String, Object> map = PropertyUtils.describe(e);
             for (final Map.Entry<String, Object> entry : map.entrySet()) {

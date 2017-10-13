@@ -24,7 +24,6 @@
 
 package jreversepro.reflect.method;
 
-import jreversepro.reflect.*;
 import jreversepro.revengine.JBranchEntry;
 
 /**
@@ -35,26 +34,25 @@ public class JCatchBlock extends JBlockObject {
     /**
      * Exception class name
      */
-    private String exceptionCls;
+    private final String exceptionCls;
 
     /**
      * Exception variable name
      */
-    private String exceptionVar;
-
-    /**
-     * Associated Branch Entry
-     */
-    private JBranchEntry branch;
+    private final String exceptionVar;
 
     /**
      * Creates a new instance of JCatchBlock
      *
+     * @param _jbe Branch
      * @param _cls The class name for the exception
      * @param _var The variable name for the exception instance
      */
     public JCatchBlock(JBranchEntry _jbe, String _cls, String _var) {
-        branch = _jbe;
+        /*
+      Associated Branch Entry
+     */
+        JBranchEntry branch = _jbe;
         exceptionCls = _cls;
         exceptionVar = _var;
     }

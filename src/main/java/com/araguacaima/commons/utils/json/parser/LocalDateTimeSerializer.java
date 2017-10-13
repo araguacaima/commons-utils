@@ -1,7 +1,6 @@
 package com.araguacaima.commons.utils.json.parser;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import org.joda.time.LocalDateTime;

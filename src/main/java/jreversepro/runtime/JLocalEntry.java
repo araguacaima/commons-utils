@@ -22,9 +22,9 @@
  **/
 package jreversepro.runtime;
 
-import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * LocalEntry is a entry in the SymbolTable.
@@ -34,27 +34,23 @@ import java.util.Iterator;
 public class JLocalEntry {
 
     /**
+     * set of opcode indexes when this variable was referred to.
+     */
+    final Set references;
+    /**
      * Opcode index when this was first stored / loaded into the
      * symbol table with a value. For arguments to method this value
      * is redundant.
      */
     final int storeIndex;
-
     /**
      * Index of the variable into the local symbol table.
      */
-    int varIndex;
-
+    final int varIndex;
     /**
      * datatype of this local variable entry
      */
     String datatype;
-
-    /**
-     * Name of the variable in this
-     */
-    String name;
-
     /**
      * Set if the variable is going to be declared.
      */
@@ -64,11 +60,10 @@ public class JLocalEntry {
      * opcode index when this variable was last referred to.
      */
     int lastReferredIndex;
-
     /**
-     * set of opcode indexes when this variable was referred to.
+     * Name of the variable in this
      */
-    Set references;
+    String name;
 
     /**
      * @param aVarIndex   Variable Index into the Symbol Table
@@ -89,67 +84,23 @@ public class JLocalEntry {
     }
 
     /**
-     * Setter method for name,
-     *
-     * @param name Name to be assigned.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return Returns the name of the variable.
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @return Returns the store index of this variable,
-     */
-    public int getStoreIndex() {
-        return storeIndex;
-    }
-
-    /**
-     * @return Returns Variable Index into the bytecode array
-     *         for this method.
-     */
-    public int getVarIndex() {
-        return varIndex;
-    }
-
-    /**
-     * Sets the last ReferredIndex of this line.
-     *
-     * @param index Last ReferredIndex of the variable.
-     */
-    public void setLastReferredIndex(int index) {
-        references.add(new Integer(index));
-        lastReferredIndex = (lastReferredIndex > index)
-                            ? lastReferredIndex
-                            : index;
-    }
-
-    /**
-     * @return Returns the last referred index of this variable.
-     */
-    public int getLastReferredIndex() {
-        return lastReferredIndex;
-    }
-
-    /**
-     * @return Returns if the variable is declared/not.
-     */
-    public boolean isDeclared() {
-        return declared;
-    }
-
-    /**
      * Declare this local variable.
      */
     public void declareVariable() {
         declared = true;
+    }
+
+    /**
+     * @param obj Object to be compared.
+     * @return if both object are equal. false, otherwise.
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof JLocalEntry) {
+            JLocalEntry jle = (JLocalEntry) obj;
+            return (this.datatype.equals(jle.datatype));
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -167,12 +118,74 @@ public class JLocalEntry {
     }
 
     /**
+     * @return Returns the last referred index of this variable.
+     */
+    public int getLastReferredIndex() {
+        return lastReferredIndex;
+    }
+
+    /**
+     * Sets the last ReferredIndex of this line.
+     *
+     * @param index Last ReferredIndex of the variable.
+     */
+    public void setLastReferredIndex(int index) {
+        references.add(index);
+        lastReferredIndex = (lastReferredIndex > index) ? lastReferredIndex : index;
+    }
+
+    /**
+     * @return Returns the name of the variable.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Setter method for name,
+     *
+     * @param name Name to be assigned.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return Returns the store index of this variable,
+     */
+    public int getStoreIndex() {
+        return storeIndex;
+    }
+
+    /**
+     * @return Returns Variable Index into the bytecode array
+     * for this method.
+     */
+    public int getVarIndex() {
+        return varIndex;
+    }
+
+    /**
+     * @return Hashcode of this method.
+     */
+    public int hashCode() {
+        return datatype.hashCode();
+    }
+
+    /**
+     * @return Returns if the variable is declared/not.
+     */
+    public boolean isDeclared() {
+        return declared;
+    }
+
+    /**
      * In case a variable is not declared, this reassigns the type
      * of the variable.
      *
      * @param datatype New datatype to be reassigned.
      * @return Returns true, if datatype is reassigned,
-     *         false if no change made to datatype and re-assignation ignored.
+     * false if no change made to datatype and re-assignation ignored.
      */
     public boolean reassignType(String datatype) {
         if (!this.datatype.equals(datatype) && !declared) {
@@ -184,47 +197,18 @@ public class JLocalEntry {
     }
 
     /**
-     * @param obj Object to be compared.
-     * @return if both object are equal. false, otherwise.
-     */
-    public boolean equals(Object obj) {
-        if (obj instanceof JLocalEntry) {
-            JLocalEntry jle = (JLocalEntry) obj;
-            return (this.datatype.equals(jle.datatype));
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * @return Hashcode of this method.
-     */
-    public int hashCode() {
-        return datatype.hashCode();
-    }
-
-    /**
      * @return Returns the string fields form, add all references.
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("{ "
-                  + declared
-                  + "  "
-                  + datatype
-                  + "  "
-                  + name
-                  + "  "
-                  + storeIndex
-                  + " LastRef  "
-                  + lastReferredIndex
-                  + " }\n");
+        StringBuilder sb = new StringBuilder();
+        sb.append("{ ").append(declared).append("  ").append(datatype).append("  ").append(name).append("  ").append(
+                storeIndex).append(" LastRef  ").append(lastReferredIndex).append(" }\n");
         Iterator i = references.iterator();
 
         if (i.hasNext()) {
             sb.append(" Ref [ ");
             while (i.hasNext()) {
-                sb.append(((Integer) i.next()).intValue() + " ");
+                sb.append((Integer) i.next()).append(" ");
             }
             sb.append("]");
         }

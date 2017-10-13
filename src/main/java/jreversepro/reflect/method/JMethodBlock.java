@@ -24,8 +24,6 @@
 
 package jreversepro.reflect.method;
 
-import jreversepro.reflect.*;
-
 /**
  * @author pazandak@objs.com -- Copyright 2002.
  */
@@ -35,13 +33,6 @@ public class JMethodBlock extends JBlockObject {
      * Creates a new instance of JMethodBlock
      */
     public JMethodBlock() {
-    }
-
-    /**
-     * Outputs the method code contained in this block (and sub-blocks) as a string
-     */
-    public String toString() {
-        return super.toString("    ");
     }
 
     /**
@@ -56,6 +47,13 @@ public class JMethodBlock extends JBlockObject {
      */
     protected String getExitCode() {
         return "}\n";
+    }
+
+    /**
+     * Outputs the method code contained in this block (and sub-blocks) as a string
+     */
+    public String toString() {
+        return super.toString("    ");
     }
 
 }

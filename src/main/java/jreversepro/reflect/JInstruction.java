@@ -1,30 +1,28 @@
 /**
- *  @(#)JInstruction.java
- *
- * JReversePro - Java Decompiler / Disassembler.
+ * @(#)JInstruction.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
- *
+ * <p>
  * This program is free software; you can redistribute it and/or modify
  * it , under the terms of the GNU General Public License as published
  * by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with this program.If not, write to
- *  The Free Software Foundation, Inc.,
- *  59 Temple Place - Suite 330,
- *  Boston, MA 02111-1307, USA.
+ * The Free Software Foundation, Inc.,
+ * 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
  **/
 package jreversepro.reflect;
 
-import jreversepro.common.JJvmSet;
-import jreversepro.common.JJvmOpcodes;
 import jreversepro.common.Helper;
+import jreversepro.common.JJvmOpcodes;
+import jreversepro.common.JJvmSet;
 import jreversepro.common.KeyWords;
 
 /**
@@ -38,52 +36,43 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
      * Invalid variable index.
      */
     public static final int INVALID_VAR_INDEX = -2;
-
+    /**
+     * Arguments to the  current opcode instruction.
+     */
+    public final byte[] args;
     /**
      * Index of this instruction onto the byte array of the
      * method to be decompiled. zero-based index.
      */
     public final int index;
-
-    /**
-     * opcode of the JVM instruction.
-     */
-    public final int opcode;
-
-    /**
-     * Arguments to the  current opcode instruction.
-     */
-    public final byte[] args;
-
     /**
      * opcode name of the instruction.
      */
     public final String insName;
-
     /**
      * Length of the instruction in bytes.
      */
     public final int length;
-
+    /**
+     * opcode of the JVM instruction.
+     */
+    public final int opcode;
     /**
      * If this is a wide instruction.
      */
     public final boolean wide;
-
-    /**
-     * Previous instruction in the method pool *
-     */
-    private JInstruction prev;
-
-    /**
-     * Next instruction in the method pool *
-     */
-    private JInstruction next;
-
     /**
      * Position of the method into the method pool *
      */
     public int position;
+    /**
+     * Next instruction in the method pool *
+     */
+    private JInstruction next;
+    /**
+     * Previous instruction in the method pool *
+     */
+    private JInstruction prev;
 
     /**
      * @param rhsIndex  Index of the instruction into the
@@ -103,9 +92,7 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
         args = rhsArgs;
 
         insName = JJvmSet.getIns(rhsOpcode);
-        length = (rhsArgs == null)
-                 ? 1
-                 : rhsArgs.length + 1;
+        length = (rhsArgs == null) ? 1 : rhsArgs.length + 1;
         wide = rhsWide;
     }
 
@@ -121,37 +108,98 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
     }
 
     /**
-     * @return Returns previous instruction *
-     */
-    public JInstruction prev() {
-        return prev;
-    }
-
-    /**
-     * @return Returns next instruction *
-     */
-    public JInstruction next() {
-        return next;
-    }
-
-    /**
      * @param obj Object to be compared.
      * @return true if index is there.
      *         false, otherwise.
      */
     public boolean equals(Object obj) {
-        if (obj instanceof JInstruction) {
-            return ((JInstruction) obj).index == this.index;
-        } else {
-            return false;
-        }
+        return obj instanceof JInstruction && ((JInstruction) obj).index == this.index;
+    }
+
+    public int getArgByte() {
+        return getArgByte(0);
     }
 
     /**
-     * @return Returns the length of the instruction. *
+     * @return unsigned byte.
      */
-    public int getLength() {
-        return length;
+    public int getArgUnsignedByte() {
+        return getArgUnsignedByte(0);
+    }
+
+    public int getArgUnsignedInt() {
+        return getArgUnsignedInt(0);
+    }
+
+    public int getArgUnsignedInt(int pos) {
+        int byte1 = Helper.signedToUnsigned(args[pos]);
+        int byte2 = Helper.signedToUnsigned(args[pos + 1]);
+        int byte3 = Helper.signedToUnsigned(args[pos + 2]);
+        int byte4 = Helper.signedToUnsigned(args[pos + 3]);
+        return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+    }
+
+    public int getArgUnsignedShort() {
+        return getArgUnsignedShort(0);
+    }
+
+    public int getArgWide() {
+        return getArgWide(0);
+    }
+
+    public int getArgWide(int pos) {
+        if (wide) {
+            if (pos != 0) {
+                return getArgShort(pos * 2);
+            } else {
+                return getArgShort(0);
+            }
+        } else {
+            return getArgByte(pos);
+        }
+    }
+
+    public int getArgByte(int pos) {
+        return args[pos];
+    }
+
+    /**
+     * In case this instruction is a branch instruction
+     * on some condition then the operator corresponding to the
+     * operator is returned.
+     * For eg, for OPCODE_IFEQ ,  = is returned.
+     *
+     * @return Returns conditional operator for the condition
+     *         mentioned in the opcode.
+     *         Empty string, if the opcode is not of branch-on-condition type.
+     */
+    public String getConditionalOperator() {
+        switch (opcode) {
+            case OPCODE_IFEQ:
+            case OPCODE_IF_ICMPEQ:
+            case OPCODE_IF_ACMPEQ:
+            case OPCODE_IFNULL:
+                return OPR_EQ;
+            case OPCODE_IFNE:
+            case OPCODE_IF_ICMPNE:
+            case OPCODE_IF_ACMPNE:
+            case OPCODE_IFNONNULL:
+                return OPR_NE;
+            case OPCODE_IFLT:
+            case OPCODE_IF_ICMPLT:
+                return OPR_LT;
+            case OPCODE_IFGE:
+            case OPCODE_IF_ICMPGE:
+                return OPR_GE;
+            case OPCODE_IFGT:
+            case OPCODE_IF_ICMPGT:
+                return OPR_GT;
+            case OPCODE_IFLE:
+            case OPCODE_IF_ICMPLE:
+                return OPR_LE;
+            default:
+                return "";
+        }
     }
 
     /**
@@ -159,6 +207,13 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
      */
     public String getInsName() {
         return insName;
+    }
+
+    /**
+     * @return Returns the length of the instruction. *
+     */
+    public int getLength() {
+        return length;
     }
 
     /**
@@ -174,50 +229,129 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
     }
 
     /**
-     * In case this instruction is a load instruction,
-     * ( that is loading a datatype onto the JVM stack ) ,
-     * then that variable index is returned. If no
-     * variable is referenced then INVALID_VAR_INDEX
-     * is returned.
+     * In case this instruction is a jump/branch instruction, this
+     * instruction returns the offset mentioned in the two
+     * bytes in the argument array. Works whether wide target or not.
      *
-     * @return index of the variable referred to.
-     *         INVALID_VAR_INDEX, otherwise.
+     * @return Returns the offset.
      */
-    public int referredVariable() {
-        switch (opcode) {
-            case OPCODE_ILOAD_0:
-            case OPCODE_FLOAD_0:
-            case OPCODE_LLOAD_0:
-            case OPCODE_DLOAD_0:
-            case OPCODE_ALOAD_0:
-                return 0;
-            case OPCODE_ILOAD_1:
-            case OPCODE_FLOAD_1:
-            case OPCODE_LLOAD_1:
-            case OPCODE_DLOAD_1:
-            case OPCODE_ALOAD_1:
-                return 1;
-            case OPCODE_ILOAD_2:
-            case OPCODE_FLOAD_2:
-            case OPCODE_LLOAD_2:
-            case OPCODE_DLOAD_2:
-            case OPCODE_ALOAD_2:
-                return 2;
-            case OPCODE_ILOAD_3:
-            case OPCODE_FLOAD_3:
-            case OPCODE_LLOAD_3:
-            case OPCODE_DLOAD_3:
-            case OPCODE_ALOAD_3:
-                return 3;
-            case OPCODE_ILOAD:
-            case OPCODE_FLOAD:
-            case OPCODE_LLOAD:
-            case OPCODE_DLOAD:
-            case OPCODE_ALOAD:
-                return getArgUnsignedWide();
-            default:
-                return INVALID_VAR_INDEX;
+    public int getTargetPc2() {
+        if (!wide) {
+            return getTargetPc();
+        } else {
+            return getTargetPcW();
         }
+    }
+
+    /**
+     * In case this instruction is a jump/branch instruction, this
+     * instruction returns the offset + index mentioned in the two
+     * bytes in the argument array.
+     *
+     * @return Returns the offset + index.
+     */
+    public int getTargetPc() {
+        return (getOffset() + index) & 0xffff;
+    }
+
+    /**
+     * In case this instruction is a jump/branch instruction, this
+     * instruction returns the offset mentioned in the two
+     * bytes in the argument array. Also important to note is the
+     * fact this is a 'wide' variant of the conventional jump
+     * instructions.
+     *
+     * @return Returns the offset.
+     */
+    public int getTargetPcW() {
+        return (getArgInt() + index) & 0xffff;
+    }
+
+    /**
+     * In case this instruction is a jump/branch instruction, this
+     * instruction returns the offset mentioned in the two
+     * bytes in the argument array.
+     *
+     * @return Returns the offset.
+     */
+    public int getOffset() {
+        return getArgShort() & 0xffff;
+    }
+
+    public int getArgInt() {
+        return getArgInt(0);
+    }
+
+    public int getArgShort() {
+        return getArgShort(0);
+    }
+
+    public int getArgInt(int pos) {
+        int byte1 = args[pos];
+        int byte2 = Helper.signedToUnsigned(args[pos + 1]);
+        int byte3 = Helper.signedToUnsigned(args[pos + 2]);
+        int byte4 = Helper.signedToUnsigned(args[pos + 3]);
+        return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
+    }
+
+    public int getArgShort(int pos) {
+        int byte1 = args[pos];
+        int byte2 = Helper.signedToUnsigned(args[pos + 1]);
+        return (byte1 << 8) | byte2;
+    }
+
+    /**
+     * Returns if this instruction is a switch instruction or not.
+     *
+     * @return true, if switch instruction. false. otherwise
+     */
+    public boolean isASwitchIns() {
+        return opcode == OPCODE_TABLESWITCH || opcode == OPCODE_LOOKUPSWITCH;
+    }
+
+    /**
+     * Returns if this instruction is an if instruction or not.
+     *
+     * @return true, if this is an 'if' instruction.
+     *         false, otherwise.
+     */
+    public boolean isAnIfIns() {
+        return (opcode >= OPCODE_IFEQ && opcode <= OPCODE_IF_ACMPNE) || opcode == OPCODE_IFNULL || opcode ==
+                OPCODE_IFNONNULL;
+    }
+
+    public final boolean isEndOfCatch() {
+        return opcode == OPCODE_ARETURN || opcode == OPCODE_IRETURN || opcode == OPCODE_LRETURN || opcode ==
+                OPCODE_FRETURN || opcode == OPCODE_DRETURN || opcode == OPCODE_RETURN || opcode == OPCODE_POP ||
+                //               opcode == OPCODE_GOTO ||
+                //               opcode == OPCODE_GOTOW ||
+                opcode == OPCODE_ATHROW || opcode == OPCODE_JSR || opcode == OPCODE_JSRW;
+    }
+
+    /**
+     * To check if this instruction denotes the corresponding
+     * end-of-line in the source code.
+     *
+     * @return Returns true, if this denoted end-of-line.
+     *         false, otherwise.
+     */
+    public boolean isEndOfLine() {
+        return (opcode >= OPCODE_ISTORE && opcode <= OPCODE_SASTORE) || opcode == OPCODE_IINC || opcode ==
+                OPCODE_RETURN || opcode == OPCODE_IRETURN || opcode == OPCODE_LRETURN || opcode == OPCODE_FRETURN ||
+                opcode == OPCODE_DRETURN || opcode == OPCODE_ARETURN || opcode == OPCODE_ATHROW || opcode ==
+                OPCODE_PUTSTATIC || opcode == OPCODE_PUTFIELD || opcode == OPCODE_POP || opcode == OPCODE_POP2;
+    }
+
+    /**
+     * Denotes if this instruction invokes some other
+     * method or interface or a constructor.
+     *
+     * @return Returns true, if this invokes any one mentioned above,
+     *         false, otherwise
+     */
+    public boolean isInvokeIns() {
+        return opcode == OPCODE_INVOKESPECIAL || opcode == OPCODE_INVOKEVIRTUAL || opcode == OPCODE_INVOKESTATIC ||
+                opcode == OPCODE_INVOKEINTERFACE;
     }
 
     /**
@@ -268,167 +402,64 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
     }
 
     /**
-     * In case this instruction is a jump/branch instruction, this
-     * instruction returns the offset mentioned in the two
-     * bytes in the argument array. Works whether wide target or not.
-     *
-     * @return Returns the offset.
+     * @return Returns next instruction *
      */
-    public int getTargetPc2() {
-        if (!wide) {
-            return getTargetPc();
-        } else {
-            return getTargetPcW();
-        }
+    public JInstruction next() {
+        return next;
     }
 
     /**
-     * In case this instruction is a jump/branch instruction, this
-     * instruction returns the offset + index mentioned in the two
-     * bytes in the argument array.
-     *
-     * @return Returns the offset + index.
+     * @return Returns previous instruction *
      */
-    public int getTargetPc() {
-        return (getOffset() + index) & 0xffff;
+    public JInstruction prev() {
+        return prev;
     }
 
     /**
-     * In case this instruction is a jump/branch instruction, this
-     * instruction returns the offset mentioned in the two
-     * bytes in the argument array.
+     * In case this instruction is a load instruction,
+     * ( that is loading a datatype onto the JVM stack ) ,
+     * then that variable index is returned. If no
+     * variable is referenced then INVALID_VAR_INDEX
+     * is returned.
      *
-     * @return Returns the offset.
+     * @return index of the variable referred to.
+     *         INVALID_VAR_INDEX, otherwise.
      */
-    public int getOffset() {
-        return getArgShort() & 0xffff;
-    }
-
-    /**
-     * In case this instruction is a jump/branch instruction, this
-     * instruction returns the offset mentioned in the two
-     * bytes in the argument array. Also important to note is the
-     * fact this is a 'wide' variant of the conventional jump
-     * instructions.
-     *
-     * @return Returns the offset.
-     */
-    public int getTargetPcW() {
-        int result = (getArgInt() + index) & 0xffff;
-        return result;
-    }
-
-    /**
-     * In case this instruction is a branch instruction
-     * on some condition then the operator corresponding to the
-     * operator is returned.
-     * For eg, for OPCODE_IFEQ ,  = is returned.
-     *
-     * @return Returns conditional operator for the condition
-     *         mentioned in the opcode.
-     *         Empty string, if the opcode is not of branch-on-condition type.
-     */
-    public String getConditionalOperator() {
+    public int referredVariable() {
         switch (opcode) {
-            case OPCODE_IFEQ:
-            case OPCODE_IF_ICMPEQ:
-            case OPCODE_IF_ACMPEQ:
-            case OPCODE_IFNULL:
-                return OPR_EQ;
-            case OPCODE_IFNE:
-            case OPCODE_IF_ICMPNE:
-            case OPCODE_IF_ACMPNE:
-            case OPCODE_IFNONNULL:
-                return OPR_NE;
-            case OPCODE_IFLT:
-            case OPCODE_IF_ICMPLT:
-                return OPR_LT;
-            case OPCODE_IFGE:
-            case OPCODE_IF_ICMPGE:
-                return OPR_GE;
-            case OPCODE_IFGT:
-            case OPCODE_IF_ICMPGT:
-                return OPR_GT;
-            case OPCODE_IFLE:
-            case OPCODE_IF_ICMPLE:
-                return OPR_LE;
+            case OPCODE_ILOAD_0:
+            case OPCODE_FLOAD_0:
+            case OPCODE_LLOAD_0:
+            case OPCODE_DLOAD_0:
+            case OPCODE_ALOAD_0:
+                return 0;
+            case OPCODE_ILOAD_1:
+            case OPCODE_FLOAD_1:
+            case OPCODE_LLOAD_1:
+            case OPCODE_DLOAD_1:
+            case OPCODE_ALOAD_1:
+                return 1;
+            case OPCODE_ILOAD_2:
+            case OPCODE_FLOAD_2:
+            case OPCODE_LLOAD_2:
+            case OPCODE_DLOAD_2:
+            case OPCODE_ALOAD_2:
+                return 2;
+            case OPCODE_ILOAD_3:
+            case OPCODE_FLOAD_3:
+            case OPCODE_LLOAD_3:
+            case OPCODE_DLOAD_3:
+            case OPCODE_ALOAD_3:
+                return 3;
+            case OPCODE_ILOAD:
+            case OPCODE_FLOAD:
+            case OPCODE_LLOAD:
+            case OPCODE_DLOAD:
+            case OPCODE_ALOAD:
+                return getArgUnsignedWide();
             default:
-                return "";
+                return INVALID_VAR_INDEX;
         }
-    }
-
-    /**
-     * Returns if this instruction is a switch instruction or not.
-     *
-     * @return true, if switch instruction. false. otherwise
-     */
-    public boolean isASwitchIns() {
-        return opcode == OPCODE_TABLESWITCH || opcode == OPCODE_LOOKUPSWITCH;
-    }
-
-    /**
-     * Returns if this instruction is an if instruction or not.
-     *
-     * @return true, if this is an 'if' instruction.
-     *         false, otherwise.
-     */
-    public boolean isAnIfIns() {
-        return (opcode >= OPCODE_IFEQ && opcode <= OPCODE_IF_ACMPNE)
-               || opcode == OPCODE_IFNULL
-               || opcode == OPCODE_IFNONNULL;
-    }
-
-    /**
-     * To check if this instruction denotes the corresponding
-     * end-of-line in the source code.
-     *
-     * @return Returns true, if this denoted end-of-line.
-     *         false, otherwise.
-     */
-    public boolean isEndOfLine() {
-        return (opcode >= OPCODE_ISTORE && opcode <= OPCODE_SASTORE)
-               || opcode == OPCODE_IINC
-               || opcode == OPCODE_RETURN
-               || opcode == OPCODE_IRETURN
-               || opcode == OPCODE_LRETURN
-               || opcode == OPCODE_FRETURN
-               || opcode == OPCODE_DRETURN
-               || opcode == OPCODE_ARETURN
-               || opcode == OPCODE_ATHROW
-               || opcode == OPCODE_PUTSTATIC
-               || opcode == OPCODE_PUTFIELD
-               || opcode == OPCODE_POP
-               || opcode == OPCODE_POP2;
-    }
-
-    /**
-     * Denotes if this instruction invokes some other
-     * method or interface or a constructor.
-     *
-     * @return Returns true, if this invokes any one mentioned above,
-     *         false, otherwise
-     */
-    public boolean isInvokeIns() {
-        return opcode == OPCODE_INVOKESPECIAL
-               || opcode == OPCODE_INVOKEVIRTUAL
-               || opcode == OPCODE_INVOKESTATIC
-               || opcode == OPCODE_INVOKEINTERFACE;
-    }
-
-    public final boolean isEndOfCatch() {
-        return opcode == OPCODE_ARETURN
-               || opcode == OPCODE_IRETURN
-               || opcode == OPCODE_LRETURN
-               || opcode == OPCODE_FRETURN
-               || opcode == OPCODE_DRETURN
-               || opcode == OPCODE_RETURN
-               || opcode == OPCODE_POP
-               ||
-//               opcode == OPCODE_GOTO ||
-//               opcode == OPCODE_GOTOW ||
-               opcode == OPCODE_ATHROW
-               || opcode == OPCODE_JSR
-               || opcode == OPCODE_JSRW;
     }
 
     /**
@@ -455,11 +486,10 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
         }
     }
 
-    /**
-     * @return unsigned byte.
-     */
-    public int getArgUnsignedByte() {
-        return getArgUnsignedByte(0);
+    public final int getArgUnsignedShort(int pos) {
+        int byte1 = Helper.signedToUnsigned(args[pos]);
+        int byte2 = Helper.signedToUnsigned(args[pos + 1]);
+        return (byte1 << 8) | byte2;
     }
 
     /**
@@ -471,92 +501,20 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
         return Helper.signedToUnsigned(args[pos]);
     }
 
-    public int getArgUnsignedShort() {
-        return getArgUnsignedShort(0);
-    }
-
-    public final int getArgUnsignedShort(int pos) {
-        int byte1 = Helper.signedToUnsigned(args[pos]);
-        int byte2 = Helper.signedToUnsigned(args[pos + 1]);
-        int result = (byte1 << 8) | byte2;
-        return result;
-    }
-
-    public int getArgUnsignedInt() {
-        return getArgUnsignedInt(0);
-    }
-
-    public int getArgUnsignedInt(int pos) {
-        int byte1 = Helper.signedToUnsigned(args[pos]);
-        int byte2 = Helper.signedToUnsigned(args[pos + 1]);
-        int byte3 = Helper.signedToUnsigned(args[pos + 2]);
-        int byte4 = Helper.signedToUnsigned(args[pos + 3]);
-        int result = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
-        return result;
-    }
-
-    public int getArgWide() {
-        return getArgWide(0);
-    }
-
-    public int getArgWide(int pos) {
-        if (wide) {
-            if (pos != 0) {
-                return getArgShort(pos * 2);
-            } else {
-                return getArgShort(0);
-            }
-        } else {
-            return getArgByte(pos);
-        }
-    }
-
-    public int getArgByte() {
-        return getArgByte(0);
-    }
-
-    public int getArgByte(int pos) {
-        return args[pos];
-    }
-
-    public int getArgShort() {
-        return getArgShort(0);
-    }
-
-    public int getArgShort(int pos) {
-        int byte1 = args[pos];
-        int byte2 = Helper.signedToUnsigned(args[pos + 1]);
-        int result = (byte1 << 8) | byte2;
-        return result;
-    }
-
-    public int getArgInt() {
-        return getArgInt(0);
-    }
-
-    public int getArgInt(int pos) {
-        int byte1 = args[pos];
-        int byte2 = Helper.signedToUnsigned(args[pos + 1]);
-        int byte3 = Helper.signedToUnsigned(args[pos + 2]);
-        int byte4 = Helper.signedToUnsigned(args[pos + 3]);
-        int result = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
-        return result;
-    }
-
     /**
      * Stringified form of JInstruction
      *
      * @return String representation of JInstruction.
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer("");
-        sb.append(" " + index + ": " + insName);
+        StringBuilder sb = new StringBuilder("");
+        sb.append(" ").append(index).append(": ").append(insName);
         if (args == null) {
             return sb.toString();
         }
         sb.append("[");
         for (int i = 0; i < args.length; i++) {
-            sb.append(" " + getArgUnsignedByte(i));
+            sb.append(" ").append(getArgUnsignedByte(i));
         }
         sb.append("]");
         return sb.toString();

@@ -22,24 +22,16 @@
  **/
 package jreversepro.parser;
 
-import jreversepro.reflect.JConstantPool;
+import jreversepro.common.AppConstants;
 import jreversepro.reflect.JClassInfo;
+import jreversepro.reflect.JConstantPool;
 import jreversepro.reflect.JField;
 import jreversepro.reflect.JMethod;
 
-//import jreversepro.common.Helper;
-import jreversepro.common.AppConstants;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-
+import java.io.*;
 import java.net.URL;
+
+//import jreversepro.common.Helper;
 
 /**
  * @author Karthik Kumar
@@ -47,48 +39,30 @@ import java.net.URL;
 public class JClassParser implements AppConstants {
 
     /**
-     * DataInputStream containing the bytes of the class.
-     */
-    private DataInputStream mDis;
-
-    /**
      * ConstantPool Information of the class being reverse engineered.
      */
     private JConstantPool mCpInfo;
-
+    /**
+     * DataInputStream containing the bytes of the class.
+     */
+    private DataInputStream mDis;
     /**
      * Information about fields, methods of the class being reverse engineered.
      */
     private JClassInfo mInfoClass;
 
     /**
-     * Parses the given byte array and creates the ClassInfo and
-     * ConstantPool objects.
-     *
-     * @param bytes byte array to be parsed.
-     * @throws ClassParserException Thrown if class file not in desired format.
-     * @throws IOException          Thrown if error in stream of bytes containing the
-     *                              class file.
+     * @return Returns the data Information of the class.
      */
-    public void parse(byte[] bytes) throws IOException, ClassParserException {
-
-        parse(new ByteArrayInputStream(bytes), bytes.length, "");
-        //Path not given.
+    public final JClassInfo getClassInfo() {
+        return mInfoClass;
     }
 
     /**
-     * Parses a class file at the other side of a URL and
-     * creates the ClassInfo and ConstantPool objects.
-     *
-     * @param url a url pointing to a class file to be parsed.
-     * @throws ClassParserException Thrown if class file not in desired format.
-     * @throws IOException          Thrown if error in stream of bytes containing the
-     *                              class file.
+     * @return Returns the ConstantPool Information of the class.
      */
-    public void parse(URL url) throws IOException, ClassParserException {
-
-        parse(url.openConnection().getInputStream(), 1024, // make up a guess
-              url.getPath());
+    public final JConstantPool getCpInfo() {
+        return mCpInfo;
     }
 
     /**
@@ -99,7 +73,8 @@ public class JClassParser implements AppConstants {
      * @throws IOException          Thrown if error in stream of bytes containing the
      *                              class file.
      */
-    public void parse(File aFile) throws IOException, ClassParserException {
+    public void parse(File aFile)
+            throws IOException, ClassParserException {
 
         if (aFile.getName().endsWith(".class")) {
             try {
@@ -115,6 +90,22 @@ public class JClassParser implements AppConstants {
     }
 
     /**
+     * Parses the given byte array and creates the ClassInfo and
+     * ConstantPool objects.
+     *
+     * @param bytes byte array to be parsed.
+     * @throws ClassParserException Thrown if class file not in desired format.
+     * @throws IOException          Thrown if error in stream of bytes containing the
+     *                              class file.
+     */
+    public void parse(byte[] bytes)
+            throws IOException, ClassParserException {
+
+        parse(new ByteArrayInputStream(bytes), bytes.length, "");
+        //Path not given.
+    }
+
+    /**
      * Parses the given file and creates the ClassInfo and ConstantPool objects.
      *
      * @param is          InputStream from which bytes are taken.
@@ -124,7 +115,8 @@ public class JClassParser implements AppConstants {
      * @throws IOException          Thrown if error in stream of bytes containing the
      *                              class file.
      */
-    public void parse(InputStream is, int length, String pathToClass) throws IOException, ClassParserException {
+    public void parse(InputStream is, int length, String pathToClass)
+            throws IOException, ClassParserException {
 
         if (is instanceof ByteArrayInputStream) {
             parse((ByteArrayInputStream) is, pathToClass);
@@ -155,7 +147,8 @@ public class JClassParser implements AppConstants {
      * @throws IOException          Thrown if error in stream of bytes containing the
      *                              class file.
      */
-    public void parse(ByteArrayInputStream is, String pathToClass) throws IOException, ClassParserException {
+    public void parse(ByteArrayInputStream is, String pathToClass)
+            throws IOException, ClassParserException {
         mCpInfo = null;
         mInfoClass = null;
         mInfoClass = new JClassInfo();
@@ -177,27 +170,14 @@ public class JClassParser implements AppConstants {
     }
 
     /**
-     * @return Returns the ConstantPool Information of the class.
-     */
-    public final JConstantPool getCpInfo() {
-        return mCpInfo;
-    }
-
-    /**
-     * @return Returns the data Information of the class.
-     */
-    public final JClassInfo getClassInfo() {
-        return mInfoClass;
-    }
-
-    /**
      * Reads the Magic number.
      *
      * @throws ClassParserException Thrown if class file not in desired format.
      * @throws IOException          Thrown if error in stream of bytes containing the
      *                              class file.
      */
-    private void readMagic() throws ClassParserException, IOException {
+    private void readMagic()
+            throws ClassParserException, IOException {
         int magic = mDis.readInt();
         if (magic != MAGIC) {
             throw new ClassParserException("Invalid Magic Number");
@@ -211,7 +191,8 @@ public class JClassParser implements AppConstants {
      * @throws IOException          Thrown if error in stream of bytes containing the
      *                              class file.
      */
-    private void readVersion() throws ClassParserException, IOException {
+    private void readVersion()
+            throws ClassParserException, IOException {
         short minor = mDis.readShort();
         short major = mDis.readShort();
 
@@ -223,6 +204,163 @@ public class JClassParser implements AppConstants {
     }
 
     /**
+     * Reads the ConstantPool.
+     *
+     * @throws ClassParserException Thrown if class file not in desired format.
+     * @throws IOException          Thrown if error in stream of bytes containing the
+     *                              class file.
+     */
+    private void readConstantPool()
+            throws IOException, ClassParserException {
+        int numCpEntry = mDis.readShort();
+        mCpInfo = new JConstantPool(numCpEntry);
+        readCpEntries(numCpEntry);
+    }
+
+    /**
+     * Reads the access specifier of the class.
+     *
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     */
+    private void readAccess()
+            throws IOException {
+        mInfoClass.setAccess(mDis.readShort());
+    }
+
+    /**
+     * Reads the fully qualified name of the current class.
+     * <br> For Example , a class by name <code>JClassParser</code>
+     * in the package <code>Heart</code> would be read as:
+     * <code>Heart/JClassParser</code>.
+     *
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     */
+    private void fillThisClass()
+            throws IOException {
+        mInfoClass.setThisClass(mCpInfo.getClassName(mDis.readShort()));
+    }
+
+    /**
+     * Reads the fully qualified name of the super class.
+     * <br> For Example , a class by name <code>JClassParser</code>
+     * in the package <code>Heart</code> would be read as:
+     * <code>Heart/JClassParser</code>.
+     *
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     */
+    private void fillSuperClass()
+            throws IOException {
+        mInfoClass.setSuperClass(mCpInfo.getClassName(mDis.readShort()));
+    }
+
+    /**
+     * Reads the fully qualified name of the interfaces
+     * <code>implemented</code> by the Current class.
+     *
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     * @see JClassInfo#addInterface(String)
+     */
+    private void readInterfaces()
+            throws IOException {
+        short count = mDis.readShort();
+        for (int i = 0; i < count; i++) {
+            String interfaceadd = mCpInfo.getClassName(mDis.readShort());
+
+            mInfoClass.addInterface(interfaceadd);
+        }
+    }
+
+    /**
+     * Reads the fields <code>defined</code> in the Current class.
+     *
+     * @throws IOException          Thrown if error in stream of bytes containing the
+     *                              class file.
+     * @throws ClassParserException Thrown in case of an invalid
+     *                              constantpool reference.
+     * @see JField
+     */
+    private void readFields()
+            throws IOException, ClassParserException {
+        short count = mDis.readShort();
+
+        for (int i = 0; i < count; i++) {
+            JField curField = new JField();
+
+            short accessFlags = mDis.readShort();
+            short nameIndex = mDis.readShort();
+            short descIndex = mDis.readShort();
+
+            String name = mCpInfo.getUtf8String(nameIndex);
+            String descriptor = mCpInfo.getUtf8String(descIndex);
+
+            curField.setName(name);
+            curField.setDatatype(descriptor);
+            curField.setQualifier(accessFlags);
+
+            short attrCount = mDis.readShort();
+            for (int j = 0; j < attrCount; j++) {
+                readFieldAttributes(curField);
+            }
+            mInfoClass.addField(curField);
+        }
+    }
+
+    /**
+     * Reads the methods <code>defined</code> in the Current class.
+     *
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     * @see JMethod
+     */
+    private void readMethods()
+            throws IOException {
+        short count = mDis.readShort();
+
+        for (int i = 0; i < count; i++) {
+            JMethod curMethod = new JMethod(mInfoClass);
+
+            short accessFlags = mDis.readShort();
+            short nameIndex = mDis.readShort();
+            short descIndex = mDis.readShort();
+
+            String name = mCpInfo.getUtf8String(nameIndex);
+            String descriptor = mCpInfo.getUtf8String(descIndex);
+
+            curMethod.setName(name);
+            curMethod.setSignature(descriptor);
+            curMethod.setQualifier(accessFlags);
+
+            short attrCount = mDis.readShort();
+            for (int j = 0; j < attrCount; j++) {
+                readMethodAttributes(curMethod);
+            }
+            mInfoClass.addMethod(curMethod);
+        }
+    }
+
+    /**
+     * Reads the ATTRIBUTES of the fields and methods.
+     * <br> The possible attributes here are
+     * Code, LineNumberTable, Exception .
+     *
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     * @see JAttribute
+     */
+    private void readAttributes()
+            throws IOException {
+        short attrCount = mDis.readShort();
+
+        for (int i = 0; i < attrCount; i++) {
+            readClassAttributes();
+        }
+    }
+
+    /**
      * @param major Major version of the JVM.
      * @param minor Minor version of the JVM.
      *              test whether or not the supplied major/minor class
@@ -230,7 +368,7 @@ public class JClassParser implements AppConstants {
      *              have a runtime switch to accept all versions since
      *              even though the versions may be incremented, there are
      *              typically no changes to the form of the class files)
-     *              <p/>
+     *              <br>
      *              45.3+ is java 1.1
      *              46.0  is java 1.2
      *              47.0  is java 1.3
@@ -242,24 +380,8 @@ public class JClassParser implements AppConstants {
             return (minor >= 3);
         }
 
-        if (major >= 46 && major <= 48) {
-            return true;
-        }
+        return major >= 46 && major <= 48;
 
-        return false;
-    }
-
-    /**
-     * Reads the ConstantPool.
-     *
-     * @throws ClassParserException Thrown if class file not in desired format.
-     * @throws IOException          Thrown if error in stream of bytes containing the
-     *                              class file.
-     */
-    private void readConstantPool() throws IOException, ClassParserException {
-        int numCpEntry = mDis.readShort();
-        mCpInfo = new JConstantPool(numCpEntry);
-        readCpEntries(numCpEntry);
     }
 
     /**
@@ -270,7 +392,8 @@ public class JClassParser implements AppConstants {
      * @throws IOException          Thrown if error in stream of bytes containing the
      *                              class file.
      */
-    private void readCpEntries(int aNumEntry) throws IOException, ClassParserException {
+    private void readCpEntries(int aNumEntry)
+            throws IOException, ClassParserException {
         mCpInfo.addNullEntry();
 
         for (int i = 1; i < aNumEntry; i++) {
@@ -321,264 +444,9 @@ public class JClassParser implements AppConstants {
     }
 
     /**
-     * Reads an UTF8 entry.
-     *
-     * @param aIndex Index of a ConstantPool Entry.
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     */
-    private void readTagUtf8(int aIndex) throws IOException {
-        String utfString = mDis.readUTF();
-        mCpInfo.addUtf8Entry(utfString);
-    }
-
-    /**
-     * Reads an integer entry.
-     *
-     * @param aIndex Index of a ConstantPool Entry.
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     */
-    private void readTagInteger(int aIndex) throws IOException {
-        int intValue = mDis.readInt();
-
-        mCpInfo.addIntegerEntry(String.valueOf(intValue));
-    }
-
-    /**
-     * Reads an float entry.
-     *
-     * @param aIndex Index of a ConstantPool Entry.
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     */
-    private void readTagFloat(int aIndex) throws IOException {
-        float floatValue = mDis.readFloat();
-
-        mCpInfo.addFloatEntry(String.valueOf(floatValue) + "f");
-    }
-
-    /**
-     * Reads a long entry.
-     *
-     * @param aIndex Index of a ConstantPool Entry.
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     */
-    private void readTagLong(int aIndex) throws IOException {
-
-        long longValue = mDis.readLong();
-
-        mCpInfo.addLongEntry(String.valueOf(longValue) + "L");
-        mCpInfo.addNullEntry();
-    }
-
-    /**
-     * Reads a double entry.
-     *
-     * @param aIndex Index of a ConstantPool Entry.
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     */
-    private void readTagDouble(int aIndex) throws IOException {
-
-        double doubleValue = mDis.readDouble();
-
-        mCpInfo.addDoubleEntry(String.valueOf(doubleValue));
-        mCpInfo.addNullEntry();
-    }
-
-    /**
-     * Reads an TAG_CLASS entry.
-     * <p>u1 tag; <br>
-     * u2 name_index;<br>
-     * </p>
-     * Reads a class entry.
-     *
-     * @param aIndex Index of a ConstantPool Entry.
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     */
-    private void readTagClass(int aIndex) throws IOException {
-        int classIndex = mDis.readShort();
-
-        mCpInfo.addClassEntry(classIndex);
-    }
-
-    /**
-     * Reads a string entry.
-     *
-     * @param aIndex Index of a ConstantPool Entry.
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     */
-    private void readTagString(int aIndex) throws IOException {
-        int stringIndex = mDis.readShort();
-        mCpInfo.addStringEntry(stringIndex);
-    }
-
-    /**
-     * Reads a TAG_FIELDREF entry.
-     * <p>
-     * u1 tag; <br>
-     * u2 class_index; <br>
-     * u2 name_and_type_index; <br></p>
-     *
-     * @param aIndex Index of a ConstantPool Entry.
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     */
-    private void readTagFieldRef(int aIndex) throws IOException {
-        int classIndex = mDis.readShort();
-        int nameType = mDis.readShort();
-
-        mCpInfo.addFieldRefEntry(classIndex, nameType);
-    }
-
-    /**
-     * Reads a TAG_METHODREF entry.
-     * <p>
-     * u1 tag; <br>
-     * u2 class_index; <br>
-     * u2 name_and_type_index; <br></p>
-     *
-     * @param aIndex Index of a ConstantPool Entry.
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     */
-    private void readTagMethodRef(int aIndex) throws IOException {
-        int classIndex = mDis.readShort();
-        int nameType = mDis.readShort();
-
-        mCpInfo.addMethodRefEntry(classIndex, nameType);
-    }
-
-    /**
-     * Reads a TAG_INTERFACEREF entry.
-     * <p>
-     * u1 tag;<br>
-     * u2 class_index;<br>
-     * u2 name_and_type_index;<br></p>
-     *
-     * @param aIndex Index of a ConstantPool Entry.
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     */
-    private void readTagInterfaceRef(int aIndex) throws IOException {
-        int classIndex = mDis.readShort();
-        int nameType = mDis.readShort();
-
-        mCpInfo.addInterfaceRefEntry(classIndex, nameType);
-    }
-
-    /**
-     * Reads a TAG_NAMETYPE entry.
-     * <p>u1 tag; <br>
-     * u2 name_index;<br>
-     * u2 descriptor_index;<br></p>
-     *
-     * @param aIndex Index of a ConstantPool Entry.
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     */
-    private void readTagNameType(int aIndex) throws IOException {
-        int nameIndex = mDis.readShort();
-        int descIndex = mDis.readShort();
-
-        mCpInfo.addNameTypeEntry(nameIndex, descIndex);
-    }
-
-    /**
-     * Reads the access specifier of the class.
-     *
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     */
-    private void readAccess() throws IOException {
-        mInfoClass.setAccess(mDis.readShort());
-    }
-
-    /**
-     * Reads the fully qualified name of the current class.
-     * <p> For Example , a class by name <code>JClassParser</code>
-     * in the package <code>Heart</code> would be read as:
-     * <code>Heart/JClassParser</code></p>.
-     *
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     */
-    private void fillThisClass() throws IOException {
-        mInfoClass.setThisClass(mCpInfo.getClassName(mDis.readShort()));
-    }
-
-    /**
-     * Reads the fully qualified name of the super class.
-     * <p> For Example , a class by name <code>JClassParser</code>
-     * in the package <code>Heart</code> would be read as:
-     * <code>Heart/JClassParser</code></p>.
-     *
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     */
-    private void fillSuperClass() throws IOException {
-        mInfoClass.setSuperClass(mCpInfo.getClassName(mDis.readShort()));
-    }
-
-    /**
-     * Reads the fully qualified name of the interfaces
-     * <code>implemented</code> by the Current class.
-     *
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     * @see JClassInfo#addInterface(String)
-     */
-    private void readInterfaces() throws IOException {
-        short count = mDis.readShort();
-        for (int i = 0; i < count; i++) {
-            String interfaceadd = mCpInfo.getClassName(mDis.readShort());
-
-            mInfoClass.addInterface(interfaceadd);
-        }
-    }
-
-    /**
-     * Reads the fields <code>defined</code> in the Current class.
-     *
-     * @throws IOException          Thrown if error in stream of bytes containing the
-     *                              class file.
-     * @throws ClassParserException Thrown in case of an invalid
-     *                              constantpool reference.
-     * @see JField
-     */
-    private void readFields() throws IOException, ClassParserException {
-        short count = mDis.readShort();
-
-        for (int i = 0; i < count; i++) {
-            JField curField = new JField();
-
-            short accessFlags = mDis.readShort();
-            short nameIndex = mDis.readShort();
-            short descIndex = mDis.readShort();
-
-            String name = mCpInfo.getUtf8String(nameIndex);
-            String descriptor = mCpInfo.getUtf8String(descIndex);
-
-            curField.setName(name);
-            curField.setDatatype(descriptor);
-            curField.setQualifier(accessFlags);
-
-            short attrCount = mDis.readShort();
-            for (int j = 0; j < attrCount; j++) {
-                readFieldAttributes(curField);
-            }
-            mInfoClass.addField(curField);
-        }
-    }
-
-    /**
      * Reads the ATTRIBUTES of the field defined in the Current class.
-     * <p> The possible attributes here are
-     * ConstantValue , Deprecated , Synthetic. </p>.
+     * <br> The possible attributes here are
+     * ConstantValue , Deprecated , Synthetic. .
      *
      * @param aRhsField Reads attributes into this field.
      * @throws IOException          Thrown if error in stream of bytes containing the
@@ -587,7 +455,8 @@ public class JClassParser implements AppConstants {
      *                              constantpool reference.
      * @see JAttribute
      */
-    private void readFieldAttributes(JField aRhsField) throws IOException, ClassParserException {
+    private void readFieldAttributes(JField aRhsField)
+            throws IOException, ClassParserException {
 
         String attrName = mCpInfo.getUtf8String(mDis.readShort());
 
@@ -601,48 +470,17 @@ public class JClassParser implements AppConstants {
     }
 
     /**
-     * Reads the methods <code>defined</code> in the Current class.
-     *
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     * @see JMethod
-     */
-    private void readMethods() throws IOException {
-        short count = mDis.readShort();
-
-        for (int i = 0; i < count; i++) {
-            JMethod curMethod = new JMethod(mInfoClass);
-
-            short accessFlags = mDis.readShort();
-            short nameIndex = mDis.readShort();
-            short descIndex = mDis.readShort();
-
-            String name = mCpInfo.getUtf8String(nameIndex);
-            String descriptor = mCpInfo.getUtf8String(descIndex);
-
-            curMethod.setName(name);
-            curMethod.setSignature(descriptor);
-            curMethod.setQualifier(accessFlags);
-
-            short attrCount = mDis.readShort();
-            for (int j = 0; j < attrCount; j++) {
-                readMethodAttributes(curMethod);
-            }
-            mInfoClass.addMethod(curMethod);
-        }
-    }
-
-    /**
      * Reads the ATTRIBUTES of the method defined in the Current class.
-     * <p> The possible attributes here are
-     * Deprecated , Synthetic , <b> Code </b> and Exceptions </p>.
+     * <br> The possible attributes here are
+     * Deprecated , Synthetic , <b> Code </b> and Exceptions .
      *
      * @param aRhsMethod Reads attributes into this method.
      * @throws IOException Thrown if error in stream of bytes containing the
      *                     class file.
      * @see JAttribute
      */
-    private void readMethodAttributes(JMethod aRhsMethod) throws IOException {
+    private void readMethodAttributes(JMethod aRhsMethod)
+            throws IOException {
         String attrName = mCpInfo.getUtf8String(mDis.readShort());
 
         if (attrName.compareTo(JAttribute.CODE) == 0) {
@@ -658,32 +496,16 @@ public class JClassParser implements AppConstants {
     }
 
     /**
-     * Reads the ATTRIBUTES of the fields and methods.
-     * <p> The possible attributes here are
-     * Code, LineNumberTable, Exception </p>.
-     *
-     * @throws IOException Thrown if error in stream of bytes containing the
-     *                     class file.
-     * @see JAttribute
-     */
-    private void readAttributes() throws IOException {
-        short attrCount = mDis.readShort();
-
-        for (int i = 0; i < attrCount; i++) {
-            readClassAttributes();
-        }
-    }
-
-    /**
      * Reads the ATTRIBUTES of the whole class itself.
-     * <p> The possible attributes here are
-     * Deprecated , SourceFile</p>.
+     * <br> The possible attributes here are
+     * Deprecated , SourceFile.
      *
      * @throws IOException Thrown if error in stream of bytes containing the
      *                     class file.
      * @see JAttribute
      */
-    private void readClassAttributes() throws IOException {
+    private void readClassAttributes()
+            throws IOException {
         int attrIndex = mDis.readShort();
         String attrName = mCpInfo.getUtf8String(attrIndex);
 
@@ -692,7 +514,202 @@ public class JClassParser implements AppConstants {
         } else if (attrName.compareTo(JAttribute.DEPRECATED) == 0) {
             JAttribute.manipDeprecated(mDis);
         } else {
-//          log.info("Attribute "  + AttrName );
+            //          log.info("Attribute "  + AttrName );
         }
+    }
+
+    /**
+     * Reads an UTF8 entry.
+     *
+     * @param aIndex Index of a ConstantPool Entry.
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     */
+    private void readTagUtf8(int aIndex)
+            throws IOException {
+        String utfString = mDis.readUTF();
+        mCpInfo.addUtf8Entry(utfString);
+    }
+
+    /**
+     * Reads an integer entry.
+     *
+     * @param aIndex Index of a ConstantPool Entry.
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     */
+    private void readTagInteger(int aIndex)
+            throws IOException {
+        int intValue = mDis.readInt();
+
+        mCpInfo.addIntegerEntry(String.valueOf(intValue));
+    }
+
+    /**
+     * Reads an float entry.
+     *
+     * @param aIndex Index of a ConstantPool Entry.
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     */
+    private void readTagFloat(int aIndex)
+            throws IOException {
+        float floatValue = mDis.readFloat();
+
+        mCpInfo.addFloatEntry(String.valueOf(floatValue) + "f");
+    }
+
+    /**
+     * Reads a long entry.
+     *
+     * @param aIndex Index of a ConstantPool Entry.
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     */
+    private void readTagLong(int aIndex)
+            throws IOException {
+
+        long longValue = mDis.readLong();
+
+        mCpInfo.addLongEntry(String.valueOf(longValue) + "L");
+        mCpInfo.addNullEntry();
+    }
+
+    /**
+     * Reads a double entry.
+     *
+     * @param aIndex Index of a ConstantPool Entry.
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     */
+    private void readTagDouble(int aIndex)
+            throws IOException {
+
+        double doubleValue = mDis.readDouble();
+
+        mCpInfo.addDoubleEntry(String.valueOf(doubleValue));
+        mCpInfo.addNullEntry();
+    }
+
+    /**
+     * Reads an TAG_CLASS entry.
+     * <br>u1 tag; <br>
+     * u2 name_index;<br>
+     * <p>
+     * Reads a class entry.
+     *
+     * @param aIndex Index of a ConstantPool Entry.
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     */
+    private void readTagClass(int aIndex)
+            throws IOException {
+        int classIndex = mDis.readShort();
+
+        mCpInfo.addClassEntry(classIndex);
+    }
+
+    /**
+     * Reads a string entry.
+     *
+     * @param aIndex Index of a ConstantPool Entry.
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     */
+    private void readTagString(int aIndex)
+            throws IOException {
+        int stringIndex = mDis.readShort();
+        mCpInfo.addStringEntry(stringIndex);
+    }
+
+    /**
+     * Reads a TAG_FIELDREF entry.
+     * <br>
+     * u1 tag; <br>
+     * u2 class_index; <br>
+     * u2 name_and_type_index; <br>
+     *
+     * @param aIndex Index of a ConstantPool Entry.
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     */
+    private void readTagFieldRef(int aIndex)
+            throws IOException {
+        int classIndex = mDis.readShort();
+        int nameType = mDis.readShort();
+
+        mCpInfo.addFieldRefEntry(classIndex, nameType);
+    }
+
+    /**
+     * Reads a TAG_METHODREF entry.
+     * <br>
+     * u1 tag; <br>
+     * u2 class_index; <br>
+     * u2 name_and_type_index; <br>
+     *
+     * @param aIndex Index of a ConstantPool Entry.
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     */
+    private void readTagMethodRef(int aIndex)
+            throws IOException {
+        int classIndex = mDis.readShort();
+        int nameType = mDis.readShort();
+
+        mCpInfo.addMethodRefEntry(classIndex, nameType);
+    }
+
+    /**
+     * Reads a TAG_INTERFACEREF entry.
+     * <br>
+     * u1 tag;<br>
+     * u2 class_index;<br>
+     * u2 name_and_type_index;<br>
+     *
+     * @param aIndex Index of a ConstantPool Entry.
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     */
+    private void readTagInterfaceRef(int aIndex)
+            throws IOException {
+        int classIndex = mDis.readShort();
+        int nameType = mDis.readShort();
+
+        mCpInfo.addInterfaceRefEntry(classIndex, nameType);
+    }
+
+    /**
+     * Reads a TAG_NAMETYPE entry.
+     * <br>u1 tag; <br>
+     * u2 name_index;<br>
+     * u2 descriptor_index;<br>
+     *
+     * @param aIndex Index of a ConstantPool Entry.
+     * @throws IOException Thrown if error in stream of bytes containing the
+     *                     class file.
+     */
+    private void readTagNameType(int aIndex)
+            throws IOException {
+        int nameIndex = mDis.readShort();
+        int descIndex = mDis.readShort();
+
+        mCpInfo.addNameTypeEntry(nameIndex, descIndex);
+    }
+
+    /**
+     * Parses a class file at the other side of a URL and
+     * creates the ClassInfo and ConstantPool objects.
+     *
+     * @param url a url pointing to a class file to be parsed.
+     * @throws ClassParserException Thrown if class file not in desired format.
+     * @throws IOException          Thrown if error in stream of bytes containing the
+     *                              class file.
+     */
+    public void parse(URL url)
+            throws IOException, ClassParserException {
+
+        parse(url.openConnection().getInputStream(), 1024, // make up a guess
+                url.getPath());
     }
 }

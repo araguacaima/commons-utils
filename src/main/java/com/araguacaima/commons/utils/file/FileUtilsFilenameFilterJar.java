@@ -197,8 +197,7 @@ public class FileUtilsFilenameFilterJar extends FileUtilsFilenameFilterImpl {
         return result;
     }
 
-    public Collection<URL> getResources()
-            throws IOException {
+    public Collection<URL> getResources() {
 
         final Collection<URL> result = new ArrayList<>();
 

@@ -18,7 +18,7 @@ public class CollectionUtils {
     private static final PropertyUtilsBean propertyUtilsBean = new PropertyUtilsBean();
 
     public static NotNullsLinkedHashSet<Object> wrapList(Collection<Object> collection) {
-        return new NotNullsLinkedHashSet<Object>(false, null, collection);
+        return new NotNullsLinkedHashSet<>(false, null, collection);
     }
 
     public static List buildEmptyList(List collection) {
@@ -26,7 +26,7 @@ public class CollectionUtils {
     }
 
     public static List buildInitializedList(Object value) {
-        final ArrayList<Object> arrayList = new ArrayList<Object>();
+        final ArrayList<Object> arrayList = new ArrayList<>();
         arrayList.add(value);
         return arrayList;
     }
@@ -37,38 +37,26 @@ public class CollectionUtils {
     }
 
     public static boolean startsWithAny(final Collection<String> collection, final String value) {
-        return org.apache.commons.collections4.CollectionUtils.find(collection, new Predicate() {
-            @Override
-            public boolean evaluate(Object object) {
-                return value.startsWith((String) object);
-            }
-        }) != null;
+        return org.apache.commons.collections4.CollectionUtils.find(collection,
+                (Predicate) object -> value.startsWith((String) object)) != null;
     }
 
     public static boolean isPrefixedByAny(final Collection<String> collection, final String value) {
-        return org.apache.commons.collections4.CollectionUtils.find(collection, new Predicate() {
-            @Override
-            public boolean evaluate(Object object) {
-                return value.startsWith((String) object);
-            }
-        }) != null;
+        return org.apache.commons.collections4.CollectionUtils.find(collection,
+                (Predicate) object -> value.startsWith((String) object)) != null;
     }
 
     public static List transformByGetterOfField(Collection collection, final String fieldName) {
         final List collection1 = new ArrayList(collection);
-        org.apache.commons.collections4.CollectionUtils.transform(collection1, new Transformer() {
-            @Override
-            public Object transform(Object input) {
-                if (input != null) {
-                    try {
-                        return propertyUtilsBean.getSimpleProperty(input, fieldName);
-                    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ignored) {
-                        ignored.printStackTrace();
-                    }
+        org.apache.commons.collections4.CollectionUtils.transform(collection1, (Transformer) input -> {
+            if (input != null) {
+                try {
+                    return propertyUtilsBean.getSimpleProperty(input, fieldName);
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ignored) {
+                    ignored.printStackTrace();
                 }
-                return null;
             }
-
+            return null;
         });
         return collection1;
     }
@@ -102,11 +90,7 @@ public class CollectionUtils {
             Object value_ = null;
             try {
                 value_ = propertyUtilsBean.getSimpleProperty(o, field);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
+            } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                 e.printStackTrace();
             }
             if (value_ != null && value_.equals(value)) {
@@ -118,12 +102,9 @@ public class CollectionUtils {
     }
 
     public static NotNullsLinkedHashSet<String> wrapListToString(Collection<Object> collection) {
-        Collection<String> collection_ = org.apache.commons.collections4.CollectionUtils.transformingCollection(collection, new Transformer() {
-            @Override
-            public Object transform(Object input) {
-                return input == null ? StringUtils.EMPTY : input.toString();
-            }
-        });
-        return new NotNullsLinkedHashSet<String>(false, null, collection_);
+        Collection<String> collection_ = org.apache.commons.collections4.CollectionUtils.transformingCollection(collection,
+
+                (Transformer) input -> input == null ? StringUtils.EMPTY : input.toString());
+        return new NotNullsLinkedHashSet<>(false, null, collection_);
     }
 }

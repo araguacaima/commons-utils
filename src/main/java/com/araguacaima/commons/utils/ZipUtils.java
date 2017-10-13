@@ -34,7 +34,7 @@ import java.util.zip.ZipInputStream;
 @Component
 public class ZipUtils {
 
-    private ZipUtils() {
+    public ZipUtils() {
     }
 
     public boolean isValid(final File file) {

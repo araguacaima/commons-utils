@@ -38,25 +38,23 @@ public class JCaseEntry implements KeyWords {
      * Ordinarily they have just one entry. But sometimes they
      * may have more than one entry.
      * For eg.
-     * <p/>
+     * <br>
      * case 12:
      * case 13:
      * case 18:
-     * <<do Something>>
-     * <p/>
+     * &lt;&lt;do Something&gt;&gt;
+     * <br>
      * In this case there will be three entries in the list.
      */
-    List values;
-
-    /**
-     * Target of this group of case entry.
-     */
-    int target;
-
+    final List values;
     /**
      * End Pc of this case target and the beginnin of the next target.
      */
     int endTarget;
+    /**
+     * Target of this group of case entry.
+     */
+    int target;
 
     /**
      * Empty constructor.
@@ -86,11 +84,19 @@ public class JCaseEntry implements KeyWords {
     }
 
     /**
-     * @return Returns the List of case targets.
-     *         Members are 'String'.
+     * @return Returns End of the target for this case block.
      */
-    public List getValues() {
-        return values;
+    public int getEndTarget() {
+        return endTarget;
+    }
+
+    /**
+     * Setter method for endTarget.
+     *
+     * @param endTarget End Target for this case group block.
+     */
+    public void setEndTarget(int endTarget) {
+        this.endTarget = endTarget;
     }
 
     /**
@@ -110,19 +116,18 @@ public class JCaseEntry implements KeyWords {
     }
 
     /**
-     * @return Returns End of the target for this case block.
+     * @return Returns the List of case targets.
+     * Members are 'String'.
      */
-    public int getEndTarget() {
-        return endTarget;
+    public List getValues() {
+        return values;
     }
 
     /**
-     * Setter method for endTarget.
-     *
-     * @param endTarget End Target for this case group block.
+     * @return Returns a Stringified form of the class.
      */
-    public void setEndTarget(int endTarget) {
-        this.endTarget = endTarget;
+    public String toString() {
+        return disAssemble() + " upto " + endTarget;
     }
 
     /**
@@ -132,20 +137,11 @@ public class JCaseEntry implements KeyWords {
      * @return Disassembled piece of code.
      */
     public String disAssemble() {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < values.size(); i++) {
-            sb.append(values.get(i) + ":\n\t\t\t");
+        StringBuilder sb = new StringBuilder();
+        for (Object value : values) {
+            sb.append(value + ":\n\t\t\t");
         }
-        sb.append("\n\t\t\t\t" + GOTO + " " + target);
-        return sb.toString();
-    }
-
-    /**
-     * @return Returns a Stringified form of the class.
-     */
-    public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append(disAssemble() + " upto " + endTarget);
+        sb.append("\n\t\t\t\t" + GOTO + " ").append(target);
         return sb.toString();
     }
 }

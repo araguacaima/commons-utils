@@ -61,10 +61,6 @@ public class MapUtils {
         return map;
     }
 
-    public static StringKeyHashMapUtil getStringKeyHashMapUtil() {
-        return stringKeyHashMapUtil;
-    }
-
     public static boolean isEmpty(Map map) {
         return org.apache.commons.collections4.MapUtils.isEmpty(map);
     }

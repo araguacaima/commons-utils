@@ -10,9 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.*;
 
-/**
- * @noinspection UnusedDeclaration
- */
 public class ParameterFinder {
 
     public final static int REQUEST_ATTRIBUTE_PARAMETER_SESSION_SEARCH_ORDER = 1;
@@ -137,21 +134,19 @@ public class ParameterFinder {
         final HttpServletRequest req = this.getRequest();
         Collection parameters = new ArrayList();
         CollectionUtils.addAll(parameters, req.getParameterNames());
-        IterableUtils.forEach(parameters, new Closure() {
-            public void execute(Object o) {
-                String[] paramValues = req.getParameterValues((String) o);
-                if (paramValues.length == 1) {
-                    String paramValue = paramValues[0];
-                    if (paramValue.length() == 0) {
-                        map.put(o, null);
-                    } else {
-                        map.put(o, req.getParameter((String) o));
-                    }
+        IterableUtils.forEach(parameters, (Closure) o -> {
+            String[] paramValues = req.getParameterValues((String) o);
+            if (paramValues.length == 1) {
+                String paramValue = paramValues[0];
+                if (paramValue.length() == 0) {
+                    map.put(o, null);
                 } else {
-                    Collection paramValuesCollection = new ArrayList();
-                    paramValuesCollection.addAll(Arrays.asList(paramValues));
-                    map.put(o, paramValuesCollection);
+                    map.put(o, req.getParameter((String) o));
                 }
+            } else {
+                Collection paramValuesCollection = new ArrayList();
+                paramValuesCollection.addAll(Arrays.asList(paramValues));
+                map.put(o, paramValuesCollection);
             }
         });
         return map;
@@ -162,11 +157,7 @@ public class ParameterFinder {
         final HttpServletRequest req = this.getRequest();
         Collection attributes = new ArrayList();
         CollectionUtils.addAll(attributes, req.getAttributeNames());
-        IterableUtils.forEach(attributes, new Closure() {
-            public void execute(Object o) {
-                map.put(o, req.getAttribute((String) o));
-            }
-        });
+        IterableUtils.forEach(attributes, (Closure) o -> map.put(o, req.getAttribute((String) o)));
         return map;
     }
 }

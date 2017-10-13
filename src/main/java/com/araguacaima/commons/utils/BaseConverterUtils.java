@@ -5,7 +5,7 @@ package com.araguacaima.commons.utils;
  * Clase Utilitaria que efectúa conversiones entre números de base 10 a otras bases. Los numeros decimales de entrada
  * y salida de los métodos estaticos de esta utilería estan enmarcados dentro del rango del dominio double es decir:
  * (4.94065645841246544e-324, 1.79769313486231570e+308], por lo tanto podrá operar con números de hasta 307 dígitos
- * <p/>
+ * <br>
  * Para ello se tiene un máximo de 62 caracteres para representar tales numeros en base 10 (double), por lo que la máxima
  * conversión posible será en base 62. Esto restringe el conjunto posible de valores únicamente a los caracateres
  * alfanuméricos. Esta decisión se hace por simplicidad y conveniencia para evitar eventuales problemas de codificación
@@ -13,7 +13,7 @@ package com.araguacaima.commons.utils;
  * entrada y salida en los procesos de conversión de bases provistos. La mínima base aceptable será 2, por no estar
  * definida la representación de un número en un radio menor a dos (es imposible representar un número cualquiera, de
  * cualquier base, con menos de dos caracteres)
- * <p/>
+ * <br>
  * Created by IntelliJ IDEA 10.5.1.
  * User: Alejandro Manuel Méndez Araguacaima (AMMA)
  * Date: 19/08/11 12:08 PM

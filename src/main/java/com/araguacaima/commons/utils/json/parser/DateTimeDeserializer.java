@@ -22,8 +22,7 @@ public class DateTimeDeserializer extends StdScalarDeserializer<DateTime> {
     }
 
     @Override
-    public DateTime deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException,
-            JsonProcessingException {
+    public DateTime deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         String dateStr = null;
         String timeStr = null;
         String fieldName = null;
@@ -45,8 +44,7 @@ public class DateTimeDeserializer extends StdScalarDeserializer<DateTime> {
             }
         }
         if (dateStr != null && timeStr != null) {
-            DateTime dateTime = DateTime.parse(dateStr + "T" + timeStr, DATETIME_FORMAT);
-            return dateTime;
+            return DateTime.parse(dateStr + "T" + timeStr, DATETIME_FORMAT);
         }
         return null;
     }
