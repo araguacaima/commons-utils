@@ -27,7 +27,6 @@ import jreversepro.common.KeyWords;
 import jreversepro.reflect.JImport;
 import jreversepro.reflect.JInstruction;
 import jreversepro.reflect.JMethod;
-import jreversepro.revengine.RevEngineException;
 
 import java.util.*;
 

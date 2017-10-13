@@ -206,29 +206,28 @@ public class FileUtilsFilenameFilterImplements extends FileUtilsFilenameFilterIm
         return interfaceCriteria;
     }
 
-
-    @Override
-    public Collection<URL> getResources(final ClassLoader classLoader)
-            throws IOException {
-        String interfaceCriteriaTransformed = interfaceCriteria.getName().contains(".") ? interfaceCriteria.getName()
-                .substring(
-                        0,
-                        interfaceCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;
-        interfaceCriteriaTransformed = interfaceCriteriaTransformed.replaceAll("\\.", StringUtils.SLASH).replaceAll(
-                "\\\\\\*",
-                StringUtils.EMPTY);
-        return Collections.list(classLoader.getResources(interfaceCriteriaTransformed));
-    }
-
     @Override
     public Collection<String> getResourcePaths(final ClassLoader classLoader)
             throws IOException {
         return transformURLIntoStringPaths(getResources(classLoader));
     }
 
+    @Override
+    public Collection<URL> getResources(final ClassLoader classLoader)
+            throws IOException {
+        String interfaceCriteriaTransformed = interfaceCriteria.getName().contains(".") ? interfaceCriteria.getName()
+                .substring(
+                0,
+                interfaceCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;
+        interfaceCriteriaTransformed = interfaceCriteriaTransformed.replaceAll("\\.", StringUtils.SLASH).replaceAll(
+                "\\\\\\*",
+                StringUtils.EMPTY);
+        return Collections.list(classLoader.getResources(interfaceCriteriaTransformed));
+    }
+
     public Collection<URL> getResources() {
-        String interfaceCriteriaTransformed = interfaceCriteria.getName().contains(".") ? interfaceCriteria
-                .getName().substring(
+        String interfaceCriteriaTransformed = interfaceCriteria.getName().contains(".") ? interfaceCriteria.getName()
+                .substring(
                 0,
                 interfaceCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;
         interfaceCriteriaTransformed = interfaceCriteriaTransformed.replaceAll("\\.", StringUtils.SLASH).replaceAll(

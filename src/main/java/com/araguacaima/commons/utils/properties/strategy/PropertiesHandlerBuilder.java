@@ -48,22 +48,6 @@ public class PropertiesHandlerBuilder {
         return getPropertiesHandlerStrategy(policyString, defaultFileName, propertiesHandlerStrategy);
     }
 
-    public static PropertiesHandlerStrategyInterface getPropertiesHandlerStrategy(String policyString,
-                                                                                  String defaultFileName,
-                                                                                  PropertiesHandlerStrategyInterface
-                                                                                          propertiesHandlerStrategy) {
-        if (!StringUtils.isBlank(policyString)) {
-            String[] policy = policyString.split(";");
-            if (policy.length == 1) {
-                policy = policyString.split(",");
-            }
-            setNext(propertiesHandlerStrategy, new ArrayList<>(Arrays.asList(policy)), defaultFileName);
-            return propertiesHandlerStrategy.getNext();
-        } else {
-            return new PropertiesHandlerBuilder().createPropertiesHandlerStrategyDefault();
-        }
-    }
-
     private static PropertiesHandlerStrategyInterface createPropertiesHandlerStrategyWithoutPolicies(String label,
                                                                                                      String defaultFileName) {
         log.info("Creating a PropertiesHandlerStrategy without Policies based on label '" + label
@@ -99,6 +83,22 @@ public class PropertiesHandlerBuilder {
         PropertiesHandlerStrategyInterface propertiesHandlerStrategy;
         propertiesHandlerStrategy = new PropertiesHandlerStrategyDefault();
         return propertiesHandlerStrategy;
+    }
+
+    public static PropertiesHandlerStrategyInterface getPropertiesHandlerStrategy(String policyString,
+                                                                                  String defaultFileName,
+                                                                                  PropertiesHandlerStrategyInterface
+                                                                                          propertiesHandlerStrategy) {
+        if (!StringUtils.isBlank(policyString)) {
+            String[] policy = policyString.split(";");
+            if (policy.length == 1) {
+                policy = policyString.split(",");
+            }
+            setNext(propertiesHandlerStrategy, new ArrayList<>(Arrays.asList(policy)), defaultFileName);
+            return propertiesHandlerStrategy.getNext();
+        } else {
+            return new PropertiesHandlerBuilder().createPropertiesHandlerStrategyDefault();
+        }
     }
 
     private static PropertiesHandlerStrategyInterface setNext(PropertiesHandlerStrategyInterface

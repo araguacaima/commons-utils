@@ -16,8 +16,8 @@ public class RunningMode {
     public static final String RUNNING_MODE_DEFAULT = RUNNING_MODE_PRODUCTION;
     public static final String RUNNING_MODE_TESTING = "running.mode_testing";
     private static final Logger log = LoggerFactory.getLogger(RunningMode.class);
-    private String logFileSourceName;
     private final PropertiesHandlerUtils propertiesHandlerUtils;
+    private String logFileSourceName;
     private String runningMode = RUNNING_MODE_DEFAULT;
 
     @Autowired

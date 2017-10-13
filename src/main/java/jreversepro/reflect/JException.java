@@ -85,7 +85,7 @@ public class JException {
 
     /**
      * @return true. if at least one of the exception handlers
-     *         is for ANY block. false, otherwise.
+     * is for ANY block. false, otherwise.
      */
     public boolean containsANYCatchBlock() {
         return excCatchTable.containsValue(KeyWords.ANY);
@@ -94,7 +94,7 @@ public class JException {
     /**
      * @param obj Object to be compared with.
      * @return if two JException objects are equal.
-     *         false, otherwise.
+     * false, otherwise.
      */
     public boolean equals(Object obj) {
         return obj instanceof JException && sameTryBlock((JException) obj);
@@ -106,7 +106,7 @@ public class JException {
      *
      * @param exc New Exception Block
      * @return Returns true if the code blocks are same for both of
-     *         them. false, otherwise.
+     * them. false, otherwise.
      */
     public boolean sameTryBlock(JException exc) {
         return (startPc == exc.startPc && endPc == exc.endPc);
@@ -126,7 +126,7 @@ public class JException {
      *
      * @param instructions List of instructions.
      * @return Effective endPc of the try ..block
-     *         *
+     * *
      */
     public int getEffectiveEndPc(List instructions) {
         int insIndex = instructions.indexOf(new JInstruction(endPc, JJvmOpcodes.OPCODE_ACONST_NULL, null, true));
@@ -153,7 +153,7 @@ public class JException {
      *
      * @param rhsHandlerPc HandlerPc for which type is queried.
      * @return Handler type of the exception handler, if one
-     *         exists beginning with rhsHandlerPc. null, otherwise.
+     * exists beginning with rhsHandlerPc. null, otherwise.
      */
     public String getExceptionClass(int rhsHandlerPc) {
         Object obj = excCatchTable.get(rhsHandlerPc);

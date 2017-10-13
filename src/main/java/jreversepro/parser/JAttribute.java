@@ -87,7 +87,6 @@ public final class JAttribute {
      * u2 attributes_count;<br>
      * attribute_info attributes[attributes_count]; <br>
      *
-     *
      * @param aDis         DataInputStream containing the bytes of the class.
      * @param aCpInfo      ConstantPool Information.
      * @param aLocalMethod Reference to the current method for which the code
@@ -137,7 +136,6 @@ public final class JAttribute {
      * Possible attributes of Code are
      * <b> LineNumberTable </b> and  <b> LocalVariableTable </b>
      *
-     *
      * @param aDis    DataInputStream containing the bytes of the class.
      * @param aCpInfo ConstantPool Information.
      * @throws IOException Error in Class Stream of bytes.
@@ -165,7 +163,6 @@ public final class JAttribute {
      * u2 start_pc; <br>
      * u2 line_number;<br>
      * } line_number_table[line_number_table_length]; <br>
-     *
      *
      * @param aDis DataInputStream containing the bytes of the class.
      * @throws IOException Error in Class Stream of bytes.
@@ -198,7 +195,6 @@ public final class JAttribute {
      * u2 line_number;<br>
      * } line_number_table[line_number_table_length]; <br>
      *
-     *
      * @param aDis DataInputStream containing the bytes of the class.
      * @throws IOException Error in Class Stream of bytes.
      */
@@ -217,7 +213,6 @@ public final class JAttribute {
      * u2 attribute_name_index; <br>
      * u4 attribute_length;<br>
      * u2 constantvalue_index;<br>
-     *
      *
      * @param aDis    DataInputStream containing the bytes of the class.
      * @param aCpInfo ConstantPool Information.
@@ -240,7 +235,6 @@ public final class JAttribute {
      * <b>Deprecated</b> attribute <br>
      * u2 attribute_name_index; <br>
      * u4 attribute_length;<br>
-     *
      *
      * @param aDis DataInputStream containing the bytes of the class.
      * @throws IOException Error in Class Stream of bytes.
@@ -288,7 +282,6 @@ public final class JAttribute {
      * u4 attribute_length;<br>
      * u2 sourcefile_index;
      *
-     *
      * @param aDis    DataInputStream containing the bytes of the class.
      * @param aCpInfo ConstantPool Information.
      * @return NO_STRING
@@ -309,7 +302,6 @@ public final class JAttribute {
      * <b>Synthetic</b> attribute <br>
      * u2 attribute_name_index; <br>
      * u4 attribute_length;<br>
-     *
      *
      * @param aDis DataInputStream containing the bytes of the class.
      * @throws IOException Error in Class Stream of bytes.

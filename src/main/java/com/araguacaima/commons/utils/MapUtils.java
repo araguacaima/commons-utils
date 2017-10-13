@@ -69,39 +69,6 @@ public class MapUtils {
         return org.apache.commons.collections4.MapUtils.isNotEmpty(map);
     }
 
-    public Map<String, String> toMap(final Properties properties) {
-        final Map<String, String> map = new HashMap<>();
-        IterableUtils.forEach(properties.keySet(), key -> {
-            if (key != null) {
-                Object value = properties.get(key);
-                key = String.valueOf(key);
-                if (value != null) {
-                    value = String.valueOf(value);
-                } else {
-                    value = StringUtils.EMPTY;
-                }
-                map.put((String) key, (String) value);
-            }
-        });
-        return map;
-    }
-
-    public Properties toProperties(final Map<String, String> map) {
-        final Properties properties = new Properties();
-        IterableUtils.forEach(map.keySet(), key -> {
-            if (key != null) {
-                String value = map.get(key);
-                if (value != null) {
-                    value = String.valueOf(value);
-                } else {
-                    value = StringUtils.EMPTY;
-                }
-                properties.setProperty(key, value);
-            }
-        });
-        return properties;
-    }
-
     public <E, T> Map find(Map<E, T> map, Predicate<E> keyPredicate, Predicate<T> valuePredicate, int evaluationType) {
         Map<E, T> newMap = new HashMap<>();
         E key;
@@ -194,6 +161,39 @@ public class MapUtils {
         if (valuePredicate != null && !valuePredicate.evaluate(value)) {
             map.remove(key);
         }
+    }
+
+    public Map<String, String> toMap(final Properties properties) {
+        final Map<String, String> map = new HashMap<>();
+        IterableUtils.forEach(properties.keySet(), key -> {
+            if (key != null) {
+                Object value = properties.get(key);
+                key = String.valueOf(key);
+                if (value != null) {
+                    value = String.valueOf(value);
+                } else {
+                    value = StringUtils.EMPTY;
+                }
+                map.put((String) key, (String) value);
+            }
+        });
+        return map;
+    }
+
+    public Properties toProperties(final Map<String, String> map) {
+        final Properties properties = new Properties();
+        IterableUtils.forEach(map.keySet(), key -> {
+            if (key != null) {
+                String value = map.get(key);
+                if (value != null) {
+                    value = String.valueOf(value);
+                } else {
+                    value = StringUtils.EMPTY;
+                }
+                properties.setProperty(key, value);
+            }
+        });
+        return properties;
     }
 
     public <E, F, G, H> Map<?, ?> transform(Map<E, F> map,

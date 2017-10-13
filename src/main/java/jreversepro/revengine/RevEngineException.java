@@ -45,7 +45,7 @@ public class RevEngineException extends Exception {
 
     /**
      * @return Return Stringified representation of the
-     *         Exception class.
+     * Exception class.
      */
     public String toString() {
         return (super.toString());

@@ -36,8 +36,8 @@ public class JCaseComparator implements Comparator {
      * @param o1 First Object to be compared.
      * @param o2 Second object to be compared.
      * @return 0 if both the case statements' target are equal.
-     *         1, if first target &gt; second target.
-     *         -1, otherwise.
+     * 1, if first target &gt; second target.
+     * -1, otherwise.
      */
     public int compare(Object o1, Object o2) {
         if (!(o1 instanceof JCaseEntry) || !(o2 instanceof JCaseEntry)) {
@@ -55,7 +55,7 @@ public class JCaseComparator implements Comparator {
     /**
      * @param obj Object to be compared.
      * @return true, if the object is JCaseEntry.
-     *         false, otherwise.
+     * false, otherwise.
      */
     public boolean equals(Object obj) {
         return obj instanceof JCaseEntry;

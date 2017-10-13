@@ -97,16 +97,16 @@ public class Operand implements OperandConstants {
 
     /**
      * @return Returns true, if this type is one of the following.
-     *         integer,
-     *         boolean,
-     *         byte,
-     *         character,
-     *         short,
-     *         float,
-     *         reference,
-     *         return address.
-     *         In case it is either Long / Double the datatype belongs to
-     *         cat2
+     * integer,
+     * boolean,
+     * byte,
+     * character,
+     * short,
+     * float,
+     * reference,
+     * return address.
+     * In case it is either Long / Double the datatype belongs to
+     * cat2
      */
     public boolean isCategory1() {
         switch (datatype) {

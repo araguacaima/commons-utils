@@ -39,6 +39,7 @@ public class JSynchBlock extends JBlockObject {
     /**
      * Creates a new instance of JSynchBlock
      *
+     * @param _jbe Branch
      * @param _var The variable name to synch on
      */
     public JSynchBlock(JBranchEntry _jbe, String _var) {

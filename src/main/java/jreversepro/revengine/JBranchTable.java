@@ -270,7 +270,7 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      *
      * @param startPc Start Pc.
      * @return the TargetPc for the goto instruction at the
-     *         startPc
+     * startPc
      */
     public int findGotoTarget(int startPc) {
         Object obj = gotos.get(startPc);
@@ -285,8 +285,8 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      * Getter method for goto tables.
      *
      * @return Map of goto table entries.
-     *         key - goto pc.
-     *         value - target of that goto table.
+     * key - goto pc.
+     * value - target of that goto table.
      */
     public Map getGotoTable() {
         return gotos;
@@ -351,7 +351,7 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      * @param listBranchEntries list of branch entries.
      * @param type              Type that is to be searched for.
      * @return first branch entry that matches the type mentioned
-     *         in the list given.
+     * in the list given.
      */
     public static JBranchEntry contains(List listBranchEntries, int type) {
         if (listBranchEntries.size() == 0) {
@@ -372,8 +372,8 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      *
      * @param aInsIndex Instruction index.
      * @return List of JBranchEntry -
-     *         list of branches that starts with the mentioned
-     *         instruction index.
+     * list of branches that starts with the mentioned
+     * instruction index.
      * @throws RevEngineException thrown in case of an error.
      */
     public List startsWith(int aInsIndex)
@@ -396,7 +396,7 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      * @param currPc Pc for which it is to be checked if it is the
      *               target for any JSR instruction.
      * @return true, if there exists a JSR instruction with its target
-     *         currPc. false, otherwise.
+     * currPc. false, otherwise.
      */
     public boolean isJSRTarget(int currPc) {
         return mJSRTarget.contains(currPc);

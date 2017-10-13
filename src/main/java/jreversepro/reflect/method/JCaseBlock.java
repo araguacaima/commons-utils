@@ -23,9 +23,9 @@ public class JCaseBlock extends JBlockObject implements KeyWords {
 
     /**
      * Creates a new instance of JCaseBlock
-     * @param _jbe Branch
-     * @param _expr Expression
      *
+     * @param _jbe  Branch
+     * @param _expr Expression
      */
     public JCaseBlock(JBranchEntry _jbe, String _expr) {
         /*
@@ -55,6 +55,7 @@ public class JCaseBlock extends JBlockObject implements KeyWords {
 
     /**
      * Outputs any terminating code to close the block
+     *
      * @return The terminating code to close the block
      */
     protected String getExitCode() {

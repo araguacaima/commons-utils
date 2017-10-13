@@ -46,7 +46,8 @@ public class JForBlock extends JBlockObject {
 
     /**
      * Creates a new instance of JForBlock
-     * @param _jbe Branch
+     *
+     * @param _jbe  Branch
      * @param _test The test expression
      */
     public JForBlock(JBranchEntry _jbe, String _test) {
@@ -55,7 +56,8 @@ public class JForBlock extends JBlockObject {
 
     /**
      * Creates a new instance of JForBlock
-     * @param _jbe Branch
+     *
+     * @param _jbe  Branch
      * @param _init The init expression
      * @param _test The test expression
      * @param _loop The loop expression
@@ -72,6 +74,7 @@ public class JForBlock extends JBlockObject {
 
     /**
      * Outputs any starting code to open the block
+     *
      * @return The starting code to open the block
      */
     protected String getEntryCode() {
@@ -84,6 +87,7 @@ public class JForBlock extends JBlockObject {
 
     /**
      * Outputs any terminating code to close the block
+     *
      * @return The terminating code to close the block
      */
     protected String getExitCode() {
@@ -96,6 +100,7 @@ public class JForBlock extends JBlockObject {
 
     /**
      * Set the init expression
+     *
      * @param _init The init expression
      */
     public void setInitExpr(String _init) {
@@ -104,6 +109,7 @@ public class JForBlock extends JBlockObject {
 
     /**
      * Set the loop expression
+     *
      * @param _loop The loop expression
      */
     public void setLoopExpr(String _loop) {
@@ -112,6 +118,7 @@ public class JForBlock extends JBlockObject {
 
     /**
      * Set the test expression
+     *
      * @param _test The test expression
      */
     public void setTestExpr(String _test) {

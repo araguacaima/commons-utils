@@ -159,6 +159,7 @@ public class JLineOfCode {
 
     /**
      * Get from index
+     *
      * @return The index
      */
     public int getFromIndex() {
@@ -167,6 +168,7 @@ public class JLineOfCode {
 
     /**
      * Set from Index
+     *
      * @param f The index
      */
     public void setFromIndex(int f) {
@@ -193,6 +195,7 @@ public class JLineOfCode {
 
     /**
      * Get state
+     *
      * @return The state
      */
     public int getState() {
@@ -201,6 +204,7 @@ public class JLineOfCode {
 
     /**
      * Set state
+     *
      * @param s The state
      */
     public void setState(int s) {
@@ -209,6 +213,7 @@ public class JLineOfCode {
 
     /**
      * Get stmt - the stringified version of the line of code
+     *
      * @return The stringified version of the line of code (stmt)
      */
     public String getStmt() {
@@ -217,6 +222,7 @@ public class JLineOfCode {
 
     /**
      * Set stmt
+     *
      * @param s The stringified version of the line of code (stmt)
      */
     public void setStmt(String s) {
@@ -225,6 +231,7 @@ public class JLineOfCode {
 
     /**
      * Get to index
+     *
      * @return The index upper limit
      */
     public int getToIndex() {
@@ -233,6 +240,7 @@ public class JLineOfCode {
 
     /**
      * Set to Index
+     *
      * @param t The index upper limit
      */
     public void setToIndex(int t) {
@@ -241,6 +249,7 @@ public class JLineOfCode {
 
     /**
      * Get viz - the stringified version of the line of code. This is redundant (for now) with getStmt().
+     *
      * @return The stringified version of the line of code. This is redundant (for now) with getStmt().
      */
     public String getViz() {
@@ -249,6 +258,7 @@ public class JLineOfCode {
 
     /**
      * Set viz
+     *
      * @param v The stringified version of the line of code. This is redundant (for now) with getStmt().
      */
     public void setViz(String v) {

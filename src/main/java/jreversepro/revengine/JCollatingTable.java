@@ -88,7 +88,6 @@ public class JCollatingTable implements BranchConstants, KeyWords {
      * <br>
      * x   y    z<br>
      * z   p    q  Case2 <br>
-     *
      */
     public void collate() {
         int numBranches = convertToObjects();
@@ -150,7 +149,7 @@ public class JCollatingTable implements BranchConstants, KeyWords {
      * @param a Entry index 1
      * @param b entry index 2
      * @return Returns true, if this corresponds to case 2 as mentioned
-     *         above. false, otherwise.
+     * above. false, otherwise.
      */
     private boolean checkCase1(int a, int b) {
         return (entries[a].getTargetPc() == entries[b].getNextPc());
@@ -160,18 +159,18 @@ public class JCollatingTable implements BranchConstants, KeyWords {
      * @param a Entry index 1
      * @param b entry index 2
      * @return Returns true, if this corresponds to case 2 as mentioned
-     *         above. false, otherwise.
-     *         <br>
-     *         Checks for Case 2  type collate
-     *         <br><br><code>
-     *         a:     x    y   z   <br>
-     *         b:      y   p1  z  OR <br>
-     *         <br>
-     *         a:     x    y   z   <br>
-     *         z:      .....       <br>
-     *         b:      y   p1  p2 <br><br></code>
-     *         This means either a 'IF AND'  or 'WHILE OR' between the
-     *         statements.
+     * above. false, otherwise.
+     * <br>
+     * Checks for Case 2  type collate
+     * <br><br><code>
+     * a:     x    y   z   <br>
+     * b:      y   p1  z  OR <br>
+     * <br>
+     * a:     x    y   z   <br>
+     * z:      .....       <br>
+     * b:      y   p1  p2 <br><br></code>
+     * This means either a 'IF AND'  or 'WHILE OR' between the
+     * statements.
      */
     private boolean checkCase2(int a, int b) {
         if (entries[a].getTargetPc() == entries[b].getTargetPc()) {
@@ -203,7 +202,7 @@ public class JCollatingTable implements BranchConstants, KeyWords {
      * whose type are TYPE_INVALID.
      *
      * @return List of branch of entries all of which are significant.
-     *         The members of the entries are all - JBranchEntry.
+     * The members of the entries are all - JBranchEntry.
      */
     public List getEffectiveBranches() {
         List listBranches = new Vector();

@@ -116,6 +116,43 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         this.exceptionUtils = exceptionUtils;
     }
 
+    public static int firstIndexOf(String input, Collection tokens) {
+        int firstIndexOf = input.length() + 1;
+        for (Object token1 : tokens) {
+            String token = (String) token1;
+            int newIndexOf = input.indexOf(token);
+            if (newIndexOf != -1 & newIndexOf <= firstIndexOf) {
+                firstIndexOf = newIndexOf;
+            }
+        }
+        return firstIndexOf > input.length() ? -1 : firstIndexOf;
+    }
+
+    /**
+     * Trim characters in prefix
+     *
+     * @param str String
+     * @param ch  character which has to be removed
+     * @return null, if str is null, otherwise string will be returned
+     * without character prefixed
+     */
+    public static String leftTrim(String str, char ch) {
+        if (str == null) {
+            return null;
+        }
+        int count = str.length();
+        int len = str.length();
+        int st = 0;
+        int off = 0;
+        char[] val = str.toCharArray();
+
+        while ((st < len) && (val[off + st] == ch)) {
+            st++;
+        }
+
+        return st > 0 ? str.substring(st, len) : str;
+    }
+
     /**
      * Dado un int countOfTabs, crea un String con dicho number de Tabs ('\t')
      *
@@ -389,18 +426,6 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         }
 
         return false;
-    }
-
-    public static int firstIndexOf(String input, Collection tokens) {
-        int firstIndexOf = input.length() + 1;
-        for (Object token1 : tokens) {
-            String token = (String) token1;
-            int newIndexOf = input.indexOf(token);
-            if (newIndexOf != -1 & newIndexOf <= firstIndexOf) {
-                firstIndexOf = newIndexOf;
-            }
-        }
-        return firstIndexOf > input.length() ? -1 : firstIndexOf;
     }
 
     public String firstToken(String input, Collection tokens) {
@@ -712,31 +737,6 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     }
 
     /**
-     * Trim characters in prefix
-     *
-     * @param str String
-     * @param ch  character which has to be removed
-     * @return null, if str is null, otherwise string will be returned
-     * without character prefixed
-     */
-    public static String leftTrim(String str, char ch) {
-        if (str == null) {
-            return null;
-        }
-        int count = str.length();
-        int len = str.length();
-        int st = 0;
-        int off = 0;
-        char[] val = str.toCharArray();
-
-        while ((st < len) && (val[off + st] == ch)) {
-            st++;
-        }
-
-        return st > 0 ? str.substring(st, len) : str;
-    }
-
-    /**
      * Retorna null si el String es vacio, o el String original si no lo es.
      *
      * @param s The given string
@@ -961,8 +961,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
                                                                           final String separator,
                                                                           final String demarcation) {
         final StringBuffer result = new StringBuffer();
-        IterableUtils.forEach(tokens,
-                o -> result.append(demarcation).append(o).append(demarcation).append(separator));
+        IterableUtils.forEach(tokens, o -> result.append(demarcation).append(o).append(demarcation).append(separator));
         result.replace(result.length() - 1, result.length(), EMPTY);
         return result.toString();
     }

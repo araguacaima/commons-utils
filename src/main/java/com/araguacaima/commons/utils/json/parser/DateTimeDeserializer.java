@@ -2,7 +2,6 @@ package com.araguacaima.commons.utils.json.parser;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
@@ -22,7 +21,8 @@ public class DateTimeDeserializer extends StdScalarDeserializer<DateTime> {
     }
 
     @Override
-    public DateTime deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    public DateTime deserialize(JsonParser jp, DeserializationContext ctxt)
+            throws IOException {
         String dateStr = null;
         String timeStr = null;
         String fieldName = null;

@@ -65,7 +65,7 @@ public class JSerializer implements KeyWords {
      * @param file File reference pointing to the .class file to be
      *             reverse engineered.
      * @return Reference of type JClassInfo containing information of the
-     *         class.
+     * class.
      * @throws IOException          Thrown in case of any i/o error while parsing
      *                              class file.
      * @throws ClassParserException thrown in case of any class file format
@@ -88,7 +88,7 @@ public class JSerializer implements KeyWords {
      * @param url URL reference pointing to the .class file to be
      *            reverse engineered.
      * @return Reference of type JClassInfo containing information of the
-     *         class.
+     * class.
      * @throws IOException          Thrown in case of any i/o error while parsing
      *                              class file.
      * @throws ClassParserException thrown in case of any class file format

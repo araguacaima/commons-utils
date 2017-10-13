@@ -339,8 +339,8 @@ public class JMethod extends JMember implements KeyWords {
      *              containing the target index to be junmped into
      *              relative to the index of the current switch instruction.
      * @return Returns the integer that is Index + length of
-     *         the instruction so that the next JVM opcode can proceed from
-     *         there.
+     * the instruction so that the next JVM opcode can proceed from
+     * there.
      */
     protected int dealTableSwitch(int index) {
         //Read Default Byte
@@ -371,8 +371,8 @@ public class JMethod extends JMember implements KeyWords {
      *              second integer letting us know the target of the case leg
      *              relative to the index of the method.
      * @return Returns the integer that is Index + length of
-     *         the instruction so that the next JVM opcode can proceed from
-     *         there.
+     * the instruction so that the next JVM opcode can proceed from
+     * there.
      */
     protected int dealLookupSwitch(int index) {
         //Read Default Byte
@@ -395,7 +395,7 @@ public class JMethod extends JMember implements KeyWords {
      * @param start start index into the byte array.
      * @param end   end index into the byte array.
      * @return Returns a byte array containing the bytes
-     *         from start to end , end exclusive and start inclusive.
+     * from start to end , end exclusive and start inclusive.
      */
     protected byte[] getArgArray(int start, int end) {
         if (start == end) {
@@ -601,7 +601,7 @@ public class JMethod extends JMember implements KeyWords {
      * Returns ifthis method is static.
      *
      * @return Returns true, if this is a static method.
-     *         false, otherwise.
+     * false, otherwise.
      */
     public boolean isStatic() {
         return (super.isStatic() || name.equals(CLINIT));
@@ -612,7 +612,7 @@ public class JMethod extends JMember implements KeyWords {
      *
      * @param importInfo containing the import information.
      * @return Returns a string that contains the code
-     *         representation.
+     * representation.
      */
     public String getThrowsClause(JImport importInfo) {
         StringBuilder sb = new StringBuilder();

@@ -138,6 +138,17 @@ public class JRunTimeContext implements KeyWords, BranchConstants {
     }
 
     /**
+     * In case a statement has been identified for writing
+     * for the current topmost block then that is set
+     * the written flag.
+     */
+    public void setBlockWrittenFlag() {
+        if (!jcs.empty()) {
+            currBlock.setWrittenFlag();
+        }
+    }
+
+    /**
      * Add text line to output code with indenting.
      *
      * @param txt Text to be added.
@@ -261,17 +272,6 @@ public class JRunTimeContext implements KeyWords, BranchConstants {
             String varDec = enumVariables.nextElement().toString();
             //PP *** Need to identify offsets for next line ***
             method.addLineOfCode(new JLineOfCode(-1, -1, -1, -1, varDec + ";\n"));
-        }
-    }
-
-    /**
-     * In case a statement has been identified for writing
-     * for the current topmost block then that is set
-     * the written flag.
-     */
-    public void setBlockWrittenFlag() {
-        if (!jcs.empty()) {
-            currBlock.setWrittenFlag();
         }
     }
 

@@ -33,6 +33,7 @@ public class JElseBlock extends JBlockObject {
 
     /**
      * Creates a new instance of JElseBranch
+     *
      * @param _jbe Branch
      */
     public JElseBlock(JBranchEntry _jbe) {
@@ -44,6 +45,7 @@ public class JElseBlock extends JBlockObject {
 
     /**
      * Outputs any starting code to open the block
+     *
      * @return The starting code to open the block
      */
     protected String getEntryCode() {

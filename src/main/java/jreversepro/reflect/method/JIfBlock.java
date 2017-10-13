@@ -38,7 +38,8 @@ public class JIfBlock extends JBlockObject {
 
     /**
      * Creates a new instance of JIfBlock
-     * @param _jbe Branch
+     *
+     * @param _jbe  Branch
      * @param _expr The expression
      */
     public JIfBlock(JBranchEntry _jbe, String _expr) {

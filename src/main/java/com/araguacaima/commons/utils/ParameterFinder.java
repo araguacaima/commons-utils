@@ -50,17 +50,17 @@ public class ParameterFinder {
                 if (object == null) {
                     object = this.getRequest().getAttribute(attributeName);
                     if (object == null) {
-                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_SESSION +
-                                "-" + TYPE_ATTRIBUTE);
+                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_SESSION + "-" +
+                                TYPE_ATTRIBUTE);
                         return this.getSession().getAttribute(attributeName);
                     } else {
-                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST +
-                                "-" + TYPE_ATTRIBUTE);
+                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-" +
+                                TYPE_ATTRIBUTE);
                         return object;
                     }
                 } else {
-                    log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-"
-                            + TYPE_PARAMETER);
+                    log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-" +
+                            TYPE_PARAMETER);
                     return object;
                 }
             case REQUEST_ATTRIBUTE_PARAMETER_SESSION_SEARCH_ORDER:
@@ -68,17 +68,17 @@ public class ParameterFinder {
                 if (object == null) {
                     object = this.getRequest().getParameter(attributeName);
                     if (object == null) {
-                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_SESSION +
-                                "-" + TYPE_ATTRIBUTE);
+                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_SESSION + "-" +
+                                TYPE_ATTRIBUTE);
                         return this.getSession().getAttribute(attributeName);
                     } else {
-                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST +
-                                "-" + TYPE_PARAMETER);
+                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-" +
+                                TYPE_PARAMETER);
                         return object;
                     }
                 } else {
-                    log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-"
-                            + TYPE_ATTRIBUTE);
+                    log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-" +
+                            TYPE_ATTRIBUTE);
                     return object;
                 }
             case SESSION_REQUEST_ATTRIBUTE_PARAMETER_SEARCH_ORDER:
@@ -86,17 +86,17 @@ public class ParameterFinder {
                 if (object == null) {
                     object = this.getRequest().getAttribute(attributeName);
                     if (object == null) {
-                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST +
-                                "-" + TYPE_PARAMETER);
+                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-" +
+                                TYPE_PARAMETER);
                         return this.getRequest().getParameter(attributeName);
                     } else {
-                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST +
-                                "-" + TYPE_ATTRIBUTE);
+                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-" +
+                                TYPE_ATTRIBUTE);
                         return object;
                     }
                 } else {
-                    log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_SESSION + "-"
-                            + TYPE_ATTRIBUTE);
+                    log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_SESSION + "-" +
+                            TYPE_ATTRIBUTE);
                     return object;
                 }
 

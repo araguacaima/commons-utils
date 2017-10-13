@@ -33,6 +33,7 @@ public class JTryBlock extends JBlockObject {
 
     /**
      * Creates a new instance of JTryBlock
+     *
      * @param _jbe Branch
      */
     public JTryBlock(JBranchEntry _jbe) {
@@ -44,6 +45,7 @@ public class JTryBlock extends JBlockObject {
 
     /**
      * Outputs any starting code to open the block
+     *
      * @return The starting code to open the block
      */
     protected String getEntryCode() {

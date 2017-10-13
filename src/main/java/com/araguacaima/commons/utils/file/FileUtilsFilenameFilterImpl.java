@@ -22,8 +22,8 @@ import java.util.jar.JarFile;
 public abstract class FileUtilsFilenameFilterImpl implements FileUtilsFilenameFilter<File> {
 
     protected static Logger log = LoggerFactory.getLogger(FileUtilsFilenameFilter.class);
-    protected ClassLoaderUtils classLoaderUtils;
     protected final FileUtils fileUtils = new FileUtils();
+    protected ClassLoaderUtils classLoaderUtils;
     protected int filterType;
     protected StringUtils stringUtils;
 
@@ -53,15 +53,19 @@ public abstract class FileUtilsFilenameFilterImpl implements FileUtilsFilenameFi
         this.filterType = filterType;
     }
 
-    public Collection<URL> getResources(ClassLoader classLoader)
-            throws IOException {
-        return getResources();
-    }
-
     @Override
     public Collection<String> getResourcePaths(final ClassLoader classLoader)
             throws IOException {
         return transformURLIntoStringPaths(getResources(classLoader));
+    }
+
+    protected Collection<String> transformURLIntoStringPaths(Collection<URL> urls) {
+        return CollectionUtils.collect(urls, URL::getFile);
+    }
+
+    public Collection<URL> getResources(ClassLoader classLoader)
+            throws IOException {
+        return getResources();
     }
 
     public Collection<URL> getResources() {
@@ -71,11 +75,6 @@ public abstract class FileUtilsFilenameFilterImpl implements FileUtilsFilenameFi
     public String printCriterias() {
         return StringUtils.EMPTY;
     }
-
-    protected Collection<String> transformURLIntoStringPaths(Collection<URL> urls) {
-        return CollectionUtils.collect(urls, URL::getFile);
-    }
-
 
     protected Collection<URL> transformFilesIntoURLs(File[] files) {
         try {

@@ -17,10 +17,6 @@ public class CollectionUtils {
 
     private static final PropertyUtilsBean propertyUtilsBean = new PropertyUtilsBean();
 
-    public static NotNullsLinkedHashSet<Object> wrapList(Collection<Object> collection) {
-        return new NotNullsLinkedHashSet<>(false, null, collection);
-    }
-
     public static List buildEmptyList(List collection) {
         return new ArrayList<Object>(collection);
     }
@@ -36,40 +32,6 @@ public class CollectionUtils {
         return collection;
     }
 
-    public static boolean startsWithAny(final Collection<String> collection, final String value) {
-        return org.apache.commons.collections4.CollectionUtils.find(collection,
-                (Predicate) object -> value.startsWith((String) object)) != null;
-    }
-
-    public static boolean isPrefixedByAny(final Collection<String> collection, final String value) {
-        return org.apache.commons.collections4.CollectionUtils.find(collection,
-                (Predicate) object -> value.startsWith((String) object)) != null;
-    }
-
-    public static List transformByGetterOfField(Collection collection, final String fieldName) {
-        final List collection1 = new ArrayList(collection);
-        org.apache.commons.collections4.CollectionUtils.transform(collection1, (Transformer) input -> {
-            if (input != null) {
-                try {
-                    return propertyUtilsBean.getSimpleProperty(input, fieldName);
-                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ignored) {
-                    ignored.printStackTrace();
-                }
-            }
-            return null;
-        });
-        return collection1;
-    }
-
-    public static boolean isMemberOf(Collection<Object> collection, Object value) {
-        return collection.contains(value);
-    }
-
-    public static boolean isMemberOf(Collection<Object> collection, Collection<Object> value) {
-        return org.apache.commons.collections4.CollectionUtils.isSubCollection(collection, value);
-    }
-
-
     public static Object getMemberOf(Collection<Object> collection, Object value) {
 
         Object value_ = null;
@@ -82,6 +44,14 @@ public class CollectionUtils {
             value_ = value;
         }
         return value_;
+    }
+
+    public static boolean isMemberOf(Collection<Object> collection, Object value) {
+        return collection.contains(value);
+    }
+
+    public static boolean isMemberOf(Collection<Object> collection, Collection<Object> value) {
+        return org.apache.commons.collections4.CollectionUtils.isSubCollection(collection, value);
     }
 
     public static boolean isMemberOf(Collection<Object> collection, Object value, String field) {
@@ -101,8 +71,38 @@ public class CollectionUtils {
         return found;
     }
 
+    public static boolean isPrefixedByAny(final Collection<String> collection, final String value) {
+        return org.apache.commons.collections4.CollectionUtils.find(collection,
+                (Predicate) object -> value.startsWith((String) object)) != null;
+    }
+
+    public static boolean startsWithAny(final Collection<String> collection, final String value) {
+        return org.apache.commons.collections4.CollectionUtils.find(collection,
+                (Predicate) object -> value.startsWith((String) object)) != null;
+    }
+
+    public static List transformByGetterOfField(Collection collection, final String fieldName) {
+        final List collection1 = new ArrayList(collection);
+        org.apache.commons.collections4.CollectionUtils.transform(collection1, (Transformer) input -> {
+            if (input != null) {
+                try {
+                    return propertyUtilsBean.getSimpleProperty(input, fieldName);
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ignored) {
+                    ignored.printStackTrace();
+                }
+            }
+            return null;
+        });
+        return collection1;
+    }
+
+    public static NotNullsLinkedHashSet<Object> wrapList(Collection<Object> collection) {
+        return new NotNullsLinkedHashSet<>(false, null, collection);
+    }
+
     public static NotNullsLinkedHashSet<String> wrapListToString(Collection<Object> collection) {
-        Collection<String> collection_ = org.apache.commons.collections4.CollectionUtils.transformingCollection(collection,
+        Collection<String> collection_ = org.apache.commons.collections4.CollectionUtils.transformingCollection(
+                collection,
 
                 (Transformer) input -> input == null ? StringUtils.EMPTY : input.toString());
         return new NotNullsLinkedHashSet<>(false, null, collection_);

@@ -158,7 +158,7 @@ public class JOperandStack extends Stack implements KeyWords, OperandConstants {
 
     /**
      * @return Returns the data type of the topmost content of the
-     *         stack.
+     * stack.
      */
     public String topDatatype() {
         return ((Operand) this.peek()).datatype;

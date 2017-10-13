@@ -38,7 +38,8 @@ public class JElseIfBlock extends JBlockObject {
 
     /**
      * Creates a new instance of JElseIfBlock
-     * @param _jbe Branch
+     *
+     * @param _jbe  Branch
      * @param _expr The expression
      */
     public JElseIfBlock(JBranchEntry _jbe, String _expr) {

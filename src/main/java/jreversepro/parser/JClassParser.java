@@ -90,22 +90,6 @@ public class JClassParser implements AppConstants {
     }
 
     /**
-     * Parses the given byte array and creates the ClassInfo and
-     * ConstantPool objects.
-     *
-     * @param bytes byte array to be parsed.
-     * @throws ClassParserException Thrown if class file not in desired format.
-     * @throws IOException          Thrown if error in stream of bytes containing the
-     *                              class file.
-     */
-    public void parse(byte[] bytes)
-            throws IOException, ClassParserException {
-
-        parse(new ByteArrayInputStream(bytes), bytes.length, "");
-        //Path not given.
-    }
-
-    /**
      * Parses the given file and creates the ClassInfo and ConstantPool objects.
      *
      * @param is          InputStream from which bytes are taken.
@@ -695,6 +679,22 @@ public class JClassParser implements AppConstants {
         int descIndex = mDis.readShort();
 
         mCpInfo.addNameTypeEntry(nameIndex, descIndex);
+    }
+
+    /**
+     * Parses the given byte array and creates the ClassInfo and
+     * ConstantPool objects.
+     *
+     * @param bytes byte array to be parsed.
+     * @throws ClassParserException Thrown if class file not in desired format.
+     * @throws IOException          Thrown if error in stream of bytes containing the
+     *                              class file.
+     */
+    public void parse(byte[] bytes)
+            throws IOException, ClassParserException {
+
+        parse(new ByteArrayInputStream(bytes), bytes.length, "");
+        //Path not given.
     }
 
     /**

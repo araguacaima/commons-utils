@@ -5,7 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 @Component
 public class HTMLDecorator {
@@ -32,6 +35,7 @@ public class HTMLDecorator {
      */
     private final static String className = HTMLDecorator.class.getName();
     private static final Logger log = LoggerFactory.getLogger(HTMLDecorator.class);
+    private final ReflectionUtils reflectionUtils;
     public int actualRenderingTag = ACTUAL_RENDERING_TAG_NONE;
     public boolean debug = false;
     public String fontCssClass;
@@ -40,7 +44,6 @@ public class HTMLDecorator {
     public int imageHeight = DEFAULT_IMAGE_HEIGHT;
     public String imageSource;
     public int imageWidth = DEFAULT_IMAGE_WIDTH;
-    private final ReflectionUtils reflectionUtils;
 
     @Autowired
     public HTMLDecorator(ReflectionUtils reflectionUtils) {
@@ -78,6 +81,30 @@ public class HTMLDecorator {
 
     private boolean ensureFontCssInitialized() {
         return !StringUtils.isBlank(this.fontCssClass);
+    }
+
+    private String printTagRendered(String tag) {
+        String metodo = className + " - printTagRendered: ";
+        if (debug) {
+            Collection tal = new ArrayList();
+            log.debug(metodo + "Tag values - ");
+            switch (actualRenderingTag) {
+                case ACTUAL_RENDERING_TAG_IMG:
+                    tal = IMAGE_TAG_FIELDS;
+                    break;
+                case ACTUAL_RENDERING_TAG_FONT:
+                    tal = FONTCSS_TAG_FIELDS;
+                    break;
+                default:
+                    break;
+            }
+            for (Object aTal : tal) {
+                String field = (String) aTal;
+                log.debug("\t" + field + ": " + reflectionUtils.invokeGetter(this, field));
+            }
+            log.debug(metodo + "Tag rendered: " + tag);
+        }
+        return tag;
     }
 
     /**
@@ -120,30 +147,6 @@ public class HTMLDecorator {
 
     private boolean ensureImgIsInitialized() {
         return !StringUtils.isBlank(this.imageSource);
-    }
-
-    private String printTagRendered(String tag) {
-        String metodo = className + " - printTagRendered: ";
-        if (debug) {
-            Collection tal = new ArrayList();
-            log.debug(metodo + "Tag values - ");
-            switch (actualRenderingTag) {
-                case ACTUAL_RENDERING_TAG_IMG:
-                    tal = IMAGE_TAG_FIELDS;
-                    break;
-                case ACTUAL_RENDERING_TAG_FONT:
-                    tal = FONTCSS_TAG_FIELDS;
-                    break;
-                default:
-                    break;
-            }
-            for (Object aTal : tal) {
-                String field = (String) aTal;
-                log.debug("\t" + field + ": " + reflectionUtils.invokeGetter(this, field));
-            }
-            log.debug(metodo + "Tag rendered: " + tag);
-        }
-        return tag;
     }
 
     public int getActualRenderingTag() {

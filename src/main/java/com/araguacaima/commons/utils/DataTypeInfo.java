@@ -9,10 +9,48 @@ import java.lang.reflect.Field;
  * Created by XMZ5547 on 31/01/2016.
  */
 public class DataTypeInfo implements Comparable<DataTypeInfo> {
-    private Class type;
-    private String path;
-    private Field field;
     private boolean collection = false;
+    private Field field;
+    private String path;
+    private Class type;
+
+    @Override
+    public int compareTo(DataTypeInfo o) {
+        if (o == null) {
+            return 0;
+        } else {
+            return this.path.compareTo(o.path);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        DataTypeInfo that = (DataTypeInfo) o;
+
+        return new EqualsBuilder().append(path, that.path).isEquals();
+    }
+
+    public Field getField() {
+        return field;
+    }
+
+    public void setField(Field field) {
+        this.field = field;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
 
     public Class getType() {
         return type;
@@ -25,20 +63,9 @@ public class DataTypeInfo implements Comparable<DataTypeInfo> {
         }
     }
 
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public Field getField() {
-        return field;
-    }
-
-    public void setField(Field field) {
-        this.field = field;
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(type).append(path).append(field).append(collection).toHashCode();
     }
 
     public boolean isCollection() {
@@ -47,37 +74,5 @@ public class DataTypeInfo implements Comparable<DataTypeInfo> {
 
     public void setCollection(boolean collection) {
         this.collection = collection;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-
-        if (o == null || getClass() != o.getClass()) return false;
-
-        DataTypeInfo that = (DataTypeInfo) o;
-
-        return new EqualsBuilder()
-                .append(path, that.path)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(type)
-                .append(path)
-                .append(field)
-                .append(collection)
-                .toHashCode();
-    }
-
-    @Override
-    public int compareTo(DataTypeInfo o) {
-        if (o == null) {
-            return 0;
-        } else {
-            return this.path.compareTo(o.path);
-        }
     }
 }

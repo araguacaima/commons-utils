@@ -308,6 +308,43 @@ public class JConstantPool implements KeyWords {
     }
 
     /**
+     * Returns the tagbyte of the ConstantPool.
+     *
+     * @param index Index to ConstantPool
+     * @return Returns the tag byte.
+     */
+    public int getTagByte(int index) {
+        return ((JConstantPoolEntry) listEntries.get(index)).getTagByte();
+    }
+
+    /**
+     * Returns the ConstantPool value.
+     *
+     * @param index Index to ConstantPool
+     * @return Returns the value of that cp entry.
+     */
+    public String getCpValue(int index) {
+        return ((JConstantPoolEntry) listEntries.get(index)).getValue();
+    }
+
+    /**
+     * Returns the Utf8 value pointed by the first pointer
+     * of the index to the ConstantPool.
+     * Say for example, if entry #6 has ptr1 to be #8
+     * and the utf8 value of #8 is "MyString", this method
+     * on given input 6 returns "MyString".
+     *
+     * @param index Index to ConstantPool
+     * @return Returns a String a Utf8 value.
+     */
+    public String getFirstDirectName(int index) {
+        int ptr1 = ((JConstantPoolEntry) listEntries.get(index)).
+                getPtr1();
+        return ((JConstantPoolEntry) listEntries.get(ptr1)).
+                getValue();
+    }
+
+    /**
      * Returns the data type of the given ConstantPool Index.
      *
      * @param index Index to the ConstantPool Entry.
@@ -326,16 +363,6 @@ public class JConstantPool implements KeyWords {
             default:
                 return NULL;
         }
-    }
-
-    /**
-     * Returns the tagbyte of the ConstantPool.
-     *
-     * @param index Index to ConstantPool
-     * @return Returns the tag byte.
-     */
-    public int getTagByte(int index) {
-        return ((JConstantPoolEntry) listEntries.get(index)).getTagByte();
     }
 
     /**
@@ -385,23 +412,6 @@ public class JConstantPool implements KeyWords {
      */
     public String getFieldName(int index) {
         return getFirstDirectName(index);
-    }
-
-    /**
-     * Returns the Utf8 value pointed by the first pointer
-     * of the index to the ConstantPool.
-     * Say for example, if entry #6 has ptr1 to be #8
-     * and the utf8 value of #8 is "MyString", this method
-     * on given input 6 returns "MyString".
-     *
-     * @param index Index to ConstantPool
-     * @return Returns a String a Utf8 value.
-     */
-    public String getFirstDirectName(int index) {
-        int ptr1 = ((JConstantPoolEntry) listEntries.get(index)).
-                getPtr1();
-        return ((JConstantPoolEntry) listEntries.get(ptr1)).
-                getValue();
     }
 
     /**
@@ -635,16 +645,6 @@ public class JConstantPool implements KeyWords {
      */
     public String getUtf8String(int index) {
         return getCpValue(index);
-    }
-
-    /**
-     * Returns the ConstantPool value.
-     *
-     * @param index Index to ConstantPool
-     * @return Returns the value of that cp entry.
-     */
-    public String getCpValue(int index) {
-        return ((JConstantPoolEntry) listEntries.get(index)).getValue();
     }
 
     /**

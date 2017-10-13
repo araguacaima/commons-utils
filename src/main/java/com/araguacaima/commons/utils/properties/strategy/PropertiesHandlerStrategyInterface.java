@@ -24,17 +24,16 @@ import com.araguacaima.commons.exception.core.PropertiesUtilException;
 import java.util.Map;
 import java.util.Properties;
 
-
 public interface PropertiesHandlerStrategyInterface {
-
-    void setNext(PropertiesHandlerStrategyInterface next);
 
     PropertiesHandlerStrategyInterface getNext();
 
+    void setNext(PropertiesHandlerStrategyInterface next);
+
+    Map<String, String> getOriginProperties();
+
     Properties getProperties()
             throws PropertiesUtilException;
-
-    Map <String, String>getOriginProperties();
 
     String getPropertiesHandlerStrategyName();
 

@@ -64,8 +64,8 @@ public interface AppConstants {
      */
     String GPL_INFO = "// JReversePro v " + VERSION + " " + (new Date(System.currentTimeMillis())) + "\n// " +
             "http://jrevpro.sourceforge.net" + "\n// Copyright (C)2000 2001 2002 Karthik Kumar." + "\n// JReversePro " +
-            "comes with ABSOLUTELY NO WARRANTY;" + "\n// This is free software, and you are welcome to redistribute"
-            + "\n// it under certain conditions;See the File 'COPYING' for " + "more details.\n";
+            "" + "comes with ABSOLUTELY NO WARRANTY;" + "\n// This is free software, and you are welcome to " +
+            "redistribute" + "\n// it under certain conditions;See the File 'COPYING' for " + "more details.\n";
     /**
      * XPosition of GUI window.
      */

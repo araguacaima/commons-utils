@@ -33,6 +33,7 @@ public class JFinallyBlock extends JBlockObject {
 
     /**
      * Creates a new instance of JFinallyBlock
+     *
      * @param _jbe The branch
      */
     public JFinallyBlock(JBranchEntry _jbe) {
@@ -44,6 +45,7 @@ public class JFinallyBlock extends JBlockObject {
 
     /**
      * Outputs any starting code to open the block
+     *
      * @return The starting code to open the block
      */
     protected String getEntryCode() {
@@ -52,6 +54,7 @@ public class JFinallyBlock extends JBlockObject {
 
     /**
      * Outputs any terminating code to close the block
+     *
      * @return The terminating code to close the block
      */
     protected String getExitCode() {

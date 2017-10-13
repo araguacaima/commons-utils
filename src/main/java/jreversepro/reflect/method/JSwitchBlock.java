@@ -20,7 +20,8 @@ public class JSwitchBlock extends JBlockObject {
 
     /**
      * Creates a new instance of JSwitchBlock
-     * @param _jbe Branch
+     *
+     * @param _jbe  Branch
      * @param _expr The expression
      */
     public JSwitchBlock(JBranchEntry _jbe, String _expr) {
@@ -33,6 +34,7 @@ public class JSwitchBlock extends JBlockObject {
 
     /**
      * Outputs any starting code to open the block
+     *
      * @return The starting code to open the block
      */
     protected String getEntryCode() {

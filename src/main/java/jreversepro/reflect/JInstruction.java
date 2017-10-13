@@ -110,7 +110,7 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
     /**
      * @param obj Object to be compared.
      * @return true if index is there.
-     *         false, otherwise.
+     * false, otherwise.
      */
     public boolean equals(Object obj) {
         return obj instanceof JInstruction && ((JInstruction) obj).index == this.index;
@@ -120,11 +120,24 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
         return getArgByte(0);
     }
 
+    public int getArgByte(int pos) {
+        return args[pos];
+    }
+
     /**
      * @return unsigned byte.
      */
     public int getArgUnsignedByte() {
         return getArgUnsignedByte(0);
+    }
+
+    /**
+     * @param pos Position from which bytes are to be taken from stream
+     *            and the value to be written.
+     * @return unsigned byte.
+     */
+    public int getArgUnsignedByte(int pos) {
+        return Helper.signedToUnsigned(args[pos]);
     }
 
     public int getArgUnsignedInt() {
@@ -143,6 +156,12 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
         return getArgUnsignedShort(0);
     }
 
+    public final int getArgUnsignedShort(int pos) {
+        int byte1 = Helper.signedToUnsigned(args[pos]);
+        int byte2 = Helper.signedToUnsigned(args[pos + 1]);
+        return (byte1 << 8) | byte2;
+    }
+
     public int getArgWide() {
         return getArgWide(0);
     }
@@ -159,8 +178,10 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
         }
     }
 
-    public int getArgByte(int pos) {
-        return args[pos];
+    public int getArgShort(int pos) {
+        int byte1 = args[pos];
+        int byte2 = Helper.signedToUnsigned(args[pos + 1]);
+        return (byte1 << 8) | byte2;
     }
 
     /**
@@ -170,8 +191,8 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
      * For eg, for OPCODE_IFEQ ,  = is returned.
      *
      * @return Returns conditional operator for the condition
-     *         mentioned in the opcode.
-     *         Empty string, if the opcode is not of branch-on-condition type.
+     * mentioned in the opcode.
+     * Empty string, if the opcode is not of branch-on-condition type.
      */
     public String getConditionalOperator() {
         switch (opcode) {
@@ -294,12 +315,6 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
         return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
     }
 
-    public int getArgShort(int pos) {
-        int byte1 = args[pos];
-        int byte2 = Helper.signedToUnsigned(args[pos + 1]);
-        return (byte1 << 8) | byte2;
-    }
-
     /**
      * Returns if this instruction is a switch instruction or not.
      *
@@ -313,7 +328,7 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
      * Returns if this instruction is an if instruction or not.
      *
      * @return true, if this is an 'if' instruction.
-     *         false, otherwise.
+     * false, otherwise.
      */
     public boolean isAnIfIns() {
         return (opcode >= OPCODE_IFEQ && opcode <= OPCODE_IF_ACMPNE) || opcode == OPCODE_IFNULL || opcode ==
@@ -333,7 +348,7 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
      * end-of-line in the source code.
      *
      * @return Returns true, if this denoted end-of-line.
-     *         false, otherwise.
+     * false, otherwise.
      */
     public boolean isEndOfLine() {
         return (opcode >= OPCODE_ISTORE && opcode <= OPCODE_SASTORE) || opcode == OPCODE_IINC || opcode ==
@@ -347,7 +362,7 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
      * method or interface or a constructor.
      *
      * @return Returns true, if this invokes any one mentioned above,
-     *         false, otherwise
+     * false, otherwise
      */
     public boolean isInvokeIns() {
         return opcode == OPCODE_INVOKESPECIAL || opcode == OPCODE_INVOKEVIRTUAL || opcode == OPCODE_INVOKESTATIC ||
@@ -362,7 +377,7 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
      * is returned.
      *
      * @return index of the variable referred to.
-     *         INVALID_VAR_INDEX, otherwise.
+     * INVALID_VAR_INDEX, otherwise.
      */
     public int isStoreInstruction() {
         switch (opcode) {
@@ -402,6 +417,30 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
     }
 
     /**
+     * @return unsigned Arg Wide.
+     */
+    public int getArgUnsignedWide() {
+        return getArgUnsignedWide(0);
+    }
+
+    /**
+     * @param pos Position from which bytes are to be taken from stream
+     *            and the value to be written.
+     * @return unsigned arg wide.
+     */
+    public int getArgUnsignedWide(int pos) {
+        if (wide) {
+            if (pos != 0) {
+                return getArgUnsignedShort(pos * 2);
+            } else {
+                return getArgUnsignedShort(0);
+            }
+        } else {
+            return getArgUnsignedByte(pos);
+        }
+    }
+
+    /**
      * @return Returns next instruction *
      */
     public JInstruction next() {
@@ -423,7 +462,7 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
      * is returned.
      *
      * @return index of the variable referred to.
-     *         INVALID_VAR_INDEX, otherwise.
+     * INVALID_VAR_INDEX, otherwise.
      */
     public int referredVariable() {
         switch (opcode) {
@@ -460,45 +499,6 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
             default:
                 return INVALID_VAR_INDEX;
         }
-    }
-
-    /**
-     * @return unsigned Arg Wide.
-     */
-    public int getArgUnsignedWide() {
-        return getArgUnsignedWide(0);
-    }
-
-    /**
-     * @param pos Position from which bytes are to be taken from stream
-     *            and the value to be written.
-     * @return unsigned arg wide.
-     */
-    public int getArgUnsignedWide(int pos) {
-        if (wide) {
-            if (pos != 0) {
-                return getArgUnsignedShort(pos * 2);
-            } else {
-                return getArgUnsignedShort(0);
-            }
-        } else {
-            return getArgUnsignedByte(pos);
-        }
-    }
-
-    public final int getArgUnsignedShort(int pos) {
-        int byte1 = Helper.signedToUnsigned(args[pos]);
-        int byte2 = Helper.signedToUnsigned(args[pos + 1]);
-        return (byte1 << 8) | byte2;
-    }
-
-    /**
-     * @param pos Position from which bytes are to be taken from stream
-     *            and the value to be written.
-     * @return unsigned byte.
-     */
-    public int getArgUnsignedByte(int pos) {
-        return Helper.signedToUnsigned(args[pos]);
     }
 
     /**

@@ -411,7 +411,7 @@ public class ClassLoaderUtils {
      * @throws java.io.UnsupportedEncodingException If any path constains an invalid character
      */
     public Collection<Class<?>> findClasses(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters,
-                                                 final NotNullsLinkedHashSet<FileUtilsFilenameFilter> filesExclusions)
+                                            final NotNullsLinkedHashSet<FileUtilsFilenameFilter> filesExclusions)
             throws ClassNotFoundException, IOException {
         Collection<File> classpath = findResources(filters, filesExclusions);
         return getClassesFromClasspath(classpath);
@@ -499,10 +499,13 @@ public class ClassLoaderUtils {
     }
 
     public String getPathForResource(final String resource) {
-        NotNullsLinkedHashSet<Object> result = new NotNullsLinkedHashSet<Object>((mapUtils.find(resourcesAndPaths, (Predicate) o -> {
-            String file = (String) o;
-            return file.equals(resource) || file.endsWith(resource);
-        }, null, MapUtils.EVALUATE_JUST_KEY)).values());
+        NotNullsLinkedHashSet<Object> result = new NotNullsLinkedHashSet<Object>((mapUtils.find(resourcesAndPaths,
+                (Predicate) o -> {
+                    String file = (String) o;
+                    return file.equals(resource) || file.endsWith(resource);
+                },
+                null,
+                MapUtils.EVALUATE_JUST_KEY)).values());
         if (result != null && result.size() > 0) {
             try {
                 String file = ((URL) result.toArray()[0]).getFile();
@@ -680,8 +683,8 @@ public class ClassLoaderUtils {
 
             org.springframework.util.ReflectionUtils.doWithFields(sysloader.getClass(), field -> {
 
-                log.debug("Found field '" + field + "' in type " + field.getDeclaringClass() + ". The " + "recently " +
-                        "created sysloader has been adapted to ensure that its parent " + "corresponds with the " +
+                log.debug("Found field '" + field + "' in type " + field.getDeclaringClass() + ". The " + "recently "
+                        + "created sysloader has been adapted to ensure that its parent " + "corresponds with the " +
                         "current classloader '" + cl.getClass().getName() + "' ");
                 field.setAccessible(true);
                 field.set(sysloader, cl);
@@ -857,7 +860,7 @@ public class ClassLoaderUtils {
                         cl.close();
                     } catch (Throwable t) {
                         log.debug("Class '" + className + "' skiped from Classloader unloading step because of it is " +
-                                "" + "" + "not loaded into it");
+                                "" + "" + "" + "not loaded into it");
                     }
                 }
             } catch (FileNotFoundException ignored) {

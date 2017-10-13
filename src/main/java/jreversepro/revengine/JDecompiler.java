@@ -153,7 +153,7 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
             } catch (Exception ex) {
                 ex.printStackTrace();
                 throw new RevEngineException(curMethod.getName() + " decompilation failed. Please feel " + " free to " +
-                        " report the problem to me at " + " akkumar@users.sourceforge.net. ");
+                        "" + " report the problem to me at " + " akkumar@users.sourceforge.net. ");
             }
         }
     }
@@ -239,10 +239,10 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
      * returns a reference to JCollatingTable.
      *
      * @return Reference of type JCollatingTable.
-     * @throws IOException          Thrown in case of any i/o error.
-     * @throws RevEngineException   Thrown in case any error with the
-     *                              decompiling engine.
-     * @throws IOException Thrown in case an IO error.
+     * @throws IOException        Thrown in case of any i/o error.
+     * @throws RevEngineException Thrown in case any error with the
+     *                            decompiling engine.
+     * @throws IOException        Thrown in case an IO error.
      */
     private JCollatingTable loadBranchTable()
             throws RevEngineException, IOException {

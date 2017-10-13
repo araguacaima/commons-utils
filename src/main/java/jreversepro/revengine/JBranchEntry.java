@@ -275,6 +275,34 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
     }
 
     /**
+     * Trims the expression for a condition here.
+     * For eg, an expression of the form -
+     * if ( a == true ) is converted to 'a' ( just 'a' ).
+     * These small modifications improve the readability of the code.
+     *
+     * @return Returns the new code.
+     */
+    public String getExpression() {
+        operator = operator.trim();
+        opr2 = opr2.trim();
+
+        switch (opr2) {
+            case FALSE:
+                if (operator.equals(OPR_EQ)) {
+                    return OPR_NOT + opr1;
+                }
+                return opr1;
+            case TRUE:
+                if (operator.equals(OPR_EQ)) {
+                    return opr1;
+                }
+                return OPR_NOT + opr1;
+            default:
+                return opr1 + " " + operator + " " + opr2;
+        }
+    }
+
+    /**
      * Append the code for the beginning of a block
      *
      * @param decomp Reference to decempiler.
@@ -351,7 +379,7 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
      * <br>
      *
      * @return true , if the entry is a 'if' branch .
-     *         false , otherwise.
+     * false , otherwise.
      */
     boolean collate() {
         if (type == TYPE_JSR) {
@@ -376,6 +404,31 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
     }
 
     /**
+     * Returns the complementary operator of the given operator.
+     * <br>
+     *
+     * @param rhs Operator for which complement is to be returned.
+     * @return the complementary operator of <code>Rhs</code>
+     */
+    private String getComplementOperator(String rhs) {
+        if (rhs.compareTo(OPR_GT) == 0) {
+            return OPR_LE;
+        } else if (rhs.compareTo(OPR_GE) == 0) {
+            return OPR_LT;
+        } else if (rhs.compareTo(OPR_LT) == 0) {
+            return OPR_GE;
+        } else if (rhs.compareTo(OPR_LE) == 0) {
+            return OPR_GT;
+        } else if (rhs.compareTo(OPR_EQ) == 0) {
+            return OPR_NE;
+        } else if (rhs.compareTo(OPR_NE) == 0) {
+            return OPR_EQ;
+        } else {
+            return rhs;
+        }
+    }
+
+    /**
      * This is invoked under the following circumstances. First this
      * is recognized as a 'if' branch. Then afterwards recognized as
      * 'while' branch.
@@ -394,7 +447,7 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
      *
      * @param aPc the Pc for which the location is to be mentioned.
      * @return true, if the block mentioned contains this Pc.
-     *         false, otherwise.
+     * false, otherwise.
      * @throws RevEngineException Thrown in case any error occurs while
      *                            performing this operation.
      */
@@ -402,6 +455,35 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
             throws RevEngineException {
 
         return (getStartBlockPc() <= aPc && getEndBlockPc() >= aPc);
+    }
+
+    /**
+     * @return Returns the start pc of this block.
+     * @throws RevEngineException Thrown in case of any error while geting
+     *                            start block Pc.
+     */
+    public int getStartBlockPc()
+            throws RevEngineException {
+
+        switch (type) {
+            case TYPE_IF:
+            case TYPE_ELSE:
+            case TYPE_ELSE_IF:
+            case TYPE_TRY:
+            case TYPE_TRY_ANY:
+            case TYPE_CATCH:
+            case TYPE_CATCH_ANY:
+            case TYPE_JSR:
+            case TYPE_SYNC:
+            case TYPE_SWITCH:
+            case TYPE_CASE:
+                return startPc;
+            case TYPE_WHILE:
+            case TYPE_DO_WHILE:
+                return targetPc;
+            default:
+                throw new RevEngineException("Invalid Branch Entry");
+        }
     }
 
     /**
@@ -468,42 +550,13 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
      * @param rhsStartPc StartPc that is to be checked if a block
      *                   starts there.
      * @return true, if this block starts with the mentioned startPc.
-     *         false, otherwise.
+     * false, otherwise.
      * @throws RevEngineException Thrown when any error occurs.
      */
     public boolean doesStartWith(int rhsStartPc)
             throws RevEngineException {
 
         return type != TYPE_INVALID && (getStartBlockPc() == rhsStartPc);
-    }
-
-    /**
-     * @return Returns the start pc of this block.
-     * @throws RevEngineException Thrown in case of any error while geting
-     *                            start block Pc.
-     */
-    public int getStartBlockPc()
-            throws RevEngineException {
-
-        switch (type) {
-            case TYPE_IF:
-            case TYPE_ELSE:
-            case TYPE_ELSE_IF:
-            case TYPE_TRY:
-            case TYPE_TRY_ANY:
-            case TYPE_CATCH:
-            case TYPE_CATCH_ANY:
-            case TYPE_JSR:
-            case TYPE_SYNC:
-            case TYPE_SWITCH:
-            case TYPE_CASE:
-                return startPc;
-            case TYPE_WHILE:
-            case TYPE_DO_WHILE:
-                return targetPc;
-            default:
-                throw new RevEngineException("Invalid Branch Entry");
-        }
     }
 
     /**
@@ -539,7 +592,7 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
 
     /**
      * @return Returns the Pc from which the execution for the
-     *         block under consideration.
+     * block under consideration.
      * @throws RevEngineException Thrown in case any error occurs.
      */
     public int getStartExecPc()
@@ -619,7 +672,7 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
      * for is existence
      *
      * @return true, if the block is independent.
-     *         false, otherwise.
+     * false, otherwise.
      */
     public boolean independent() {
         return type == TYPE_IF || type == TYPE_WHILE || type == TYPE_TRY || type == TYPE_DO_WHILE || type ==
@@ -660,7 +713,7 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
 
     /**
      * @return Returns the Stringified representation of the
-     *         class.
+     * class.
      */
     public String toString() {
         StringBuilder sb = new StringBuilder("  ");
@@ -797,58 +850,5 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
             operator = getComplementOperator(operator);
         }
         return getExpression();
-    }
-
-    /**
-     * Returns the complementary operator of the given operator.
-     * <br>
-     *
-     * @param rhs Operator for which complement is to be returned.
-     * @return the complementary operator of <code>Rhs</code>
-     */
-    private String getComplementOperator(String rhs) {
-        if (rhs.compareTo(OPR_GT) == 0) {
-            return OPR_LE;
-        } else if (rhs.compareTo(OPR_GE) == 0) {
-            return OPR_LT;
-        } else if (rhs.compareTo(OPR_LT) == 0) {
-            return OPR_GE;
-        } else if (rhs.compareTo(OPR_LE) == 0) {
-            return OPR_GT;
-        } else if (rhs.compareTo(OPR_EQ) == 0) {
-            return OPR_NE;
-        } else if (rhs.compareTo(OPR_NE) == 0) {
-            return OPR_EQ;
-        } else {
-            return rhs;
-        }
-    }
-
-    /**
-     * Trims the expression for a condition here.
-     * For eg, an expression of the form -
-     * if ( a == true ) is converted to 'a' ( just 'a' ).
-     * These small modifications improve the readability of the code.
-     *
-     * @return Returns the new code.
-     */
-    public String getExpression() {
-        operator = operator.trim();
-        opr2 = opr2.trim();
-
-        switch (opr2) {
-            case FALSE:
-                if (operator.equals(OPR_EQ)) {
-                    return OPR_NOT + opr1;
-                }
-                return opr1;
-            case TRUE:
-                if (operator.equals(OPR_EQ)) {
-                    return opr1;
-                }
-                return OPR_NOT + opr1;
-            default:
-                return opr1 + " " + operator + " " + opr2;
-        }
     }
 }

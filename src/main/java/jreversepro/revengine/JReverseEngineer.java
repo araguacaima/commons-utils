@@ -37,7 +37,7 @@ public interface JReverseEngineer {
      * Message that appears when decompiling fails.
      */
     String DECOMPILE_FAILED_MSG = "\n\t\t/**\nDecompilation failed for the method. " + "Thanks for reporting the bug " +
-            "to me at " + "akkumar@users.sourceforge.net by attaching this " + "class file .\n **/";
+            "" + "to me at " + "akkumar@users.sourceforge.net by attaching this " + "class file .\n **/";
 
     /**
      * Generates the code for disassembler and decompiler.

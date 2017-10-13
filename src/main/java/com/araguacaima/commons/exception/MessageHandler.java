@@ -261,6 +261,39 @@ public class MessageHandler {
         return count;
     }
 
+    private int propertyToMap(int count, String bundleKey, Properties bundle) {
+        Enumeration keys = bundle.keys();
+        while (keys.hasMoreElements()) {
+            String key = (String) keys.nextElement();
+            try {
+                put(key, bundle.getProperty(key), bundleKey);
+                count++;
+            } catch (Exception e) {
+                log.error("Error adding data for label '" + key + "'.  No data will be added for this label.", e);
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Adds the value for the tag with the specified property name
+     *
+     * @param propertyName  String with tag name
+     * @param propertyValue String with the value of the tag to add
+     * @param origin        String with the name of the file or table where the tag is read, and the locale. It is
+     *                      formed as <code>&lt;fileName&gt;_&lt;localeId&gt; o &lt;tableName&gt;_&lt;localeId&gt;
+     *                      </code>
+     */
+    public void put(String propertyName, String propertyValue, String origin) {
+        Hashtable<String, String> innerMap = labels.get(origin);
+        if (null == innerMap) {
+            origin = DEFAULT_ORIGIN;
+            innerMap = new Hashtable<>();
+        }
+        labels.put(origin, innerMap);
+        innerMap.put(propertyName, propertyValue);
+    }
+
     /**
      * Metodo que limpia la data de SystemInfo
      * Solo debe ser usado para tratar de recargar la data, o para las pruebas.
@@ -328,38 +361,5 @@ public class MessageHandler {
      */
     public static String get(String propertyName, String origin) {
         return get(propertyName, origin, getLocale());
-    }
-
-    /**
-     * Adds the value for the tag with the specified property name
-     *
-     * @param propertyName  String with tag name
-     * @param propertyValue String with the value of the tag to add
-     * @param origin        String with the name of the file or table where the tag is read, and the locale. It is
-     *                      formed as <code>&lt;fileName&gt;_&lt;localeId&gt; o &lt;tableName&gt;_&lt;localeId&gt;
-     *                      </code>
-     */
-    public void put(String propertyName, String propertyValue, String origin) {
-        Hashtable<String, String> innerMap = labels.get(origin);
-        if (null == innerMap) {
-            origin = DEFAULT_ORIGIN;
-            innerMap = new Hashtable<>();
-        }
-        labels.put(origin, innerMap);
-        innerMap.put(propertyName, propertyValue);
-    }
-
-    private int propertyToMap(int count, String bundleKey, Properties bundle) {
-        Enumeration keys = bundle.keys();
-        while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
-            try {
-                put(key, bundle.getProperty(key), bundleKey);
-                count++;
-            } catch (Exception e) {
-                log.error("Error adding data for label '" + key + "'.  No data will be added for this label.", e);
-            }
-        }
-        return count;
     }
 }

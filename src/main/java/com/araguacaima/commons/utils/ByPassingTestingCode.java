@@ -11,11 +11,11 @@ import java.util.Properties;
 public class ByPassingTestingCode {
 
     private static final Logger log = LoggerFactory.getLogger(ByPassingTestingCode.class);
-    public Map BYPASSING_TESTING_CODE_PARAMETERS_MAP;
-    private String logFileSourceName;
     private final MapUtils mapUtils;
     private final NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate;
     private final PropertiesHandlerUtils propertiesHandlerUtils;
+    public Map BYPASSING_TESTING_CODE_PARAMETERS_MAP;
+    private String logFileSourceName;
 
     public ByPassingTestingCode(PropertiesHandlerUtils propertiesHandlerUtils,
                                 MapUtils mapUtils,

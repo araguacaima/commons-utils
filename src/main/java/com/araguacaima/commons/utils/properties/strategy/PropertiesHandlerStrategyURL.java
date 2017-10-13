@@ -24,7 +24,7 @@ import com.araguacaima.commons.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -76,7 +76,11 @@ public class PropertiesHandlerStrategyURL extends PropertiesHandlerStrategy {
     public Properties getProperties()
             throws PropertiesUtilException {
 
-        File file = fileUtils.getFileFromURL(urlLocalFilePath, urlRemoteFilePath, urlServerDomainAndPort, urlServerDomainLogin, urlServerDomainPassword);
+        File file = fileUtils.getFileFromURL(urlLocalFilePath,
+                urlRemoteFilePath,
+                urlServerDomainAndPort,
+                urlServerDomainLogin,
+                urlServerDomainPassword);
         if (file != null) {
             properties = propertiesHandlerUtils.getHandler(file.getPath(), true).getProperties();
         }

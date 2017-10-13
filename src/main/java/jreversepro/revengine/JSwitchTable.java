@@ -262,7 +262,7 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
 
     /**
      * @return Returns the disassembled string for this switch
-     *         statement block.
+     * statement block.
      */
     public String disassemble() {
         StringBuilder sb = new StringBuilder("");
@@ -282,7 +282,7 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
 
     /**
      * @return Returns the list of cases.
-     *         Individual elements are JCaseEntry.
+     * Individual elements are JCaseEntry.
      */
     public List getCases() {
         return cases;

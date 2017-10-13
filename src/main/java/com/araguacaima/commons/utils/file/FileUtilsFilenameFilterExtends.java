@@ -8,18 +8,21 @@ import jreversepro.revengine.JSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
-
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class FileUtilsFilenameFilterExtends extends FileUtilsFilenameFilterImpl {
 
-    private Class superClassCriteria;
+    public static final int DEFAULT_FILTER_TYPE = FileUtilsFilenameFilter.RESOURCE_DIR_OR_FILE_FILTER_EQUALS;
     private final ClassLoader classLoader;
     private StringUtils stringUtils;
-    public static final int DEFAULT_FILTER_TYPE = FileUtilsFilenameFilter.RESOURCE_DIR_OR_FILE_FILTER_EQUALS;
+    private Class superClassCriteria;
 
     @Autowired
     public FileUtilsFilenameFilterExtends(ClassLoaderUtils classLoaderUtils, StringUtils stringUtils) {
@@ -42,18 +45,6 @@ public class FileUtilsFilenameFilterExtends extends FileUtilsFilenameFilterImpl 
         this.filterType = filterType;
     }
 
-    public void setFilterType(int filterType) {
-        this.filterType = filterType;
-    }
-
-    public Class getSuperClassCriteria() {
-        return superClassCriteria;
-    }
-
-    public int getFilterType() {
-        return filterType;
-    }
-
     public boolean accept(File dir, String name) {
 
         if (dir == null || superClassCriteria == null) {
@@ -74,29 +65,25 @@ public class FileUtilsFilenameFilterExtends extends FileUtilsFilenameFilterImpl 
             if (clazz == Object.class) {
                 try {
                     String[] jarTokens = name.split(".jar");
-                    String classFile = jarTokens[1].replaceFirst("\\.class", StringUtils.EMPTY)
-                            .replaceAll(StringUtils.DOUBLEBACKSLASH, ".");
-                    classFile = classFile.indexOf(".") == 0
-                                ? classFile.replaceFirst(".", StringUtils.EMPTY)
-                                : classFile;
+                    String classFile = jarTokens[1].replaceFirst("\\.class",
+                            StringUtils.EMPTY).replaceAll(StringUtils.DOUBLEBACKSLASH, ".");
+                    classFile = classFile.indexOf(".") == 0 ? classFile.replaceFirst(".",
+                            StringUtils.EMPTY) : classFile;
                     clazz = classLoader.loadClass(classFile).getSuperclass();
 
-                } catch (ClassNotFoundException | NullPointerException | NoClassDefFoundError | StringIndexOutOfBoundsException ignored) {
+                } catch (ClassNotFoundException | NullPointerException | NoClassDefFoundError |
+                        StringIndexOutOfBoundsException ignored) {
                 } catch (ArrayIndexOutOfBoundsException ignored) {
-                    String classname = stringUtils.replaceLast(name.replaceAll(StringUtils.BACKSLASH
-+ StringUtils.BACKSLASH, ".")
-                                                                      .replaceAll(StringUtils.SLASH, "."),
-                                                              ".class",
-                                                              StringUtils.EMPTY);
+                    String classname = stringUtils.replaceLast(name.replaceAll(StringUtils.BACKSLASH + StringUtils
+                                    .BACKSLASH,
+                            ".").replaceAll(StringUtils.SLASH, "."), ".class", StringUtils.EMPTY);
                     try {
                         clazz = classLoader.loadClass(classname).getSuperclass();
                     } catch (NoClassDefFoundError ignored1) {
                     } catch (ClassNotFoundException ignored2) {
                         try {
-                            List folders = Arrays.asList(dir.getPath()
-                                                                 .split(File.separator.equals(StringUtils.SLASH)
-                                                                        ? StringUtils.SLASH
-                                                                        : StringUtils.BACKSLASH + StringUtils.BACKSLASH));
+                            List folders = Arrays.asList(dir.getPath().split(File.separator.equals(StringUtils.SLASH)
+                                    ? StringUtils.SLASH : StringUtils.BACKSLASH + StringUtils.BACKSLASH));
                             Collections.reverse(folders);
                             String classPackage = StringUtils.EMPTY;
                             for (Object folder : folders) {
@@ -122,42 +109,6 @@ public class FileUtilsFilenameFilterExtends extends FileUtilsFilenameFilterImpl 
             result = false;
         }
         return result;
-    }
-
-    public Collection<URL> getResources(ClassLoader classLoader) throws IOException {
-        return getResources(classLoader, false);
-    }
-
-    public Collection<URL> getResources(ClassLoader classLoader, boolean onlyPath) throws IOException {
-        String superClassCriteriaTransformed = superClassCriteria.getName().contains(".")
-                                               ? superClassCriteria.getName()
-                .substring(0, superClassCriteria.getName().lastIndexOf("."))
-                                               : StringUtils.EMPTY;
-        superClassCriteriaTransformed = superClassCriteriaTransformed.replaceAll("\\.", StringUtils.SLASH)
-                .replaceAll("\\\\\\*", StringUtils.EMPTY);
-        return Collections.list(classLoader.getResources(superClassCriteriaTransformed));
-    }
-
-    public Collection<URL> getResources() {
-        String superClassCriteriaTransformed = superClassCriteria.getName().contains(".")
-                                               ? superClassCriteria.getName()
-                .substring(0, superClassCriteria.getName().lastIndexOf("."))
-                                               : StringUtils.EMPTY;
-        superClassCriteriaTransformed = superClassCriteriaTransformed.replaceAll("\\.", StringUtils.SLASH)
-                .replaceAll("\\\\\\*", StringUtils.EMPTY);
-        return classLoaderUtils.getResources(superClassCriteriaTransformed);
-    }
-
-    public String printCriterias() {
-        return "["
-               + FileUtilsFilenameFilterExtends.class.getName()
-               + "]"
-               + "superClassCriteria: "
-               + superClassCriteria.getName()
-               + " | classLoader: "
-               + classLoader.getClass().getName()
-               + " | filterType: "
-               + filterType;
     }
 
     private boolean checkWhetherOrNotSuperclassesExtendsCriteria(Class clazz) {
@@ -238,6 +189,52 @@ public class FileUtilsFilenameFilterExtends extends FileUtilsFilenameFilterImpl 
         }
 
         return false;
+    }
+
+    public int getFilterType() {
+        return filterType;
+    }
+
+    public void setFilterType(int filterType) {
+        this.filterType = filterType;
+    }
+
+    public Collection<URL> getResources() {
+        String superClassCriteriaTransformed = superClassCriteria.getName().contains(".") ? superClassCriteria
+                .getName().substring(
+                0,
+                superClassCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;
+        superClassCriteriaTransformed = superClassCriteriaTransformed.replaceAll("\\.", StringUtils.SLASH).replaceAll(
+                "\\\\\\*",
+                StringUtils.EMPTY);
+        return classLoaderUtils.getResources(superClassCriteriaTransformed);
+    }
+
+    public Collection<URL> getResources(ClassLoader classLoader)
+            throws IOException {
+        return getResources(classLoader, false);
+    }
+
+    public Collection<URL> getResources(ClassLoader classLoader, boolean onlyPath)
+            throws IOException {
+        String superClassCriteriaTransformed = superClassCriteria.getName().contains(".") ? superClassCriteria
+                .getName().substring(
+                0,
+                superClassCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;
+        superClassCriteriaTransformed = superClassCriteriaTransformed.replaceAll("\\.", StringUtils.SLASH).replaceAll(
+                "\\\\\\*",
+                StringUtils.EMPTY);
+        return Collections.list(classLoader.getResources(superClassCriteriaTransformed));
+    }
+
+    public Class getSuperClassCriteria() {
+        return superClassCriteria;
+    }
+
+    public String printCriterias() {
+        return "[" + FileUtilsFilenameFilterExtends.class.getName() + "]" + "superClassCriteria: " +
+                superClassCriteria.getName() + " | classLoader: " + classLoader.getClass().getName() + " | " +
+                "filterType: " + filterType;
     }
 
 }
