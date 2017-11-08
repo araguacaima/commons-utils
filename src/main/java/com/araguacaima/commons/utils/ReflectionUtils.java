@@ -21,8 +21,8 @@ package com.araguacaima.commons.utils;
 
 import com.google.common.collect.ObjectArrays;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.builder.StandardToStringStyle;
@@ -815,12 +815,12 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
-    public Object createObject(Class type)
+    public <T> T createObject(Class<T> type)
             throws InvocationTargetException {
         return createObject(type, true);
     }
 
-    public Object createObject(Class type, boolean privateConstructors)
+    public <T> T createObject(Class<T> type, boolean privateConstructors)
             throws InvocationTargetException {
         // Use no-arg constructor.
         Constructor constructor = null;
@@ -860,7 +860,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                     "Unable to find a no-arg constructor for class: " + type.getName());
 
         try {
-            return constructor.newInstance();
+            return (T) constructor.newInstance();
         } catch (Exception ex) {
             throw new InvocationTargetException(ex, "Error constructing instance of class: " + type.getName());
         }
@@ -916,14 +916,17 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             for (Field field : fields) {
                 String fieldName = field.getName();
                 Class<?> fieldClass = field.getType();
-
                 // skip primitives
-                if (!isCollectionImplementation(fieldClass) && StringUtils.isNotBlank(getSimpleJavaTypeOrNull
+                if (fieldClass.isEnum() || fieldClass.isAssignableFrom(Enum.class) || fieldClass.isPrimitive() || StringUtils.isNotBlank(getSimpleJavaTypeOrNull
                         (fieldClass.getSimpleName(),
-                        false))) {
+                                false))) {
                     continue;
                 }
 
+                // skip primitives
+                if (isCollectionImplementation(fieldClass)) {
+                    continue;
+                }
                 // allow access to private fields
                 boolean isAccessible = field.isAccessible();
                 Object fieldValue;
@@ -947,41 +950,25 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                 fieldValue = field.get(object);
                 if (fieldValue == null) {
                     try {
-
-                        if (Collection.class.isAssignableFrom(fieldClass)) {
-                            //TODO Mejor esfuerzo para intentar inizilizar el collection con los tipos más comunes de
-                            // implementaciones de la interfaz Collection
-                            boolean found = false;
-                            for (Class clazz : COMMONS_COLLECTIONS_IMPLEMENTATIONS) {
-                                try {
-                                    value = clazz.newInstance();
-                                    field.set(object, value);
-                                    found = true;
-                                    break;
-                                } catch (Throwable ignored) {
-                                }
-                            }
-                            if (found) {
-                                continue;
-                            }
-                        } else if (Object[].class.isAssignableFrom(fieldClass)) {
-                            value = Object[].class.newInstance();
-                        } else if (fieldClass.isArray()) {
-                            value = Array.newInstance(int.class, 1);
+                        Object object1 = field.get(object);
+                        if (isCollectionImplementation(fieldClass)) {
+                            deepInitialization(object1, packages, false, verbose);
+                            value = createAndInitializeTypedCollection(fieldClass, object1);
+                        } else if (isMapImplementation(fieldClass)) {
+                            deepInitialization(object1, packages, false, verbose);
+                            value = new TreeMap();
+                            ((Map) value).putAll((Map) object1);
                         } else {
                             value = fieldClass.newInstance();
                         }
-                        //            child = value;
                         field.set(object, value);
+                        continue;
                     } catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
-
                         log.error("Could not initialize " + fieldClass.getSimpleName() + ", Maybe it's an " +
                                 "interface, abstract class, or it hasn't an empty Constructor");
                         continue;
                     }
                 }
-
-                fieldValue = field.get(object);
 
                 // reset accessible
                 field.setAccessible(isAccessible);
@@ -1004,8 +991,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                 Class returnedType = getterMethod.getReturnType();
                 final Predicate<Method> methodPredicate = method -> method.getName().equals(getterMethod.getName()
                         .replaceFirst(
-                        "get",
-                        "set"));
+                                "get",
+                                "set"));
                 Method setterMethod = IterableUtils.find(declaredSetterMethods, methodPredicate);
                 if (setterMethod != null) {
                     if (returnedType.equals(String.class)) {
@@ -1200,7 +1187,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                         }
                         Collection<Method> getterMethods = considerHierarchy ? getGetterMethods(clazz) :
                                 getDeclaredGetterMethods(
-                                clazz);
+                                        clazz);
                         for (final Method method : getterMethods) {
                             final String fieldName = (String) IterableUtils.find(fieldNames,
                                     o -> ((String) o).equalsIgnoreCase(method.getName().replaceFirst("get",
@@ -1221,11 +1208,11 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                                         value = ((Object[]) object)[i];
                                         objectValuesFormatted.append(indentation).append("[").append(i).append("]")
                                                 .append(
-                                                StringUtils.BLANK_SPACE).append("(").append(getSimpleClassName(value
+                                                        StringUtils.BLANK_SPACE).append("(").append(getSimpleClassName(value
                                                 .getClass())).append(
                                                 ")").append(StringUtils.BLANK_SPACE).append(StringUtils.EQUAL_SYMBOL)
                                                 .append(
-                                                StringUtils.BLANK_SPACE).append(StringUtils.isNotBlank(indentation)
+                                                        StringUtils.BLANK_SPACE).append(StringUtils.isNotBlank(indentation)
                                                 && !isBasic(
                                                 value.getClass()) ? ((new StringBuffer()).append(StringUtils
                                                 .NEW_LINE)).toString() : StringUtils.EMPTY).append(
@@ -1276,9 +1263,9 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                                         }
                                         objectValuesFormatted.append(getSimpleClassName(valueOfField.getClass()))
                                                 .append(
-                                                ")").append(StringUtils.BLANK_SPACE).append(StringUtils.EQUAL_SYMBOL)
+                                                        ")").append(StringUtils.BLANK_SPACE).append(StringUtils.EQUAL_SYMBOL)
                                                 .append(
-                                                StringUtils.BLANK_SPACE).append(valueOfField).append(StringUtils
+                                                        StringUtils.BLANK_SPACE).append(valueOfField).append(StringUtils
                                                 .NEW_LINE);
                                     } catch (NullPointerException e) {
                                         Object valueOfField = UNKNOWN_VALUE;
@@ -1308,7 +1295,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                                                 .getReturnType()) : getSimpleClassName(
                                                 valueOfField.getClass())).append(")").append(StringUtils.BLANK_SPACE)
                                                 .append(
-                                                StringUtils.EQUAL_SYMBOL).append(StringUtils.BLANK_SPACE).append(
+                                                        StringUtils.EQUAL_SYMBOL).append(StringUtils.BLANK_SPACE).append(
                                                 valueOfField).append(StringUtils.NEW_LINE);
                                     }
                                 }

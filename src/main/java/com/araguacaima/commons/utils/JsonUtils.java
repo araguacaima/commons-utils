@@ -265,9 +265,18 @@ public class JsonUtils {
                 setters.size() >= 1;
     }
 
-    public Object fromJSON(ObjectMapper mapper, final String jsonObject, final Class beanType)
+    public <T> T fromJSON(String jsonObject, Class<T> beanType) throws IOException {
+        return this.mapper.readValue(jsonObject, beanType);
+    }
+
+    public <T> T fromJSON(ObjectMapper mapper, String jsonObject, Class<T> beanType)
             throws IOException {
-        return mapper.readValue(jsonObject, beanType);
+        if (mapper != null) {
+            return mapper.readValue(jsonObject, beanType);
+        } else {
+            return this.mapper.readValue(jsonObject, beanType);
+        }
+
     }
 
     public Map<Class, Field> getFieldFromJsonPath(String jsonPath,
