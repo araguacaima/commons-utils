@@ -20,6 +20,8 @@
 package com.araguacaima.commons.utils;
 
 import com.google.common.collect.ObjectArrays;
+import io.github.benas.randombeans.EnhancedRandomBuilder;
+import io.github.benas.randombeans.api.EnhancedRandom;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
@@ -42,7 +44,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
+
+import static java.nio.charset.Charset.forName;
 
 @SuppressWarnings({"unchecked", "UnusedReturnValue"})
 @Component
@@ -110,6 +116,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     private static final FieldCompare FIELD_COMPARE = new FieldCompare();
     private static final DataTypesConverter dataTypesConverter = new DataTypesConverter();
     private static final Logger log = LoggerFactory.getLogger(ReflectionUtils.class);
+    private static EnhancedRandomBuilder randomBuilder;
 
     static {
         final StandardToStringStyle tiesStyle = new StandardToStringStyle();
@@ -194,6 +201,23 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         PRIMITIVE_AND_BASIC_TYPE_DEFAULT_VALUES.put(Float.class, (float) -1);
         PRIMITIVE_AND_BASIC_TYPE_DEFAULT_VALUES.put(Double.class, (double) -1);
         PRIMITIVE_AND_BASIC_TYPE_DEFAULT_VALUES.put(String.class, StringUtils.EMPTY);
+
+        LocalTime timeLower = LocalTime.of(0, 0);
+        LocalTime timeUpper = LocalTime.of(0, 0);
+        LocalDate dateLower = LocalDate.of(2000, 1, 1);
+        LocalDate dateUpper = LocalDate.of(2040, 12, 31);
+
+        randomBuilder = EnhancedRandomBuilder.aNewEnhancedRandomBuilder()
+                .seed(123L)
+                .objectPoolSize(100)
+                .charset(forName("UTF-8"))
+                .timeRange(timeLower, timeUpper)
+                .dateRange(dateLower, dateUpper)
+                .stringLengthRange(5, 20)
+                .collectionSizeRange(1, 5)
+                .scanClasspathForConcreteTypes(true)
+                .overrideDefaultInitialization(true);
+
     }
 
     private final ReflectionFactory reflectionFactory = ReflectionFactory.getReflectionFactory();
@@ -886,22 +910,73 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         }
     }
 
+    /**
+     * Perform a deep initialization of the given object. That action includes initializing all its fields, according to the 'includeParent' indicator.
+     *
+     * @param object        The object to initialize
+     * @param includeParent Indicates whether or not include the parent's fields
+     * @deprecated Use <code>com.araguacaima.commons.utils.ReflectionUtils#deepInitialization(java.lang.Class)</code> instead
+     */
+    @Deprecated()
     public void deepInitialization(Object object, boolean includeParent)
             throws IllegalArgumentException, IllegalAccessException {
-        deepInitialization(object, null, includeParent, true);
+        deepInitialization(object, null, includeParent);
     }
 
+    /**
+     * Perform a deep initialization of the given object including all its parent's fields.
+     *
+     * @param object The object to initialize
+     * @deprecated Use <code>com.araguacaima.commons.utils.ReflectionUtils#deepInitialization(java.lang.Class)</code> instead
+     */
+    @Deprecated()
     public void deepInitialization(Object object)
             throws IllegalArgumentException, IllegalAccessException {
-        deepInitialization(object, null, true, true);
+        deepInitialization(object, null, true);
     }
 
+    /**
+     * Perform a deep initialization of the given object. That action includes initializing all its fields, according to the 'includeParent' indicator inside the provided set of 'packages'.
+     *
+     * @param object   The object to initialize
+     * @param packages Set of packages to searchinf for.
+     * @deprecated Use <code>com.araguacaima.commons.utils.ReflectionUtils#deepInitialization(java.lang.Class)</code> instead
+     */
+    @Deprecated()
     public void deepInitialization(Object object, Set<String> packages)
             throws IllegalArgumentException, IllegalAccessException {
-        deepInitialization(object, packages, true, true);
+        deepInitialization(object, packages, true);
     }
 
-    public void deepInitialization(Object object, Set<String> packages, boolean includeParent, boolean verbose)
+    /**
+     * Perform a deep initialization of the given class according to the default random builder configuration. <see>io.github.benas.randombeans.EnhancedRandomBuilder</see>.
+     *
+     * @param clazz The class to initialize
+     */
+    public <T> T deepInitialization(Class<T> clazz) {
+        return deepInitialization(clazz, randomBuilder);
+    }
+
+    /**
+     * Perform a deep initialization of the given class according to the provided random builder configuration. <see>io.github.benas.randombeans.EnhancedRandomBuilder</see>.
+     *
+     * @param clazz         The class to initialize
+     * @param randomBuilder The random builder configuration.
+     */
+    public <T> T deepInitialization(Class<T> clazz, EnhancedRandomBuilder randomBuilder) {
+        EnhancedRandom random = randomBuilder.build();
+        return random.nextObject(clazz);
+    }
+
+    /**
+     * Perform a deep initialization of the given object. That action includes initializing all its fields, according to the 'includeParent' indicator.
+     *
+     * @param object        The object to initialize
+     * @param includeParent Indicates whether or not include the parent's fields
+     * @deprecated Use <code>com.araguacaima.commons.utils.ReflectionUtils#deepInitialization(java.lang.Class)</code> instead
+     */
+    @Deprecated()
+    public void deepInitialization(Object object, Set<String> packages, boolean includeParent)
             throws IllegalArgumentException, IllegalAccessException {
 
         Field[] fields;
@@ -917,14 +992,9 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                 String fieldName = field.getName();
                 Class<?> fieldClass = field.getType();
                 // skip primitives
-                if (fieldClass.isEnum() || fieldClass.isAssignableFrom(Enum.class) || fieldClass.isPrimitive() || StringUtils.isNotBlank(getSimpleJavaTypeOrNull
+                if (fieldClass.isEnum() || fieldClass.isAssignableFrom(Enum.class) || fieldClass.isPrimitive() || (!isCollectionImplementation(fieldClass) && StringUtils.isNotBlank(getSimpleJavaTypeOrNull
                         (fieldClass.getSimpleName(),
-                                false))) {
-                    continue;
-                }
-
-                // skip primitives
-                if (isCollectionImplementation(fieldClass)) {
+                                false)))) {
                     continue;
                 }
                 // allow access to private fields
@@ -946,21 +1016,29 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                     }
                 }
                 field.setAccessible(true);
-
                 fieldValue = field.get(object);
-                if (fieldValue == null) {
+
+                if (fieldValue != null) {
                     try {
-                        Object object1 = field.get(object);
                         if (isCollectionImplementation(fieldClass)) {
-                            deepInitialization(object1, packages, false, verbose);
-                            value = createAndInitializeTypedCollection(fieldClass, object1);
+                            deepInitialization(fieldValue, packages, false);
+                            value = createAndInitializeTypedCollection(fieldClass, fieldValue);
                         } else if (isMapImplementation(fieldClass)) {
-                            deepInitialization(object1, packages, false, verbose);
+                            deepInitialization(fieldValue, packages, false);
                             value = new TreeMap();
-                            ((Map) value).putAll((Map) object1);
+                            ((Map) value).putAll((Map) fieldValue);
                         } else {
-                            value = fieldClass.newInstance();
+                            value = fieldValue;
                         }
+                    } catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
+                        log.error("Could not initialize " + fieldClass.getSimpleName() + ", Maybe it's an " +
+                                "interface, abstract class, or it hasn't an empty Constructor");
+                        continue;
+                    }
+                    field.set(object, value);
+                } else {
+                    try {
+                        value = fieldClass.newInstance();
                         field.set(object, value);
                         continue;
                     } catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
@@ -974,7 +1052,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                 field.setAccessible(isAccessible);
 
                 // recursive call for sub-objects
-                deepInitialization(fieldValue, packages, false, verbose);
+                deepInitialization(fieldValue, packages, false);
             }
         }
     }
