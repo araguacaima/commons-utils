@@ -915,6 +915,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
      *
      * @param object        The object to initialize
      * @param includeParent Indicates whether or not include the parent's fields
+     * @throws IllegalArgumentException If is not possible to initialize provided object.
+     * @throws IllegalAccessException   If is not possible to initialize provided object.
      * @deprecated Use <code>com.araguacaima.commons.utils.ReflectionUtils#deepInitialization(java.lang.Class)</code> instead
      */
     @Deprecated()
@@ -927,6 +929,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
      * Perform a deep initialization of the given object including all its parent's fields.
      *
      * @param object The object to initialize
+     * @throws IllegalArgumentException If is not possible to initialize provided object.
+     * @throws IllegalAccessException   If is not possible to initialize provided object.
      * @deprecated Use <code>com.araguacaima.commons.utils.ReflectionUtils#deepInitialization(java.lang.Class)</code> instead
      */
     @Deprecated()
@@ -940,6 +944,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
      *
      * @param object   The object to initialize
      * @param packages Set of packages to searchinf for.
+     * @throws IllegalArgumentException If is not possible to initialize provided object.
+     * @throws IllegalAccessException   If is not possible to initialize provided object.
      * @deprecated Use <code>com.araguacaima.commons.utils.ReflectionUtils#deepInitialization(java.lang.Class)</code> instead
      */
     @Deprecated()
@@ -949,19 +955,25 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     }
 
     /**
-     * Perform a deep initialization of the given class according to the default random builder configuration. <see>io.github.benas.randombeans.EnhancedRandomBuilder</see>.
+     * Perform a deep initialization of the given class according to the default random builder configuration.
      *
      * @param clazz The class to initialize
+     * @param <T> This is the type parameter
+     * @see io.github.benas.randombeans.EnhancedRandomBuilder
+     * @return A new instance of the given class full initialized.
      */
     public <T> T deepInitialization(Class<T> clazz) {
         return deepInitialization(clazz, randomBuilder);
     }
 
     /**
-     * Perform a deep initialization of the given class according to the provided random builder configuration. <see>io.github.benas.randombeans.EnhancedRandomBuilder</see>.
+     * Perform a deep initialization of the given class according to the provided random builder configuration.
      *
      * @param clazz         The class to initialize
      * @param randomBuilder The random builder configuration.
+     * @param <T> This is the type parameter
+     * @see io.github.benas.randombeans.EnhancedRandomBuilder
+     * @return A new instance of the given class full initialized.
      */
     public <T> T deepInitialization(Class<T> clazz, EnhancedRandomBuilder randomBuilder) {
         EnhancedRandom random = randomBuilder.build();
