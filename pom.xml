@@ -126,48 +126,56 @@
                     <artifactId>commons-collections</artifactId>
                 </exclusion>
             </exclusions>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${org.apache.commons-commons-lang3}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <version>${org.springframework-spring-core}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${org.springframework-spring-core}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>${joda-time-joda-time}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.google.collections</groupId>
             <artifactId>google-collections</artifactId>
             <version>${com.google.collections-google-collections}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${commons-io-commons-io}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
             <version>${org.apache.commons-commons-collections4}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -180,24 +188,28 @@
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
             <version>${commons-httpclient-commons-httpclient}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>${org.apache.commons-commons-math3}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
             <version>${aspectj.version}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
             <version>${aspectj.version}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -210,24 +222,42 @@
                     <artifactId>guava</artifactId>
                 </exclusion>
             </exclusions>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${com.fasterxml.jackson.core-jackson-databind}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <version>${com.fasterxml.jackson.core-jackson-core}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jsonSchema</artifactId>
             <version>${com.fasterxml.jackson.module-jackson-module-jsonSchema}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>${commons-net-commons-net}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.benas</groupId>
+            <artifactId>random-beans</artifactId>
+            <version>${io.github.benas-random-beans}</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- Tests -->
@@ -265,18 +295,6 @@
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>${org.apache.logging.log4j}</version>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-            <version>${commons-net-commons-net}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.github.benas</groupId>
-            <artifactId>random-beans</artifactId>
-            <version>${io.github.benas-random-beans}</version>
         </dependency>
 
     </dependencies>
