@@ -943,7 +943,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
      * Perform a deep initialization of the given object. That action includes initializing all its fields, according to the 'includeParent' indicator inside the provided set of 'packages'.
      *
      * @param object   The object to initialize
-     * @param packages Set of packages to searchinf for.
+     * @param packages Set of packages to searching for.
      * @throws IllegalArgumentException If is not possible to initialize provided object.
      * @throws IllegalAccessException   If is not possible to initialize provided object.
      * @deprecated Use <code>com.araguacaima.commons.utils.ReflectionUtils#deepInitialization(java.lang.Class)</code> instead
@@ -984,7 +984,10 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
      * Perform a deep initialization of the given object. That action includes initializing all its fields, according to the 'includeParent' indicator.
      *
      * @param object        The object to initialize
-     * @param includeParent Indicates whether or not include the parent's fields
+     * @param packages Set of packages to searching for.
+     * @param includeParent Indicates whether or not include the parent's fields.
+     * @throws IllegalArgumentException If is not possible to initialize provided object.
+     * @throws IllegalAccessException   If is not possible to initialize provided object.
      * @deprecated Use <code>com.araguacaima.commons.utils.ReflectionUtils#deepInitialization(java.lang.Class)</code> instead
      */
     @Deprecated()
