@@ -330,29 +330,49 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
 
     @SuppressWarnings("JavaReflectionMemberAccess")
     public static Class extractGenerics(Field field) {
-        Class clazz = null;
+        Class clazz;
         final Type genericType = field.getGenericType();
+        Type[] typeArguments = null;
         if (genericType instanceof Class) {
             clazz = (Class) genericType;
         } else {
-            try {
-                clazz = (Class) ((ParameterizedType) genericType).getActualTypeArguments()[0];
-            } catch (ClassCastException ignored) {
-                Type type = ((ParameterizedType) genericType).getActualTypeArguments()[0];
-                try {
-                    Field rawTypeField = type.getClass().getDeclaredField("rawType");
-                    rawTypeField.setAccessible(true);
-                    clazz = (Class) rawTypeField.get(type);
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            } catch (Throwable ignored) {
-            }
+            clazz = getType(genericType);
         }
         if (clazz == null) {
             clazz = field.getType();
         }
         return extractGenerics(clazz);
+    }
+
+    private static Class getType(Type genericType) {
+        Type[] typeArguments = null;
+        Class clazz = null;
+        try {
+            Field rawTypeField = genericType.getClass().getDeclaredField("rawType");
+            rawTypeField.setAccessible(true);
+            Class clazz_ = (Class) rawTypeField.get(genericType);
+            typeArguments = ((ParameterizedType) genericType).getActualTypeArguments();
+            if (isMapImplementation(clazz_)) {
+                clazz = (Class) typeArguments[1];
+            } else {
+                clazz = (Class) typeArguments[0];
+            }
+        } catch (ClassCastException ignored) {
+            Type type = typeArguments[0];
+            try {
+                Field rawTypeField = type.getClass().getDeclaredField("rawType");
+                rawTypeField.setAccessible(true);
+                clazz = (Class) rawTypeField.get(type);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        } catch (NoSuchFieldException | NullPointerException | IndexOutOfBoundsException ignored) {
+            typeArguments = ((TypeVariable) genericType).getBounds();
+            clazz = (Class) typeArguments[0];
+        } catch (Throwable ignored) {
+
+        }
+        return clazz;
     }
 
     private static boolean fieldIsNotContainedIn(Field field, Collection<String> excludeFields) {
@@ -958,9 +978,9 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
      * Perform a deep initialization of the given class according to the default random builder configuration.
      *
      * @param clazz The class to initialize
-     * @param <T> This is the type parameter
-     * @see io.github.benas.randombeans.EnhancedRandomBuilder
+     * @param <T>   This is the type parameter
      * @return A new instance of the given class full initialized.
+     * @see io.github.benas.randombeans.EnhancedRandomBuilder
      */
     public <T> T deepInitialization(Class<T> clazz) {
         return deepInitialization(clazz, randomBuilder);
@@ -971,9 +991,9 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
      *
      * @param clazz         The class to initialize
      * @param randomBuilder The random builder configuration.
-     * @param <T> This is the type parameter
-     * @see io.github.benas.randombeans.EnhancedRandomBuilder
+     * @param <T>           This is the type parameter
      * @return A new instance of the given class full initialized.
+     * @see io.github.benas.randombeans.EnhancedRandomBuilder
      */
     public <T> T deepInitialization(Class<T> clazz, EnhancedRandomBuilder randomBuilder) {
         EnhancedRandom random = randomBuilder.build();
@@ -984,7 +1004,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
      * Perform a deep initialization of the given object. That action includes initializing all its fields, according to the 'includeParent' indicator.
      *
      * @param object        The object to initialize
-     * @param packages Set of packages to searching for.
+     * @param packages      Set of packages to searching for.
      * @param includeParent Indicates whether or not include the parent's fields.
      * @throws IllegalArgumentException If is not possible to initialize provided object.
      * @throws IllegalAccessException   If is not possible to initialize provided object.
@@ -1930,7 +1950,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return (T) returnValue;
     }
 
-    public boolean isMapImplementation(Class clazz) {
+    public static boolean isMapImplementation(Class clazz) {
         return clazz != null && Map.class.isAssignableFrom(clazz);
     }
 

@@ -45,6 +45,10 @@ public class MapUtils {
     private MapUtils() {
     }
 
+    public static MapUtils getInstance() {
+        return new MapUtils();
+    }
+
     public static Map<String, String> fromProperties(final Properties properties) {
         final Map<String, String> map = new HashMap<>();
         IterableUtils.forEach(properties.keySet(), key -> {
