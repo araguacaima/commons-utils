@@ -63,7 +63,7 @@ public class DataTypesConverter {
         if (type.equalsIgnoreCase("Period")) {
             return new DataTypeView("period", null, "Period", false);
         }
-        Class clazz = PRIMITIVE_CLASS_MAP.get(type.toLowerCase());
+        Class clazz = PRIMITIVE_CLASS_MAP.get(type.contains(".") ? StringUtils.getLastToken(type, ".") : type.toLowerCase());
         if (clazz != null) {
             return DATA_TYPES_CONVERTER.get(clazz);
         } else {

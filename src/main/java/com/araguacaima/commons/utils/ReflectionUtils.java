@@ -471,7 +471,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         DataTypesConverter.DataTypeView dataTypeView = dataTypesConverter.getDataTypeView(type);
         type = dataTypeView.getTransformedDataType();
         String transformedType;
-        if (DataTypesConverter.DataTypeView.COMPLEX_TYPE.equals(dataTypeView.getDataType())) {
+        boolean complexType = DataTypesConverter.DataTypeView.COMPLEX_TYPE.equals(dataTypeView.getDataType());
+        if (complexType) {
             transformedType = type;
         } else {
             transformedType = StringUtils.capitalize(type);
@@ -488,20 +489,22 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                 }
             }
         }
-        for (String javaTypePrefix : COMMONS_TYPES_PREFIXES) {
-            try {
-                clazz = Class.forName(transformedType.contains(".") ? transformedType : javaTypePrefix + "." +
-                        transformedType);
-                if (considerLists) {
-                    if (isList(type)) {
-                        return "java.util.List<" + clazz.getName() + ">";
+        if (!complexType) {
+            for (String javaTypePrefix : COMMONS_TYPES_PREFIXES) {
+                try {
+                    clazz = Class.forName(transformedType.contains(".") ? transformedType : javaTypePrefix + "." +
+                            transformedType);
+                    if (considerLists) {
+                        if (isList(type)) {
+                            return "java.util.List<" + clazz.getName() + ">";
+                        }
                     }
-                }
-                if (!COMMONS_JAVA_TYPES_EXCLUSIONS.contains(clazz.getName())) {
-                    return clazz.getName();
-                }
-            } catch (ClassNotFoundException ignored) {
+                    if (!COMMONS_JAVA_TYPES_EXCLUSIONS.contains(clazz.getName())) {
+                        return clazz.getName();
+                    }
+                } catch (ClassNotFoundException ignored) {
 
+                }
             }
         }
         try {
