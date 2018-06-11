@@ -32,7 +32,19 @@ import java.util.Map;
 public class DataTypesConverter {
 
     public final Map<Class, DataTypeView> DATA_TYPES_CONVERTER = new HashMap<>();
-    private final Map<String, Class> PRIMITIVE_CLASS_MAP = new HashMap<>();
+    private static final Map<String, Class> PRIMITIVE_CLASS_MAP = new HashMap<>();
+
+    static {
+        PRIMITIVE_CLASS_MAP.put("int", Integer.class);
+        PRIMITIVE_CLASS_MAP.put("long", Long.class);
+        PRIMITIVE_CLASS_MAP.put("double", Double.class);
+        PRIMITIVE_CLASS_MAP.put("float", Float.class);
+        PRIMITIVE_CLASS_MAP.put("boolean", Boolean.class);
+        PRIMITIVE_CLASS_MAP.put("char", Character.class);
+        PRIMITIVE_CLASS_MAP.put("byte", Byte.class);
+        PRIMITIVE_CLASS_MAP.put("string", String.class);
+        PRIMITIVE_CLASS_MAP.put("short", Short.class);
+    }
 
     public DataTypesConverter() {
 
@@ -63,7 +75,7 @@ public class DataTypesConverter {
         if (type.equalsIgnoreCase("Period")) {
             return new DataTypeView("period", null, "Period", false);
         }
-        Class clazz = PRIMITIVE_CLASS_MAP.get(type.contains(".") ? StringUtils.getLastToken(type, ".") : type.toLowerCase());
+        Class clazz = PRIMITIVE_CLASS_MAP.get(type.contains(".") ? StringUtils.getLastToken(type, ".").toLowerCase() : type.toLowerCase());
         if (clazz != null) {
             return DATA_TYPES_CONVERTER.get(clazz);
         } else {
@@ -93,15 +105,6 @@ public class DataTypesConverter {
         DATA_TYPES_CONVERTER.put(Enum.class, new DataTypeView("string", null, "String", false));
         DATA_TYPES_CONVERTER.put(Character.class, new DataTypeView("char", null, "Character", false));
         DATA_TYPES_CONVERTER.put(null, new DataTypeView("unknown", null, null, false));
-        PRIMITIVE_CLASS_MAP.put("int", Integer.class);
-        PRIMITIVE_CLASS_MAP.put("long", Long.class);
-        PRIMITIVE_CLASS_MAP.put("double", Double.class);
-        PRIMITIVE_CLASS_MAP.put("float", Float.class);
-        PRIMITIVE_CLASS_MAP.put("boolean", Boolean.class);
-        PRIMITIVE_CLASS_MAP.put("char", Character.class);
-        PRIMITIVE_CLASS_MAP.put("byte", Byte.class);
-        PRIMITIVE_CLASS_MAP.put("string", String.class);
-        PRIMITIVE_CLASS_MAP.put("short", Short.class);
     }
 
     public class DataTypeView {
