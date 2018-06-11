@@ -86,9 +86,9 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     };
     public static final Transformer<Field, String> FIELD_NAME_TRANSFORMER = Field::getName;
     public static final Predicate<Method> METHOD_IS_GETTER_PREDICATE = method -> method.getName().matches
-            ("get[A-Z]+") || method.getName().matches(
-            "is[A-Z]+");
-    public static final Predicate<Method> METHOD_IS_SETTER_PREDICATE = method -> method.getName().matches("set[A-Z]+");
+            ("get[A-Z]+.*") || method.getName().matches(
+            "is[A-Z]+.*");
+    public static final Predicate<Method> METHOD_IS_SETTER_PREDICATE = method -> method.getName().matches("set[A-Z]+.*");
     public static final Transformer<Method, String> METHOD_NAME_TRANSFORMER = Method::getName;
     public static final Map PRIMITIVE_AND_BASIC_TYPES = new HashMap();
     public static final Map PRIMITIVE_AND_BASIC_TYPE_DEFAULT_VALUES = new HashMap();
@@ -468,8 +468,14 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         if (type == null) {
             return null;
         }
-        type = dataTypesConverter.getDataTypeView(type).getTransformedDataType();
-        String capitalizedType = StringUtils.capitalize(type);
+        DataTypesConverter.DataTypeView dataTypeView = dataTypesConverter.getDataTypeView(type);
+        type = dataTypeView.getTransformedDataType();
+        String transformedType;
+        if (DataTypesConverter.DataTypeView.COMPLEX_TYPE.equals(dataTypeView.getDataType())) {
+            transformedType = type;
+        } else {
+            transformedType = StringUtils.capitalize(type);
+        }
         Class clazz;
         if (considerLists) {
             if (isList(type)) {
@@ -484,8 +490,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         }
         for (String javaTypePrefix : COMMONS_TYPES_PREFIXES) {
             try {
-                clazz = Class.forName(capitalizedType.contains(".") ? capitalizedType : javaTypePrefix + "." +
-                        capitalizedType);
+                clazz = Class.forName(transformedType.contains(".") ? transformedType : javaTypePrefix + "." +
+                        transformedType);
                 if (considerLists) {
                     if (isList(type)) {
                         return "java.util.List<" + clazz.getName() + ">";

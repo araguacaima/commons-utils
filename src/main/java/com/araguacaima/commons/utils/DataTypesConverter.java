@@ -67,7 +67,7 @@ public class DataTypesConverter {
         if (clazz != null) {
             return DATA_TYPES_CONVERTER.get(clazz);
         } else {
-            return new DataTypeView("complex", null, type, true);
+            return new DataTypeView(DataTypeView.COMPLEX_TYPE, null, type, true);
         }
     }
 
@@ -105,6 +105,7 @@ public class DataTypesConverter {
     }
 
     public class DataTypeView {
+        public static final String COMPLEX_TYPE = "complex";
         private boolean complexDataType;
         private String dataType;
         private String format;
