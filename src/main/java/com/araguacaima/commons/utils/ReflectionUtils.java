@@ -464,7 +464,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return s1;
     }
 
-    public static String getFullyQualifiedJavaTypeOrNull(String type, boolean considerLists) {
+    public String getFullyQualifiedJavaTypeOrNull(String type, boolean considerLists) {
         if (type == null) {
             return null;
         }
@@ -545,19 +545,19 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return className;
     }
 
-    public static String getSimpleJavaTypeOrNull(Class type) {
+    public String getSimpleJavaTypeOrNull(Class type) {
         return getSimpleJavaTypeOrNull(type, true);
     }
 
-    public static String getSimpleJavaTypeOrNull(Class type, boolean considerLists) {
+    public String getSimpleJavaTypeOrNull(Class type, boolean considerLists) {
         return getSimpleJavaTypeOrNull(type.getSimpleName(), considerLists);
     }
 
-    public static String getSimpleJavaTypeOrNull(String type) {
+    public String getSimpleJavaTypeOrNull(String type) {
         return getSimpleJavaTypeOrNull(type, true);
     }
 
-    public static String getSimpleJavaTypeOrNull(String type, boolean considerLists) {
+    public String getSimpleJavaTypeOrNull(String type, boolean considerLists) {
         String fullyQualifedJavaType = getFullyQualifiedJavaTypeOrNull(type, considerLists);
         if (StringUtils.isNotBlank(fullyQualifedJavaType)) {
             try {
@@ -1713,7 +1713,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     }
 
     public String getFullyQualifiedJavaTypeOrNull(Class clazz) {
-        return getFullyQualifiedJavaTypeOrNull(clazz.getSimpleName(), true);
+        return getFullyQualifiedJavaTypeOrNull(clazz.getName(), true);
     }
 
     public Collection<Method> getGetterMethodsForField(Class clazz, final String fieldName) {
@@ -1975,7 +1975,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
 
     public LinkedList<Class> recursivelyGetAllInterfaces(Class clazz) {
         if (clazz == null || Object.class.getName().equals(clazz.getClass().getName()) || isCollectionImplementation(
-                clazz) || isMapImplementation(clazz) || getFullyQualifiedJavaTypeOrNull(clazz.getSimpleName(),
+                clazz) || isMapImplementation(clazz) || getFullyQualifiedJavaTypeOrNull(clazz.getName(),
                 true) != null) {
             return new LinkedList<>();
         } else {
@@ -1992,7 +1992,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
 
     public LinkedList<Class> recursivelyGetAllSuperClasses(Class clazz) {
         if (clazz == null || Object.class.getName().equals(clazz.getClass().getName()) || isCollectionImplementation(
-                clazz) || getFullyQualifiedJavaTypeOrNull(clazz.getSimpleName(), true) != null) {
+                clazz) || getFullyQualifiedJavaTypeOrNull(clazz.getName(), true) != null) {
             return new LinkedList<>();
         } else {
             LinkedList<Class> result = new LinkedList<>();
