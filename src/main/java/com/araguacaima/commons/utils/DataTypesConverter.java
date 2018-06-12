@@ -36,6 +36,7 @@ public class DataTypesConverter {
 
     static {
         PRIMITIVE_CLASS_MAP.put("int", Integer.class);
+        PRIMITIVE_CLASS_MAP.put("integer", Integer.class);
         PRIMITIVE_CLASS_MAP.put("long", Long.class);
         PRIMITIVE_CLASS_MAP.put("double", Double.class);
         PRIMITIVE_CLASS_MAP.put("float", Float.class);
