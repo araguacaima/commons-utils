@@ -47,7 +47,26 @@ public class DataTypesConverter {
     }
 
     public DataTypesConverter() {
-
+        DATA_TYPES_CONVERTER.put(Integer.TYPE, new DataTypeView("integer", "int32", "Integer", false));
+        DATA_TYPES_CONVERTER.put(Long.TYPE, new DataTypeView("integer", "int64", "Integer", false));
+        DATA_TYPES_CONVERTER.put(Float.TYPE, new DataTypeView("number", "float", "Number", false));
+        DATA_TYPES_CONVERTER.put(Double.TYPE, new DataTypeView("number", "double", "Number", false));
+        DATA_TYPES_CONVERTER.put(String.class, new DataTypeView("string", null, "String", false));
+        DATA_TYPES_CONVERTER.put(Byte.TYPE, new DataTypeView("string", "byte", "String", false));
+        DATA_TYPES_CONVERTER.put(Boolean.TYPE, new DataTypeView("boolean", null, "Boolean", false));
+        DATA_TYPES_CONVERTER.put(Date.class, new DataTypeView("string", "date", "Date", false));
+        DATA_TYPES_CONVERTER.put(DateTime.class, new DataTypeView("string", "datetime", "DateTime", false));
+        DATA_TYPES_CONVERTER.put(Period.class, new DataTypeView("string", "period", "Period", false));
+        DATA_TYPES_CONVERTER.put(java.sql.Date.class, new DataTypeView("string", "date", "Date", false));
+        DATA_TYPES_CONVERTER.put(Integer.class, new DataTypeView("integer", "int32", "Integer", false));
+        DATA_TYPES_CONVERTER.put(Long.class, new DataTypeView("integer", "int64", "Integer", false));
+        DATA_TYPES_CONVERTER.put(Float.class, new DataTypeView("number", "float", "Number", false));
+        DATA_TYPES_CONVERTER.put(Double.class, new DataTypeView("number", "double", "Number", false));
+        DATA_TYPES_CONVERTER.put(Byte.class, new DataTypeView("string", "byte", "String", false));
+        DATA_TYPES_CONVERTER.put(Boolean.class, new DataTypeView("boolean", null, "Boolean", false));
+        DATA_TYPES_CONVERTER.put(Enum.class, new DataTypeView("string", null, "String", false));
+        DATA_TYPES_CONVERTER.put(Character.class, new DataTypeView("char", null, "Character", false));
+        DATA_TYPES_CONVERTER.put(null, new DataTypeView("unknown", null, null, false));
     }
 
     public DataTypeView getDataTypeView(String type) {
@@ -81,30 +100,6 @@ public class DataTypesConverter {
         } else {
             return new DataTypeView(DataTypeView.COMPLEX_TYPE, null, type, true);
         }
-    }
-
-    @PostConstruct
-    public void init() {
-        DATA_TYPES_CONVERTER.put(Integer.TYPE, new DataTypeView("integer", "int32", "Integer", false));
-        DATA_TYPES_CONVERTER.put(Long.TYPE, new DataTypeView("integer", "int64", "Integer", false));
-        DATA_TYPES_CONVERTER.put(Float.TYPE, new DataTypeView("number", "float", "Number", false));
-        DATA_TYPES_CONVERTER.put(Double.TYPE, new DataTypeView("number", "double", "Number", false));
-        DATA_TYPES_CONVERTER.put(String.class, new DataTypeView("string", null, "String", false));
-        DATA_TYPES_CONVERTER.put(Byte.TYPE, new DataTypeView("string", "byte", "String", false));
-        DATA_TYPES_CONVERTER.put(Boolean.TYPE, new DataTypeView("boolean", null, "Boolean", false));
-        DATA_TYPES_CONVERTER.put(Date.class, new DataTypeView("string", "date", "Date", false));
-        DATA_TYPES_CONVERTER.put(DateTime.class, new DataTypeView("string", "datetime", "DateTime", false));
-        DATA_TYPES_CONVERTER.put(Period.class, new DataTypeView("string", "period", "Period", false));
-        DATA_TYPES_CONVERTER.put(java.sql.Date.class, new DataTypeView("string", "date", "Date", false));
-        DATA_TYPES_CONVERTER.put(Integer.class, new DataTypeView("integer", "int32", "Integer", false));
-        DATA_TYPES_CONVERTER.put(Long.class, new DataTypeView("integer", "int64", "Integer", false));
-        DATA_TYPES_CONVERTER.put(Float.class, new DataTypeView("number", "float", "Number", false));
-        DATA_TYPES_CONVERTER.put(Double.class, new DataTypeView("number", "double", "Number", false));
-        DATA_TYPES_CONVERTER.put(Byte.class, new DataTypeView("string", "byte", "String", false));
-        DATA_TYPES_CONVERTER.put(Boolean.class, new DataTypeView("boolean", null, "Boolean", false));
-        DATA_TYPES_CONVERTER.put(Enum.class, new DataTypeView("string", null, "String", false));
-        DATA_TYPES_CONVERTER.put(Character.class, new DataTypeView("char", null, "Character", false));
-        DATA_TYPES_CONVERTER.put(null, new DataTypeView("unknown", null, null, false));
     }
 
     public class DataTypeView {
