@@ -84,7 +84,7 @@ public class DataTypesConverter {
             temp = temp.substring(0, temp.length() - 1);
             return new DataTypeView("map", null, temp, true);
         }
-        if (type.equalsIgnoreCase("Date")) {
+        if (type.equalsIgnoreCase("Date") || type.equals(Date.class.getName()) || type.equals(java.sql.Date.class.getName())) {
             return new DataTypeView("date", null, "Date", false);
         }
         if (type.equalsIgnoreCase("DateTime") || type.equalsIgnoreCase("Date-Time") || type.equalsIgnoreCase
