@@ -48,6 +48,7 @@ public class JsonUtils {
         mapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, false);
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         module.addSerializer(DateTime.class, new DateTimeSerializer());
         module.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer());
