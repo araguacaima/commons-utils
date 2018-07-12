@@ -216,8 +216,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                 .stringLengthRange(5, 20)
                 .collectionSizeRange(1, 5)
                 .scanClasspathForConcreteTypes(true)
-                .overrideDefaultInitialization(true);
-
+                .overrideDefaultInitialization(true)
+                .objectPoolSize(3);
     }
 
     private final ReflectionFactory reflectionFactory = ReflectionFactory.getReflectionFactory();
