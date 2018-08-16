@@ -2113,7 +2113,9 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                     ((Collection) object_).forEach(iter -> {
                         traverseForExtraction(iter, iter.getClass(), outcomingClass, result);
                         T iter1 = (T) iter;
-                        result.add(iter1);
+                        if (outcomingClass.isAssignableFrom(iter1.getClass())) {
+                            result.add(iter1);
+                        }
                     });
                 } else {
                     if (!result.contains(object_)) {
@@ -2124,11 +2126,15 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                                 ((Collection) object_).forEach(iter -> {
                                     traverseForExtraction(iter, generic, outcomingClass, result);
                                     T iter1 = (T) iter;
-                                    result.add(iter1);
+                                    if (outcomingClass.isAssignableFrom(iter1.getClass())) {
+                                        result.add(iter1);
+                                    }
                                 });
                             } else {
-                                T taggable = (T) field.get(entity);
-                                result.add(taggable);
+                                T object = (T) field.get(entity);
+                                if (outcomingClass.isAssignableFrom(object.getClass())) {
+                                    result.add(object);
+                                }
                             }
                         } else {
                             String genericType = getFullyQualifiedJavaTypeOrNull(generic);
