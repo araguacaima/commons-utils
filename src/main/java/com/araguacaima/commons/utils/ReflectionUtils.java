@@ -2104,36 +2104,36 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         }
     }
 
-    private <T> void traverseForExtraction(Object entity, Class<?> incomingClass, Class<T> outcomingClass, Set<T> taggables) {
+    private <T> void traverseForExtraction(Object entity, Class<?> incomingClass, Class<T> outcomingClass, Set<T> result) {
         ReflectionUtils.doWithFields(incomingClass, field -> {
             field.setAccessible(true);
             Object object_ = field.get(entity);
             if (object_ != null) {
                 if (ReflectionUtils.isCollectionImplementation(object_.getClass())) {
                     ((Collection) object_).forEach(iter -> {
-                        traverseForExtraction(iter, iter.getClass(), outcomingClass, taggables);
+                        traverseForExtraction(iter, iter.getClass(), outcomingClass, result);
                         T iter1 = (T) iter;
-                        taggables.add(iter1);
+                        result.add(iter1);
                     });
                 } else {
-                    if (!taggables.contains(object_)) {
+                    if (!result.contains(object_)) {
                         Class<?> generic = ReflectionUtils.extractGenerics(field);
                         if (outcomingClass.isAssignableFrom(generic)) {
                             Class<?> fieldType = field.getType();
                             if (ReflectionUtils.isCollectionImplementation(fieldType)) {
                                 ((Collection) object_).forEach(iter -> {
-                                    traverseForExtraction(iter, generic, outcomingClass, taggables);
+                                    traverseForExtraction(iter, generic, outcomingClass, result);
                                     T iter1 = (T) iter;
-                                    taggables.add(iter1);
+                                    result.add(iter1);
                                 });
                             } else {
                                 T taggable = (T) field.get(entity);
-                                taggables.add(taggable);
+                                result.add(taggable);
                             }
                         } else {
                             String genericType = getFullyQualifiedJavaTypeOrNull(generic);
                             if (genericType == null) {
-                                traverseForExtraction(object_, generic, outcomingClass, taggables);
+                                traverseForExtraction(object_, generic, outcomingClass, result);
                             }
                         }
                     }
@@ -2161,9 +2161,9 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     }
 
     public <T> Set<T> extractByType(Object object, Class<T> outcomingClass) {
-        Set<T> taggables = new HashSet<>();
-        traverseForExtraction(object, object.getClass(), outcomingClass, taggables);
-        return taggables;
+        Set<T> result = new HashSet<>();
+        traverseForExtraction(object, object.getClass(), outcomingClass, result);
+        return result;
     }
 
 }
