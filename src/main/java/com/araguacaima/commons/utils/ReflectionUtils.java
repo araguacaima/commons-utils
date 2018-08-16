@@ -2104,5 +2104,67 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         }
     }
 
+    private <T> void traverseForExtraction(Object entity, Class<?> incomingClass, Class<T> outcomingClass, Set<T> taggables) {
+        ReflectionUtils.doWithFields(incomingClass, field -> {
+            field.setAccessible(true);
+            Object object_ = field.get(entity);
+            if (object_ != null) {
+                if (ReflectionUtils.isCollectionImplementation(object_.getClass())) {
+                    ((Collection) object_).forEach(iter -> {
+                        traverseForExtraction(iter, iter.getClass(), outcomingClass, taggables);
+                        T iter1 = (T) iter;
+                        taggables.add(iter1);
+                    });
+                } else {
+                    if (!taggables.contains(object_)) {
+                        Class<?> generic = ReflectionUtils.extractGenerics(field);
+                        if (outcomingClass.isAssignableFrom(generic)) {
+                            Class<?> fieldType = field.getType();
+                            if (ReflectionUtils.isCollectionImplementation(fieldType)) {
+                                ((Collection) object_).forEach(iter -> {
+                                    traverseForExtraction(iter, generic, outcomingClass, taggables);
+                                    T iter1 = (T) iter;
+                                    taggables.add(iter1);
+                                });
+                            } else {
+                                T taggable = (T) field.get(entity);
+                                taggables.add(taggable);
+                            }
+                        } else {
+                            String genericType = getFullyQualifiedJavaTypeOrNull(generic);
+                            if (genericType == null) {
+                                traverseForExtraction(object_, generic, outcomingClass, taggables);
+                            }
+                        }
+                    }
+                }
+            }
+        }, this::isComplex);
+    }
+
+    private boolean isComplex(Field field) {
+        int modifiers = field.getModifiers();
+        if (Modifier.isStatic(modifiers)
+                || Modifier.isFinal(modifiers)
+                || Modifier.isNative(modifiers)
+                || Modifier.isAbstract(modifiers)
+                || Modifier.isTransient(modifiers)) {
+            return false;
+        }
+        Class aClass = null;
+        try {
+            aClass = ReflectionUtils.extractGenerics(field);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return aClass != null && (getFullyQualifiedJavaTypeOrNull(aClass) == null && !aClass.isEnum() && !Enum.class.isAssignableFrom(aClass));
+    }
+
+    public <T> Set<T> extractByType(Object object, Class<T> outcomingClass) {
+        Set<T> taggables = new HashSet<>();
+        traverseForExtraction(object, object.getClass(), outcomingClass, taggables);
+        return taggables;
+    }
+
 }
 
