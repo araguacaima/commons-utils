@@ -424,12 +424,22 @@ public class JsonUtils {
 
     public String toJSON(final Object object)
             throws IOException {
-        return toJSON(object, false);
+        return toJSON(object, false, null);
+    }
+
+    public String toJSON(final Object object, String filter)
+            throws IOException {
+        return toJSON(object, false, filter);
     }
 
     public String toJSON(final Object object, boolean flatten)
             throws IOException {
-        return toJSON(mapper, object, flatten);
+        return toJSON(object, flatten, null);
+    }
+
+    public String toJSON(final Object object, boolean flatten, String filter)
+            throws IOException {
+        return toJSON(mapper, object, flatten, filter);
     }
 
     public String toJSON(ObjectMapper mapper, final Object object)
