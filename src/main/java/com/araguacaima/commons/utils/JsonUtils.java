@@ -50,11 +50,11 @@ public class JsonUtils {
         mapper = buildObjectMapper();
     }
 
-    private ObjectMapper buildObjectMapper() {
+    public ObjectMapper buildObjectMapper() {
         return buildObjectMapper(null);
     }
 
-    private ObjectMapper buildObjectMapper(String filter) {
+    public ObjectMapper buildObjectMapper(String filter) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         mapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.ANY);
