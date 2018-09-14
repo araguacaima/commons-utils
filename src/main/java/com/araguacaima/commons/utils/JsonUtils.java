@@ -1,5 +1,6 @@
 package com.araguacaima.commons.utils;
 
+import com.araguacaima.commons.utils.filter.CommonSquigglyContextProvider;
 import com.araguacaima.commons.utils.json.parser.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -8,6 +9,11 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.github.bohnman.squiggly.context.provider.SquigglyContextProvider;
+import com.github.bohnman.squiggly.filter.SquigglyPropertyFilter;
+import com.github.bohnman.squiggly.filter.SquigglyPropertyFilterMixin;
+import com.github.bohnman.squiggly.parser.SquigglyParser;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -41,7 +47,15 @@ public class JsonUtils {
     }
 
     private void init() {
-        mapper = new ObjectMapper();
+        mapper = buildObjectMapper();
+    }
+
+    private ObjectMapper buildObjectMapper() {
+        return buildObjectMapper(null);
+    }
+
+    private ObjectMapper buildObjectMapper(String filter) {
+        ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         mapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.ANY);
         mapper.setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.ANY);
@@ -56,6 +70,18 @@ public class JsonUtils {
         module.addDeserializer(DateTime.class, new DateTimeDeserializer());
         module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
         mapper.registerModule(module);
+
+        if (StringUtils.isNotBlank(filter)) {
+            String filterId = SquigglyPropertyFilter.FILTER_ID;
+            SquigglyParser parser = new SquigglyParser();
+            SquigglyContextProvider contextProvider = new CommonSquigglyContextProvider(parser);
+            SquigglyPropertyFilter propertyFilter = new SquigglyPropertyFilter(contextProvider);
+            SimpleFilterProvider filterProvider = new SimpleFilterProvider().addFilter(filterId, propertyFilter);
+            mapper.setFilterProvider(filterProvider);
+            mapper.addMixIn(Object.class, SquigglyPropertyFilterMixin.class);
+        }
+
+        return mapper;
     }
 
     @Autowired
@@ -74,6 +100,19 @@ public class JsonUtils {
 
     public void addSerializer(Class clazz, JsonSerializer serializer) {
         this.module.addSerializer(clazz, serializer);
+    }
+
+
+    public ObjectMapper getMapper() {
+        return mapper;
+    }
+
+    public void setMapper(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
+
+    public void setObjectMapper(ObjectMapper mapper) {
+        this.mapper = mapper;
     }
 
     public Set<DataTypeInfo> buildObjectHierarchyFromJsonPath(String jsonPath,
@@ -343,20 +382,6 @@ public class JsonUtils {
         return mapper.readTree(jsonStr);
     }
 
-    public String toJSON(final Object object)
-            throws IOException {
-        return toJSON(object, false);
-    }
-
-    public String toJSON(final Object object, boolean flatten)
-            throws IOException {
-        if (flatten) {
-            return mapper.writer().writeValueAsString(object);
-        } else {
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
-        }
-    }
-
     public JsonNode getJsonNode(Object object)
             throws IOException {
         return getJsonNode(toJSON(object));
@@ -371,14 +396,6 @@ public class JsonUtils {
             jsonPath = "/" + jsonPath;
         }
         return jsonNode.at(jsonPath);
-    }
-
-    public ObjectMapper getMapper() {
-        return mapper;
-    }
-
-    public void setMapper(ObjectMapper mapper) {
-        this.mapper = mapper;
     }
 
     public ObjectNode getObjectNode()
@@ -405,22 +422,41 @@ public class JsonUtils {
         return toJSON(merged);
     }
 
-    public void setObjectMapper(ObjectMapper mapper) {
-        this.mapper = mapper;
+    public String toJSON(final Object object)
+            throws IOException {
+        return toJSON(object, false);
+    }
+
+    public String toJSON(final Object object, boolean flatten)
+            throws IOException {
+        return toJSON(mapper, object, flatten);
     }
 
     public String toJSON(ObjectMapper mapper, final Object object)
             throws IOException {
-        return toJSON(mapper, object, false);
+        return toJSON(mapper, object, false, null);
     }
 
     public String toJSON(ObjectMapper mapper, final Object object, boolean flatten)
             throws IOException {
-        if (flatten) {
-            return mapper.writer().writeValueAsString(object);
+        return toJSON(mapper, object, flatten, null);
+    }
+
+    public String toJSON(ObjectMapper mapper, final Object object, boolean flatten, String filter)
+            throws IOException {
+        ObjectMapper mapper_;
+        if (StringUtils.isNotBlank(filter)) {
+            mapper_ = buildObjectMapper(filter);
         } else {
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+            mapper_ = mapper;
         }
+        ObjectWriter writer;
+        if (flatten) {
+            writer = mapper_.writer();
+        } else {
+            writer = mapper_.writerWithDefaultPrettyPrinter();
+        }
+        return writer.writeValueAsString(object);
     }
 
     private class PriorityClass implements Comparable<PriorityClass> {
