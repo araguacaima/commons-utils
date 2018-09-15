@@ -20,10 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.*;
 import java.util.*;
 
 @SuppressWarnings("Annotator")
@@ -36,6 +33,8 @@ public class JsonUtils {
     private MapUtils mapUtils;
     private ObjectMapper mapper;
     private Reflections reflections;
+    private EnumsUtils<Object> enumsUtils = new EnumsUtils<>();
+    private ReflectionUtils reflectionUtils = new ReflectionUtils(null);
 
     public JsonUtils() {
         init();
@@ -528,5 +527,114 @@ public class JsonUtils {
         public String getNonCanonicalPackagePattern() {
             return nonCanonicalPackagePattern;
         }
+    }
+
+    public LinkedHashSet<String> buildJsonPath(Class clazz)
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        if (clazz != null) {
+            return buildJsonPath(clazz, null, true);
+        } else {
+            return new LinkedHashSet<>();
+        }
+    }
+
+    public LinkedHashSet<String> buildJsonPath(Class clazz, String rootName)
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        if (clazz != null) {
+            return buildJsonPath(clazz, rootName, true);
+        } else {
+            return new LinkedHashSet<>();
+        }
+    }
+
+    public LinkedHashSet<String> buildJsonPath(Class clazz,
+                                               String rootName,
+                                               boolean includeDatatype)
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        StringBuilder sb = new StringBuilder();
+        if (clazz != null) {
+            String innerRootName = StringUtils.uncapitalize(clazz.getSimpleName());
+            if (!StringUtils.isBlank(rootName)) {
+                innerRootName = rootName + "." + innerRootName;
+            }
+            sb.append(innerRootName);
+            List<Class> visited = new ArrayList<>();
+            return buildJsonPath(sb,
+                    visited,
+                    clazz,
+                    includeDatatype,
+                    ReflectionUtils.isCollectionImplementation(clazz));
+        }
+        return new LinkedHashSet<>();
+    }
+
+    private LinkedHashSet<String> buildJsonPath(StringBuilder sb,
+                                                List<Class> visited,
+                                                Class clazz,
+                                                boolean includeDatatype,
+                                                boolean isCollection)
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+
+        final LinkedHashSet<String> mappings = new LinkedHashSet<>();
+        if (clazz != null) {
+            if (!visited.contains(clazz)) {
+                StringBuilder classRow = new StringBuilder();
+                boolean isEnum = clazz.isEnum();
+                if (isCollection) {
+                    Class generics = ReflectionUtils.extractGenerics(clazz);
+                    sb.append("[]");
+                    if (generics != null && !Object.class.equals(generics)) {
+                        clazz = generics;
+                    }
+                    if (includeDatatype) {
+                        classRow.append(sb).append("\t").append("Array");
+                    }
+                } else {
+                    if (includeDatatype) {
+                        classRow.append(sb).append("\t").append(isEnum ? "String" : "Object");
+                    }
+                }
+                visited.add(clazz);
+                mappings.add(classRow.toString());
+                final Class finalClazz = clazz;
+
+                org.springframework.util.ReflectionUtils.doWithFields(clazz,
+                        field -> {
+                            Class<?> type = ReflectionUtils.extractGenerics(field);
+                            boolean fieldIsCollection = ReflectionUtils.isCollectionImplementation(field.getType());
+                            StringBuilder fieldRow = new StringBuilder(sb).append(".").append(field.getName());
+
+                            StringBuilder enumValues = new StringBuilder();
+                            if (isEnum) {
+                                enumValues.append(".");
+                                enumValues.append(" Values: ").append(StringUtils.join(enumsUtils.getNamesList
+                                                (type),
+                                        ", "));
+                            }
+
+                            if (reflectionUtils.getSimpleJavaTypeOrNull(type) == null || fieldIsCollection) {
+                                LinkedHashSet<String> c;
+                                try {
+                                    c = buildJsonPath(fieldRow,
+                                            visited,
+                                            type,
+                                            includeDatatype,
+                                            fieldIsCollection);
+                                    visited.remove(type);
+                                    mappings.addAll(c);
+                                } catch (NoSuchMethodException | InvocationTargetException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                if (includeDatatype) {
+                                    fieldRow.append("\t").append(type.getSimpleName());
+                                }
+                                mappings.add(fieldRow.toString());
+                            }
+                        },
+                        field -> fieldFilter(field, finalClazz));
+            }
+        }
+        return mappings;
     }
 }
