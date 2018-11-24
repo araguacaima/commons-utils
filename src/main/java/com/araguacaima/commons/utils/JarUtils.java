@@ -28,6 +28,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.jar.*;
+import java.util.zip.ZipEntry;
 
 /**
  * Clase utilitaria para manipular archivos .jar <br>
@@ -48,11 +49,30 @@ public class JarUtils {
 
     }
 
-    private void add(File source,
-                     JarOutputStream target,
-                     int offsetExclusionDirectory,
-                     String jarOutputFullPath,
-                     String rootPath)
+    public boolean appendFileToJar(File fileToAdd, String jarFileStr) throws IOException {
+        JarFile jar = new JarFile(jarFileStr);
+        JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFileStr));
+        ZipEntry entry = new ZipEntry(fileToAdd.getName());
+        jarOutputStream.putNextEntry(entry);
+        FileInputStream fileInputStream = new FileInputStream(fileToAdd);
+        byte[] buf = new byte[1024];
+        int bytesRead;
+        // Read the input file by chucks of 1024 bytes
+        // and write the read bytes to the zip stream
+        while ((bytesRead = fileInputStream.read(buf)) > 0) {
+            jarOutputStream.write(buf, 0, bytesRead);
+        }
+        // close JarEntry to store the stream to the file
+        jarOutputStream.closeEntry();
+        jarOutputStream.close();
+        return true;
+    }
+
+    public void add(File source,
+                    JarOutputStream target,
+                    int offsetExclusionDirectory,
+                    String jarOutputFullPath,
+                    String rootPath)
             throws IOException {
         BufferedInputStream in = null;
         try {
@@ -91,7 +111,7 @@ public class JarUtils {
                     for (File aNestedFile : files) {
                         if (!aNestedFile.getPath().equals(jarOutputFullPath)) {
                             offsetExclusionDirectory--;
-                            add(aNestedFile, target, offsetExclusionDirectory, jarOutputFullPath, rootPath);
+                            add(aNestedFile, target, offsetExclusionDirectory, jarOutputFullPath, source.getPath());
                         }
                     }
                 }

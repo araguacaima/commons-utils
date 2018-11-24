@@ -492,7 +492,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         try {
             return ((StringUtils.isBlank(this.getFilterCriterion())) || (Pattern.compile(this.getFilterCriterion())
                     .matcher(
-                    name).matches()));
+                            name).matches()));
         } catch (Exception e) {
             log.error("Error checking the file '" + name + "' on dir '" + dir + "'", e);
             return false;
@@ -1578,7 +1578,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                 String value = o.toString();
                 return !value.endsWith(StringUtils.SLASH) && !value.endsWith("CVS") && !value.endsWith(".svn") &&
                         !value.endsWith(
-                        "cvs") && !value.endsWith(".SVN");
+                                "cvs") && !value.endsWith(".SVN");
             });
 
             final NotNullsLinkedHashSet<File> filteredFilesTemp = new NotNullsLinkedHashSet<>();
@@ -1680,7 +1680,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                     if (isCompressedFile(fileEntry)) {
                         if (Math.abs(recurse) < RECURSION_LIMIT && !incomingFile.getPath().equals(entryPath) &&
                                 !fileEntry.getName().contains(
-                                ".")) {
+                                        ".")) {
                             recurse--;
                             listedFiles.addAll(listFiles(incomingFile, filters, filteringType, recurse, searchType));
                             recurse++;
@@ -1882,7 +1882,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
         try (BufferedWriter out = new BufferedWriter(new FileWriter(result)); BufferedReader br = new BufferedReader
                 (new FileReader(
-                file))) {
+                        file))) {
             String line = br.readLine();
             while (line != null) {
                 out.write(line.replaceAll(regExp, replacement) + "\n");
@@ -1912,7 +1912,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         Matcher m;
         try (BufferedWriter out = new BufferedWriter(new FileWriter(result)); BufferedReader br = new BufferedReader
                 (new FileReader(
-                file))) {
+                        file))) {
             String line = br.readLine();
             while (line != null) {
                 m = r.matcher(line);
@@ -1991,4 +1991,15 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         }
     }
 
+    public static boolean isEmpty(File file) throws Exception {
+        if (file == null) {
+            return false;
+        }
+        if (file.isDirectory()) {
+            String[] list = file.list();
+            return list == null || list.length <= 0;
+        } else {
+            throw new FileNotFoundException("File is not an directory");
+        }
+    }
 }
