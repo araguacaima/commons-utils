@@ -111,7 +111,7 @@ public class JarUtils {
                     for (File aNestedFile : files) {
                         if (!aNestedFile.getPath().equals(jarOutputFullPath)) {
                             offsetExclusionDirectory--;
-                            add(aNestedFile, target, offsetExclusionDirectory, jarOutputFullPath, source.getPath());
+                            add(aNestedFile, target, offsetExclusionDirectory, jarOutputFullPath, source.getPath() + File.separator);
                         }
                     }
                 }
