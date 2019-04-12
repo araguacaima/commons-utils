@@ -38,10 +38,7 @@ import sun.reflect.FieldAccessor;
 import sun.reflect.ReflectionFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.time.LocalDate;
@@ -916,26 +913,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             return (T) constructor.newInstance();
         } catch (Exception ex) {
             throw new InvocationTargetException(ex, "Error constructing instance of class: " + type.getName());
-        }
-    }
-
-    /**
-     * This method makes a "deep clone" of any Java object it is given.
-     *
-     * @param object The object to be cloned
-     * @return A new fresh object cloned from the incoming one
-     */
-    public Object deepClone(Object object) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(object);
-            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-            ObjectInputStream ois = new ObjectInputStream(bais);
-            return ois.readObject();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return null;
         }
     }
 
@@ -2172,5 +2149,31 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
+
+    /**
+     * This method makes a "deep clone" of any Java object it is given.
+     *
+     * @param e The object to be cloned
+     * @return A new fresh object cloned from the incoming one
+     */
+    public static <E, F> F deepClone(E e) {
+        ByteArrayOutputStream bo = new ByteArrayOutputStream();
+        ObjectOutputStream oo;
+        try {
+            oo = new ObjectOutputStream(bo);
+            oo.writeObject(e);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        ByteArrayInputStream bi = new ByteArrayInputStream(bo.toByteArray());
+        ObjectInputStream oi;
+        try {
+            oi = new ObjectInputStream(bi);
+            return (F) (oi.readObject());
+        } catch (IOException | ClassNotFoundException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
 }
 

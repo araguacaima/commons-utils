@@ -95,7 +95,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public final String DEFAULT_PATH = "/";
-    private final Logger log = LoggerFactory.getLogger(FileUtils.class);
+    private final static Logger log = LoggerFactory.getLogger(FileUtils.class);
     private DateUtils dateUtils;
     private String filterCriterion;
     private NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters = new NotNullsLinkedHashSet<>();
@@ -1247,6 +1247,73 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         }
     }
 
+    public static File getFile(String path) throws FileNotFoundException {
+        String outputFile = path;
+        ClassLoader classLoader = FileUtils.class.getClassLoader();
+        InputStream stream = classLoader.getResourceAsStream(path);
+        if (stream != null) {
+            try {
+                String pathname = System.getProperty("user.home") + File.separator + "tmp";
+                File file = new File(pathname);
+                file.mkdir();
+                File tempConfig = File.createTempFile(new File(path).getName() + "-", ".dat", file);
+                org.apache.commons.io.FileUtils.copyInputStreamToFile(stream, tempConfig);
+                outputFile = tempConfig.getPath();
+            } catch (NullPointerException | IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                log.info("Attempting to load file: " + path);
+                log.info("\tSearching thru classloader (1): " + classLoader.toString());
+                URL resource = classLoader.getResource(path);
+                InputStream inputstream = classLoader.getResourceAsStream(path);
+                if (resource != null) {
+                    outputFile = resource.getPath();
+                }
+                if (inputstream == null) {
+                    log.info("\tSearching thru classloader (2): " + classLoader.toString());
+                    inputstream = classLoader.getResourceAsStream(path);
+                    resource = classLoader.getResource(path);
+                    if (resource != null) {
+                        outputFile = resource.getPath();
+                    }
+                    if (inputstream == null) {
+                        log.info("\tSearching thru classloader (3): " + classLoader.getParent().toString());
+                        inputstream = classLoader.getParent().getResourceAsStream(path);
+                        resource = classLoader.getParent().getResource(path);
+                        if (resource != null) {
+                            outputFile = resource.getPath();
+                        }
+                        if (inputstream == null) {
+                            log.info("\tSearching thru classloader (4): " + ClassLoader.getSystemClassLoader().toString());
+                            inputstream = ClassLoader.getSystemClassLoader().getResourceAsStream(path);
+                            resource = ClassLoader.getSystemClassLoader().getResource(path);
+                            if (resource != null) {
+                                outputFile = resource.getPath();
+                            }
+                            if (inputstream == null) {
+                                log.info("\tSearching directly from absolute path (5): " + path);
+                                inputstream = new FileInputStream((new File(path)));
+                                resource = (new File(path)).toURI().toURL();
+                                outputFile = resource.getPath();
+                            }
+                        }
+                    }
+                }
+                log.info("\tFile: " + path + " found!");
+                inputstream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        File file = new File(outputFile);
+        if (!file.exists()) {
+            throw new FileNotFoundException("File '" + path + "' not found!");
+        }
+        return file;
+    }
+
     public File getFileFromFTP(String ftpServerDomain,
                                String ftpServerDomainLogin,
                                String ftpServerDomainPassword,
@@ -1352,10 +1419,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
     private String getPath() {
         /*
-           * String path = properties.getProperty(BASE_PATH_PROPERTY_NAME); // No
-           * tenemos que validar una excepcion? return (null == path) ?
-           * DEFAULT_PATH : path;
-           */
+         * String path = properties.getProperty(BASE_PATH_PROPERTY_NAME); // No
+         * tenemos que validar una excepcion? return (null == path) ?
+         * DEFAULT_PATH : path;
+         */
         return DEFAULT_PATH;
     }
 

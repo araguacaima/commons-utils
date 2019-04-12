@@ -476,7 +476,7 @@ public class ClassLoaderUtils {
         return CLASS_NAME_COMPARE_IGNORE_CASE;
     }
 
-    protected String getClasspath()
+    public String getClasspath()
             throws MalformedURLException {
         if (classPath == null) {
             setClasspath(System.getProperty("java.class.path"));
@@ -488,13 +488,23 @@ public class ClassLoaderUtils {
             throws MalformedURLException {
         this.classPath = classPath;
         if (!StringUtils.isBlank(this.classPath)) {
-            classPathCollection = Arrays.asList(this.classPath.split(StringUtils.SEMICOLON_SYMBOL));
+            classPathCollection = Arrays.asList(this.classPath.split(this.classPath.contains(StringUtils.SEMICOLON_SYMBOL) ? StringUtils.SEMICOLON_SYMBOL : StringUtils.COLON_SYMBOL));
         }
 
         if (!isClassPathLoaded) {
             loadClassPath();
         }
         fillClassPathClassLoaderMap(null, null);
+    }
+
+    public void addToClasspath(String newPath) throws MalformedURLException {
+        String newClasspath = getClasspath();
+        if (newClasspath.contains(";")) {
+            newClasspath = newClasspath + ";" + newPath;
+        } else {
+            newClasspath = newClasspath + ":" + newPath;
+        }
+        setClasspath(newClasspath);
     }
 
     public String getPathForResource(final String resource) {
@@ -920,7 +930,7 @@ public class ClassLoaderUtils {
                 log.info("\nClasspath element '" + element + "' " + "does not exist.");
             } else if ((!f.isDirectory()) && (!element.toLowerCase().endsWith(".jar")) && (!element.toLowerCase()
                     .endsWith(
-                    ".zip"))) {
+                            ".zip"))) {
                 log.info("\nClasspath element '" + element + "' " + "is not a directory, .jar file, or .zip file.");
             }
         }
