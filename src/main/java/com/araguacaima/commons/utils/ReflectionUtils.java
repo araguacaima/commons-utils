@@ -1757,7 +1757,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             throws Exception {
 
         Object result;
-        final Collection<Object> objectClasses = new ArrayList(Arrays.asList(args));
+        final List<Object> objectClasses = new ArrayList(Arrays.asList(args));
         CollectionUtils.transform(objectClasses, CLASS_FROM_OBJECT_TRANSFORMER);
         Collection<Method> methods = CollectionUtils.select(getAllMethodsIncludingParents(object.getClass()),
                 method -> methodNameEqualsToPredicate(method, methodName));
@@ -1765,12 +1765,17 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         Method method = IterableUtils.find(methods, (Predicate) o -> {
             Method innerMethod = (Method) o;
 
-            final Collection<Class> parameterClasses = Arrays.asList(innerMethod.getParameterTypes());
+            final List<Class> parameterClasses = Arrays.asList(innerMethod.getParameterTypes());
             CollectionUtils.transform(parameterClasses, (Transformer) o1 -> getClassFromPrimitive((Class) o1));
 
-            return (innerMethod.getName().toUpperCase().equals((methodName).toUpperCase())) & (Arrays.equals(
-                    parameterClasses.toArray(),
-                    objectClasses.toArray()));
+
+            boolean isAssignableFrom = true;
+
+            for (int i = 0; i < parameterClasses.size(); i++) {
+                isAssignableFrom = isAssignableFrom & parameterClasses.get(i).isAssignableFrom(objectClasses.get(i).getClass());
+            }
+
+            return (innerMethod.getName().toUpperCase().equals((methodName).toUpperCase())) & isAssignableFrom;
         });
 
         try {
