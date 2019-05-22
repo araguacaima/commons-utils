@@ -1772,7 +1772,12 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             boolean isAssignableFrom = true;
 
             for (int i = 0; i < parameterClasses.size(); i++) {
-                isAssignableFrom = isAssignableFrom & parameterClasses.get(i).isAssignableFrom(objectClasses.get(i).getClass());
+                Object o1 = objectClasses.get(i);
+                if (Class.class.equals(o1.getClass())) {
+                    isAssignableFrom = isAssignableFrom & parameterClasses.get(i).isAssignableFrom((Class) o1);
+                } else {
+                    isAssignableFrom = isAssignableFrom & parameterClasses.get(i).isAssignableFrom(o1.getClass());
+                }
             }
 
             return (innerMethod.getName().toUpperCase().equals((methodName).toUpperCase())) & isAssignableFrom;
