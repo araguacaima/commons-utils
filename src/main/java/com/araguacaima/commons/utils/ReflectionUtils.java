@@ -1765,21 +1765,22 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         Method method = IterableUtils.find(methods, (Predicate) o -> {
             Method innerMethod = (Method) o;
             final List<Class> parameterClasses = Arrays.asList(innerMethod.getParameterTypes());
-            if (objectClasses.size() == parameterClasses.size()) {
+            int size = objectClasses.size();
+            if (size == parameterClasses.size()) {
                 CollectionUtils.transform(parameterClasses, (Transformer) o1 -> getClassFromPrimitive((Class) o1));
                 boolean isAssignableFrom = true;
-                for (Object objectClass : objectClasses) {
-                    for (Class aClass : parameterClasses) {
-                        try {
-                            Class<?> cls = objectClass.getClass();
-                            if (Class.class.equals(cls)) {
-                                isAssignableFrom = isAssignableFrom && aClass.isAssignableFrom((Class) objectClass);
-                            } else {
-                                isAssignableFrom = isAssignableFrom && aClass.isAssignableFrom(cls);
-                            }
-                        } catch (Throwable ignored) {
-                            isAssignableFrom = false;
+                for (int i = 0; i < size; i++) {
+                    Object objectClass = objectClasses.get(i);
+                    Class aClass = parameterClasses.get(i);
+                    try {
+                        Class<?> cls = objectClass.getClass();
+                        if (Class.class.equals(cls)) {
+                            isAssignableFrom = isAssignableFrom && aClass.isAssignableFrom((Class) objectClass);
+                        } else {
+                            isAssignableFrom = isAssignableFrom && aClass.isAssignableFrom(cls);
                         }
+                    } catch (Throwable ignored) {
+                        isAssignableFrom = false;
                     }
                 }
                 String s = innerMethod.getName().toUpperCase();
