@@ -1764,23 +1764,30 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
 
         Method method = IterableUtils.find(methods, (Predicate) o -> {
             Method innerMethod = (Method) o;
-
             final List<Class> parameterClasses = Arrays.asList(innerMethod.getParameterTypes());
-            CollectionUtils.transform(parameterClasses, (Transformer) o1 -> getClassFromPrimitive((Class) o1));
-
-
-            boolean isAssignableFrom = true;
-
-            for (int i = 0; i < parameterClasses.size(); i++) {
-                Object o1 = objectClasses.get(i);
-                if (Class.class.equals(o1.getClass())) {
-                    isAssignableFrom = isAssignableFrom & parameterClasses.get(i).isAssignableFrom((Class) o1);
-                } else {
-                    isAssignableFrom = isAssignableFrom & parameterClasses.get(i).isAssignableFrom(o1.getClass());
+            if (objectClasses.size() == parameterClasses.size()) {
+                CollectionUtils.transform(parameterClasses, (Transformer) o1 -> getClassFromPrimitive((Class) o1));
+                boolean isAssignableFrom = true;
+                for (Object objectClass : objectClasses) {
+                    for (Class aClass : parameterClasses) {
+                        try {
+                            Class<?> cls = objectClass.getClass();
+                            if (Class.class.equals(cls)) {
+                                isAssignableFrom = isAssignableFrom && aClass.isAssignableFrom((Class) objectClass);
+                            } else {
+                                isAssignableFrom = isAssignableFrom && aClass.isAssignableFrom(cls);
+                            }
+                        } catch (Throwable ignored) {
+                            isAssignableFrom = false;
+                        }
+                    }
                 }
+                String s = innerMethod.getName().toUpperCase();
+                String s1 = (methodName).toUpperCase();
+                return (s.equals(s1)) && isAssignableFrom;
+            } else {
+                return false;
             }
-
-            return (innerMethod.getName().toUpperCase().equals((methodName).toUpperCase())) & isAssignableFrom;
         });
 
         try {
