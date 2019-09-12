@@ -9,16 +9,24 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.bohnman.squiggly.Squiggly;
+import com.github.victools.jsonschema.generator.*;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.Loader;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.reflections.Reflections;
 import org.reflections.ReflectionsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.*;
@@ -35,6 +43,9 @@ public class JsonUtils {
     private Reflections reflections;
     private EnumsUtils<Object> enumsUtils = new EnumsUtils<>();
     private ReflectionUtils reflectionUtils = new ReflectionUtils(null);
+    private final FileUtils fileUtils = new FileUtils();
+    private final String CLASS_SUFFIX = "class";
+    private static Logger log = LoggerFactory.getLogger(JsonUtils.class);
 
     public JsonUtils() {
         init();
@@ -572,9 +583,7 @@ public class JsonUtils {
                                                 List<Class> visited,
                                                 Class clazz,
                                                 boolean includeDatatype,
-                                                boolean isCollection)
-            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-
+                                                boolean isCollection) {
         final LinkedHashSet<String> mappings = new LinkedHashSet<>();
         if (clazz != null) {
             if (!visited.contains(clazz)) {
@@ -614,17 +623,14 @@ public class JsonUtils {
 
                             if (reflectionUtils.getSimpleJavaTypeOrNull(type) == null || fieldIsCollection) {
                                 LinkedHashSet<String> c;
-                                try {
-                                    c = buildJsonPath(fieldRow,
-                                            visited,
-                                            type,
-                                            includeDatatype,
-                                            fieldIsCollection);
-                                    visited.remove(type);
-                                    mappings.addAll(c);
-                                } catch (NoSuchMethodException | InvocationTargetException e) {
-                                    e.printStackTrace();
-                                }
+                                c = buildJsonPath(fieldRow,
+                                        visited,
+                                        type,
+                                        includeDatatype,
+                                        fieldIsCollection);
+                                visited.remove(type);
+                                mappings.addAll(c);
+
                             } else {
                                 if (includeDatatype) {
                                     fieldRow.append("\t").append(type.getSimpleName());
@@ -636,5 +642,75 @@ public class JsonUtils {
             }
         }
         return mappings;
+    }
+
+    public void buildJsonSchemaMapFromClassFile(File rootDirectory, File file, Map<String, String> jsonSchemas) {
+        String currentClass = null;
+        String currentFile = fileUtils.getRelativePathFrom(rootDirectory, file);
+        if (com.araguacaima.commons.utils.StringUtils.isNotBlank(currentFile)) {
+            currentFile = currentFile.substring(1) + File.separator + file.getName();
+            currentClass = currentFile.replace("." + CLASS_SUFFIX, com.araguacaima.commons.utils.StringUtils.EMPTY).replaceAll("\\\\", ".");
+        }
+        CtClass ctClass;
+        ClassPool pool = ClassPool.getDefault();
+        try {
+            if (!file.exists()) {
+                throw new RuntimeException("Class '" + file.getCanonicalPath() + "' does not belongs to provided classes' path. It's not possible to load classes depending to other libraries");
+            }
+            if (file.isFile()) {
+                Loader cl = new Loader(pool);
+                try {
+                    ctClass = pool.get(currentClass);
+                } catch (Throwable ignored) {
+                    ctClass = pool.makeClassIfNew(new FileInputStream(file));
+                }
+                ctClass.defrost();
+                Class class_ = cl.loadClass(currentClass);
+                String jsonSchema = getJsonSchema(class_, true);
+                String className = ctClass.getName();
+                log.debug("Class '" + className + "' loaded successfully!. Schema: \n" + jsonSchema);
+                jsonSchemas.put(className, jsonSchema);
+            }
+        } catch (java.lang.NoClassDefFoundError ncdfe) {
+            String dependencyName = ncdfe.getCause().getMessage().replaceAll("\\.", "/");
+            File dependency = new File(rootDirectory, dependencyName + "." + CLASS_SUFFIX);
+            buildJsonSchemaMapFromClassFile(rootDirectory, dependency, jsonSchemas);
+            buildJsonSchemaMapFromClassFile(rootDirectory, file, jsonSchemas);
+        } catch (TypeNotPresentException tnpe) {
+            String dependencyName = tnpe.typeName().replaceAll("\\.", "/");
+            File dependency = new File(rootDirectory, dependencyName + "." + CLASS_SUFFIX);
+            buildJsonSchemaMapFromClassFile(rootDirectory, dependency, jsonSchemas);
+            buildJsonSchemaMapFromClassFile(rootDirectory, file, jsonSchemas);
+        } catch (Throwable e) {
+            String msg = "It was not possible to load file '" + currentFile + "' due to the following exception: " + e.getMessage();
+            log.error(msg);
+            throw new RuntimeException(msg);
+        }
+
+    }
+
+    public String getJsonSchema(Class clazz, boolean showVersion) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        SchemaGeneratorConfigBuilder configBuilder = new SchemaGeneratorConfigBuilder(objectMapper, OptionPreset.PLAIN_JSON);
+        if (showVersion) {
+            configBuilder.with(Option.SCHEMA_VERSION_INDICATOR);
+        } else {
+            configBuilder.without(Option.SCHEMA_VERSION_INDICATOR);
+        }
+        configBuilder.with(Option.DEFINITIONS_FOR_ALL_OBJECTS);
+        configBuilder.with((jsonSchemaTypeNode, javaType, config) -> jsonSchemaTypeNode.put("$id", javaType.getTypeName()));
+        SchemaGeneratorConfig config = configBuilder.build();
+        SchemaGenerator generator = new SchemaGenerator(config);
+        JsonNode jsonSchema = generator.generateSchema(clazz);
+        return jsonSchema.toString();
+    }
+
+    public String getDefaultJsonSchema() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        SchemaGeneratorConfigBuilder configBuilder = new SchemaGeneratorConfigBuilder(objectMapper, OptionPreset.PLAIN_JSON);
+        SchemaGeneratorConfig config = configBuilder.build();
+        SchemaGenerator generator = new SchemaGenerator(config);
+        JsonNode jsonSchema = generator.generateSchema(Object.class);
+        return jsonSchema.toString();
     }
 }
