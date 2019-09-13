@@ -540,8 +540,7 @@ public class JsonUtils {
         }
     }
 
-    public LinkedHashSet<String> buildJsonPath(Class clazz)
-            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    public LinkedHashSet<String> buildJsonPath(Class clazz) {
         if (clazz != null) {
             return buildJsonPath(clazz, null, true);
         } else {
@@ -549,8 +548,7 @@ public class JsonUtils {
         }
     }
 
-    public LinkedHashSet<String> buildJsonPath(Class clazz, String rootName)
-            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    public LinkedHashSet<String> buildJsonPath(Class clazz, String rootName) {
         if (clazz != null) {
             return buildJsonPath(clazz, rootName, true);
         } else {
@@ -560,8 +558,7 @@ public class JsonUtils {
 
     public LinkedHashSet<String> buildJsonPath(Class clazz,
                                                String rootName,
-                                               boolean includeDatatype)
-            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+                                               boolean includeDatatype) {
         StringBuilder sb = new StringBuilder();
         if (clazz != null) {
             String innerRootName = StringUtils.uncapitalize(clazz.getSimpleName());
@@ -649,7 +646,7 @@ public class JsonUtils {
         String currentFile = fileUtils.getRelativePathFrom(rootDirectory, file);
         if (com.araguacaima.commons.utils.StringUtils.isNotBlank(currentFile)) {
             currentFile = currentFile.substring(1) + File.separator + file.getName();
-            currentClass = currentFile.replace("." + CLASS_SUFFIX, com.araguacaima.commons.utils.StringUtils.EMPTY).replaceAll("\\\\", ".");
+            currentClass = currentFile.replace("." + CLASS_SUFFIX, StringUtils.EMPTY).replaceAll("\\\\", ".");
         }
         CtClass ctClass;
         ClassPool pool = ClassPool.getDefault();

@@ -2069,4 +2069,39 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             throw new FileNotFoundException("File is not an directory");
         }
     }
+
+    public static File makeDirFromPackageName(File rootDirectory, String packageName) throws IOException {
+        return makeDirFromTokens(rootDirectory, packageName, ".");
+    }
+
+    public static File makeDirFromTokens(File rootDirectory, String directoryName, String regexTokenSeparator) throws IOException {
+        if (rootDirectory == null) {
+            return null;
+        }
+        if (StringUtils.isBlank(directoryName)) {
+            if (rootDirectory.isDirectory()) {
+                return rootDirectory;
+            } else if (rootDirectory.isFile()) {
+                return rootDirectory.getParentFile();
+            }
+        }
+        if (StringUtils.isBlank(regexTokenSeparator)) {
+            if (rootDirectory.isDirectory()) {
+                return new File(rootDirectory, directoryName);
+            } else if (rootDirectory.isFile()) {
+                return new File(rootDirectory.getParentFile(), directoryName);
+            }
+        }
+        File file = rootDirectory;
+        try {
+            for (String directory : directoryName.split(regexTokenSeparator)) {
+                file = new File(file, directory);
+                file.mkdir();
+            }
+        } catch (Throwable t) {
+            log.error("Is not possible to create File '" + rootDirectory.getCanonicalPath() + File.separator + "' due exception: " + t.getMessage());
+        }
+        return file;
+    }
+
 }
