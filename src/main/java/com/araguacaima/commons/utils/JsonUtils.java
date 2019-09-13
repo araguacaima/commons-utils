@@ -13,6 +13,8 @@ import com.github.victools.jsonschema.generator.*;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.Loader;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -28,7 +30,10 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
 @SuppressWarnings("Annotator")
@@ -642,6 +647,10 @@ public class JsonUtils {
     }
 
     public void buildJsonSchemaMapFromClassFile(File rootDirectory, File file, Map<String, String> jsonSchemas) {
+        buildJsonSchemaMapFromClassFile(rootDirectory, file, jsonSchemas, null, null);
+    }
+
+    public void buildJsonSchemaMapFromClassFile(File rootDirectory, File file, Map<String, String> jsonSchemas, Collection<Option> with, Collection<Option> without) {
         String currentClass = null;
         String currentFile = fileUtils.getRelativePathFrom(rootDirectory, file);
         if (com.araguacaima.commons.utils.StringUtils.isNotBlank(currentFile)) {
@@ -663,7 +672,7 @@ public class JsonUtils {
                 }
                 ctClass.defrost();
                 Class class_ = cl.loadClass(currentClass);
-                String jsonSchema = getJsonSchema(class_, true);
+                String jsonSchema = getJsonSchema(class_, true, with, without);
                 String className = ctClass.getName();
                 log.debug("Class '" + className + "' loaded successfully!. Schema: \n" + jsonSchema);
                 jsonSchemas.put(className, jsonSchema);
@@ -687,6 +696,10 @@ public class JsonUtils {
     }
 
     public String getJsonSchema(Class clazz, boolean showVersion) {
+        return getJsonSchema(clazz, showVersion, Collections.singletonList(Option.DEFINITIONS_FOR_ALL_OBJECTS), null);
+    }
+
+    public String getJsonSchema(Class clazz, boolean showVersion, Collection<Option> with, Collection<Option> without) {
         ObjectMapper objectMapper = new ObjectMapper();
         SchemaGeneratorConfigBuilder configBuilder = new SchemaGeneratorConfigBuilder(objectMapper, OptionPreset.PLAIN_JSON);
         if (showVersion) {
@@ -694,7 +707,13 @@ public class JsonUtils {
         } else {
             configBuilder.without(Option.SCHEMA_VERSION_INDICATOR);
         }
-        configBuilder.with(Option.DEFINITIONS_FOR_ALL_OBJECTS);
+        if (CollectionUtils.isNotEmpty(with)) {
+            IterableUtils.forEach(with, option -> configBuilder.with(option));
+        }
+        if (CollectionUtils.isNotEmpty(without)) {
+            IterableUtils.forEach(without, option -> configBuilder.without(option));
+        }
+        SchemaGeneratorConfigPart<FieldScope> scopeSchemaGeneratorConfigPart = new SchemaGeneratorConfigPart<>();
         configBuilder.with((jsonSchemaTypeNode, javaType, config) -> jsonSchemaTypeNode.put("$id", javaType.getTypeName()));
         SchemaGeneratorConfig config = configBuilder.build();
         SchemaGenerator generator = new SchemaGenerator(config);
