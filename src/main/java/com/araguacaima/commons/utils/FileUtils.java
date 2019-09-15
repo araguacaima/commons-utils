@@ -2071,7 +2071,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public static File makeDirFromPackageName(File rootDirectory, String packageName) throws IOException {
-        return makeDirFromTokens(rootDirectory, packageName, ".");
+        return makeDirFromTokens(rootDirectory, packageName, "\\.");
     }
 
     public static File makeDirFromTokens(File rootDirectory, String directoryName, String regexTokenSeparator) throws IOException {
@@ -2104,4 +2104,12 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return file;
     }
 
+    public static File createTempDir(String baseName) {
+        File baseDir = new File(System.getProperty("java.io.tmpdir"));
+        File tempDir = new File(baseDir, baseName);
+        if (tempDir.mkdir()) {
+            return tempDir;
+        }
+        throw new IllegalStateException("Failed to create directory with name '" + baseName + "'");
+    }
 }
