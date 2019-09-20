@@ -108,6 +108,7 @@
         <org.apache.cxf-cxf-bundle-jaxrs>2.3.0</org.apache.cxf-cxf-bundle-jaxrs>
         <com.github.bohnman-squiggly-filter-jackson>1.3.11</com.github.bohnman-squiggly-filter-jackson>
         <io.codearte.jfairy-jfairy>0.5.9</io.codearte.jfairy-jfairy>
+        <org.atteo-evo-inflector>1.2.2</org.atteo-evo-inflector>
     </properties>
 
     <dependencies>
@@ -326,6 +327,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.atteo</groupId>
+            <artifactId>evo-inflector</artifactId>
+            <version>${org.atteo-evo-inflector}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <profiles>

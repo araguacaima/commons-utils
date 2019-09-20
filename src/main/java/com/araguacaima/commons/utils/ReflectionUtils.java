@@ -22,6 +22,9 @@ package com.araguacaima.commons.utils;
 import com.google.common.collect.ObjectArrays;
 import io.github.benas.randombeans.EnhancedRandomBuilder;
 import io.github.benas.randombeans.api.EnhancedRandom;
+import javassist.CannotCompileException;
+import javassist.CtClass;
+import javassist.CtMethod;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
@@ -2192,6 +2195,29 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             ex.printStackTrace();
             return null;
         }
+    }
+
+
+    public static CtMethod generateGetter(CtClass declaringClass, String fieldName, CtClass fieldClass)
+            throws CannotCompileException {
+
+        Class clazz = fieldClass.getClass();
+        String prefix = (clazz.getSimpleName().equals("Boolean") || clazz.getTypeName().equals("boolean")) ? "is" :
+                "get";
+        String getterName = prefix + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        String sb = "public " + fieldClass.getName() + " " + getterName + "(){" +
+                "return this." + fieldName + ";" + "}";
+        return CtMethod.make(sb, declaringClass);
+    }
+
+    public static CtMethod generateSetter(CtClass declaringClass, String fieldName, CtClass fieldClass)
+            throws CannotCompileException {
+
+        String setterName = "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        String sb = "public void " + setterName + "(" + fieldClass.getName() + " " +
+                fieldName + ")" + "{" + "this." + fieldName + "=" + fieldName +
+                ";" + "}";
+        return CtMethod.make(sb, declaringClass);
     }
 }
 
