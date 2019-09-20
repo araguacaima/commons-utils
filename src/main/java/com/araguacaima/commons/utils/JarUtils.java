@@ -164,9 +164,36 @@ public class JarUtils {
      * @throws IOException If it could not be created any jar file from provided directory
      */
 
+    public void generateJarFromDirectory(File inputDirectory, File jarOutputFullPath)
+            throws IOException {
+        generateJarFromDirectory(inputDirectory, jarOutputFullPath, 1);
+    }
+
+    /**
+     * Generates a new jar file appending its Manifest and a set of files contained on an incoming directory
+     *
+     * @param inputDirectory    The incoming directory where the files resides
+     * @param jarOutputFullPath The output full path jar name
+     * @throws IOException If it could not be created any jar file from provided directory
+     */
+
     public void generateJarFromDirectory(String inputDirectory, String jarOutputFullPath)
             throws IOException {
         generateJarFromDirectory(inputDirectory, jarOutputFullPath, 1);
+    }
+
+    /**
+     * Generates a new jar file appending its Manifest and a set of files contained on an incoming directory
+     *
+     * @param inputDirectory           The incoming directory where the files resides
+     * @param jarOutputFullPath        The output full path jar name
+     * @param offsetExclusionDirectory The offset deep tree of the directory for excluding
+     * @throws IOException If it could not be created any jar file from provided directory
+     */
+
+    public void generateJarFromDirectory(File inputDirectory, File jarOutputFullPath, int offsetExclusionDirectory)
+            throws IOException {
+        generateJarFromDirectory(inputDirectory.getCanonicalPath(), jarOutputFullPath.getCanonicalPath(), offsetExclusionDirectory);
     }
 
     /**

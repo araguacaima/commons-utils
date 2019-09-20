@@ -664,7 +664,7 @@ public class ClassLoaderUtils {
                 }
                 // -6 because of .class
                 String classNamePackage = je.getName().substring(0, je.getName().length() - 6);
-                String className = classNamePackage.replace('/', '.');
+                String className = classNamePackage.replaceAll("/", ".").replaceAll("\\\\", ".");
                 try {
                     try {
                         classes.add(Class.forName(className));
