@@ -87,7 +87,7 @@ public class CompilerUtils {
         }
 
         public Set<Class<?>> compile(File sourceCodeDirectory, File compiledClassesDirectory, Collection<File> listFiles) throws IOException, URISyntaxException {
-            List<String> options = Arrays.asList("-d", compiledClassesDirectory.getCanonicalPath());
+            List<String> options = new ArrayList<>(Arrays.asList("-d", compiledClassesDirectory.getCanonicalPath()));
             if (!options.contains("-classpath")) {
                 StringBuilder classpath = new StringBuilder();
                 String separator = System.getProperty("path.separator");
