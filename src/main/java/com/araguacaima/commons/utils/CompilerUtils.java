@@ -13,11 +13,16 @@ public class CompilerUtils {
 
     private JsonUtils jsonUtils = new JsonUtils();
     private MapUtils mapUtils = MapUtils.getInstance();
+    private static final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+
+    @FunctionalInterface
+    private interface ThrowingBiFunction<T, U, R> {
+        R apply(T t, U u) throws Exception;
+    }
 
     @SuppressWarnings("unused")
     public static class FilesCompiler {
 
-        private static final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         private ReloadableClassLoader classLoader;
 
         public FilesCompiler() throws IOException {
@@ -56,17 +61,14 @@ public class CompilerUtils {
                 Set<Class<?>> resultList = new LinkedHashSet<>();
                 for (CharSequenceJavaFileObject file : files) {
                     String className = PackageClassUtils.instance(file.getName()).getFullyQualifiedClassName();
-                    Class<?> result;
                     try {
                         classLoader.loadClass(className);
-                        result = fileManager.loadAndReturnMainClass(className, (name, bytes) -> {
-                            return classLoader.loadClass(name, bytes);
-                        });
+                        resultList.add(fileManager.loadAndReturnMainClass(className, (name, bytes) ->
+                                classLoader.loadClass(name, bytes)));
                     } catch (Throwable ignored) {
-                        result = fileManager.loadAndReturnMainClass(className,
-                                (name, bytes) -> Reflect.on(classLoader).call("defineClass", name, bytes, 0, bytes.length).get());
+                        resultList.add(fileManager.loadAndReturnMainClass(className, (name, bytes) ->
+                                Reflect.on(classLoader).call("defineClass", name, bytes, 0, bytes.length).get()));
                     }
-                    resultList.add(result);
                 }
                 return resultList;
             } catch (ReflectException e) {
@@ -106,11 +108,6 @@ public class CompilerUtils {
 
         public ReloadableClassLoader getClassLoader() {
             return classLoader;
-        }
-
-        @FunctionalInterface
-        interface ThrowingBiFunction<T, U, R> {
-            R apply(T t, U u) throws Exception;
         }
 
         private static final class JavaFileObject extends SimpleJavaFileObject {
