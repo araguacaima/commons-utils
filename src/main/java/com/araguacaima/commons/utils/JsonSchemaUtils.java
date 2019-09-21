@@ -13,7 +13,11 @@ public class JsonSchemaUtils {
     public static final String DEFINITIONS_ROOT = "definitions";
     private JsonUtils jsonUtils = new JsonUtils();
     private MapUtils mapUtils = MapUtils.getInstance();
-    private CompilerUtils.FilesCompiler filesCompiler = new CompilerUtils.FilesCompiler();
+    private CompilerUtils.FilesCompiler filesCompiler;
+
+    public JsonSchemaUtils() throws IOException {
+        filesCompiler = new CompilerUtils.FilesCompiler();
+    }
 
     public Set<Class<?>> processFile(File file, String packageName, File sourceCodeDirectory, File compiledClassesDirectory) throws IOException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException, URISyntaxException {
         String json = FileUtils.readFileToString(file, Charset.forName("UTF-8"));

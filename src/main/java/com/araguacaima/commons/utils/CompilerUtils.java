@@ -5,7 +5,6 @@ import org.joor.ReflectException;
 
 import javax.tools.*;
 import java.io.*;
-import java.lang.invoke.MethodHandles;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -14,21 +13,15 @@ public class CompilerUtils {
 
     private JsonUtils jsonUtils = new JsonUtils();
     private MapUtils mapUtils = MapUtils.getInstance();
-    private FilesCompiler filesCompiler = new FilesCompiler();
-
 
     @SuppressWarnings("unused")
     public static class FilesCompiler {
 
         private static final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        private ClassLoader classLoader;
+        private ReloadableClassLoader classLoader;
 
-        public FilesCompiler() {
-            this(MethodHandles.lookup().lookupClass().getClassLoader());
-        }
-
-        public FilesCompiler(ClassLoader classLoader) {
-            this.classLoader = classLoader;
+        public FilesCompiler() throws IOException {
+            classLoader = new ReloadableClassLoader(FilesCompiler.class.getClassLoader());
         }
 
         public Set<Class<?>> compile(List<String> options, File sourceCodeDirectory, Collection<File> files) throws IOException {
@@ -66,12 +59,9 @@ public class CompilerUtils {
                     Class<?> result;
                     try {
                         classLoader.loadClass(className);
-                        ReloadableClassLoader tempClassLoader = new ReloadableClassLoader(classLoader);
                         result = fileManager.loadAndReturnMainClass(className, (name, bytes) -> {
-                            Reflect.on(tempClassLoader).call("defineClass", name, bytes, 0, bytes.length).get();
-                            return tempClassLoader.loadClass(name, bytes);
+                            return classLoader.loadClass(name, bytes);
                         });
-                        classLoader = tempClassLoader;
                     } catch (Throwable ignored) {
                         result = fileManager.loadAndReturnMainClass(className,
                                 (name, bytes) -> Reflect.on(classLoader).call("defineClass", name, bytes, 0, bytes.length).get());
@@ -110,7 +100,11 @@ public class CompilerUtils {
             return compile(options, sourceCodeDirectory, listFiles);
         }
 
-        public ClassLoader getClassLoader() {
+        public void setClassLoader(ReloadableClassLoader classLoader) {
+            this.classLoader = classLoader;
+        }
+
+        public ReloadableClassLoader getClassLoader() {
             return classLoader;
         }
 
@@ -199,10 +193,14 @@ public class CompilerUtils {
             }
         }
 
-        private static final class ReloadableClassLoader extends ClassLoader {
+        private static final class ReloadableClassLoader extends URLClassLoader {
 
-            ReloadableClassLoader(ClassLoader parent) {
-                super(parent);
+            ReloadableClassLoader(ClassLoader parent) throws IOException {
+                super(new URL[]{}, parent);
+                Enumeration<URL> resources = parent.getResources(".");
+                while (resources.hasMoreElements()) {
+                    this.addURL(resources.nextElement());
+                }
             }
 
             Class loadClass(String name, URL myUrl) {
