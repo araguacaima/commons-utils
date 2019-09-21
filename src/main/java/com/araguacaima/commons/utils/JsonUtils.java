@@ -1,6 +1,7 @@
 package com.araguacaima.commons.utils;
 
 import com.araguacaima.commons.utils.json.parser.*;
+import com.araguacaima.commons.utils.jsonschema.RuleFactory;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -10,6 +11,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.bohnman.squiggly.Squiggly;
 import com.github.victools.jsonschema.generator.*;
+import com.github.victools.jsonschema.generator.SchemaGenerator;
+import com.sun.codemodel.JCodeModel;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.Loader;
@@ -19,6 +22,7 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
+import org.jsonschema2pojo.*;
 import org.reflections.Reflections;
 import org.reflections.ReflectionsException;
 import org.slf4j.Logger;
@@ -51,6 +55,67 @@ public class JsonUtils {
     private final FileUtils fileUtils = new FileUtils();
     private final String CLASS_SUFFIX = "class";
     private static Logger log = LoggerFactory.getLogger(JsonUtils.class);
+    private static GenerationConfig config = new DefaultGenerationConfig() {
+
+        @Override
+        public boolean isUsePrimitives() {
+            return true;
+        }
+
+        @Override
+        public boolean isUseLongIntegers() {
+            return true;
+        }
+
+        @Override
+        public AnnotationStyle getAnnotationStyle() {
+            return AnnotationStyle.NONE;
+        }
+
+        @Override
+        public InclusionLevel getInclusionLevel() {
+            return InclusionLevel.ALWAYS;
+        }
+
+        @Override
+        public boolean isUseOptionalForGetters() {
+            return false;
+        }
+
+        @Override
+        public boolean isRemoveOldOutput() {
+            return true;
+        }
+
+        @Override
+        public boolean isSerializable() {
+            return true;
+        }
+
+        @Override
+        public boolean isIncludeConstructors() {
+            return true;
+        }
+
+        @Override
+        public boolean isIncludeAdditionalProperties() {
+            return false;
+        }
+
+        @Override
+        public String getTargetVersion() {
+            return "1.8";
+        }
+
+        @Override
+        public Language getTargetLanguage() {
+            return Language.JAVA;
+        }
+
+    };
+    private static NoopAnnotator noopAnnotator = new NoopAnnotator();
+    private static SchemaStore schemaStore = new SchemaStore();
+    private static org.jsonschema2pojo.SchemaGenerator schemaGenerator = new org.jsonschema2pojo.SchemaGenerator();
 
     public JsonUtils() {
         init();
@@ -728,5 +793,12 @@ public class JsonUtils {
         SchemaGenerator generator = new SchemaGenerator(config);
         JsonNode jsonSchema = generator.generateSchema(Object.class);
         return jsonSchema.toString();
+    }
+
+    public void jsonToSourceClassFile(String json, String className, String packageName, File rootDirectory, String root) throws IOException, NoSuchFieldException, IllegalAccessException {
+        JCodeModel codeModel = new JCodeModel();
+        SchemaMapper mapper = new SchemaMapper(new RuleFactory(config, noopAnnotator, schemaStore, root), schemaGenerator);
+        mapper.generate(codeModel, className, packageName, json);
+        codeModel.build(rootDirectory);
     }
 }

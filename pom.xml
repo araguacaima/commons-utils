@@ -109,6 +109,7 @@
         <com.github.bohnman-squiggly-filter-jackson>1.3.11</com.github.bohnman-squiggly-filter-jackson>
         <io.codearte.jfairy-jfairy>0.5.9</io.codearte.jfairy-jfairy>
         <org.atteo-evo-inflector>1.2.2</org.atteo-evo-inflector>
+        <org.jooq-joor-java-8>0.9.12</org.jooq-joor-java-8>
     </properties>
 
     <dependencies>
@@ -331,6 +332,14 @@
             <groupId>org.atteo</groupId>
             <artifactId>evo-inflector</artifactId>
             <version>${org.atteo-evo-inflector}</version>
+            <scope>compile</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>joor-java-8</artifactId>
+            <version>${org.jooq-joor-java-8}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

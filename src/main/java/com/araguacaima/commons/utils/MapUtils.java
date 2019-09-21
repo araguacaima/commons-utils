@@ -307,4 +307,55 @@ public class MapUtils {
 
     }
 
+    public LinkedHashMap<String, LinkedHashMap> createKeysFromPackageName(String key, LinkedHashMap<String, LinkedHashMap> parentMap) {
+        if (StringUtils.isBlank(key)) {
+            return new LinkedHashMap<>();
+        }
+        String entry = key.split("\\.")[0];
+        String remaining = key.replaceFirst(entry, StringUtils.EMPTY);
+        if (remaining.startsWith(".")) {
+            remaining = remaining.substring(1);
+        }
+        LinkedHashMap<String, LinkedHashMap> map = (LinkedHashMap<String, LinkedHashMap>) parentMap.get(entry);
+        if (map == null) {
+            map = new LinkedHashMap<>();
+            LinkedHashMap<String, LinkedHashMap> value = new LinkedHashMap<>();
+            map.put(entry, createKeysFromPackageName(remaining, value));
+        } else {
+            if (!key.equals(entry)) {
+                LinkedHashMap<String, LinkedHashMap> map1 = createKeysFromPackageName(remaining, map);
+                if (!map1.equals(map)) {
+                    if (!remaining.contains(".")) {
+                        map.putAll(map1);
+                        return parentMap;
+                    } else {
+                        map.put(entry, map1);
+                    }
+                } else {
+                    return parentMap;
+                }
+            } else {
+                return parentMap;
+            }
+        }
+        return map;
+    }
+
+    public Map getLastValueFromPackageName(String key, Map parentMap) {
+        if (StringUtils.isBlank(key)) {
+            return parentMap;
+        }
+        String entry = key.split("\\.")[0];
+        Map map = (Map) parentMap.get(entry);
+        if (map == null) {
+            return null;
+        } else {
+            String remaining = key.substring(entry.length());
+            if (remaining.startsWith(".")) {
+                remaining = remaining.substring(1);
+            }
+            return getLastValueFromPackageName(remaining, map);
+        }
+    }
+
 }
