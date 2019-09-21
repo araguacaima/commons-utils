@@ -19,7 +19,13 @@ public class JsonSchemaUtils {
         filesCompiler = new CompilerUtils.FilesCompiler();
     }
 
-    public Set<Class<?>> processFile(File file, String packageName, File sourceCodeDirectory, File compiledClassesDirectory) throws IOException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException, URISyntaxException {
+
+    public ClassLoader processFile_(File file, String packageName, File sourceCodeDirectory, File compiledClassesDirectory) throws IOException, NoSuchFieldException, IllegalAccessException, URISyntaxException {
+        processFile(file, packageName, sourceCodeDirectory, compiledClassesDirectory);
+        return filesCompiler.getClassLoader();
+    }
+
+    public Set<Class<?>> processFile(File file, String packageName, File sourceCodeDirectory, File compiledClassesDirectory) throws IOException, NoSuchFieldException, IllegalAccessException, URISyntaxException {
         String json = FileUtils.readFileToString(file, Charset.forName("UTF-8"));
         try {
             Map<String, String> jsonSchema = jsonUtils.fromJSON(json, Map.class);

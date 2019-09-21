@@ -63,6 +63,7 @@ public class CompilerUtils {
                     String className = PackageClassUtils.instance(file.getName()).getFullyQualifiedClassName();
                     try {
                         classLoader.loadClass(className);
+                        classLoader = new ReloadableClassLoader(classLoader);
                         resultList.add(fileManager.loadAndReturnMainClass(className, (name, bytes) ->
                                 classLoader.loadClass(name, bytes)));
                     } catch (Throwable ignored) {
