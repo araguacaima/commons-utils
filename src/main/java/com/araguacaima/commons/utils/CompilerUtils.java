@@ -22,12 +22,12 @@ public class CompilerUtils {
     }
 
     @SuppressWarnings("unused")
-    public static class FilesCompiler {
+    public static class FilesCompiler <T extends ClassLoader> {
 
-        private ClassLoader classLoader;
+        private T classLoader;
 
-        public FilesCompiler() {
-            classLoader = ClassLoaderUtils.getRootClassLoader(this.getClass().getClassLoader());
+        public FilesCompiler(T classLoader) {
+            this.classLoader = classLoader;
         }
 
         public Set<Class<?>> compile(List<String> options, File sourceCodeDirectory, File compiledClassesDirectory, Collection<File> files) throws IOException {
@@ -107,11 +107,11 @@ public class CompilerUtils {
             return compile(options, sourceCodeDirectory, compiledClassesDirectory, listFiles);
         }
 
-        public void setClassLoader(ClassLoader classLoader) {
+        public void setClassLoader(T classLoader) {
             this.classLoader = classLoader;
         }
 
-        public ClassLoader getClassLoader() {
+        public T getClassLoader() {
             return classLoader;
         }
 

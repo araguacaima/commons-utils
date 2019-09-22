@@ -5,37 +5,34 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class JsonSchemaUtils {
+@SuppressWarnings("UnusedReturnValue")
+public class JsonSchemaUtils<T extends ClassLoader> {
 
     public static final String DEFINITIONS_ROOT = "definitions";
     private JsonUtils jsonUtils = new JsonUtils();
     private MapUtils mapUtils = MapUtils.getInstance();
-    private CompilerUtils.FilesCompiler filesCompiler;
+    private CompilerUtils.FilesCompiler<T> filesCompiler;
 
-    public JsonSchemaUtils() {
-        filesCompiler = new CompilerUtils.FilesCompiler();
-    }
-
-    public JsonSchemaUtils(ClassLoader classLoader) {
-        this();
+    public JsonSchemaUtils(T classLoader) {
         if (classLoader != null) {
-            filesCompiler.setClassLoader(classLoader);
+            filesCompiler = new CompilerUtils.FilesCompiler<>(classLoader);
         }
     }
 
-    public ClassLoader processFile_(File file, String packageName, File sourceCodeDirectory, File compiledClassesDirectory) throws IOException, NoSuchFieldException, IllegalAccessException, URISyntaxException {
+    public T processFile_(File file, String packageName, File sourceCodeDirectory, File compiledClassesDirectory) throws IOException, NoSuchFieldException, IllegalAccessException, URISyntaxException {
         processFile(file, packageName, sourceCodeDirectory, compiledClassesDirectory);
         return filesCompiler.getClassLoader();
     }
 
+    @SuppressWarnings("unchecked")
     public Set<Class<?>> processFile(File file, String packageName, File sourceCodeDirectory, File compiledClassesDirectory) throws IOException, NoSuchFieldException, IllegalAccessException, URISyntaxException {
-        String json = FileUtils.readFileToString(file, Charset.forName("UTF-8"));
+        String json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
         try {
-            Map<String, String> jsonSchema = jsonUtils.fromJSON(json, Map.class);
-            String id = jsonSchema.get("$id");
+            Map jsonSchema = jsonUtils.fromJSON(json, Map.class);
+            String id = String.valueOf(jsonSchema.get("$id"));
             jsonUtils.jsonToSourceClassFile(json, id, packageName, sourceCodeDirectory, DEFINITIONS_ROOT);
         } catch (MismatchedInputException ignored) {
             Collection<Map<String, Object>> jsonSchemas = jsonUtils.fromJSON(json, Collection.class);
@@ -88,6 +85,7 @@ public class JsonSchemaUtils {
         return filesCompiler.compile(sourceCodeDirectory, compiledClassesDirectory, org.apache.commons.io.FileUtils.listFiles(sourceCodeDirectory, new String[]{"java"}, true));
     }
 
+    @SuppressWarnings("unchecked")
     private void definitionsToClasses(LinkedHashMap<String, LinkedHashMap> definitions, Set<String> ids, File rootDirectory) throws IOException, NoSuchFieldException, IllegalAccessException {
         FileUtils.cleanDirectory(rootDirectory);
         for (String id : ids) {
@@ -126,6 +124,4 @@ public class JsonSchemaUtils {
             }
         }
     }
-
-
 }
