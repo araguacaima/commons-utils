@@ -67,7 +67,7 @@ public class CompilerUtils {
                     } catch (Throwable ignored) {
                         resultList.add(fileManager.loadAndReturnMainClass(className, (name, bytes) -> {
                             Class clazz = Reflect.on(classLoader).call("defineClass", name, bytes, 0, bytes.length).get();
-                            PackageClassUtils packageClassUtils = PackageClassUtils.instance(className);
+                            PackageClassUtils packageClassUtils = PackageClassUtils.instance(clazz.getName());
                             String packageName = packageClassUtils.getPackageName();
                             File classFile = new File(com.araguacaima.commons.utils.FileUtils.makeDirFromPackageName(compiledClassesDirectory, packageName), packageClassUtils.getClassName() + ".class");
                             FileUtils.writeByteArrayToFile(classFile, bytes);
