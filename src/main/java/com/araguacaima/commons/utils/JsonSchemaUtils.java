@@ -15,10 +15,16 @@ public class JsonSchemaUtils {
     private MapUtils mapUtils = MapUtils.getInstance();
     private CompilerUtils.FilesCompiler filesCompiler;
 
-    public JsonSchemaUtils() throws IOException {
+    public JsonSchemaUtils() {
         filesCompiler = new CompilerUtils.FilesCompiler();
     }
 
+    public JsonSchemaUtils(ClassLoader classLoader) {
+        this();
+        if (classLoader != null) {
+            filesCompiler.setClassLoader(classLoader);
+        }
+    }
 
     public ClassLoader processFile_(File file, String packageName, File sourceCodeDirectory, File compiledClassesDirectory) throws IOException, NoSuchFieldException, IllegalAccessException, URISyntaxException {
         processFile(file, packageName, sourceCodeDirectory, compiledClassesDirectory);

@@ -387,6 +387,23 @@ public class ClassLoaderUtils {
         return sysloader == null ? this.getClass().getClassLoader() : sysloader;
     }
 
+    public static ClassLoader getRootClassLoader(ClassLoader cl) {
+        if (cl != null) {
+            ClassLoader parent = cl.getParent();
+            ClassLoader rootClassLoader = getRootClassLoader(parent);
+            if (rootClassLoader != null) {
+                return rootClassLoader;
+            } else {
+                if (parent != null) {
+                    return parent;
+                } else {
+                    return cl;
+                }
+            }
+        }
+        return cl;
+    }
+
     public ClassNameCompare getClassNameCompare() {
         return CLASS_NAME_COMPARE;
     }

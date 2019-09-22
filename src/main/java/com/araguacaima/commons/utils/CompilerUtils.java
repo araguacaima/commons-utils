@@ -1,5 +1,6 @@
 package com.araguacaima.commons.utils;
 
+import org.apache.commons.io.FileUtils;
 import org.joor.Reflect;
 import org.joor.ReflectException;
 
@@ -23,13 +24,13 @@ public class CompilerUtils {
     @SuppressWarnings("unused")
     public static class FilesCompiler {
 
-        private ReloadableClassLoader classLoader;
+        private ClassLoader classLoader;
 
-        public FilesCompiler() throws IOException {
-            classLoader = new ReloadableClassLoader(FilesCompiler.class.getClassLoader());
+        public FilesCompiler() {
+            classLoader = ClassLoaderUtils.getRootClassLoader(this.getClass().getClassLoader());
         }
 
-        public Set<Class<?>> compile(List<String> options, File sourceCodeDirectory, Collection<File> files) throws IOException {
+        public Set<Class<?>> compile(List<String> options, File sourceCodeDirectory, File compiledClassesDirectory, Collection<File> files) throws IOException {
             List<CharSequenceJavaFileObject> files_ = new ArrayList<>();
             for (File file : files) {
                 PackageClassUtils packageClassUtils = PackageClassUtils.instance(sourceCodeDirectory, file, ".java");
@@ -37,10 +38,10 @@ public class CompilerUtils {
                 String className = packageClassUtils.getFullyQualifiedClassName();
                 files_.add(new CharSequenceJavaFileObject(className, content));
             }
-            return compile(options, files_);
+            return compile(options, files_, compiledClassesDirectory);
         }
 
-        public Set<Class<?>> compile(List<String> options, List<CharSequenceJavaFileObject> files) {
+        public Set<Class<?>> compile(List<String> options, List<CharSequenceJavaFileObject> files, File compiledClassesDirectory) {
             try {
                 ClassFileManager fileManager = new ClassFileManager(compiler.getStandardFileManager(null, null, null));
                 StringWriter out = new StringWriter();
@@ -62,13 +63,16 @@ public class CompilerUtils {
                 for (CharSequenceJavaFileObject file : files) {
                     String className = PackageClassUtils.instance(file.getName()).getFullyQualifiedClassName();
                     try {
-                        classLoader.loadClass(className);
-                        classLoader = new ReloadableClassLoader(classLoader);
-                        resultList.add(fileManager.loadAndReturnMainClass(className, (name, bytes) ->
-                                classLoader.loadClass(name, bytes)));
+                        resultList.add(classLoader.loadClass(className));
                     } catch (Throwable ignored) {
-                        resultList.add(fileManager.loadAndReturnMainClass(className, (name, bytes) ->
-                                Reflect.on(classLoader).call("defineClass", name, bytes, 0, bytes.length).get()));
+                        resultList.add(fileManager.loadAndReturnMainClass(className, (name, bytes) -> {
+                            Class clazz = Reflect.on(classLoader).call("defineClass", name, bytes, 0, bytes.length).get();
+                            PackageClassUtils packageClassUtils = PackageClassUtils.instance(className);
+                            String packageName = packageClassUtils.getPackageName();
+                            File classFile = new File(com.araguacaima.commons.utils.FileUtils.makeDirFromPackageName(compiledClassesDirectory, packageName), packageClassUtils.getClassName() + ".class");
+                            FileUtils.writeByteArrayToFile(classFile, bytes);
+                            return clazz;
+                        }));
                     }
                 }
                 return resultList;
@@ -100,14 +104,14 @@ public class CompilerUtils {
                 }
                 options.addAll(Arrays.asList("-classpath", classpath.toString()));
             }
-            return compile(options, sourceCodeDirectory, listFiles);
+            return compile(options, sourceCodeDirectory, compiledClassesDirectory, listFiles);
         }
 
-        public void setClassLoader(ReloadableClassLoader classLoader) {
+        public void setClassLoader(ClassLoader classLoader) {
             this.classLoader = classLoader;
         }
 
-        public ReloadableClassLoader getClassLoader() {
+        public ClassLoader getClassLoader() {
             return classLoader;
         }
 
