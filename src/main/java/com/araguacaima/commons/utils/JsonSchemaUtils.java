@@ -27,9 +27,19 @@ public class JsonSchemaUtils<T extends ClassLoader> {
         return filesCompiler.getClassLoader();
     }
 
+    public T processFile_(String json, String packageName, File sourceCodeDirectory, File compiledClassesDirectory) throws IOException, NoSuchFieldException, IllegalAccessException, URISyntaxException {
+        processFile(json, packageName, sourceCodeDirectory, compiledClassesDirectory);
+        return filesCompiler.getClassLoader();
+    }
+
     @SuppressWarnings("unchecked")
     public Set<Class<?>> processFile(File file, String packageName, File sourceCodeDirectory, File compiledClassesDirectory) throws IOException, NoSuchFieldException, IllegalAccessException, URISyntaxException {
         String json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+        return processFile(json, packageName, sourceCodeDirectory, compiledClassesDirectory);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Set<Class<?>> processFile(String json, String packageName, File sourceCodeDirectory, File compiledClassesDirectory) throws IOException, NoSuchFieldException, IllegalAccessException, URISyntaxException {
         try {
             Map jsonSchema = jsonUtils.fromJSON(json, Map.class);
             String id = String.valueOf(jsonSchema.get("$id"));
