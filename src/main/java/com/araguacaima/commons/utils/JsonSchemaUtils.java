@@ -15,6 +15,7 @@ public class JsonSchemaUtils<T extends ClassLoader> {
     private JsonUtils jsonUtils = new JsonUtils();
     private MapUtils mapUtils = MapUtils.getInstance();
     private CompilerUtils.FilesCompiler<T> filesCompiler;
+    private static ReflectionUtils reflectionUtils = new ReflectionUtils(null);
 
     public JsonSchemaUtils(T classLoader) {
         if (classLoader != null) {
@@ -43,7 +44,16 @@ public class JsonSchemaUtils<T extends ClassLoader> {
         try {
             Map jsonSchema = jsonUtils.fromJSON(json, Map.class);
             String id = String.valueOf(jsonSchema.get("$id"));
-            jsonUtils.jsonToSourceClassFile(json, id, packageName, sourceCodeDirectory, DEFINITIONS_ROOT);
+            String className_;
+            String packageName_;
+            if (id.contains(".")) {
+                className_ = id.substring(id.lastIndexOf('.') + 1);
+                packageName_ = id.substring(0, id.lastIndexOf('.'));
+            } else {
+                className_ = id;
+                packageName_ = packageName;
+            }
+            jsonUtils.jsonToSourceClassFile(json, className_, packageName_, sourceCodeDirectory, DEFINITIONS_ROOT);
         } catch (MismatchedInputException ignored) {
             Collection<Map<String, Object>> jsonSchemas = jsonUtils.fromJSON(json, Collection.class);
             Set<String> ids = new LinkedHashSet<>();
@@ -75,14 +85,23 @@ public class JsonSchemaUtils<T extends ClassLoader> {
                             LinkedHashMap value = (LinkedHashMap) properties.get(key);
                             String innerId = (String) value.get("$id");
                             if (StringUtils.isNotBlank(innerId) && innerId.contains(".")) {
+                                String type;
                                 value.clear();
-                                value.put("$ref", "#/definitions/" + innerId.replaceAll("\\.", "/"));
+                                if (ReflectionUtils.isCollectionImplementation(innerId)) {
+                                    type = ReflectionUtils.getExtractedGenerics(innerId);
+                                    value.put("type", "array");
+                                    Map map__ = new HashMap();
+                                    map__.put("$ref", "#/definitions/" + type.replaceAll("\\.", "/"));
+                                    value.put("items", map__);
+                                } else {type = innerId;
+                                    value.put("$ref", "#/definitions/" + type.replaceAll("\\.", "/"));
+                                }
                                 LinkedHashMap definitions = (LinkedHashMap) jsonSchema.get(JsonSchemaUtils.DEFINITIONS_ROOT);
                                 if (definitions == null) {
                                     definitions = new LinkedHashMap();
                                     jsonSchema.put(JsonSchemaUtils.DEFINITIONS_ROOT, definitions);
                                 }
-                                definitions.put(innerId, "");
+                                definitions.put(type, "");
                             }
                         }
                     }

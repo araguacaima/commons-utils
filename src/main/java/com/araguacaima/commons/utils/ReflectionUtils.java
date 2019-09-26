@@ -300,6 +300,21 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
+    public static boolean isCollectionImplementation(String clazz) {
+        Class collectionClass;
+        try {
+            String firstPartType = clazz.split("<")[0];
+            collectionClass = Class.forName(firstPartType);
+        } catch (ClassNotFoundException e) {
+            try {
+                collectionClass = Class.forName(clazz);
+            } catch (ClassNotFoundException ex) {
+                return false;
+            }
+        }
+        return isCollectionImplementation(collectionClass);
+    }
+
     public static boolean isCollectionImplementation(Class clazz) {
         return clazz != null && (Collection.class.isAssignableFrom(clazz) || Object[].class.isAssignableFrom(clazz)
                 || clazz.isArray());
@@ -458,7 +473,10 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     public static String getExtractedGenerics(String s) {
         String s1 = s.trim();
         try {
-            s1 = s1.split("List<")[1].replaceAll(">", StringUtils.EMPTY);
+            String firstPartType = s1.split("<")[1];
+            if (firstPartType.endsWith(">")) {
+                return firstPartType.substring(0, firstPartType.length() - 1);
+            }
         } catch (Throwable ignored) {
         }
         return s1;
@@ -574,8 +592,13 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
 
     public static boolean isList(String type) {
         try {
-            return type.equals("List") || type.startsWith("List<") || type.startsWith("java.util.List<") || type.equals(
+            boolean result = type.equals("List") || type.startsWith("List<") || type.startsWith("java.util.List<") || type.equals(
                     "Collection") || type.startsWith("Collection<") || type.startsWith("java.util.Collection<");
+            if (!result) {
+                String firstPartType = type.split("<")[0];
+                result = Class.forName(firstPartType) != null;
+            }
+            return result;
         } catch (Throwable ignored) {
             return false;
         }
@@ -775,7 +798,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return false;
     }
 
-    public boolean checkWhetherOrNotSuperclassesImplementsCriteria(final Class clazz, final Class interfaceCriteria) {
+    public boolean checkWhetherOrNotSuperclassesImplementsCriteria(final Class clazz,
+                                                                   final Class interfaceCriteria) {
         boolean result;
         if (clazz != null && clazz != Object.class) {
             Collection<Class> incomingInterfaces = Arrays.asList(clazz.getInterfaces());
@@ -847,7 +871,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return createAndInitializeTypedCollection(typedClassForCollection, null);
     }
 
-    public static Collection<Object> createAndInitializeTypedCollection(Class<?> typedClassForCollection, Object value)
+    public static Collection<Object> createAndInitializeTypedCollection(Class<?> typedClassForCollection, Object
+            value)
             throws IllegalAccessException, InstantiationException {
         Collection<Object> result = new ArrayList<>();
         if (value == null) {
@@ -1513,7 +1538,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
-    public Collection<Method> getAllMethodsOfType(Class clazz, Collection<String> excludeMethods, final Class type) {
+    public Collection<Method> getAllMethodsOfType(Class clazz, Collection<String> excludeMethods,
+                                                  final Class type) {
         final Collection<Method> result = new ArrayList();
         if (clazz != null) {
             IterableUtils.forEach(getAllMethodsIncludingParents(clazz, excludeMethods), method -> {
@@ -1546,7 +1572,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return CollectionUtils.collect(getAllMethodsOfType(object, excludeMethods, type), METHOD_NAME_TRANSFORMER);
     }
 
-    public Collection<Method> getAllMethodsOfType(Object object, Collection<String> excludeFields, final Class type) {
+    public Collection<Method> getAllMethodsOfType(Object object, Collection<String> excludeFields,
+                                                  final Class type) {
         Collection<Method> result = new ArrayList();
 
         if (object != null) {
@@ -1864,16 +1891,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return clazz.getName().equalsIgnoreCase("Boolean") || clazz.getName().equalsIgnoreCase("java.lang.Boolean");
     }
 
-    public boolean isCollectionImplementation(String fullyQulifiedClassName) {
-        try {
-            Class clazz = Class.forName(fullyQulifiedClassName);
-            return isCollectionImplementation(clazz);
-        } catch (Throwable ignored) {
-        }
-        return false;
-
-    }
-
     public boolean isDouble(Class clazz) {
         return clazz.getName().equalsIgnoreCase("Double") || clazz.getName().equalsIgnoreCase("java.lang.Double");
     }
@@ -2102,7 +2119,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         }
     }
 
-    private <T> void traverseForExtraction(Object entity, Class<?> incomingClass, Class<T> outcomingClass, Set<T> result) {
+    private <T> void traverseForExtraction(Object entity, Class<?>
+            incomingClass, Class<T> outcomingClass, Set<T> result) {
         ReflectionUtils.doWithFields(incomingClass, field -> {
             field.setAccessible(true);
             Object object_ = field.get(entity);
