@@ -46,10 +46,6 @@ public class RestQueryStringUtil {
         try {
             if (StringUtils.isNotBlank(queryString)) {
                 Map<Constants.SpecialQueryParams, Collection<SpecialParamSplitter>> specialParams = SpecialParamSplitterBuilder.build(queryString);
-                if (specialParams == null) {
-                    throw new IllegalArgumentException("Incoming query params '" + queryString
-                            + "' not meet the specification of the special parameters");
-                }
                 Collection<SpecialParamSplitter> specialParamSplitted = specialParams.get(Constants.SpecialQueryParams.FILTER);
                 if (specialParamSplitted == null || specialParamSplitted.size() == 0) {
                     throw new IllegalArgumentException("Incoming query params '" + queryString
@@ -77,7 +73,7 @@ public class RestQueryStringUtil {
         return null;
     }
 
-    public <T> T createNewBeanAndFillItByExtractingFiqlFilter(HttpServletRequest request, Class<T> dtoExtClass) throws IllegalArgumentException, InstantiationException, IllegalAccessException {
+    public <T> T createNewBeanAndFillItByExtractingFiqlFilter(HttpServletRequest request, Class<T> dtoExtClass) throws IllegalArgumentException {
         return createNewBeanAndFillItByExtractingFiqlFilter(request.getQueryString(), dtoExtClass);
     }
 }

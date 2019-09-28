@@ -371,7 +371,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                 clazz = (Class) typeArguments[0];
             }
         } catch (ClassCastException ignored) {
-            Type type = typeArguments[0];
+            Type type = Objects.requireNonNull(typeArguments)[0];
             try {
                 Field rawTypeField = type.getClass().getDeclaredField("rawType");
                 rawTypeField.setAccessible(true);
@@ -537,10 +537,11 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     }
 
     /**
-     * This method makes a "deep clone" of any Java object it is given.
      *
-     * @param e The object to be cloned
-     * @return A new fresh object cloned from the incoming one
+     * @param e
+     * @param <E>
+     * @param <F>
+     * @return
      */
     public static <E, F> F deepClone(E e) {
         ByteArrayOutputStream bo = new ByteArrayOutputStream();
@@ -686,7 +687,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
 
         // 1. Lookup "$VALUES" holder in enum class and get previous enum instances
         Field valuesField = null;
-        Field[] fields = type.getClass().getDeclaredFields();
+        Field[] fields = type.getDeclaredFields();
         for (Field field : fields) {
             if (field.getName().equals("enumConstants")) {
                 valuesField = field;
@@ -717,7 +718,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             values.add(newValue);
 
             // 5. Set new values field
-            setFailsafeFieldValue(valuesField, type, values.toArray((T[]) Array.newInstance(type, 0)));
+            setFailsafeFieldValue(Objects.requireNonNull(valuesField), type, values.toArray((T[]) Array.newInstance(type, 0)));
 
             // 6. Clean enum cache
             //            cleanEnumCache(type);
@@ -1086,73 +1087,71 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         } else {
             fields = object.getClass().getDeclaredFields();
         }
-        if (fields != null) {
-            for (Field field : fields) {
-                String fieldName = field.getName();
-                Class<?> fieldClass = field.getType();
-                // skip primitives
-                if (fieldClass.isEnum() || fieldClass.isAssignableFrom(Enum.class) || fieldClass.isPrimitive() || (!isCollectionImplementation(fieldClass) && StringUtils.isNotBlank(getSimpleJavaTypeOrNull
-                        (fieldClass.getSimpleName(),
-                                false)))) {
+        for (Field field : fields) {
+            String fieldName = field.getName();
+            Class<?> fieldClass = field.getType();
+            // skip primitives
+            if (fieldClass.isEnum() || fieldClass.isAssignableFrom(Enum.class) || fieldClass.isPrimitive() || (!isCollectionImplementation(fieldClass) && StringUtils.isNotBlank(getSimpleJavaTypeOrNull
+                    (fieldClass.getSimpleName(),
+                            false)))) {
+                continue;
+            }
+            // allow access to private fields
+            boolean isAccessible = field.isAccessible();
+            Object fieldValue;
+            Object value = null;
+
+            // skip if not in packages
+            boolean inPackage = packages == null || packages.size() == 0;
+            if (!inPackage) {
+                for (String pack : packages) {
+                    if (fieldClass.getPackage().getName().startsWith(pack)) {
+                        inPackage = true;
+                        break;
+                    }
+                }
+                if (!inPackage) {
                     continue;
                 }
-                // allow access to private fields
-                boolean isAccessible = field.isAccessible();
-                Object fieldValue;
-                Object value = null;
-
-                // skip if not in packages
-                boolean inPackage = packages == null || packages.size() == 0;
-                if (!inPackage) {
-                    for (String pack : packages) {
-                        if (fieldClass.getPackage().getName().startsWith(pack)) {
-                            inPackage = true;
-                            break;
-                        }
-                    }
-                    if (!inPackage) {
-                        continue;
-                    }
-                }
-                field.setAccessible(true);
-                fieldValue = field.get(object);
-
-                if (fieldValue != null) {
-                    try {
-                        if (isCollectionImplementation(fieldClass)) {
-                            deepInitialization(fieldValue, packages, false);
-                            value = createAndInitializeTypedCollection(fieldClass, fieldValue);
-                        } else if (isMapImplementation(fieldClass)) {
-                            deepInitialization(fieldValue, packages, false);
-                            value = new TreeMap();
-                            ((Map) value).putAll((Map) fieldValue);
-                        } else {
-                            value = fieldValue;
-                        }
-                    } catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
-                        log.error("Could not initialize " + fieldClass.getSimpleName() + ", Maybe it's an " +
-                                "interface, abstract class, or it hasn't an empty Constructor");
-                        continue;
-                    }
-                    field.set(object, value);
-                } else {
-                    try {
-                        value = fieldClass.newInstance();
-                        field.set(object, value);
-                        continue;
-                    } catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
-                        log.error("Could not initialize " + fieldClass.getSimpleName() + ", Maybe it's an " +
-                                "interface, abstract class, or it hasn't an empty Constructor");
-                        continue;
-                    }
-                }
-
-                // reset accessible
-                field.setAccessible(isAccessible);
-
-                // recursive call for sub-objects
-                deepInitialization(fieldValue, packages, false);
             }
+            field.setAccessible(true);
+            fieldValue = field.get(object);
+
+            if (fieldValue != null) {
+                try {
+                    if (isCollectionImplementation(fieldClass)) {
+                        deepInitialization(fieldValue, packages, false);
+                        value = createAndInitializeTypedCollection(fieldClass, fieldValue);
+                    } else if (isMapImplementation(fieldClass)) {
+                        deepInitialization(fieldValue, packages, false);
+                        value = new TreeMap();
+                        ((Map) value).putAll((Map) fieldValue);
+                    } else {
+                        value = fieldValue;
+                    }
+                } catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
+                    log.error("Could not initialize " + fieldClass.getSimpleName() + ", Maybe it's an " +
+                            "interface, abstract class, or it hasn't an empty Constructor");
+                    continue;
+                }
+                field.set(object, value);
+            } else {
+                try {
+                    value = fieldClass.newInstance();
+                    field.set(object, value);
+                    continue;
+                } catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
+                    log.error("Could not initialize " + fieldClass.getSimpleName() + ", Maybe it's an " +
+                            "interface, abstract class, or it hasn't an empty Constructor");
+                    continue;
+                }
+            }
+
+            // reset accessible
+            field.setAccessible(isAccessible);
+
+            // recursive call for sub-objects
+            deepInitialization(fieldValue, packages, false);
         }
     }
 
@@ -1957,7 +1956,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         if (object != null) {
             Class clazz = object.getClass();
             if (isPrimitive(clazz)) {
-                result = false;
             } else if (isString(clazz)) {
                 result = StringUtils.isNotBlank((String) object);
             } else if (object instanceof Collection || object instanceof Map) {
@@ -2038,7 +2036,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     }
 
     public LinkedList<Class> recursivelyGetAllInterfaces(Class clazz) {
-        if (clazz == null || Object.class.getName().equals(clazz.getClass().getName()) || isCollectionImplementation(
+        if (clazz == null || Object.class.getName().equals(clazz.getName()) || isCollectionImplementation(
                 clazz) || isMapImplementation(clazz) || getFullyQualifiedJavaTypeOrNull(clazz.getName(),
                 true) != null) {
             return new LinkedList<>();
@@ -2055,7 +2053,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     }
 
     public LinkedList<Class> recursivelyGetAllSuperClasses(Class clazz) {
-        if (clazz == null || Object.class.getName().equals(clazz.getClass().getName()) || isCollectionImplementation(
+        if (clazz == null || Object.class.getName().equals(clazz.getName()) || isCollectionImplementation(
                 clazz) || getFullyQualifiedJavaTypeOrNull(clazz.getName(), true) != null) {
             return new LinkedList<>();
         } else {

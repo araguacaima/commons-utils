@@ -3,7 +3,7 @@ package com.araguacaima.commons.utils.parser;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 
@@ -43,12 +43,12 @@ public class FiqlJsonSerializerInvocationHandler extends JsonSerializer implemen
 
     public Object invoke(Object proxy, final Method method, Object[] args) {
 
-        Method method_ = CollectionUtils.find(readMethods, (Predicate) object -> ((Method) object).getName().equals(method.getName()));
+        Method method_ = IterableUtils.find(readMethods, (Predicate) object -> ((Method) object).getName().equals(method.getName()));
 
         if (method_ != null) {
             return properties.get(StringUtils.uncapitalize(method_.getName().replaceFirst("get", StringUtils.EMPTY)));
         } else {
-            method_ = CollectionUtils.find(writeMethods, (Predicate) object -> ((Method) object).getName().equals(method.getName()));
+            method_ = IterableUtils.find(writeMethods, (Predicate) object -> ((Method) object).getName().equals(method.getName()));
 
             if (method_ != null) {
                 properties.put(StringUtils.uncapitalize(method_.getName().replaceFirst("set", StringUtils.EMPTY)), args[0]);

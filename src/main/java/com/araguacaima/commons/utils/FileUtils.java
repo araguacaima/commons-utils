@@ -764,10 +764,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                     parent.mkdirs();
                 }
 
-                FileOutputStream out = new FileOutputStream(dest);
-                InputStream in = fromJar.getInputStream(entry);
-
-                try {
+                try (FileOutputStream out = new FileOutputStream(dest); InputStream in = fromJar.getInputStream(entry)) {
                     byte[] buffer = new byte[8 * 1024];
 
                     int s;
@@ -776,15 +773,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                     }
                 } catch (IOException e) {
                     throw new IOException("Could not copy asset from jar file", e);
-                } finally {
-                    try {
-                        in.close();
-                    } catch (IOException ignored) {
-                    }
-                    try {
-                        out.close();
-                    } catch (IOException ignored) {
-                    }
                 }
             }
         }
@@ -1507,19 +1495,24 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return list.iterator();
     }
 
-    public File getRelativeFile(String fileName)
-            throws IOException {
+    public File getRelativeFile(String fileName) throws IOException {
         File file = null;
-        InputStream stream = FileUtils.class.getResourceAsStream("/" + fileName);
-        if (stream == null) {
-            stream = FileUtils.class.getClassLoader().getResourceAsStream("/" + fileName);
-        }
-        if (stream != null) {
-            if (file != null) {
-                copyInputStreamToFile(stream, file);
+        URL url = FileUtils.class.getResource("/" + fileName);
+        if (url != null) {
+            InputStream stream = url.openStream();
+            if (stream == null) {
+                url = FileUtils.class.getClassLoader().getResource("/" + fileName);
+                if (url != null) {
+                    stream = url.openStream();
+                    if (stream != null) {
+                        return new File(url.getFile());
+                    }
+                }
+            } else {
+                return new File(url.getFile());
             }
         }
-        return file;
+        return null;
     }
 
     public String getRelativePathFrom(File baseFile, File absoluteFile) {

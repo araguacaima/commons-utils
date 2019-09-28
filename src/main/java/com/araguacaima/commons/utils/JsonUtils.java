@@ -367,8 +367,7 @@ public class JsonUtils {
         Set<Method> setters = org.reflections.ReflectionUtils.getAllMethods(finalClazz,
                 org.reflections.ReflectionUtils.withModifier(Modifier.PUBLIC),
                 org.reflections.ReflectionUtils.withName("set" + capitalizedFieldName));
-        return !field.getName().startsWith("this") && getters != null && getters.size() >= 1 && setters != null &&
-                setters.size() >= 1;
+        return !field.getName().startsWith("this") && getters.size() >= 1 && setters != null && setters.size() >= 1;
     }
 
     public <T> T fromJSON(String jsonObject, Class<T> beanType) throws IOException {
@@ -604,14 +603,6 @@ public class JsonUtils {
                             Class<?> type = ReflectionUtils.extractGenerics(field);
                             boolean fieldIsCollection = ReflectionUtils.isCollectionImplementation(field.getType());
                             StringBuilder fieldRow = new StringBuilder(sb).append(".").append(field.getName());
-
-                            StringBuilder enumValues = new StringBuilder();
-                            if (isEnum) {
-                                enumValues.append(".");
-                                enumValues.append(" Values: ").append(StringUtils.join(enumsUtils.getNamesList
-                                                (type),
-                                        ", "));
-                            }
 
                             if (reflectionUtils.getSimpleJavaTypeOrNull(type) == null || fieldIsCollection) {
                                 LinkedHashSet<String> c;

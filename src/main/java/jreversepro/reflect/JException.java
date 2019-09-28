@@ -156,8 +156,7 @@ public class JException {
      * exists beginning with rhsHandlerPc. null, otherwise.
      */
     public String getExceptionClass(int rhsHandlerPc) {
-        String obj = excCatchTable.get(rhsHandlerPc);
-        return obj;
+        return excCatchTable.get(rhsHandlerPc);
     }
 
     /**

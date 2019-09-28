@@ -49,6 +49,7 @@ public class JarUtils {
 
     }
 
+    @SuppressWarnings("SameReturnValue")
     public boolean appendFileToJar(File fileToAdd, String jarFileStr) throws IOException {
         JarFile jar = new JarFile(jarFileStr);
         JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFileStr));

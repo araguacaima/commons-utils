@@ -21,7 +21,6 @@ package com.araguacaima.commons.utils.properties.strategy;
 
 import com.araguacaima.commons.exception.core.PropertiesUtilException;
 import com.araguacaima.commons.utils.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;

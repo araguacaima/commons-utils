@@ -89,6 +89,7 @@ public class UriUtils {
         return pathQueryStr;
     }
 
+    @SuppressWarnings("EmptyMethod")
     public static void validateQueryParams(String businessService, String queryString) {
 //TODO AMM: Terminar
     }
@@ -103,7 +104,7 @@ public class UriUtils {
             new RestQueryStringUtil(dtoExtClass.getClassLoader(),
                     packageBase).createNewBeanAndFillItByExtractingFiqlFilter(extractFilterQueryParam(queryString),
                     dtoExtClass);
-        } catch (IllegalAccessException | InstantiationException | NullPointerException e) {
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }

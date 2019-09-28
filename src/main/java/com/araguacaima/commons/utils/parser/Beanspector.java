@@ -1,13 +1,13 @@
 package com.araguacaima.commons.utils.parser;
 
-/**
- * Created by Alejandro on 20/11/2014.
+/*
+  Created by Alejandro on 20/11/2014.
  */
 
 import com.araguacaima.commons.utils.EnumsUtils;
 import com.araguacaima.commons.utils.ReflectionUtils;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.utils.InjectionUtils;
@@ -153,7 +153,7 @@ class Beanspector<T> {
             Class<?> clazz = getTopLevelAccesorType(property, getters, setters);
             Reflections reflections = new Reflections(clazz.getPackage().getName(), tclassloader);
             Set<? extends Class<?>> classes = reflections.getSubTypesOf(clazz);
-            return (Class) CollectionUtils.find(classes, (Predicate) object -> ((Class) object).getSimpleName().equals(StringUtils.capitalize(generic)));
+            return (Class) IterableUtils.find(classes, (Predicate) object -> ((Class) object).getSimpleName().equals(StringUtils.capitalize(generic)));
         }
 
         Method m = getters.get(property);
@@ -172,6 +172,7 @@ class Beanspector<T> {
             try {
                 return (Class) (((ParameterizedType) genericReturnType).getActualTypeArguments()[0]);
             } catch (Throwable ignored) {
+                assert genericReturnType instanceof Class;
                 return ReflectionUtils.extractGenerics((Class) genericReturnType);
             }
         } else {
@@ -194,7 +195,7 @@ class Beanspector<T> {
         return this;
     }
 
-    public Beanspector<T> setValue(String setterName, Object value) throws Throwable {
+    public void setValue(String setterName, Object value) throws Throwable {
         Map<String, Object> fixedExpressionObject = instantiateNestedProperties(getBean(), setterName);
         setterName = fixedExpressionObject.keySet().iterator().next();
         Class type;
@@ -209,7 +210,6 @@ class Beanspector<T> {
         } else {
             PropertyUtils.setProperty(getBean(), setterName, value);
         }
-        return this;
     }
 
     public Object getValue(final String getterName) throws Throwable {
@@ -271,7 +271,7 @@ class Beanspector<T> {
                         Reflections reflections = new Reflections(packageBase, tclassloader);
                         Set<? extends Class<?>> classes = reflections.getSubTypesOf(propertyType);
                         final String finalGeneric = generic;
-                        Class<?> propertyType_ = (Class) CollectionUtils.find(classes, (Predicate) object -> ((Class) object).getSimpleName().equals(StringUtils.capitalize(finalGeneric)));
+                        Class<?> propertyType_ = (Class) IterableUtils.find(classes, (Predicate) object -> ((Class) object).getSimpleName().equals(StringUtils.capitalize(finalGeneric)));
                         if (propertyType_ != null) {
                             propertyType = propertyType_;
                             newInstance = propertyType_.newInstance();
@@ -303,7 +303,7 @@ class Beanspector<T> {
                             Reflections reflections = new Reflections(propertyType.getPackage().getName(), tclassloader);
                             Set<? extends Class<?>> classes = reflections.getSubTypesOf(propertyType);
                             final String finalGeneric = generic;
-                            propertyType = (Class) CollectionUtils.find(classes, (Predicate) object -> ((Class) object).getSimpleName().equals(StringUtils.capitalize(finalGeneric)));
+                            propertyType = (Class) IterableUtils.find(classes, (Predicate) object -> ((Class) object).getSimpleName().equals(StringUtils.capitalize(finalGeneric)));
                         }
                         newInstance = propertyType.newInstance();
                     }
@@ -327,7 +327,7 @@ class Beanspector<T> {
                             Reflections reflections = new Reflections(propertyType_.getPackage().getName(), tclassloader);
                             Set<? extends Class<?>> classes = reflections.getSubTypesOf(propertyType_);
                             final String finalGeneric = generic;
-                            propertyType = (Class) CollectionUtils.find(classes, (Predicate) object -> ((Class) object).getSimpleName().equals(StringUtils.capitalize(finalGeneric)));
+                            propertyType = (Class) IterableUtils.find(classes, (Predicate) object -> ((Class) object).getSimpleName().equals(StringUtils.capitalize(finalGeneric)));
                             Map<String, Object> objectMap = instantiateNestedProperties(propertyType.newInstance(),
                                     fieldName.replaceFirst(consumedProperty + "\\.", StringUtils.EMPTY));
                             expression = property + "." + objectMap.keySet().iterator().next();
@@ -409,8 +409,6 @@ class Beanspector<T> {
                     newObject.put(fieldName + "[0]", obj);
                 }
             }
-        } catch (final InvocationTargetException | IntrospectionException | InstantiationException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
@@ -428,12 +426,8 @@ class Beanspector<T> {
                 // zone in XML is "+01:00" in Java is "+0100"; stripping
                 // semicolon
                 final int idx = value.lastIndexOf(':');
-                if (idx != -1) {
-                    final String v = value.substring(0, idx) + value.substring(idx + 1);
-                    castedValue = df.parse(v);
-                } else {
-                    castedValue = df.parse(value);
-                }
+                final String v = value.substring(0, idx) + value.substring(idx + 1);
+                castedValue = df.parse(v);
             } catch (final ParseException e) {
                 // is that duration?
 
@@ -447,17 +441,6 @@ class Beanspector<T> {
             castedValue = new BigDecimal(value);
         } else if (valueType.isEnum() || Enumeration.class.isAssignableFrom(valueType)) {
             String valueEnum = value;
-            if (valueEnum.startsWith("'")) {
-                valueEnum = valueEnum.replaceFirst("'", StringUtils.EMPTY);
-                if (valueEnum.endsWith("'")) {
-                    valueEnum = valueEnum.substring(0, valueEnum.length() - 1);
-                }
-            } else if (valueEnum.startsWith("\"")) {
-                valueEnum = valueEnum.replaceFirst("\"", StringUtils.EMPTY);
-                if (valueEnum.endsWith("\"")) {
-                    valueEnum = valueEnum.substring(0, valueEnum.length() - 1);
-                }
-            }
             castedValue = enumsUtils.getEnum(valueType, valueEnum);
         } else {
             try {

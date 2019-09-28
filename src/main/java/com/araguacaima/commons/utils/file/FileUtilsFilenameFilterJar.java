@@ -5,7 +5,6 @@ import com.araguacaima.commons.utils.StringUtils;
 import org.apache.commons.collections4.IterableUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -169,8 +168,7 @@ public class FileUtilsFilenameFilterJar extends FileUtilsFilenameFilterImpl {
     }
 
     @Override
-    public Collection<String> getResourcePaths(final ClassLoader classLoader)
-            throws IOException {
+    public Collection<String> getResourcePaths(final ClassLoader classLoader) {
         return transformURLIntoStringPaths(getResources(classLoader));
     }
 

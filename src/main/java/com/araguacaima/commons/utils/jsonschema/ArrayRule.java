@@ -35,32 +35,6 @@ public class ArrayRule extends org.jsonschema2pojo.rules.ArrayRule {
         this.definitions = definitions;
     }
 
-    /**
-     * <p>Applies this schema rule to take the required code generation steps.</p>
-     *
-     * <p>When constructs of type "array" appear in the schema, these are mapped to
-     * Java collections in the generated POJO. If the array is marked as having
-     * "uniqueItems" then the resulting Java type is {@link Set}, if not, then
-     * the resulting Java type is {@link List}. The schema given by "items" will
-     * decide the generic type of the collection.</p>
-     *
-     * <p>If the "items" property requires newly generated types, then the type
-     * name will be the singular version of the nodeName (unless overridden by
-     * the javaType property) e.g.
-     * <pre>
-     *  "fooBars" : {"type":"array", "uniqueItems":"true", "items":{type:"object"}}
-     *  ==&gt;
-     *  {@code Set<FooBar> getFooBars(); }
-     * </pre>
-     * </p>
-     *
-     * @param nodeName the name of the property which has type "array"
-     * @param node     the schema "type" node
-     * @param parent   the parent node
-     * @param jpackage the package into which newly generated types should be added
-     * @return the Java type associated with this array rule, either {@link Set}
-     * or {@link List}, narrowed by the "items" type
-     */
     @Override
     public JClass apply(String nodeName, JsonNode node, JsonNode parent, JPackage jpackage, Schema schema) {
         ObjectMapper mapper = new ObjectMapper();

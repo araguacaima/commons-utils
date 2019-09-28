@@ -145,22 +145,20 @@ public class EnumsUtils<T> {
     }
 
     public String getStringValue(Enum anEnum) {
-        if (Enum.class.isAssignableFrom(anEnum.getClass())) {
-            try {
-                final Method value = anEnum.getClass().getMethod("value");
-                java.security.AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-                    value.setAccessible(true);
-                    return null;
-                });
-                return (String) value.invoke(anEnum);
-            } catch (NoSuchMethodException e) {
-                return anEnum.toString();
-            } catch (InvocationTargetException | IllegalAccessException e) {
-                log.error(e.getMessage());
-            }
-            return anEnum.name();
+        Enum.class.isAssignableFrom(anEnum.getClass());
+        try {
+            final Method value = anEnum.getClass().getMethod("value");
+            java.security.AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                value.setAccessible(true);
+                return null;
+            });
+            return (String) value.invoke(anEnum);
+        } catch (NoSuchMethodException e) {
+            return anEnum.toString();
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            log.error(e.getMessage());
         }
-        return null;
+        return anEnum.name();
     }
 
     public List<String> getValuesList(Class enumerateClazz) {

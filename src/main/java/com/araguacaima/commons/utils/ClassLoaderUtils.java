@@ -75,7 +75,7 @@ public class ClassLoaderUtils {
                 }
             }
         }
-        return cl;
+        return null;
     }
 
     /**
@@ -187,13 +187,9 @@ public class ClassLoaderUtils {
      *
      * @param filters A set of the filters to be applied to the current ClassLoader reacheable's files
      * @return A new Map that contains a set of classes for each on interface parckage or inheritance incoming filter
-     * @throws ClassNotFoundException               if the current thread's classloader cannot load
-     *                                              a requested class for any reason
-     * @throws java.io.UnsupportedEncodingException If any path constains an invalid character
      */
 
-    public Collection<Class<?>> findClasses(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters)
-            throws ClassNotFoundException, IOException {
+    public Collection<Class<?>> findClasses(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters) {
         Collection<File> classpath = findResources(filters, new NotNullsLinkedHashSet<>());
         return getClassesFromClasspath(classpath);
     }
@@ -266,14 +262,14 @@ public class ClassLoaderUtils {
                         log.debug("classFile (2): " + classFile);
                         clazz = classLoaderUtils.getClassLoader().loadClass(classFile);
                         log.debug("clazz: " + clazz.getName());
-                    } catch (ClassNotFoundException ignored) {
-                        log.debug("ClassNotFoundException: " + ignored.getMessage());
-                    } catch (NoClassDefFoundError ignored) {
-                        log.debug("NoClassDefFoundError: " + ignored.getMessage());
-                    } catch (StringIndexOutOfBoundsException ignored) {
-                        log.debug("StringIndexOutOfBoundsException: " + ignored.getMessage());
-                    } catch (ArrayIndexOutOfBoundsException ignored) {
-                        log.debug("ArrayIndexOutOfBoundsException: " + ignored.getMessage());
+                    } catch (ClassNotFoundException e) {
+                        log.debug("ClassNotFoundException: " + e.getMessage());
+                    } catch (NoClassDefFoundError e) {
+                        log.debug("NoClassDefFoundError: " + e.getMessage());
+                    } catch (StringIndexOutOfBoundsException e) {
+                        log.debug("StringIndexOutOfBoundsException: " + e.getMessage());
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        log.debug("ArrayIndexOutOfBoundsException: " + e.getMessage());
                         String classname = stringUtils.replaceLast(fileClassPath.getName().replaceAll(StringUtils
                                         .BACKSLASH + StringUtils.BACKSLASH,
                                 ".").replaceAll(StringUtils.SLASH, "."), ".class", StringUtils.EMPTY);
@@ -297,18 +293,18 @@ public class ClassLoaderUtils {
                                         log.debug("classPackage + classname: '" + classPackage + classname);
                                         clazz = classLoaderUtils.getClassLoader().loadClass(classPackage + classname);
                                         break;
-                                    } catch (ClassNotFoundException ignored4) {
-                                        log.debug("ClassNotFoundException: " + classname + ". " + ignored4.getMessage
+                                    } catch (ClassNotFoundException e4) {
+                                        log.debug("ClassNotFoundException: " + classname + ". " + e4.getMessage
                                                 ());
                                     }
                                 }
                                 if (clazz == Object.class) {
                                     throw new Exception("The related classname '" + name + "' is not found");
                                 }
-                            } catch (ClassNotFoundException ignored3) {
-                                log.debug("ClassNotFoundException: " + classname + ". " + ignored3.getMessage());
-                            } catch (Exception ignored3) {
-                                log.debug("Exception: " + classname + ". " + ignored3.getMessage());
+                            } catch (ClassNotFoundException e3) {
+                                log.debug("ClassNotFoundException: " + classname + ". " + e3.getMessage());
+                            } catch (Exception e3) {
+                                log.debug("Exception: " + classname + ". " + e3.getMessage());
                             }
                         }
                     } catch (NullPointerException ignored) {
@@ -369,7 +365,7 @@ public class ClassLoaderUtils {
             try {
 
                 if (url != null) {
-                    transformedClassPath = new File(url instanceof URL ? url.getFile() : url.toString());
+                    transformedClassPath = new File(url.getFile());
                     String fileNameDecoded = URLDecoder.decode(transformedClassPath.getPath(), "UTF-8");
                     fileNameDecoded = fileNameDecoded.replaceFirst("file:\\\\", StringUtils.EMPTY);
                     transformedClassPath = new File(fileNameDecoded);
@@ -418,13 +414,9 @@ public class ClassLoaderUtils {
      * @param filters         A set of the filters to be applied to the current ClassLoader reacheable's files
      * @param filesExclusions A Collection of files names that will be excluded from the classpath
      * @return A new Map that contains a set of classes for each on interface parckage or inheritance incoming filter
-     * @throws ClassNotFoundException               if the current thread's classloader cannot load
-     *                                              a requested class for any reason
-     * @throws java.io.UnsupportedEncodingException If any path constains an invalid character
      */
     public Collection<Class<?>> findClasses(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters,
-                                            final NotNullsLinkedHashSet<FileUtilsFilenameFilter> filesExclusions)
-            throws ClassNotFoundException, IOException {
+                                            final NotNullsLinkedHashSet<FileUtilsFilenameFilter> filesExclusions) {
         Collection<File> classpath = findResources(filters, filesExclusions);
         return getClassesFromClasspath(classpath);
     }
@@ -454,13 +446,9 @@ public class ClassLoaderUtils {
      *
      * @param filters A set of the filters to be applied to the current ClassLoader reacheable's files
      * @return A new Map that contains a set of classes for each on interface parckage or inheritance incoming filter
-     * @throws ClassNotFoundException               if the current thread's classloader cannot load
-     *                                              a requested class for any reason
-     * @throws java.io.UnsupportedEncodingException If any path constains an invalid character
      */
 
-    public Collection findResources(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters)
-            throws ClassNotFoundException, IOException {
+    public Collection findResources(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters) {
 
         return findResources(filters, new NotNullsLinkedHashSet());
     }
@@ -518,9 +506,7 @@ public class ClassLoaderUtils {
 
     public String getPathForResource(final String resource) {
         NotNullsLinkedHashSet<Object> result = new NotNullsLinkedHashSet<Object>((mapUtils.find(resourcesAndPaths,
-                o -> {
-                    return o.equals(resource) || o.endsWith(resource);
-                },
+                o -> o.equals(resource) || o.endsWith(resource),
                 null,
                 MapUtils.EVALUATE_JUST_KEY)).values());
         if (result.size() > 0) {
@@ -727,7 +713,7 @@ public class ClassLoaderUtils {
     }
 
     public void loadResourcesIntoClassLoader(Set<String> resources)
-            throws IOException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+            throws IOException {
         for (String resource : resources) {
             log.debug("Adding resource '" + resource + "' into main ClassLoader");
             addResourceToDependencies(resource);
@@ -736,7 +722,7 @@ public class ClassLoaderUtils {
     }
 
     public void addResourceToDependencies(String resourceToBeAddedToDependencies)
-            throws IOException, NoSuchFieldException, IllegalAccessException {
+            throws IOException {
         addURLToDependencies(new File(resourceToBeAddedToDependencies).toURI().toURL());
     }
 

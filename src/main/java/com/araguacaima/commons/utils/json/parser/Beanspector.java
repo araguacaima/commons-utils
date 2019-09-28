@@ -226,6 +226,7 @@ public class Beanspector<T> {
             try {
                 returnType = (Class) (((ParameterizedType) genericReturnType).getActualTypeArguments()[0]);
             } catch (Throwable ignored) {
+                assert genericReturnType instanceof Class;
                 return ReflectionUtils.extractGenerics((Class) genericReturnType);
             }
         }

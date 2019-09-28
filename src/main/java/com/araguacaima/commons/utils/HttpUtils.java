@@ -109,9 +109,6 @@ public class HttpUtils {
                      Integer connectionTimeout,
                      Integer readTimeout) {
 
-        if (httpClient == null) {
-            httpClient = new HttpClient();
-        }
         // set host
         if (port != null && host != null) {
             httpClient.getHostConfiguration().setHost(host, port);

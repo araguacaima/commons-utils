@@ -210,7 +210,7 @@ public class SystemInfo {
                 return (Integer.parseInt(value) == 1);
             } else {
                 //return (null != value) && Boolean.parseBoolean(value);
-                return (null != value) && Boolean.parseBoolean(value);
+                return Boolean.parseBoolean(value);
             }
         } catch (Exception e) {
             log.error("Error getting property '" + propertyName + "' value as boolean (" + value + ")");

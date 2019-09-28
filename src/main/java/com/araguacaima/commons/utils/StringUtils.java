@@ -1127,6 +1127,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         return pluralizeTypeName(typeName);
     }
 
+    @SuppressWarnings("DuplicateExpressions")
     public String singularizeTypeName(String clazz) {
         String typeName = cleanClassName(clazz);
 
