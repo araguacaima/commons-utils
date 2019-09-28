@@ -123,14 +123,14 @@ public class HTMLDecorator {
             if (!StringUtils.isBlank(imageAltText)) {
                 imgTag.append(IMAGE_TAG_ALT_NAME).append(StringUtils.EQUAL_SYMBOL).append(StringUtils.DOUBLE_QUOTE)
                         .append(
-                        imageAltText).append(StringUtils.DOUBLE_QUOTE).append(StringUtils.BLANK_SPACE);
+                                imageAltText).append(StringUtils.DOUBLE_QUOTE).append(StringUtils.BLANK_SPACE);
             }
             imgTag.append(IMAGE_TAG_WIDTH_NAME).append(StringUtils.EQUAL_SYMBOL).append(StringUtils.DOUBLE_QUOTE)
                     .append(
-                    imageWidth).append(PIXEL_TAG_NAME).append(StringUtils.DOUBLE_QUOTE).append(StringUtils.BLANK_SPACE);
+                            imageWidth).append(PIXEL_TAG_NAME).append(StringUtils.DOUBLE_QUOTE).append(StringUtils.BLANK_SPACE);
             imgTag.append(IMAGE_TAG_HEIGHT_NAME).append(StringUtils.EQUAL_SYMBOL).append(StringUtils.DOUBLE_QUOTE)
                     .append(
-                    imageHeight).append(PIXEL_TAG_NAME).append(StringUtils.DOUBLE_QUOTE).append(StringUtils
+                            imageHeight).append(PIXEL_TAG_NAME).append(StringUtils.DOUBLE_QUOTE).append(StringUtils
                     .BLANK_SPACE);
             imgTag.append(StringUtils.GREATER_THAN_SYMBOL);
         } else {

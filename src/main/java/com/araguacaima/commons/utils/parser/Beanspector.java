@@ -29,14 +29,14 @@ import java.util.*;
  */
 class Beanspector<T> {
 
+    private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
+    private static final EnumsUtils enumsUtils = new EnumsUtils();
     private final Map<String, Method> getters = new HashMap<String, Method>();
     private final Map<String, Method> setters = new HashMap<String, Method>();
     private final ClassLoader tclassloader;
     private Class<T> tclass;
     private T tobj;
     private String packageBase;
-    private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
-    private static final EnumsUtils enumsUtils = new EnumsUtils();
 
     public Beanspector(final Class<T> tclass, String packageBase) {
         this(tclass, tclass.getClassLoader(), packageBase);

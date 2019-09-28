@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class MapUtils {
@@ -73,6 +74,10 @@ public class MapUtils {
         return org.apache.commons.collections4.MapUtils.isNotEmpty(map);
     }
 
+    public static <K, V> Map<K, V> clone(Map<K, V> original) {
+        return original.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
     public <E, T> Map find(Map<E, T> map, Predicate<E> keyPredicate, Predicate<T> valuePredicate, int evaluationType) {
         Map<E, T> newMap = new HashMap<>();
         E key;
@@ -105,12 +110,12 @@ public class MapUtils {
                 case EVALUATE_BOTH_KEY_AND_VALUE:
                     result = keyPredicate != null && keyPredicate.evaluate(key) && valuePredicate != null &&
                             valuePredicate.evaluate(
-                            value);
+                                    value);
                     break;
                 case EVALUATE_BOTH_KEY_OR_VALUE:
                     result = keyPredicate != null && keyPredicate.evaluate(key) || valuePredicate != null &&
                             valuePredicate.evaluate(
-                            value);
+                                    value);
                     break;
                 default:
                     break;
@@ -157,7 +162,7 @@ public class MapUtils {
         return newMap;
     }
 
-    private <E, T> void removeFromMap(E key, T value, Predicate<E> keyPredicate, Predicate<T> valuePredicate, Map map) {
+    private <E, T> void removeFromMap(E key, T value, Predicate<E> keyPredicate, Predicate<T> valuePredicate, Map<Object, Object> map) {
         if (keyPredicate != null && !keyPredicate.evaluate(key)) {
             map.remove(key);
             return;
@@ -246,6 +251,88 @@ public class MapUtils {
         }
     }
 
+    public Map traverseAndCreateNew(Map originMap) throws IllegalAccessException, InstantiationException {
+        if (originMap == null) {
+            return null;
+        }
+        Map map = originMap.getClass().newInstance();
+        for (Object key : originMap.keySet()) {
+            Object value = originMap.get(key);
+            if (Map.class.isAssignableFrom(value.getClass())) {
+                map.put(key, traverseAndCreateNew((Map) value));
+            } else {
+                map.put(key, value);
+            }
+        }
+        return map;
+    }
+
+    public LinkedHashMap<String, LinkedHashMap> createKeysFromPackageName(String key) {
+        if (StringUtils.isBlank(key)) {
+            return new LinkedHashMap<>();
+        }
+        String entry = key.split("\\.")[0];
+        String remaining = key.replaceFirst(entry, StringUtils.EMPTY);
+        if (remaining.startsWith(".")) {
+            remaining = remaining.substring(1);
+        }
+        LinkedHashMap<String, LinkedHashMap> map = new LinkedHashMap<>();
+        LinkedHashMap<String, LinkedHashMap> value = new LinkedHashMap<>();
+        map.put(entry, createKeysFromPackageName(remaining, value));
+        return map;
+    }
+
+    public LinkedHashMap<String, LinkedHashMap> createKeysFromPackageName(String key, LinkedHashMap<String, LinkedHashMap> parentMap) {
+        if (StringUtils.isBlank(key)) {
+            return new LinkedHashMap<>();
+        }
+        String entry = key.split("\\.")[0];
+        String remaining = key.replaceFirst(entry, StringUtils.EMPTY);
+        if (remaining.startsWith(".")) {
+            remaining = remaining.substring(1);
+        }
+        LinkedHashMap<String, LinkedHashMap> map = (LinkedHashMap<String, LinkedHashMap>) parentMap.get(entry);
+        if (map == null) {
+            map = new LinkedHashMap<>();
+            LinkedHashMap<String, LinkedHashMap> value = new LinkedHashMap<>();
+            map.put(entry, createKeysFromPackageName(remaining, value));
+        } else {
+            if (!key.equals(entry)) {
+                LinkedHashMap<String, LinkedHashMap> map1 = createKeysFromPackageName(remaining, map);
+                if (!map1.equals(map)) {
+                    if (!remaining.contains(".")) {
+                        map.putAll(map1);
+                        return parentMap;
+                    } else {
+                        map.put(entry, map1);
+                    }
+                } else {
+                    return parentMap;
+                }
+            } else {
+                return parentMap;
+            }
+        }
+        return map;
+    }
+
+    public Map getLastValueFromPackageName(String key, Map parentMap) {
+        if (StringUtils.isBlank(key)) {
+            return parentMap;
+        }
+        String entry = key.split("\\.")[0];
+        Map map = (Map) parentMap.get(entry);
+        if (map == null) {
+            return null;
+        } else {
+            String remaining = key.substring(entry.length());
+            if (remaining.startsWith(".")) {
+                remaining = remaining.substring(1);
+            }
+            return getLastValueFromPackageName(remaining, map);
+        }
+    }
+
     public static class StringKeyHashMapUtil extends HashMap<String, Object> {
 
         private final long serialVersionUID = -8603163772769655779L;
@@ -306,56 +393,4 @@ public class MapUtils {
         }
 
     }
-
-    public LinkedHashMap<String, LinkedHashMap> createKeysFromPackageName(String key, LinkedHashMap<String, LinkedHashMap> parentMap) {
-        if (StringUtils.isBlank(key)) {
-            return new LinkedHashMap<>();
-        }
-        String entry = key.split("\\.")[0];
-        String remaining = key.replaceFirst(entry, StringUtils.EMPTY);
-        if (remaining.startsWith(".")) {
-            remaining = remaining.substring(1);
-        }
-        LinkedHashMap<String, LinkedHashMap> map = (LinkedHashMap<String, LinkedHashMap>) parentMap.get(entry);
-        if (map == null) {
-            map = new LinkedHashMap<>();
-            LinkedHashMap<String, LinkedHashMap> value = new LinkedHashMap<>();
-            map.put(entry, createKeysFromPackageName(remaining, value));
-        } else {
-            if (!key.equals(entry)) {
-                LinkedHashMap<String, LinkedHashMap> map1 = createKeysFromPackageName(remaining, map);
-                if (!map1.equals(map)) {
-                    if (!remaining.contains(".")) {
-                        map.putAll(map1);
-                        return parentMap;
-                    } else {
-                        map.put(entry, map1);
-                    }
-                } else {
-                    return parentMap;
-                }
-            } else {
-                return parentMap;
-            }
-        }
-        return map;
-    }
-
-    public Map getLastValueFromPackageName(String key, Map parentMap) {
-        if (StringUtils.isBlank(key)) {
-            return parentMap;
-        }
-        String entry = key.split("\\.")[0];
-        Map map = (Map) parentMap.get(entry);
-        if (map == null) {
-            return null;
-        } else {
-            String remaining = key.substring(entry.length());
-            if (remaining.startsWith(".")) {
-                remaining = remaining.substring(1);
-            }
-            return getLastValueFromPackageName(remaining, map);
-        }
-    }
-
 }

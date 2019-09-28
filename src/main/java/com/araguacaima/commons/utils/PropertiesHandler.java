@@ -28,6 +28,26 @@ public class PropertiesHandler {
         init(logFileSourceName, classLoader);
     }
 
+    private PropertiesHandler(String logFileSourceName, Class clazz)
+            throws PropertiesUtilException {
+        init(logFileSourceName, clazz.getClassLoader());
+    }
+
+    public PropertiesHandler(String logFileSourceName) {
+        init(logFileSourceName);
+    }
+
+    private PropertiesHandler(File propertiesFile, Class clazz)
+            throws PropertiesUtilException {
+        classLoader = clazz.getClassLoader();
+        logFileSourceName = propertiesFile.getName();
+        try {
+            properties.load(new FileInputStream(propertiesFile));
+        } catch (IOException e) {
+            throw new PropertiesUtilException(PropertiesUtilException.CONFIG_FILE_ERROR + e);
+        }
+    }
+
     private void init(String logFileSourceName, ClassLoader classLoader)
             throws PropertiesUtilException {
         this.logFileSourceName = logFileSourceName;
@@ -111,15 +131,6 @@ public class PropertiesHandler {
         return classLoader;
     }
 
-    private PropertiesHandler(String logFileSourceName, Class clazz)
-            throws PropertiesUtilException {
-        init(logFileSourceName, clazz.getClassLoader());
-    }
-
-    public PropertiesHandler(String logFileSourceName) {
-        init(logFileSourceName);
-    }
-
     private void init(String logFileSourceName) {
         this.logFileSourceName = logFileSourceName;
         try {
@@ -162,17 +173,6 @@ public class PropertiesHandler {
             throw new PropertiesUtilException(PropertiesUtilException.ERROR + t);
         }
         return properties;
-    }
-
-    private PropertiesHandler(File propertiesFile, Class clazz)
-            throws PropertiesUtilException {
-        classLoader = clazz.getClassLoader();
-        logFileSourceName = propertiesFile.getName();
-        try {
-            properties.load(new FileInputStream(propertiesFile));
-        } catch (IOException e) {
-            throw new PropertiesUtilException(PropertiesUtilException.CONFIG_FILE_ERROR + e);
-        }
     }
 
     public String getAbsolutePropertiesFilePath() {

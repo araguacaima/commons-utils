@@ -2,8 +2,8 @@ package com.araguacaima.commons.utils;
 
 import com.araguacaima.commons.exception.MessageHandler;
 import com.araguacaima.commons.exception.core.PropertiesUtilException;
-import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

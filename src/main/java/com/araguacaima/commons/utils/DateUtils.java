@@ -221,7 +221,7 @@ public class DateUtils {
     public boolean isEmpty(String formattedDate) {
         return DateUtils.EMPTY_DATE_FE.equalsIgnoreCase(formattedDate) || DateUtils.EMPTY_DATE_FE_HHMMSS
                 .equalsIgnoreCase(
-                formattedDate) || (StringUtils.isBlank(formattedDate));
+                        formattedDate) || (StringUtils.isBlank(formattedDate));
     }
 
     public void main(String[] args) {

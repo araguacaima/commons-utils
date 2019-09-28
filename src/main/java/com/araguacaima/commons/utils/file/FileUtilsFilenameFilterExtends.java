@@ -202,8 +202,8 @@ public class FileUtilsFilenameFilterExtends extends FileUtilsFilenameFilterImpl 
     public Collection<URL> getResources() {
         String superClassCriteriaTransformed = superClassCriteria.getName().contains(".") ? superClassCriteria
                 .getName().substring(
-                0,
-                superClassCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;
+                        0,
+                        superClassCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;
         superClassCriteriaTransformed = superClassCriteriaTransformed.replaceAll("\\.", StringUtils.SLASH).replaceAll(
                 "\\\\\\*",
                 StringUtils.EMPTY);
@@ -219,8 +219,8 @@ public class FileUtilsFilenameFilterExtends extends FileUtilsFilenameFilterImpl 
             throws IOException {
         String superClassCriteriaTransformed = superClassCriteria.getName().contains(".") ? superClassCriteria
                 .getName().substring(
-                0,
-                superClassCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;
+                        0,
+                        superClassCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;
         superClassCriteriaTransformed = superClassCriteriaTransformed.replaceAll("\\.", StringUtils.SLASH).replaceAll(
                 "\\\\\\*",
                 StringUtils.EMPTY);

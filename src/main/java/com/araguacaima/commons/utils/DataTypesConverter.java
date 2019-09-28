@@ -23,7 +23,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +30,6 @@ import java.util.Map;
 @Component
 public class DataTypesConverter {
 
-    public final Map<Class, DataTypeView> DATA_TYPES_CONVERTER = new HashMap<>();
     private static final Map<String, Class> PRIMITIVE_CLASS_MAP = new HashMap<>();
 
     static {
@@ -46,6 +44,8 @@ public class DataTypesConverter {
         PRIMITIVE_CLASS_MAP.put("string", String.class);
         PRIMITIVE_CLASS_MAP.put("short", Short.class);
     }
+
+    public final Map<Class, DataTypeView> DATA_TYPES_CONVERTER = new HashMap<>();
 
     public DataTypesConverter() {
         DATA_TYPES_CONVERTER.put(Integer.TYPE, new DataTypeView("integer", "int32", "Integer", false));

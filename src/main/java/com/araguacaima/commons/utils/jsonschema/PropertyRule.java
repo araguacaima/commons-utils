@@ -19,6 +19,8 @@ package com.araguacaima.commons.utils.jsonschema;
 import com.araguacaima.commons.utils.PackageClassUtils;
 import com.araguacaima.commons.utils.ReflectionUtils;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.codemodel.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jsonschema2pojo.GenerationConfig;
@@ -40,10 +42,12 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
 
     private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
     private final String definitionsRoot;
+    private final Map definitions;
 
-    PropertyRule(RuleFactory ruleFactory, String definitionsRoot) {
+    PropertyRule(RuleFactory ruleFactory, String definitionsRoot, Map definitions) {
         super(ruleFactory);
         this.definitionsRoot = definitionsRoot;
+        this.definitions = definitions;
     }
 
     /**
@@ -66,6 +70,10 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
      */
     @Override
     public JDefinedClass apply(String nodeName, JsonNode node, JsonNode parent, JDefinedClass jclass, Schema schema) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode rootDefinitions = mapper.valueToTree(definitions);
+        ObjectNode schemaContent = (ObjectNode) schema.getContent();
+        schemaContent.set(definitionsRoot, rootDefinitions);
         super.apply(nodeName, node, parent, jclass, schema);
         JsonNode $ref = node.get("$ref");
         if ($ref != null) {

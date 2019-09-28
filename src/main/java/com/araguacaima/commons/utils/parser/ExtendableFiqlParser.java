@@ -48,7 +48,8 @@ public class ExtendableFiqlParser<T> {
     public static final String NEQ = "!=";
 
     private static final String FORMAT_DATETIME = "yyyy-MM-dd HH:mm:ss:SSSSSS";
-
+    private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
+    private static final EnumsUtils enumsUtils = new EnumsUtils();
     private static Map<String, ConditionType> operatorsMap;
 
     static {
@@ -62,15 +63,13 @@ public class ExtendableFiqlParser<T> {
     }
 
     private final com.araguacaima.commons.utils.parser.Beanspector<T> beanspector;
-    private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
-    private static final EnumsUtils enumsUtils = new EnumsUtils();
 
     /**
      * Creates FIQL parser.
      *
-     * @param tclass - class of T used to create condition objects in built syntax
-     *               tree. Class T must have accessible no-arg constructor and
-     *               complementary setters to these used in FIQL expressions.
+     * @param tclass      - class of T used to create condition objects in built syntax
+     *                    tree. Class T must have accessible no-arg constructor and
+     *                    complementary setters to these used in FIQL expressions.
      * @param packageBase Package base.
      */
     public ExtendableFiqlParser(final Class<T> tclass, String packageBase) {
@@ -109,7 +108,7 @@ public class ExtendableFiqlParser<T> {
      * </pre>
      *
      * @param fiqlExpression expression of filter.
-     * @param packageBase Package base.
+     * @param packageBase    Package base.
      * @return tree of {@link org.apache.cxf.jaxrs.ext.search.SearchCondition}
      * objects representing runtime search structure.
      * @throws Exception when expression does not follow FIQL grammar

@@ -61,6 +61,23 @@ public class ClassLoaderUtils {
         this.sysloader = sysloader;
     }
 
+    public static ClassLoader getRootClassLoader(ClassLoader cl) {
+        if (cl != null) {
+            ClassLoader parent = cl.getParent();
+            ClassLoader rootClassLoader = getRootClassLoader(parent);
+            if (rootClassLoader != null) {
+                return rootClassLoader;
+            } else {
+                if (parent != null) {
+                    return parent;
+                } else {
+                    return cl;
+                }
+            }
+        }
+        return cl;
+    }
+
     /**
      * Add file to classPath
      *
@@ -387,29 +404,12 @@ public class ClassLoaderUtils {
         return sysloader == null ? this.getClass().getClassLoader() : sysloader;
     }
 
-    public static ClassLoader getRootClassLoader(ClassLoader cl) {
-        if (cl != null) {
-            ClassLoader parent = cl.getParent();
-            ClassLoader rootClassLoader = getRootClassLoader(parent);
-            if (rootClassLoader != null) {
-                return rootClassLoader;
-            } else {
-                if (parent != null) {
-                    return parent;
-                } else {
-                    return cl;
-                }
-            }
-        }
-        return cl;
+    public void setClassLoader(ClassLoader classLoader) {
+        this.sysloader = URLClassLoader.newInstance(new URL[]{classLoader.getResource(".")});
     }
 
     public ClassNameCompare getClassNameCompare() {
         return CLASS_NAME_COMPARE;
-    }
-
-    public void setClassLoader(ClassLoader classLoader) {
-        this.sysloader = URLClassLoader.newInstance(new URL[]{classLoader.getResource(".")});
     }
 
     /**

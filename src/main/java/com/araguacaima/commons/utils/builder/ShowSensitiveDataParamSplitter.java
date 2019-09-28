@@ -9,7 +9,8 @@ public class ShowSensitiveDataParamSplitter implements SpecialParamSplitter {
     private String completeParam;
     private String rightSideParam;
 
-    private ShowSensitiveDataParamSplitter(){}
+    private ShowSensitiveDataParamSplitter() {
+    }
 
     public ShowSensitiveDataParamSplitter(String queryParamToStore) {
         String value = specialQueryParam.value();
@@ -17,7 +18,7 @@ public class ShowSensitiveDataParamSplitter implements SpecialParamSplitter {
             completeParam = queryParamToStore;
             rightSideParam = StringUtils.replace(queryParamToStore, value + "=", StringUtils.EMPTY).trim();
         } else {
-            throw new IllegalArgumentException("The provided queryParam '" + queryParamToStore+ "' is not of a showSensitiveData kind");
+            throw new IllegalArgumentException("The provided queryParam '" + queryParamToStore + "' is not of a showSensitiveData kind");
         }
     }
 

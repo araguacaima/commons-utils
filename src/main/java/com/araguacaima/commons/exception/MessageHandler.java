@@ -222,6 +222,18 @@ public class MessageHandler {
     }
 
     /**
+     * Obtiene un mensaje/etiqueta de acuerdo al key solicitado, usando el
+     * Locale por defecto del sistema.
+     *
+     * @param propertyName String con el identificador del mensaje/etiqueta a mostrar
+     * @param origin       String con el nombre del archivo o tabla de donde se lee la etiqueta
+     * @return String con el valor de la etiqueta propertyName a mostrar
+     */
+    public static String get(String propertyName, String origin) {
+        return get(propertyName, origin, getLocale());
+    }
+
+    /**
      * Adds information to {@link SystemInfo} from the incoming file name.
      *
      * @param filename File name
@@ -349,17 +361,5 @@ public class MessageHandler {
      */
     public String getValue(String propertyName) {
         return get(propertyName, defaultFile);
-    }
-
-    /**
-     * Obtiene un mensaje/etiqueta de acuerdo al key solicitado, usando el
-     * Locale por defecto del sistema.
-     *
-     * @param propertyName String con el identificador del mensaje/etiqueta a mostrar
-     * @param origin       String con el nombre del archivo o tabla de donde se lee la etiqueta
-     * @return String con el valor de la etiqueta propertyName a mostrar
-     */
-    public static String get(String propertyName, String origin) {
-        return get(propertyName, origin, getLocale());
     }
 }

@@ -1,22 +1,31 @@
 package com.araguacaima.commons.utils.jsonschema;
 
 import com.araguacaima.commons.utils.ReflectionUtils;
+import com.sun.codemodel.JClass;
 import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JPackage;
+import com.sun.codemodel.JType;
 import org.jsonschema2pojo.Annotator;
 import org.jsonschema2pojo.GenerationConfig;
 import org.jsonschema2pojo.SchemaStore;
 import org.jsonschema2pojo.rules.Rule;
+import org.jsonschema2pojo.util.ParcelableHelper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RuleFactory extends org.jsonschema2pojo.rules.RuleFactory {
 
     private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
     private final String definitionsRoot;
+    private final Map definitions;
+    private Map<String, JType> generatedTypes = new HashMap<>();
 
-    public RuleFactory(GenerationConfig generationConfig, Annotator annotator, SchemaStore schemaStore, String definitionsRoot) throws NoSuchFieldException, IllegalAccessException {
+    public RuleFactory(GenerationConfig generationConfig, Annotator annotator, SchemaStore schemaStore, String definitionsRoot, Map definitions) throws NoSuchFieldException, IllegalAccessException {
         super(generationConfig, annotator, schemaStore);
+        this.definitions = definitions;
         this.definitionsRoot = definitionsRoot;
         Field field = org.jsonschema2pojo.rules.RuleFactory.class.getDeclaredField("nameHelper");
         field.setAccessible(true);
@@ -40,8 +49,32 @@ public class RuleFactory extends org.jsonschema2pojo.rules.RuleFactory {
      */
     @Override
     public Rule<JDefinedClass, JDefinedClass> getPropertyRule() {
-        return new PropertyRule(this, definitionsRoot);
+        return new PropertyRule(this, definitionsRoot, definitions);
     }
 
+    /**
+     * Provides a rule instance that should be applied when an "array"
+     * declaration is found in the schema.
+     *
+     * @return a schema rule that can handle the "array" declaration.
+     */
+    @Override
+    public Rule<JPackage, JClass> getArrayRule() {
+        return new ArrayRule(this, definitionsRoot, definitions);
+    }
 
+    /**
+     * Provides a rule instance that should be applied when an "object"
+     * declaration is found in the schema.
+     *
+     * @return a schema rule that can handle the "object" declaration.
+     */
+    @Override
+    public Rule<JPackage, JType> getObjectRule() {
+        return new ObjectRule(this, new ParcelableHelper(), getReflectionHelper());
+    }
+
+    public Map<String, JType> getGeneratedTypes() {
+        return generatedTypes;
+    }
 }

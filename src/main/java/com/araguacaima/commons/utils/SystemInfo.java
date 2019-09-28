@@ -116,10 +116,10 @@ public class SystemInfo {
     }
 
     /* Agrega informacion al SystemInfo desde el archivo indicado por fileName.
-    *
-    * @param fileName String con el nombre del archivo
-    * @return int con el conteo de las propiedades agregadas
-    */
+     *
+     * @param fileName String con el nombre del archivo
+     * @return int con el conteo de las propiedades agregadas
+     */
     public int addDataFromExternalFile(String fileName) {
         int count = 0;
         try {

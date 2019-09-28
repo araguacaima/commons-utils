@@ -9,7 +9,8 @@ public class FieldsParamSplitter implements SpecialParamSplitter {
     private String completeParam;
     private String rightSideParam;
 
-    private FieldsParamSplitter(){}
+    private FieldsParamSplitter() {
+    }
 
     public FieldsParamSplitter(String queryParamToStore) {
         String value = specialQueryParam.value();
@@ -23,7 +24,7 @@ public class FieldsParamSplitter implements SpecialParamSplitter {
                 throw new IllegalArgumentException("The provided queryParam '" + queryParamToStore + "' is intended to be of a fields kind but it has no the required format. The content must start with '(' and ends with ')'");
             }
         } else {
-            throw new IllegalArgumentException("The provided queryParam '" + queryParamToStore+ "' is not of a fields kind");
+            throw new IllegalArgumentException("The provided queryParam '" + queryParamToStore + "' is not of a fields kind");
         }
     }
 

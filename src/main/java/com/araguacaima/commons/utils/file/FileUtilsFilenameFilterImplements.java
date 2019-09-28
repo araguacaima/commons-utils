@@ -217,8 +217,8 @@ public class FileUtilsFilenameFilterImplements extends FileUtilsFilenameFilterIm
             throws IOException {
         String interfaceCriteriaTransformed = interfaceCriteria.getName().contains(".") ? interfaceCriteria.getName()
                 .substring(
-                0,
-                interfaceCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;
+                        0,
+                        interfaceCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;
         interfaceCriteriaTransformed = interfaceCriteriaTransformed.replaceAll("\\.", StringUtils.SLASH).replaceAll(
                 "\\\\\\*",
                 StringUtils.EMPTY);
@@ -228,8 +228,8 @@ public class FileUtilsFilenameFilterImplements extends FileUtilsFilenameFilterIm
     public Collection<URL> getResources() {
         String interfaceCriteriaTransformed = interfaceCriteria.getName().contains(".") ? interfaceCriteria.getName()
                 .substring(
-                0,
-                interfaceCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;
+                        0,
+                        interfaceCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;
         interfaceCriteriaTransformed = interfaceCriteriaTransformed.replaceAll("\\.", StringUtils.SLASH).replaceAll(
                 "\\\\\\*",
                 StringUtils.EMPTY);

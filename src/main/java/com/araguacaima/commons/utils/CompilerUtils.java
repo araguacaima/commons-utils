@@ -12,9 +12,9 @@ import java.util.*;
 
 public class CompilerUtils {
 
+    private static final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     private JsonUtils jsonUtils = new JsonUtils();
     private MapUtils mapUtils = MapUtils.getInstance();
-    private static final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
     @FunctionalInterface
     private interface ThrowingBiFunction<T, U, R> {
@@ -22,7 +22,7 @@ public class CompilerUtils {
     }
 
     @SuppressWarnings("unused")
-    public static class FilesCompiler <T extends ClassLoader> {
+    public static class FilesCompiler<T extends ClassLoader> {
 
         private T classLoader;
 
@@ -107,12 +107,12 @@ public class CompilerUtils {
             return compile(options, sourceCodeDirectory, compiledClassesDirectory, listFiles);
         }
 
-        public void setClassLoader(T classLoader) {
-            this.classLoader = classLoader;
-        }
-
         public T getClassLoader() {
             return classLoader;
+        }
+
+        public void setClassLoader(T classLoader) {
+            this.classLoader = classLoader;
         }
 
         private static final class JavaFileObject extends SimpleJavaFileObject {

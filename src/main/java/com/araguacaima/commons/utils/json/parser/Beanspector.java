@@ -39,6 +39,19 @@ public class Beanspector<T> {
         init();
     }
 
+    public Beanspector(final T tobj) {
+        this(tobj, tobj.getClass().getClassLoader());
+    }
+
+    public Beanspector(final T tobj, ClassLoader classLoader) {
+        if (tobj == null) {
+            throw new IllegalArgumentException("tobj is null");
+        }
+        this.tobj = tobj;
+        this.tclassloader = classLoader;
+        init();
+    }
+
     @SuppressWarnings("unchecked")
     private void init() {
         fill(tclass, tobj, getters, setters, fields);
@@ -92,7 +105,7 @@ public class Beanspector<T> {
     private String getterName(final Method m) {
         return StringUtils.uncapitalize(m.getName().startsWith("is") ? m.getName().substring(2) : m.getName()
                 .startsWith(
-                "get") ? m.getName().substring(3) : m.getName());
+                        "get") ? m.getName().substring(3) : m.getName());
     }
 
     private boolean isSetter(final Method m) {
@@ -102,19 +115,6 @@ public class Beanspector<T> {
 
     private String setterName(final Method m) {
         return StringUtils.uncapitalize(m.getName().replace("is", "").replace("set", ""));
-    }
-
-    public Beanspector(final T tobj) {
-        this(tobj, tobj.getClass().getClassLoader());
-    }
-
-    public Beanspector(final T tobj, ClassLoader classLoader) {
-        if (tobj == null) {
-            throw new IllegalArgumentException("tobj is null");
-        }
-        this.tobj = tobj;
-        this.tclassloader = classLoader;
-        init();
     }
 
     public Class<?> getAccessorType(final String getterOrSetterName)

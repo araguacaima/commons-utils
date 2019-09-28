@@ -10,8 +10,8 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.bohnman.squiggly.Squiggly;
-import com.github.victools.jsonschema.generator.*;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
+import com.github.victools.jsonschema.generator.*;
 import com.sun.codemodel.JCodeModel;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -44,16 +44,6 @@ import java.util.*;
 @Component
 public class JsonUtils {
 
-    private final Map<String, Class> classesFound = new HashMap<>();
-    private final SimpleModule module = new SimpleModule("serializers", Version.unknownVersion());
-    private ClassLoaderUtils classLoaderUtils;
-    private MapUtils mapUtils;
-    private ObjectMapper mapper;
-    private Reflections reflections;
-    private EnumsUtils<Object> enumsUtils = new EnumsUtils<>();
-    private ReflectionUtils reflectionUtils = new ReflectionUtils(null);
-    private final FileUtils fileUtils = new FileUtils();
-    private final String CLASS_SUFFIX = "class";
     private static Logger log = LoggerFactory.getLogger(JsonUtils.class);
     private static GenerationConfig config = new DefaultGenerationConfig() {
 
@@ -116,9 +106,29 @@ public class JsonUtils {
     private static NoopAnnotator noopAnnotator = new NoopAnnotator();
     private static SchemaStore schemaStore = new SchemaStore();
     private static org.jsonschema2pojo.SchemaGenerator schemaGenerator = new org.jsonschema2pojo.SchemaGenerator();
+    private final Map<String, Class> classesFound = new HashMap<>();
+    private final SimpleModule module = new SimpleModule("serializers", Version.unknownVersion());
+    private final FileUtils fileUtils = new FileUtils();
+    private final String CLASS_SUFFIX = "class";
+    private ClassLoaderUtils classLoaderUtils;
+    private MapUtils mapUtils;
+    private ObjectMapper mapper;
+    private Reflections reflections;
+    private EnumsUtils<Object> enumsUtils = new EnumsUtils<>();
+    private ReflectionUtils reflectionUtils = new ReflectionUtils(null);
 
     public JsonUtils() {
         init();
+    }
+
+    @Autowired
+    public JsonUtils(ClassLoaderUtils classLoaderUtils,
+                     MapUtils mapUtils,
+                     @Qualifier("reflections") Reflections reflections) {
+        init();
+        this.classLoaderUtils = classLoaderUtils;
+        this.mapUtils = mapUtils;
+        this.reflections = reflections;
     }
 
     private void init() {
@@ -151,16 +161,6 @@ public class JsonUtils {
         }
 
         return mapper;
-    }
-
-    @Autowired
-    public JsonUtils(ClassLoaderUtils classLoaderUtils,
-                     MapUtils mapUtils,
-                     @Qualifier("reflections") Reflections reflections) {
-        init();
-        this.classLoaderUtils = classLoaderUtils;
-        this.mapUtils = mapUtils;
-        this.reflections = reflections;
     }
 
     public void addDeserializer(Class clazz, JsonDeserializer deserializer) {
@@ -538,78 +538,6 @@ public class JsonUtils {
         return writer.writeValueAsString(object);
     }
 
-    private class PriorityClass implements Comparable<PriorityClass> {
-        private String canonicalPackagePattern = StringUtils.EMPTY;
-        private Class clazz;
-        private String entitiesPackagePattern = StringUtils.EMPTY;
-        private String name;
-        private String nonCanonicalPackagePattern = StringUtils.EMPTY;
-
-        public PriorityClass(String canonicalPackage, String nonCanonicalPackage, String entitiesPackage) {
-            this();
-            this.canonicalPackagePattern = canonicalPackage + "\\..*?\\.";
-            this.nonCanonicalPackagePattern = nonCanonicalPackage + "\\..*?\\.";
-            this.entitiesPackagePattern = entitiesPackage + "\\..*?\\.";
-        }
-
-        private PriorityClass() {
-        }
-
-        @Override
-        public int compareTo(PriorityClass o) {
-            if (o == null) {
-                return 0;
-            } else {
-                if (o.clazz == null) {
-                    return 0;
-                } else {
-                    if (o.clazz.getName().matches(this.entitiesPackagePattern + o.clazz.getSimpleName())) {
-                        return 3;
-                    } else if (o.clazz.getName().matches(this.nonCanonicalPackagePattern + o.clazz.getSimpleName())) {
-                        return 2;
-                    } else if (o.clazz.getName().matches(this.canonicalPackagePattern + o.clazz.getSimpleName())) {
-                        return 1;
-                    } else {
-                        return -1;
-                    }
-                }
-            }
-        }
-
-        public String getCanonicalPackagePattern() {
-            return canonicalPackagePattern;
-        }
-
-        public Class getClazz() {
-            return clazz;
-        }
-
-        public void setClazz(Class clazz) {
-            this.clazz = clazz;
-            if (this.clazz != null) {
-                this.name = clazz.getName();
-            }
-        }
-
-        public String getEntitiesPackagePattern() {
-            return entitiesPackagePattern;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name)
-                throws ClassNotFoundException {
-            this.name = name;
-            this.clazz = classLoaderUtils.loadClass(name);
-        }
-
-        public String getNonCanonicalPackagePattern() {
-            return nonCanonicalPackagePattern;
-        }
-    }
-
     public LinkedHashSet<String> buildJsonPath(Class clazz) {
         if (clazz != null) {
             return buildJsonPath(clazz, null, true);
@@ -795,10 +723,82 @@ public class JsonUtils {
         return jsonSchema.toString();
     }
 
-    public void jsonToSourceClassFile(String json, String className, String packageName, File rootDirectory, String root) throws IOException, NoSuchFieldException, IllegalAccessException {
+    public void jsonToSourceClassFile(String json, String className, String packageName, File rootDirectory, String definitionsRoot, Map root) throws IOException, NoSuchFieldException, IllegalAccessException {
         JCodeModel codeModel = new JCodeModel();
-        SchemaMapper mapper = new SchemaMapper(new RuleFactory(config, noopAnnotator, schemaStore, root), schemaGenerator);
+        SchemaMapper mapper = new SchemaMapper(new RuleFactory(config, noopAnnotator, schemaStore, definitionsRoot, root), schemaGenerator);
         mapper.generate(codeModel, className, packageName, json);
         codeModel.build(rootDirectory);
+    }
+
+    private class PriorityClass implements Comparable<PriorityClass> {
+        private String canonicalPackagePattern = StringUtils.EMPTY;
+        private Class clazz;
+        private String entitiesPackagePattern = StringUtils.EMPTY;
+        private String name;
+        private String nonCanonicalPackagePattern = StringUtils.EMPTY;
+
+        public PriorityClass(String canonicalPackage, String nonCanonicalPackage, String entitiesPackage) {
+            this();
+            this.canonicalPackagePattern = canonicalPackage + "\\..*?\\.";
+            this.nonCanonicalPackagePattern = nonCanonicalPackage + "\\..*?\\.";
+            this.entitiesPackagePattern = entitiesPackage + "\\..*?\\.";
+        }
+
+        private PriorityClass() {
+        }
+
+        @Override
+        public int compareTo(PriorityClass o) {
+            if (o == null) {
+                return 0;
+            } else {
+                if (o.clazz == null) {
+                    return 0;
+                } else {
+                    if (o.clazz.getName().matches(this.entitiesPackagePattern + o.clazz.getSimpleName())) {
+                        return 3;
+                    } else if (o.clazz.getName().matches(this.nonCanonicalPackagePattern + o.clazz.getSimpleName())) {
+                        return 2;
+                    } else if (o.clazz.getName().matches(this.canonicalPackagePattern + o.clazz.getSimpleName())) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                }
+            }
+        }
+
+        public String getCanonicalPackagePattern() {
+            return canonicalPackagePattern;
+        }
+
+        public Class getClazz() {
+            return clazz;
+        }
+
+        public void setClazz(Class clazz) {
+            this.clazz = clazz;
+            if (this.clazz != null) {
+                this.name = clazz.getName();
+            }
+        }
+
+        public String getEntitiesPackagePattern() {
+            return entitiesPackagePattern;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name)
+                throws ClassNotFoundException {
+            this.name = name;
+            this.clazz = classLoaderUtils.loadClass(name);
+        }
+
+        public String getNonCanonicalPackagePattern() {
+            return nonCanonicalPackagePattern;
+        }
     }
 }

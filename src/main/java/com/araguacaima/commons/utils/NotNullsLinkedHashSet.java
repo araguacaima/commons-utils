@@ -77,6 +77,11 @@ public class NotNullsLinkedHashSet<T> extends LinkedHashSet<T> {
         }
     }
 
+    public NotNullsLinkedHashSet(final Collection<? extends T> elements) {
+        this(false, null);
+        this.addAll(elements);
+    }
+
     @Override
     public boolean addAll(final Collection<? extends T> elements) {
         boolean result = true;
@@ -92,11 +97,6 @@ public class NotNullsLinkedHashSet<T> extends LinkedHashSet<T> {
     @Override
     public boolean add(final T e) {
         return e != null && (!this.traverseFields || !predicate.evaluate(e)) && super.add(e);
-    }
-
-    public NotNullsLinkedHashSet(final Collection<? extends T> elements) {
-        this(false, null);
-        this.addAll(elements);
     }
 
     public int indexOf(final T e) {

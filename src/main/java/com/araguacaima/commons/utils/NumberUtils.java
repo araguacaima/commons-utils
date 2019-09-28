@@ -357,7 +357,7 @@ public class NumberUtils {
     public Double divide(Double dividendo, Double divisor) {
         return (null == dividendo && null == divisor) ? null : ((null == dividendo) ? new Double(1 / divisor) : (
                 (null == divisor) ? dividendo : new Double(
-                dividendo / divisor)));
+                        dividendo / divisor)));
     }
 
     /**

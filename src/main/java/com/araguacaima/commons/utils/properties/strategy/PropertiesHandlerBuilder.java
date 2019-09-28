@@ -110,7 +110,7 @@ public class PropertiesHandlerBuilder {
                 PropertiesHandlerStrategyInterface next = PropertiesHandlerBuilder
                         .createPropertiesHandlerStrategyWithoutPolicies(
 
-                        (propertiesHandlerStrategyPolicies.get(0)).trim(), defaultFileName);
+                                (propertiesHandlerStrategyPolicies.get(0)).trim(), defaultFileName);
                 propertiesHandlerStrategy.setNext(next);
                 propertiesHandlerStrategyPolicies.remove(0);
                 setNext(next, propertiesHandlerStrategyPolicies, defaultFileName);

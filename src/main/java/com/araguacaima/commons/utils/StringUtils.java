@@ -21,11 +21,11 @@ package com.araguacaima.commons.utils;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
+import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.atteo.evo.inflector.English;
 
 import java.io.*;
 import java.sql.Clob;
@@ -154,6 +154,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         }
 
         return st > 0 ? str.substring(st, len) : str;
+    }
+
+    public static String getLastToken(String text, String separator) {
+        return text.substring(text.lastIndexOf(separator) + 1);
     }
 
     /**
@@ -878,6 +882,9 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         }
     }
 
+    // Inicio de metodos de SICAM
+    // TODO: Sincerar que metodos son utiles
+
     public Collection splitBySeparators(String input, Collection separators) {
         if (isNotBlank(input)) {
             String separatorMask = String.valueOf(System.currentTimeMillis());
@@ -892,9 +899,6 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
             return new ArrayList();
         }
     }
-
-    // Inicio de metodos de SICAM
-    // TODO: Sincerar que metodos son utiles
 
     public String substringIfLonger(String cadena, int limite) {
         return substringIfLonger(cadena, limite, "");
@@ -912,18 +916,18 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         }
     }
 
+    //    public  void main(String[] args) {
+    //        String test = "<span class=\"colorLink\" >64280</span>";
+    //        log.debug("args = " + test.replaceAll("<span class=\"colorLink\" >",
+    // "").replaceAll("</span>", ""));
+    //    }
+
     public String toParragraph(String s) {
         if (isBlank(s)) {
             return s;
         }
         return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
     }
-
-    //    public  void main(String[] args) {
-    //        String test = "<span class=\"colorLink\" >64280</span>";
-    //        log.debug("args = " + test.replaceAll("<span class=\"colorLink\" >",
-    // "").replaceAll("</span>", ""));
-    //    }
 
     /**
      * Converts String[] to Vector&lt;String&gt;
@@ -945,13 +949,13 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         return result;
     }
 
+    // Final de metodos de SICAM
+
     public String transformsCollectionIntoString(Collection<String> tokens) {
         final StringBuilder result = new StringBuilder();
         IterableUtils.forEach(tokens, result::append);
         return result.toString();
     }
-
-    // Final de metodos de SICAM
 
     public String transformsCollectionIntoStringWithSeperator(Collection<Object> tokens, final String separator) {
         final StringBuffer result = new StringBuffer();
@@ -967,33 +971,6 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         IterableUtils.forEach(tokens, o -> result.append(demarcation).append(o).append(demarcation).append(separator));
         result.replace(result.length() - 1, result.length(), EMPTY);
         return result.toString();
-    }
-
-    /**
-     * Trim characters in prefix and suffix
-     *
-     * @param str String
-     * @param ch  character which has to be removed
-     * @return null, if str is null, otherwise string will be returned
-     * without character prefixed/suffixed
-     */
-    public String trim(String str, char ch) {
-        if (str == null) {
-            return null;
-        }
-        int count = str.length();
-        int len = str.length();
-        int st = 0;
-        int off = 0;
-        char[] val = str.toCharArray();
-
-        while ((st < len) && (val[off + st] == ch)) {
-            st++;
-        }
-        while ((st < len) && (val[off + len - 1] == ch)) {
-            len--;
-        }
-        return ((st > 0) || (len < count)) ? str.substring(st, len) : str;
     }
 
     //    public  void main(String[] args) {
@@ -1030,6 +1007,33 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
       return lines;
       }
 */
+
+    /**
+     * Trim characters in prefix and suffix
+     *
+     * @param str String
+     * @param ch  character which has to be removed
+     * @return null, if str is null, otherwise string will be returned
+     * without character prefixed/suffixed
+     */
+    public String trim(String str, char ch) {
+        if (str == null) {
+            return null;
+        }
+        int count = str.length();
+        int len = str.length();
+        int st = 0;
+        int off = 0;
+        char[] val = str.toCharArray();
+
+        while ((st < len) && (val[off + st] == ch)) {
+            st++;
+        }
+        while ((st < len) && (val[off + len - 1] == ch)) {
+            len--;
+        }
+        return ((st > 0) || (len < count)) ? str.substring(st, len) : str;
+    }
 
     /**
      * Dado un arreglo, crea un String con los elementos del mismo,
@@ -1113,11 +1117,6 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
         return sb.toString();
     }
-
-    public static String getLastToken(String text, String separator) {
-        return text.substring(text.lastIndexOf(separator) + 1);
-    }
-
 
     public String singularizeTypeName(Class clazz) {
         String typeName = cleanClassName(clazz);

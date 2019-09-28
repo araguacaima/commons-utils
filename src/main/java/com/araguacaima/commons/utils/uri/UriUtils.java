@@ -139,6 +139,39 @@ public class UriUtils {
                 + importType;
     }
 
+    public static List<String> getDataBetweenCurlyBracketsList(Collection<String> urlStr) {
+        List<String> result = new ArrayList<>();
+        for (String url : urlStr) {
+            result.addAll(getDataBetweenCurlyBracketsList(url));
+        }
+        return result;
+    }
+
+    public static List<String> getDataBetweenCurlyBracketsList(String urlStr) {
+        List<String> dataList = new ArrayList<>();
+        if (StringUtils.isNotBlank(urlStr)) {
+            Matcher m = INSIDE_CURLY_BRACKETS_PATTERN.matcher(urlStr);
+            while (m.find()) {
+                dataList.add(m.group(1));
+            }
+        }
+
+        return dataList;
+    }
+
+    public static String getDataBetweenCurlyBrackets(String str) {
+        String data = StringUtils.EMPTY;
+        if (StringUtils.isNotBlank(str)) {
+            Pattern p = Pattern.compile("\\{([^}]*)\\}");
+            Matcher m = p.matcher(str);
+
+            while (m.find()) {
+                data = m.group(1);
+            }
+        }
+        return data;
+    }
+
     public static class PathAndQueryString {
         String path = null;
         String queryString = null;
@@ -230,38 +263,5 @@ public class UriUtils {
             }
         }
 
-    }
-
-    public static List<String> getDataBetweenCurlyBracketsList(Collection<String> urlStr) {
-        List<String> result = new ArrayList<>();
-        for (String url : urlStr) {
-            result.addAll(getDataBetweenCurlyBracketsList(url));
-        }
-        return result;
-    }
-
-    public static List<String> getDataBetweenCurlyBracketsList(String urlStr) {
-        List<String> dataList = new ArrayList<>();
-        if (StringUtils.isNotBlank(urlStr)) {
-            Matcher m = INSIDE_CURLY_BRACKETS_PATTERN.matcher(urlStr);
-            while (m.find()) {
-                dataList.add(m.group(1));
-            }
-        }
-
-        return dataList;
-    }
-
-    public static String getDataBetweenCurlyBrackets(String str) {
-        String data = StringUtils.EMPTY;
-        if (StringUtils.isNotBlank(str)) {
-            Pattern p = Pattern.compile("\\{([^}]*)\\}");
-            Matcher m = p.matcher(str);
-
-            while (m.find()) {
-                data = m.group(1);
-            }
-        }
-        return data;
     }
 }

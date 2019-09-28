@@ -482,6 +482,110 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return s1;
     }
 
+    /**
+     * @param object The object to obtain the class name
+     * @return The class name
+     * @deprecated
+     */
+    public static String getSimpleClassName(Object object) {
+        return getSimpleClassName(object.getClass());
+    }
+
+    public static String getSimpleClassName(Class clazz) {
+        String className = null;
+        if (clazz != null) {
+            className = clazz.getName();
+            try {
+                className = clazz.getName().substring(clazz.getName().lastIndexOf(".") + 1);
+                className = className.substring(className.lastIndexOf("$") + 1);
+                className = className.replaceAll(";", "[]");
+            } catch (Exception e) {
+                log.error("Impossible to get the simple name for the class: " + clazz.getName() + ". It'll be taken: " +
+                        "" + "" + className);
+            }
+        }
+        return className;
+    }
+
+    public static boolean isList(String type) {
+        try {
+            boolean result = type.equals("List") || type.startsWith("List<") || type.startsWith("java.util.List<") || type.equals(
+                    "Collection") || type.startsWith("Collection<") || type.startsWith("java.util.Collection<");
+            if (!result) {
+                String firstPartType = type.split("<")[0];
+                result = Class.forName(firstPartType) != null;
+            }
+            return result;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    public static Collection<Object> createAndInitializeTypedCollection(Class<?> typedClassForCollection, Object
+            value)
+            throws IllegalAccessException, InstantiationException {
+        Collection<Object> result = new ArrayList<>();
+        if (value == null) {
+            Object bean = typedClassForCollection.newInstance();
+            result.add(bean);
+        } else {
+            result.add(value);
+        }
+        return result;
+    }
+
+    public static boolean isMapImplementation(Class clazz) {
+        return clazz != null && Map.class.isAssignableFrom(clazz);
+    }
+
+    /**
+     * This method makes a "deep clone" of any Java object it is given.
+     *
+     * @param e The object to be cloned
+     * @return A new fresh object cloned from the incoming one
+     */
+    public static <E, F> F deepClone(E e) {
+        ByteArrayOutputStream bo = new ByteArrayOutputStream();
+        ObjectOutputStream oo;
+        try {
+            oo = new ObjectOutputStream(bo);
+            oo.writeObject(e);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        ByteArrayInputStream bi = new ByteArrayInputStream(bo.toByteArray());
+        ObjectInputStream oi;
+        try {
+            oi = new ObjectInputStream(bi);
+            return (F) (oi.readObject());
+        } catch (IOException | ClassNotFoundException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public static CtMethod generateGetter(CtClass declaringClass, String fieldName, CtClass fieldClass)
+            throws CannotCompileException {
+
+        Class clazz = fieldClass.getClass();
+        String prefix = (clazz.getSimpleName().equals("Boolean") || clazz.getTypeName().equals("boolean")) ? "is" :
+                "get";
+        String getterName = prefix + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        String sb = "public " + fieldClass.getName() + " " + getterName + "(){" +
+                "return this." + fieldName + ";" + "}";
+        return CtMethod.make(sb, declaringClass);
+    }
+
+    public static CtMethod generateSetter(CtClass declaringClass, String fieldName, CtClass fieldClass)
+            throws CannotCompileException {
+
+        String setterName = "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        String sb = "public void " + setterName + "(" + fieldClass.getName() + " " +
+                fieldName + ")" + "{" + "this." + fieldName + "=" + fieldName +
+                ";" + "}";
+        return CtMethod.make(sb, declaringClass);
+    }
+
     public String getFullyQualifiedJavaTypeOrNull(String type, boolean considerLists) {
         if (type == null) {
             return null;
@@ -541,31 +645,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return null;
     }
 
-    /**
-     * @param object The object to obtain the class name
-     * @return The class name
-     * @deprecated
-     */
-    public static String getSimpleClassName(Object object) {
-        return getSimpleClassName(object.getClass());
-    }
-
-    public static String getSimpleClassName(Class clazz) {
-        String className = null;
-        if (clazz != null) {
-            className = clazz.getName();
-            try {
-                className = clazz.getName().substring(clazz.getName().lastIndexOf(".") + 1);
-                className = className.substring(className.lastIndexOf("$") + 1);
-                className = className.replaceAll(";", "[]");
-            } catch (Exception e) {
-                log.error("Impossible to get the simple name for the class: " + clazz.getName() + ". It'll be taken: " +
-                        "" + "" + className);
-            }
-        }
-        return className;
-    }
-
     public String getSimpleJavaTypeOrNull(Class type) {
         return getSimpleJavaTypeOrNull(type, true);
     }
@@ -588,20 +667,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             }
         }
         return null;
-    }
-
-    public static boolean isList(String type) {
-        try {
-            boolean result = type.equals("List") || type.startsWith("List<") || type.startsWith("java.util.List<") || type.equals(
-                    "Collection") || type.startsWith("Collection<") || type.startsWith("java.util.Collection<");
-            if (!result) {
-                String firstPartType = type.split("<")[0];
-                result = Class.forName(firstPartType) != null;
-            }
-            return result;
-        } catch (Throwable ignored) {
-            return false;
-        }
     }
 
     /**
@@ -869,19 +934,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     public Collection<Object> createAndInitializeTypedCollection(Class<?> typedClassForCollection)
             throws IllegalAccessException, InstantiationException {
         return createAndInitializeTypedCollection(typedClassForCollection, null);
-    }
-
-    public static Collection<Object> createAndInitializeTypedCollection(Class<?> typedClassForCollection, Object
-            value)
-            throws IllegalAccessException, InstantiationException {
-        Collection<Object> result = new ArrayList<>();
-        if (value == null) {
-            Object bean = typedClassForCollection.newInstance();
-            result.add(bean);
-        } else {
-            result.add(value);
-        }
-        return result;
     }
 
     public Collection<Object> createAndInitializeTypedCollection(Class<?> clazz, String methodName, Object value)
@@ -1974,10 +2026,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return (T) returnValue;
     }
 
-    public static boolean isMapImplementation(Class clazz) {
-        return clazz != null && Map.class.isAssignableFrom(clazz);
-    }
-
     private boolean methodIsNotContainedIn(Method method, Collection<String> excludeMethods) {
         return !methodIsContainedIn(method, excludeMethods);
     }
@@ -1986,6 +2034,10 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return IterableUtils.find(excludeMethods,
                 methodName -> methodNameEqualsToPredicate(method, methodName)) != null;
     }
+
+/*    public String toString(Object object) {
+        return formatObjectValues(object, true, true, StringUtils.EMPTY, false);
+    }*/
 
     private boolean methodNameIsNotContainedIn(String methodName, Collection<String> excludeMethods) {
         return !methodNameIsContainedIn(methodName, excludeMethods);
@@ -2023,10 +2075,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         }
     }
 
-/*    public String toString(Object object) {
-        return formatObjectValues(object, true, true, StringUtils.EMPTY, false);
-    }*/
-
     public String toString(Object object) {
         try {
             return "\n".concat(ToStringBuilder.reflectionToString(object));
@@ -2048,74 +2096,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             return formatObjectValues(object, includeHeader, true, StringUtils.EMPTY, considerHierarchy);
         } catch (Exception ignored) {
             return object.toString();
-        }
-    }
-
-    private static class FieldCompare implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String path1 = ((Field) o1).getName();
-            String path2 = ((Field) o2).getName();
-            return path1.compareTo(path2);
-        }
-    }
-
-    public static class PrimitiveDefaults {
-        // These gets initialized to their default values
-        private static final boolean DEFAULT_BOOLEAN = Boolean.FALSE;
-        private static final Boolean DEFAULT_BOOLEAN_ = Boolean.FALSE;
-        private static final byte DEFAULT_BYTE = (byte) 0;
-        private static final Byte DEFAULT_BYTE_ = (byte) 0;
-        private static final char DEFAULT_CHAR = '\0';
-        private static final double DEFAULT_DOUBLE = 0d;
-        private static final Double DEFAULT_DOUBLE_ = 0d;
-        private static final float DEFAULT_FLOAT = 0f;
-        private static final Float DEFAULT_FLOAT_ = 0f;
-        private static final int DEFAULT_INT = 0;
-        private static final Integer DEFAULT_INT_ = 0;
-        private static final long DEFAULT_LONG = 0L;
-        private static final Long DEFAULT_LONG_ = 0L;
-        private static final short DEFAULT_SHORT = (short) 0;
-        private static final Short DEFAULT_SHORT_ = (short) 0;
-        private static final String DEFAULT_STRING_ = StringUtils.EMPTY;
-
-        public static java.io.Serializable getDefaultValue(Class clazz) {
-            if (clazz.equals(boolean.class)) {
-                return DEFAULT_BOOLEAN;
-            } else if (clazz.equals(Boolean.class)) {
-                return DEFAULT_BOOLEAN_;
-            } else if (clazz.equals(byte.class)) {
-                return DEFAULT_BYTE;
-            } else if (clazz.equals(Byte.class)) {
-                return DEFAULT_BYTE_;
-            } else if (clazz.equals(short.class)) {
-                return DEFAULT_SHORT;
-            } else if (clazz.equals(Short.class)) {
-                return DEFAULT_SHORT_;
-            } else if (clazz.equals(char.class)) {
-                return DEFAULT_CHAR;
-            } else if (clazz.equals(int.class)) {
-                return DEFAULT_INT;
-            } else if (clazz.equals(Integer.class)) {
-                return DEFAULT_INT_;
-            } else if (clazz.equals(long.class)) {
-                return DEFAULT_LONG;
-            } else if (clazz.equals(Long.class)) {
-                return DEFAULT_LONG_;
-            } else if (clazz.equals(float.class)) {
-                return DEFAULT_FLOAT;
-            } else if (clazz.equals(Float.class)) {
-                return DEFAULT_FLOAT_;
-            } else if (clazz.equals(double.class)) {
-                return DEFAULT_DOUBLE;
-            } else if (clazz.equals(Double.class)) {
-                return DEFAULT_DOUBLE_;
-            } else if (clazz.equals(String.class)) {
-                return DEFAULT_STRING_;
-            } else if (clazz.equals(Object.class)) {
-                return null;
-            } else {
-                throw new IllegalArgumentException("Class type " + clazz + " not supported");
-            }
         }
     }
 
@@ -2188,54 +2168,72 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
-
-    /**
-     * This method makes a "deep clone" of any Java object it is given.
-     *
-     * @param e The object to be cloned
-     * @return A new fresh object cloned from the incoming one
-     */
-    public static <E, F> F deepClone(E e) {
-        ByteArrayOutputStream bo = new ByteArrayOutputStream();
-        ObjectOutputStream oo;
-        try {
-            oo = new ObjectOutputStream(bo);
-            oo.writeObject(e);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        ByteArrayInputStream bi = new ByteArrayInputStream(bo.toByteArray());
-        ObjectInputStream oi;
-        try {
-            oi = new ObjectInputStream(bi);
-            return (F) (oi.readObject());
-        } catch (IOException | ClassNotFoundException ex) {
-            ex.printStackTrace();
-            return null;
+    private static class FieldCompare implements Comparator {
+        public int compare(Object o1, Object o2) {
+            String path1 = ((Field) o1).getName();
+            String path2 = ((Field) o2).getName();
+            return path1.compareTo(path2);
         }
     }
 
+    public static class PrimitiveDefaults {
+        // These gets initialized to their default values
+        private static final boolean DEFAULT_BOOLEAN = Boolean.FALSE;
+        private static final Boolean DEFAULT_BOOLEAN_ = Boolean.FALSE;
+        private static final byte DEFAULT_BYTE = (byte) 0;
+        private static final Byte DEFAULT_BYTE_ = (byte) 0;
+        private static final char DEFAULT_CHAR = '\0';
+        private static final double DEFAULT_DOUBLE = 0d;
+        private static final Double DEFAULT_DOUBLE_ = 0d;
+        private static final float DEFAULT_FLOAT = 0f;
+        private static final Float DEFAULT_FLOAT_ = 0f;
+        private static final int DEFAULT_INT = 0;
+        private static final Integer DEFAULT_INT_ = 0;
+        private static final long DEFAULT_LONG = 0L;
+        private static final Long DEFAULT_LONG_ = 0L;
+        private static final short DEFAULT_SHORT = (short) 0;
+        private static final Short DEFAULT_SHORT_ = (short) 0;
+        private static final String DEFAULT_STRING_ = StringUtils.EMPTY;
 
-    public static CtMethod generateGetter(CtClass declaringClass, String fieldName, CtClass fieldClass)
-            throws CannotCompileException {
-
-        Class clazz = fieldClass.getClass();
-        String prefix = (clazz.getSimpleName().equals("Boolean") || clazz.getTypeName().equals("boolean")) ? "is" :
-                "get";
-        String getterName = prefix + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-        String sb = "public " + fieldClass.getName() + " " + getterName + "(){" +
-                "return this." + fieldName + ";" + "}";
-        return CtMethod.make(sb, declaringClass);
-    }
-
-    public static CtMethod generateSetter(CtClass declaringClass, String fieldName, CtClass fieldClass)
-            throws CannotCompileException {
-
-        String setterName = "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-        String sb = "public void " + setterName + "(" + fieldClass.getName() + " " +
-                fieldName + ")" + "{" + "this." + fieldName + "=" + fieldName +
-                ";" + "}";
-        return CtMethod.make(sb, declaringClass);
+        public static java.io.Serializable getDefaultValue(Class clazz) {
+            if (clazz.equals(boolean.class)) {
+                return DEFAULT_BOOLEAN;
+            } else if (clazz.equals(Boolean.class)) {
+                return DEFAULT_BOOLEAN_;
+            } else if (clazz.equals(byte.class)) {
+                return DEFAULT_BYTE;
+            } else if (clazz.equals(Byte.class)) {
+                return DEFAULT_BYTE_;
+            } else if (clazz.equals(short.class)) {
+                return DEFAULT_SHORT;
+            } else if (clazz.equals(Short.class)) {
+                return DEFAULT_SHORT_;
+            } else if (clazz.equals(char.class)) {
+                return DEFAULT_CHAR;
+            } else if (clazz.equals(int.class)) {
+                return DEFAULT_INT;
+            } else if (clazz.equals(Integer.class)) {
+                return DEFAULT_INT_;
+            } else if (clazz.equals(long.class)) {
+                return DEFAULT_LONG;
+            } else if (clazz.equals(Long.class)) {
+                return DEFAULT_LONG_;
+            } else if (clazz.equals(float.class)) {
+                return DEFAULT_FLOAT;
+            } else if (clazz.equals(Float.class)) {
+                return DEFAULT_FLOAT_;
+            } else if (clazz.equals(double.class)) {
+                return DEFAULT_DOUBLE;
+            } else if (clazz.equals(Double.class)) {
+                return DEFAULT_DOUBLE_;
+            } else if (clazz.equals(String.class)) {
+                return DEFAULT_STRING_;
+            } else if (clazz.equals(Object.class)) {
+                return null;
+            } else {
+                throw new IllegalArgumentException("Class type " + clazz + " not supported");
+            }
+        }
     }
 }
 

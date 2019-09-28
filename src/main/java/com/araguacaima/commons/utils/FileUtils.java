@@ -86,6 +86,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             return !(new File(dir.getPath() + File.separator + name)).isHidden();
         }
     };
+    private final static Logger log = LoggerFactory.getLogger(FileUtils.class);
     public static int DEFAULT_RECURSION_LEVEL;
 
     static {
@@ -95,7 +96,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public final String DEFAULT_PATH = "/";
-    private final static Logger log = LoggerFactory.getLogger(FileUtils.class);
     private DateUtils dateUtils;
     private String filterCriterion;
     private NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters = new NotNullsLinkedHashSet<>();
@@ -308,6 +308,128 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return searchCount;
     }
 
+    public static File getFile(String path) throws FileNotFoundException {
+        String outputFile = path;
+        ClassLoader classLoader = FileUtils.class.getClassLoader();
+        InputStream stream = classLoader.getResourceAsStream(path);
+        if (stream != null) {
+            try {
+                String pathname = System.getProperty("user.home") + File.separator + "tmp";
+                File file = new File(pathname);
+                file.mkdir();
+                File tempConfig = File.createTempFile(new File(path).getName() + "-", ".dat", file);
+                org.apache.commons.io.FileUtils.copyInputStreamToFile(stream, tempConfig);
+                outputFile = tempConfig.getPath();
+            } catch (NullPointerException | IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                log.info("Attempting to load file: " + path);
+                log.info("\tSearching thru classloader (1): " + classLoader.toString());
+                URL resource = classLoader.getResource(path);
+                InputStream inputstream = classLoader.getResourceAsStream(path);
+                if (resource != null) {
+                    outputFile = resource.getPath();
+                }
+                if (inputstream == null) {
+                    log.info("\tSearching thru classloader (2): " + classLoader.toString());
+                    inputstream = classLoader.getResourceAsStream(path);
+                    resource = classLoader.getResource(path);
+                    if (resource != null) {
+                        outputFile = resource.getPath();
+                    }
+                    if (inputstream == null) {
+                        log.info("\tSearching thru classloader (3): " + classLoader.getParent().toString());
+                        inputstream = classLoader.getParent().getResourceAsStream(path);
+                        resource = classLoader.getParent().getResource(path);
+                        if (resource != null) {
+                            outputFile = resource.getPath();
+                        }
+                        if (inputstream == null) {
+                            log.info("\tSearching thru classloader (4): " + ClassLoader.getSystemClassLoader().toString());
+                            inputstream = ClassLoader.getSystemClassLoader().getResourceAsStream(path);
+                            resource = ClassLoader.getSystemClassLoader().getResource(path);
+                            if (resource != null) {
+                                outputFile = resource.getPath();
+                            }
+                            if (inputstream == null) {
+                                log.info("\tSearching directly from absolute path (5): " + path);
+                                inputstream = new FileInputStream((new File(path)));
+                                resource = (new File(path)).toURI().toURL();
+                                outputFile = resource.getPath();
+                            }
+                        }
+                    }
+                }
+                log.info("\tFile: " + path + " found!");
+                inputstream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        File file = new File(outputFile);
+        if (!file.exists()) {
+            throw new FileNotFoundException("File '" + path + "' not found!");
+        }
+        return file;
+    }
+
+    public static boolean isEmpty(File file) throws Exception {
+        if (file == null) {
+            return false;
+        }
+        if (file.isDirectory()) {
+            String[] list = file.list();
+            return list == null || list.length <= 0;
+        } else {
+            throw new FileNotFoundException("File is not an directory");
+        }
+    }
+
+    public static File makeDirFromPackageName(File rootDirectory, String packageName) throws IOException {
+        return makeDirFromTokens(rootDirectory, packageName, "\\.");
+    }
+
+    public static File makeDirFromTokens(File rootDirectory, String directoryName, String regexTokenSeparator) throws IOException {
+        if (rootDirectory == null) {
+            return null;
+        }
+        if (StringUtils.isBlank(directoryName)) {
+            if (rootDirectory.isDirectory()) {
+                return rootDirectory;
+            } else if (rootDirectory.isFile()) {
+                return rootDirectory.getParentFile();
+            }
+        }
+        if (StringUtils.isBlank(regexTokenSeparator)) {
+            if (rootDirectory.isDirectory()) {
+                return new File(rootDirectory, directoryName);
+            } else if (rootDirectory.isFile()) {
+                return new File(rootDirectory.getParentFile(), directoryName);
+            }
+        }
+        File file = rootDirectory;
+        try {
+            for (String directory : directoryName.split(regexTokenSeparator)) {
+                file = new File(file, directory);
+                file.mkdir();
+            }
+        } catch (Throwable t) {
+            log.error("Is not possible to create File '" + rootDirectory.getCanonicalPath() + File.separator + "' due exception: " + t.getMessage());
+        }
+        return file;
+    }
+
+    public static File createTempDir(String baseName) {
+        File baseDir = new File(System.getProperty("java.io.tmpdir"));
+        File tempDir = new File(baseDir, baseName);
+        if (tempDir.mkdir()) {
+            return tempDir;
+        }
+        throw new IllegalStateException("Failed to create directory with name '" + baseName + "'");
+    }
+
     /**
      * Helper recursive method to build up a list of file from.
      *
@@ -480,6 +602,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return f;
     }
 
+    // public  void main(String[] args) {
+    // generateFile("Hola mundo!", "c:\\pepe.txt");
+    // }
+
     /**
      * Tests if a specified file should be included in a file list.
      *
@@ -570,10 +696,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             }
         }
     }
-
-    // public  void main(String[] args) {
-    // generateFile("Hola mundo!", "c:\\pepe.txt");
-    // }
 
     public void copyResourceToDirectory(URL url, File dest, String basePath, boolean forceDelete)
             throws IOException {
@@ -693,6 +815,9 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     public boolean fileOrDirectoryExists(String filepath) {
         return (new File(filepath)).exists();
     }
+
+    // Inicio de los metodos usados en SICAM
+    // Validar que funcionen y sean utiles
 
     /**
      * Get all clazz that extends of superClass
@@ -916,6 +1041,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return path;
     }
 
+    // public  void main(String[] args) {
+    // getClassesThatImplementsFromJar(IReseteableDao.clas, "C:\\bea", true);
+    // }
+
     public void flushInputStreamToFile(InputStream stream, String filepath)
             throws IOException {
         File file = createFile(filepath);
@@ -930,9 +1059,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         }
         out.close();
     }
-
-    // Inicio de los metodos usados en SICAM
-    // Validar que funcionen y sean utiles
 
     public File createFile(String filepath)
             throws IOException {
@@ -1003,9 +1129,8 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return generateFile(data, fullFileName);
     }
 
-    // public  void main(String[] args) {
-    // getClassesThatImplementsFromJar(IReseteableDao.clas, "C:\\bea", true);
-    // }
+    // Validar que funcionen y sean utiles
+    // Final de los metodos usados en SICAM
 
     /**
      * Generates a unique name for a file, adding a unique number and a unique
@@ -1098,9 +1223,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         File jar = new File(jarName);
         return findClassesThatImplementedFromJar(jar, implementedClassName, jarName);
     }
-
-    // Validar que funcionen y sean utiles
-    // Final de los metodos usados en SICAM
 
     /**
      * Get all clazz that implemets of superClass from Jar
@@ -1245,73 +1367,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             IOUtils.closeQuietly(outStream);
             return targetFile;
         }
-    }
-
-    public static File getFile(String path) throws FileNotFoundException {
-        String outputFile = path;
-        ClassLoader classLoader = FileUtils.class.getClassLoader();
-        InputStream stream = classLoader.getResourceAsStream(path);
-        if (stream != null) {
-            try {
-                String pathname = System.getProperty("user.home") + File.separator + "tmp";
-                File file = new File(pathname);
-                file.mkdir();
-                File tempConfig = File.createTempFile(new File(path).getName() + "-", ".dat", file);
-                org.apache.commons.io.FileUtils.copyInputStreamToFile(stream, tempConfig);
-                outputFile = tempConfig.getPath();
-            } catch (NullPointerException | IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                log.info("Attempting to load file: " + path);
-                log.info("\tSearching thru classloader (1): " + classLoader.toString());
-                URL resource = classLoader.getResource(path);
-                InputStream inputstream = classLoader.getResourceAsStream(path);
-                if (resource != null) {
-                    outputFile = resource.getPath();
-                }
-                if (inputstream == null) {
-                    log.info("\tSearching thru classloader (2): " + classLoader.toString());
-                    inputstream = classLoader.getResourceAsStream(path);
-                    resource = classLoader.getResource(path);
-                    if (resource != null) {
-                        outputFile = resource.getPath();
-                    }
-                    if (inputstream == null) {
-                        log.info("\tSearching thru classloader (3): " + classLoader.getParent().toString());
-                        inputstream = classLoader.getParent().getResourceAsStream(path);
-                        resource = classLoader.getParent().getResource(path);
-                        if (resource != null) {
-                            outputFile = resource.getPath();
-                        }
-                        if (inputstream == null) {
-                            log.info("\tSearching thru classloader (4): " + ClassLoader.getSystemClassLoader().toString());
-                            inputstream = ClassLoader.getSystemClassLoader().getResourceAsStream(path);
-                            resource = ClassLoader.getSystemClassLoader().getResource(path);
-                            if (resource != null) {
-                                outputFile = resource.getPath();
-                            }
-                            if (inputstream == null) {
-                                log.info("\tSearching directly from absolute path (5): " + path);
-                                inputstream = new FileInputStream((new File(path)));
-                                resource = (new File(path)).toURI().toURL();
-                                outputFile = resource.getPath();
-                            }
-                        }
-                    }
-                }
-                log.info("\tFile: " + path + " found!");
-                inputstream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        File file = new File(outputFile);
-        if (!file.exists()) {
-            throw new FileNotFoundException("File '" + path + "' not found!");
-        }
-        return file;
     }
 
     public File getFileFromFTP(String ftpServerDomain,
@@ -2056,60 +2111,5 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             String path2 = ((File) o2).getPath();
             return path1.compareToIgnoreCase(path2);
         }
-    }
-
-    public static boolean isEmpty(File file) throws Exception {
-        if (file == null) {
-            return false;
-        }
-        if (file.isDirectory()) {
-            String[] list = file.list();
-            return list == null || list.length <= 0;
-        } else {
-            throw new FileNotFoundException("File is not an directory");
-        }
-    }
-
-    public static File makeDirFromPackageName(File rootDirectory, String packageName) throws IOException {
-        return makeDirFromTokens(rootDirectory, packageName, "\\.");
-    }
-
-    public static File makeDirFromTokens(File rootDirectory, String directoryName, String regexTokenSeparator) throws IOException {
-        if (rootDirectory == null) {
-            return null;
-        }
-        if (StringUtils.isBlank(directoryName)) {
-            if (rootDirectory.isDirectory()) {
-                return rootDirectory;
-            } else if (rootDirectory.isFile()) {
-                return rootDirectory.getParentFile();
-            }
-        }
-        if (StringUtils.isBlank(regexTokenSeparator)) {
-            if (rootDirectory.isDirectory()) {
-                return new File(rootDirectory, directoryName);
-            } else if (rootDirectory.isFile()) {
-                return new File(rootDirectory.getParentFile(), directoryName);
-            }
-        }
-        File file = rootDirectory;
-        try {
-            for (String directory : directoryName.split(regexTokenSeparator)) {
-                file = new File(file, directory);
-                file.mkdir();
-            }
-        } catch (Throwable t) {
-            log.error("Is not possible to create File '" + rootDirectory.getCanonicalPath() + File.separator + "' due exception: " + t.getMessage());
-        }
-        return file;
-    }
-
-    public static File createTempDir(String baseName) {
-        File baseDir = new File(System.getProperty("java.io.tmpdir"));
-        File tempDir = new File(baseDir, baseName);
-        if (tempDir.mkdir()) {
-            return tempDir;
-        }
-        throw new IllegalStateException("Failed to create directory with name '" + baseName + "'");
     }
 }

@@ -80,16 +80,16 @@ public class Severity implements Comparable, Serializable {
         severities.put(FATAL.getName(), FATAL);
     }
 
-    public String getName() {
-        return name;
-    }
-
     public static Severity getSeverity(String name) {
         if (severities == null) {
             initMap();
         }
 
         return severities.get(name.toUpperCase());
+    }
+
+    public String getName() {
+        return name;
     }
 
     public boolean equals(Object o) {

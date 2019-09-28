@@ -1,6 +1,8 @@
 package com.araguacaima.commons.utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Locale;
 
 /**
  * Created by Alejandro on 15/01/2015.
@@ -13,6 +15,14 @@ public class Constants {
     public static final String API_BASE_NAME = "api.raml";
     public static final String COMPLETE_TEXT = "$$$COMPLETE$$$";
     public static final String APIS_COMMONS_COMMONS = "glapi-global-apis-commons-commons";
+    public static Locale LOCALE_EN = new Locale("en", "us");
+    public static Locale LOCALE_ES = new Locale("es", "es");
+    public static Collection<Locale> LOCALES = new ArrayList<Locale>() {
+        {
+            add(LOCALE_EN);
+            add(LOCALE_ES);
+        }
+    };
 
     public enum SOURCE_TYPE {
         LOCAL,
@@ -46,17 +56,6 @@ public class Constants {
     public enum GOOGLE_DRIVE_CREDENTIALS_STRATEGIES {
         SERVER_TO_SERVER
     }
-
-    public static Locale LOCALE_EN = new Locale("en", "us");
-
-    public static Locale LOCALE_ES = new Locale("es", "es");
-
-    public static Collection<Locale> LOCALES = new ArrayList<Locale>() {
-        {
-            add(LOCALE_EN);
-            add(LOCALE_ES);
-        }
-    };
 
     public enum UrlParams {
         PATH,

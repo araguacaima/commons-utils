@@ -64,8 +64,7 @@ import java.util.*;
  * Simple search condition comparing primitive objects or complex object by its
  * getters. For details see {@link #isMet(Object)} description.
  *
- * @param <T>
- *            type of search condition.
+ * @param <T> type of search condition.
  */
 public class ExtendedSearchCondition<T> implements SearchCondition<T> {
 
@@ -92,10 +91,8 @@ public class ExtendedSearchCondition<T> implements SearchCondition<T> {
      * applied in all comparison; see {@link #isMet(Object)} for details of
      * comparison.
      *
-     * @param cType
-     *            shared condition type
-     * @param condition
-     *            template object
+     * @param cType     shared condition type
+     * @param condition template object
      */
     public ExtendedSearchCondition(final ConditionType cType, final T condition, final String packageBase) {
         if (cType == null) {
@@ -118,11 +115,9 @@ public class ExtendedSearchCondition<T> implements SearchCondition<T> {
      * comparison. Cannot be used for primitive T type due to per-getter
      * comparison strategy.
      *
-     * @param getters2operators
-     *            getters names and operators to be used with them during
-     *            comparison
-     * @param condition
-     *            template object
+     * @param getters2operators getters names and operators to be used with them during
+     *                          comparison
+     * @param condition         template object
      */
     public ExtendedSearchCondition(final Map<String, ConditionType> getters2operators, final T condition) {
         if (getters2operators == null) {
@@ -300,7 +295,7 @@ public class ExtendedSearchCondition<T> implements SearchCondition<T> {
      * comparison.
      *
      * @return template (condition) object getters mapped to their non-null
-     *         values
+     * values
      */
     private Map<String, Object> getGettersAndValues(final T condition) {
 

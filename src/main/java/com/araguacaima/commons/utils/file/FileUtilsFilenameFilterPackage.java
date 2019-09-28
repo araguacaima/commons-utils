@@ -3,8 +3,8 @@ package com.araguacaima.commons.utils.file;
 import com.araguacaima.commons.utils.FileUtils;
 import com.araguacaima.commons.utils.NotNullsLinkedHashSet;
 import com.araguacaima.commons.utils.StringUtils;
-import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 
 import java.io.File;
 import java.io.IOException;

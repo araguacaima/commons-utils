@@ -15,14 +15,13 @@ import java.util.Map;
 
 public class RestQueryStringUtil {
 
-    private final ClassLoader classLoader;
-
-    private String packageBase;
-
     static {
         ExtendableFiqlParser.addOperator("=in=", ConditionType.CUSTOM);
         ExtendableFiqlParser.addOperator("=out=", ConditionType.CUSTOM);
     }
+
+    private final ClassLoader classLoader;
+    private String packageBase;
 
     public RestQueryStringUtil(ClassLoader classLoader, String packageBase) {
         this.classLoader = classLoader;

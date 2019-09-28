@@ -94,36 +94,6 @@ public class JsonSchemaUtilsTest {
         schemas = "[\n" +
                 "  {\n" +
                 "    \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n" +
-                "    \"definitions\": {\n" +
-                "      \"QuestionOption\": {\n" +
-                "        \"type\": \"object\",\n" +
-                "        \"properties\": {\n" +
-                "          \"description\": {\n" +
-                "            \"type\": \"string\"\n" +
-                "          },\n" +
-                "          \"selected\": {\n" +
-                "            \"type\": \"boolean\"\n" +
-                "          },\n" +
-                "          \"title\": {\n" +
-                "            \"type\": \"string\"\n" +
-                "          },\n" +
-                "          \"weighing\": {\n" +
-                "            \"type\": \"number\"\n" +
-                "          }\n" +
-                "        },\n" +
-                "        \"$id\": \"com.araguacaima.braas.core.drools.model.forms.QuestionOption\"\n" +
-                "      },\n" +
-                "      \"QuestionType\": {\n" +
-                "        \"type\": \"string\",\n" +
-                "        \"enum\": [\n" +
-                "          \"BOOLEAN\",\n" +
-                "          \"MULTIPLE\",\n" +
-                "          \"SINGLE\",\n" +
-                "\t\t  \"TRISTATE\"\n" +
-                "        ],\n" +
-                "        \"$id\": \"com.araguacaima.braas.core.drools.model.forms.QuestionType\"\n" +
-                "      }\n" +
-                "    },\n" +
                 "    \"type\": \"object\",\n" +
                 "    \"properties\": {\n" +
                 "      \"calculatedScore\": {\n" +
@@ -138,7 +108,22 @@ public class JsonSchemaUtilsTest {
                 "      \"options\": {\n" +
                 "        \"type\": \"array\",\n" +
                 "        \"items\": {\n" +
-                "          \"$ref\": \"#/definitions/QuestionOption\"\n" +
+                "          \"type\": \"object\",\n" +
+                "          \"properties\": {\n" +
+                "            \"description\": {\n" +
+                "              \"type\": \"string\"\n" +
+                "            },\n" +
+                "            \"selected\": {\n" +
+                "              \"type\": \"boolean\"\n" +
+                "            },\n" +
+                "            \"title\": {\n" +
+                "              \"type\": \"string\"\n" +
+                "            },\n" +
+                "            \"weighing\": {\n" +
+                "              \"type\": \"number\"\n" +
+                "            }\n" +
+                "          },\n" +
+                "          \"$id\": \"com.araguacaima.braas.core.drools.model.forms.QuestionOption\"\n" +
                 "        },\n" +
                 "        \"$id\": \"java.util.Set<com.araguacaima.braas.core.drools.model.forms.QuestionOption>\"\n" +
                 "      },\n" +
@@ -146,10 +131,26 @@ public class JsonSchemaUtilsTest {
                 "        \"type\": \"string\"\n" +
                 "      },\n" +
                 "      \"type\": {\n" +
-                "        \"$ref\": \"#/definitions/QuestionType\"\n" +
+                "        \"type\": \"string\",\n" +
+                "        \"enum\": [\n" +
+                "          \"BOOLEAN\",\n" +
+                "          \"MULTIPLE\",\n" +
+                "          \"SINGLE\"\n" +
+                "        ],\n" +
+                "        \"$id\": \"com.araguacaima.braas.core.drools.model.forms.QuestionType\"\n" +
                 "      }\n" +
                 "    },\n" +
                 "    \"$id\": \"com.araguacaima.braas.core.drools.model.forms.Question\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n" +
+                "    \"type\": \"string\",\n" +
+                "    \"enum\": [\n" +
+                "      \"BOOLEAN\",\n" +
+                "      \"MULTIPLE\",\n" +
+                "      \"SINGLE\"\n" +
+                "    ],\n" +
+                "    \"$id\": \"com.araguacaima.braas.core.drools.model.forms.QuestionType\"\n" +
                 "  },\n" +
                 "  {\n" +
                 "    \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n" +
@@ -224,8 +225,7 @@ public class JsonSchemaUtilsTest {
                 "              \"enum\": [\n" +
                 "                \"BOOLEAN\",\n" +
                 "                \"MULTIPLE\",\n" +
-                "                \"SINGLE\",\n" +
-                "\t\t        \"TRISTATE\"\n" +
+                "                \"SINGLE\"\n" +
                 "              ],\n" +
                 "              \"$id\": \"com.araguacaima.braas.core.drools.model.forms.QuestionType\"\n" +
                 "            }\n" +
@@ -256,12 +256,12 @@ public class JsonSchemaUtilsTest {
     }
 
     @Test
-    public void testProcessSingleSchema() throws URISyntaxException, NoSuchFieldException, IllegalAccessException, IOException {
+    public void testProcessSingleSchema() throws URISyntaxException, NoSuchFieldException, IllegalAccessException, IOException, InstantiationException {
         jsonSchemaUtils.processFile_(schema, "test", sourceClassesDir, compiledClassesDir);
     }
 
     @Test
-    public void testProcessSingleSchemas() throws URISyntaxException, NoSuchFieldException, IllegalAccessException, IOException {
+    public void testProcessMultipleSchemas() throws URISyntaxException, NoSuchFieldException, IllegalAccessException, IOException, InstantiationException {
         jsonSchemaUtils.processFile_(schemas, "test", sourceClassesDir, compiledClassesDir);
     }
 }
