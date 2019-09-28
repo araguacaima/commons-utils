@@ -76,13 +76,11 @@ public class JDisAssembler implements JReverseEngineer, JJvmOpcodes {
      *
      * @throws IOException          Thrown incase we encounter any i/o erro
      *                              while disassembling.
-     * @throws RevEngineException   Thrown in case we encounter any
-     *                              logical error while trying to disasseble.
      * @throws ClassParserException Thrown in case of an invalid
      *                              constantpool reference.
      */
     public void genCode()
-            throws RevEngineException, IOException, ClassParserException {
+            throws IOException, ClassParserException {
 
         StringBuffer assembly = new StringBuffer("\t{");
         //assembly.append(JDecompiler.getMethodHeaders(curMethod, null));

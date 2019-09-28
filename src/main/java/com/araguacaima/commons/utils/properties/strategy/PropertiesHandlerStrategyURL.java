@@ -40,16 +40,6 @@ public class PropertiesHandlerStrategyURL extends PropertiesHandlerStrategy {
     private static final String PROPERTIES_URL_SERVER_DOMAIN_LOGIN = "PROPERTIES_URL_SERVER_DOMAIN_LOGIN";
     private static final String PROPERTIES_URL_SERVER_DOMAIN_PASSWORD = "PROPERTIES_URL_SERVER_DOMAIN_PASSWORD";
     private PropertiesHandlerStrategyInterface next;
-    @Value("${url.local.file.path}")
-    private String urlLocalFilePath = StringUtils.EMPTY;
-    @Value("${url.remote.file.path}")
-    private String urlRemoteFilePath = StringUtils.EMPTY;
-    @Value("${url.server.domain.and.port}")
-    private String urlServerDomainAndPort = StringUtils.EMPTY;
-    @Value("${url.server.domain.login}")
-    private String urlServerDomainLogin = StringUtils.EMPTY;
-    @Value("${url.server.domain.password}")
-    private String urlServerDomainPassword = StringUtils.EMPTY;
 
     @Override
     public PropertiesHandlerStrategyInterface getNext() {
@@ -76,6 +66,11 @@ public class PropertiesHandlerStrategyURL extends PropertiesHandlerStrategy {
     public Properties getProperties()
             throws PropertiesUtilException {
 
+        String urlServerDomainPassword = StringUtils.EMPTY;
+        String urlServerDomainLogin = StringUtils.EMPTY;
+        String urlServerDomainAndPort = StringUtils.EMPTY;
+        String urlRemoteFilePath = StringUtils.EMPTY;
+        String urlLocalFilePath = StringUtils.EMPTY;
         File file = fileUtils.getFileFromURL(urlLocalFilePath,
                 urlRemoteFilePath,
                 urlServerDomainAndPort,

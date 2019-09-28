@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public class PayloadJsonSplitter implements SpecialParamSplitter {
 
-    private Constants.SpecialQueryParams specialQueryParam = Constants.SpecialQueryParams.PAYLOAD;
+    private final Constants.SpecialQueryParams specialQueryParam = Constants.SpecialQueryParams.PAYLOAD;
     private String completeParam;
     private String rightSideParam;
     private String leftSideParam;

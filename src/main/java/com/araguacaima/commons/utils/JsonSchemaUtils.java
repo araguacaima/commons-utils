@@ -13,8 +13,8 @@ public class JsonSchemaUtils<T extends ClassLoader> {
 
     public static final String DEFINITIONS_ROOT = "definitions";
     private static ReflectionUtils reflectionUtils = new ReflectionUtils(null);
-    private JsonUtils jsonUtils = new JsonUtils();
-    private MapUtils mapUtils = MapUtils.getInstance();
+    private final JsonUtils jsonUtils = new JsonUtils();
+    private final MapUtils mapUtils = MapUtils.getInstance();
     private CompilerUtils.FilesCompiler<T> filesCompiler;
 
     public JsonSchemaUtils(T classLoader) {
@@ -33,7 +33,6 @@ public class JsonSchemaUtils<T extends ClassLoader> {
         return filesCompiler.getClassLoader();
     }
 
-    @SuppressWarnings("unchecked")
     public Set<Class<?>> processFile(File file, String packageName, File sourceCodeDirectory, File compiledClassesDirectory) throws IOException, NoSuchFieldException, IllegalAccessException, URISyntaxException, InstantiationException {
         String json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
         return processFile(json, packageName, sourceCodeDirectory, compiledClassesDirectory);
@@ -61,9 +60,7 @@ public class JsonSchemaUtils<T extends ClassLoader> {
             Collection<Map<String, Object>> jsonSchemas = jsonUtils.fromJSON(json, Collection.class);
             Set<String> ids = new LinkedHashSet<>();
             LinkedHashMap<String, LinkedHashMap> definitionMap = new LinkedHashMap<>();
-            jsonSchemas.forEach(jsonSchema -> {
-                buildDefinitions(packageName, ids, definitionMap, jsonSchema);
-            });
+            jsonSchemas.forEach(jsonSchema -> buildDefinitions(packageName, ids, definitionMap, jsonSchema));
             deleteInnerDefinitions(definitionMap);
             definitionsToClasses(definitionMap, ids, sourceCodeDirectory);
         }

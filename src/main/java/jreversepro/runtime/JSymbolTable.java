@@ -102,7 +102,7 @@ public class JSymbolTable implements KeyWords {
         symbols = new HashMap<>();
         symNames = new HashMap<>();
 
-        basicIndex = (int) ('i');
+        basicIndex = 'i';
         //Starts with variable 'i'.
 
         if (!rhsMethod.isStatic()) {
@@ -455,7 +455,7 @@ public class JSymbolTable implements KeyWords {
      * @return Returns Stringified form of this class
      */
     public String toString() {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         if (symbols != null) {
             for (Object o : symbols.keySet()) {
                 Integer k1 = (Integer) o;

@@ -1,7 +1,6 @@
 package com.araguacaima.commons.utils.parser;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.apache.commons.collections4.CollectionUtils;
@@ -34,7 +33,7 @@ public class FiqlJsonSerializerInvocationHandler extends JsonSerializer implemen
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
         for (Map.Entry<String, Object> property : properties.entrySet()) {
             jgen.writeObjectField(property.getKey(), property.getValue());
@@ -44,22 +43,12 @@ public class FiqlJsonSerializerInvocationHandler extends JsonSerializer implemen
 
     public Object invoke(Object proxy, final Method method, Object[] args) {
 
-        Method method_ = (Method) CollectionUtils.find(readMethods, new Predicate() {
-            @Override
-            public boolean evaluate(Object object) {
-                return ((Method) object).getName().equals(method.getName());
-            }
-        });
+        Method method_ = CollectionUtils.find(readMethods, (Predicate) object -> ((Method) object).getName().equals(method.getName()));
 
         if (method_ != null) {
             return properties.get(StringUtils.uncapitalize(method_.getName().replaceFirst("get", StringUtils.EMPTY)));
         } else {
-            method_ = (Method) CollectionUtils.find(writeMethods, new Predicate() {
-                @Override
-                public boolean evaluate(Object object) {
-                    return ((Method) object).getName().equals(method.getName());
-                }
-            });
+            method_ = CollectionUtils.find(writeMethods, (Predicate) object -> ((Method) object).getName().equals(method.getName()));
 
             if (method_ != null) {
                 properties.put(StringUtils.uncapitalize(method_.getName().replaceFirst("set", StringUtils.EMPTY)), args[0]);

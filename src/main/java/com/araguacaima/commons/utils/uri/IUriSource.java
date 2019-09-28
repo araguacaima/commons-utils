@@ -5,10 +5,10 @@ package com.araguacaima.commons.utils.uri;
  */
 public interface IUriSource {
 
-    public String getUrlBase();
+    String getUrlBase();
 
-    public void setUrlBase(Object urlBase);
+    void setUrlBase(Object urlBase);
 
-    public Object getServiceName();
+    Object getServiceName();
 
 }

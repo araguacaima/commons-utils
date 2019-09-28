@@ -4,7 +4,7 @@ import java.io.File;
 
 public class PackageClassUtils {
 
-    private static FileUtils fileUtils = new FileUtils();
+    private static final FileUtils fileUtils = new FileUtils();
 
 
     private String id;

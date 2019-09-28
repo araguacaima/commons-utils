@@ -201,10 +201,10 @@ public class PropertiesHandlerBuilder {
         ((PropertiesHandlerStrategyDefault) propertiesHandlerStrategy).setDefaultPath(defaultFileName);
         if (StringUtils.isBlank(propertiesHandlerStrategyPolicy)) {
             PropertiesHandlerStrategyInterface nextDB = new PropertiesHandlerStrategyDB();
-            PropertiesHandlerStrategyInterface nextClassPath = new PropertiesHandlerStrategyClassPath();
-            ((PropertiesHandlerStrategyClassPath) nextClassPath).setFileWithinClasspath(defaultFileName);
-            PropertiesHandlerStrategyInterface nextPath = new PropertiesHandlerStrategyPath();
-            ((PropertiesHandlerStrategyPath) nextPath).setFileInPath(defaultFileName);
+            PropertiesHandlerStrategyClassPath nextClassPath = new PropertiesHandlerStrategyClassPath();
+            nextClassPath.setFileWithinClasspath(defaultFileName);
+            PropertiesHandlerStrategyPath nextPath = new PropertiesHandlerStrategyPath();
+            nextPath.setFileInPath(defaultFileName);
             PropertiesHandlerStrategyInterface nextURL = new PropertiesHandlerStrategyURL();
             PropertiesHandlerStrategyInterface nextFTP = new PropertiesHandlerStrategyFTP();
             nextDB.setNext(nextClassPath);

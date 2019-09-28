@@ -209,6 +209,10 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
                 case TYPE_JSR:
                 case TYPE_SWITCH:
                 case TYPE_CASE:
+                    //Blocks that use "goto i" at targetPc to identify next
+                    //instruction
+                case TYPE_CATCH:
+                case TYPE_SYNC:
                     method.closeBlock();
                     //Set the index ptr to the ins after the end of this block
                     //JInstruction sIns = method.getInstruction(TargetPc);
@@ -224,13 +228,8 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
                     //decomp.setLastIns(NextPc);
                     //decomp.setLastInsPos(?);
                     break;
-                //Blocks that use "goto i" at targetPc to identify next
-                //instruction
-                case TYPE_CATCH:
-                case TYPE_SYNC:
-                    method.closeBlock();
 
-                    //Set the index ptr to the ins after the end of this
+                //Set the index ptr to the ins after the end of this
                     //block, IF no other catch follows
                     /*
                                        JInstruction sIns = method.getInstruction(targetPc);
@@ -244,7 +243,6 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
                      //
                      }
                      */
-                    break;
                 case TYPE_DO_WHILE:
                     method.closeBlock();
                     decomp.setLastIns(nextPc);

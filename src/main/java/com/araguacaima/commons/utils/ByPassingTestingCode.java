@@ -40,10 +40,9 @@ public class ByPassingTestingCode {
             log.debug(exception.getMessage(), 2);
         } finally {
             if (MapUtils.isEmpty(BYPASSING_TESTING_CODE_PARAMETERS_MAP)) {
-                log.debug("No Bypassing Testing Code (bypassing.testing.code_) found inside the file", 2);
+                log.debug("No Bypassing Testing Code (bypassing.testing.code_) found inside the file");
             } else {
-                log.debug("Bypassing Testing Code (bypassing.testing.code_): " + BYPASSING_TESTING_CODE_PARAMETERS_MAP,
-                        2);
+                log.debug("Bypassing Testing Code (bypassing.testing.code_): " + BYPASSING_TESTING_CODE_PARAMETERS_MAP);
             }
         }
     }

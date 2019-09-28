@@ -38,19 +38,10 @@ public class ZipUtils {
     }
 
     public boolean isValid(final File file) {
-        ZipFile zipfile = null;
-        try {
-            zipfile = new ZipFile(file);
+        try (ZipFile zipfile = new ZipFile(file)) {
             return true;
         } catch (IOException e) {
             return false;
-        } finally {
-            try {
-                if (zipfile != null) {
-                    zipfile.close();
-                }
-            } catch (IOException ignored) {
-            }
         }
     }
 

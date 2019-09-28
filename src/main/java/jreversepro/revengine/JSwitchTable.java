@@ -186,7 +186,7 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
                 Integer obj = gotos.get(ent.getTarget() - 3);
                 if (obj != null) {
                     int tempVal = obj;
-                    maxTarget = (maxTarget > tempVal) ? maxTarget : tempVal;
+                    maxTarget = Math.max(maxTarget, tempVal);
                 }
             }
             if (maxTarget > defaultByte) {
@@ -263,7 +263,7 @@ public class JSwitchTable implements KeyWords, JJvmOpcodes {
      * statement block.
      */
     public String disassemble() {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         for (JCaseEntry aCase : cases) {
             sb.append("\n\t\t\t").append(aCase);
         }

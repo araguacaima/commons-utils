@@ -143,8 +143,7 @@ public class ParameterFinder {
                     map.put(o, req.getParameter((String) o));
                 }
             } else {
-                Collection<String> paramValuesCollection = new ArrayList<>();
-                paramValuesCollection.addAll(Arrays.asList(paramValues));
+                Collection<String> paramValuesCollection = new ArrayList<>(Arrays.asList(paramValues));
                 map.put(o, paramValuesCollection);
             }
         });

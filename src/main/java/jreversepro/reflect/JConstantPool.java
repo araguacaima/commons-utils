@@ -561,7 +561,7 @@ public class JConstantPool implements KeyWords {
      */
     public String getTagDescriptor(int index)
             throws ClassParserException {
-        StringBuilder result = new StringBuilder("");
+        StringBuilder result = new StringBuilder();
         int tagByte = getTagByte(index);
         switch (tagByte) {
             case TAG_METHODREF:

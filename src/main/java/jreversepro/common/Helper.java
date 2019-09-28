@@ -298,7 +298,7 @@ public class Helper implements KeyWords {
             }
         } else if (datatype.equals(JVM_CHAR)) {  //Character
             try {
-                StringBuilder sb = new StringBuilder("");
+                StringBuilder sb = new StringBuilder();
                 int intvalue = Integer.parseInt(value);
                 sb.append("'").append((char) intvalue).append("'");
                 return sb.toString();
@@ -395,7 +395,7 @@ public class Helper implements KeyWords {
      * of characters.
      */
     public static String replaceEscapeChars(String aLiteral) {
-        StringBuilder result = new StringBuilder("");
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i < aLiteral.length(); i++) {
             result.append(representChar(aLiteral.charAt(i)));
         }
@@ -454,8 +454,8 @@ public class Helper implements KeyWords {
     public static boolean versionCheck() {
         String version = System.getProperty("java.version");
         for (int i = 0; i <= 5; i += 2) {
-            int versionVal = (int) (version.charAt(i));
-            int workingVal = (int) (DEFAULT_VERSION.charAt(i));
+            int versionVal = version.charAt(i);
+            int workingVal = DEFAULT_VERSION.charAt(i);
             if (versionVal > workingVal) {
                 return true;
             } else if (versionVal < workingVal) {

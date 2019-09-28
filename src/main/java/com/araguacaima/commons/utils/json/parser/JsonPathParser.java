@@ -56,18 +56,14 @@ public class JsonPathParser<T> {
      * @return tree of {@link T}
      * objects representing runtime structure.
      * @throws JsonParseException        when expression does not follow JSON_PATH grammar
-     * @throws NoSuchMethodException     when expression does not follow JSON_PATH grammar
      * @throws InstantiationException    when expression does not follow JSON_PATH grammar
      * @throws IllegalAccessException    when expression does not follow JSON_PATH grammar
-     * @throws InvocationTargetException when expression does not follow JSON_PATH grammar
      */
     public Map<T, Field> parse(final String jsonPathExpression)
             throws
             JsonParseException,
-            NoSuchMethodException,
             InstantiationException,
-            IllegalAccessException,
-            InvocationTargetException {
+            IllegalAccessException {
         this.node = parseDatatype(jsonPathExpression);
         return new HashMap<T, Field>() {{
             put(node.getBean(), node.getField());

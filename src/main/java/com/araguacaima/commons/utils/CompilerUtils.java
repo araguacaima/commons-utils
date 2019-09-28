@@ -7,7 +7,7 @@ import org.joor.ReflectException;
 import javax.tools.*;
 import java.io.*;
 import java.net.*;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class CompilerUtils {
@@ -34,7 +34,7 @@ public class CompilerUtils {
             List<CharSequenceJavaFileObject> files_ = new ArrayList<>();
             for (File file : files) {
                 PackageClassUtils packageClassUtils = PackageClassUtils.instance(sourceCodeDirectory, file, ".java");
-                String content = org.apache.commons.io.FileUtils.readFileToString(file, Charset.forName("UTF-8"));
+                String content = org.apache.commons.io.FileUtils.readFileToString(file, StandardCharsets.UTF_8);
                 String className = packageClassUtils.getFullyQualifiedClassName();
                 files_.add(new CharSequenceJavaFileObject(className, content));
             }

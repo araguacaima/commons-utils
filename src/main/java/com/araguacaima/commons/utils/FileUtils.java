@@ -39,6 +39,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -470,7 +471,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      */
     public String buildDatedFileName(String fileName) {
         return buildDatedFileName(fileName.substring(0, fileName.indexOf(".")),
-                fileName.substring(fileName.indexOf(".") + 1, fileName.length()));
+                fileName.substring(fileName.indexOf(".") + 1));
     }
 
     /**
@@ -1052,7 +1053,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         log.debug("file: " + file);
         log.debug("filepath: " + filepath);
         out = new FileOutputStream(file);
-        byte buf[] = new byte[1024];
+        byte[] buf = new byte[1024];
         int len;
         while ((len = stream.read(buf)) > 0) {
             out.write(buf, 0, len);
@@ -1790,7 +1791,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                             applyFilter = filteredEntries.size() == 0;
                             break;
                         case FILTER_TYPE_UNKNOWN:
-                            break;
                         default:
                             break;
                     }
@@ -1877,9 +1877,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     public String loadFile(String fileToLoad)
             throws IOException {
         StringBuilder extractedData = new StringBuilder();
-        FileReader fileDataReader = null;
-        try {
-            fileDataReader = new FileReader(fileToLoad);
+        try (FileReader fileDataReader = new FileReader(fileToLoad)) {
             BufferedReader br = new BufferedReader(fileDataReader);
             String readline;
             while ((readline = br.readLine()) != null) {
@@ -1889,10 +1887,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             return extractedData.toString();
         } catch (IOException e) {
             throw new IOException();
-        } finally {
-            if (null != fileDataReader) {
-                fileDataReader.close();
-            }
         }
     }
 
@@ -1959,7 +1953,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             StringBuilder builder = new StringBuilder();
             int index;
             while ((index = bufferd.read(buffer, 0, buffer.length)) > 0) {
-                builder.append(new String(buffer, 0, index, "UTF-8"));
+                builder.append(new String(buffer, 0, index, StandardCharsets.UTF_8));
             }
             return builder.toString();
         } finally {

@@ -131,7 +131,7 @@ public class JLocalEntry {
      */
     public void setLastReferredIndex(int index) {
         references.add(index);
-        lastReferredIndex = (lastReferredIndex > index) ? lastReferredIndex : index;
+        lastReferredIndex = Math.max(lastReferredIndex, index);
     }
 
     /**

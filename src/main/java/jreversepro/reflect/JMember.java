@@ -169,7 +169,7 @@ public class JMember {
      */
     public static String getStringRep(int rhsQualifier, boolean memberOnly) {
 
-        StringBuilder access = new StringBuilder("");
+        StringBuilder access = new StringBuilder();
         if ((rhsQualifier & ACC_PUBLIC) != 0) {
             access.append("public ");
         } else if ((rhsQualifier & ACC_PRIVATE) != 0) {

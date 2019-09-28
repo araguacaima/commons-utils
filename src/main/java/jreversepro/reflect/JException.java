@@ -157,11 +157,7 @@ public class JException {
      */
     public String getExceptionClass(int rhsHandlerPc) {
         String obj = excCatchTable.get(rhsHandlerPc);
-        if (obj == null) {
-            return null;
-        } else {
-            return obj;
-        }
+        return obj;
     }
 
     /**
@@ -189,7 +185,7 @@ public class JException {
      * @return Stringified form of the class.
      */
     public String toString() {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         Enumeration enum1 = Collections.enumeration(excCatchTable.keySet());
         Enumeration enum2 = Collections.enumeration(excCatchTable.values());
 

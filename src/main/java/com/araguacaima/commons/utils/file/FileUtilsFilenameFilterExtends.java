@@ -117,62 +117,42 @@ public class FileUtilsFilenameFilterExtends extends FileUtilsFilenameFilterImpl 
             String clazzName = clazz.getName();
             switch (filterType) {
                 case RESOURCE_FILE_FILTER_EQUALS:
-                    result = clazzName.equals(superClassCriteria.getName());
-                    break;
-                case RESOURCE_FILE_FILTER_MATCHES:
-                    result = clazzName.matches(superClassCriteria.getName());
-                    break;
-                case RESOURCE_FILE_FILTER_STARTS:
-                    result = clazzName.startsWith(superClassCriteria.getName());
-                    break;
-                case RESOURCE_FILE_FILTER_ENDS:
-                    result = clazzName.endsWith(superClassCriteria.getName());
-                    break;
-                case RESOURCE_FILE_FILTER_CONTAINS:
-                    result = clazzName.contains(superClassCriteria.getName());
-                    break;
-                case RESOURCE_FILE_FILTER_NOT_EQUAL:
-                    result = !clazzName.equals(superClassCriteria.getName());
-                    break;
-                case RESOURCE_FILE_FILTER_NOT_MATCHES:
-                    result = !clazzName.matches(superClassCriteria.getName());
-                    break;
-                case RESOURCE_FILE_FILTER_NOT_STARTS:
-                    result = !clazzName.startsWith(superClassCriteria.getName());
-                    break;
-                case RESOURCE_FILE_FILTER_NOT_ENDS:
-                    result = !clazzName.endsWith(superClassCriteria.getName());
-                    break;
-                case RESOURCE_FILE_FILTER_NOT_CONTAINS:
-                    result = !clazzName.contains(superClassCriteria.getName());
-                    break;
                 case RESOURCE_DIR_OR_FILE_FILTER_EQUALS:
                     result = clazzName.equals(superClassCriteria.getName());
                     break;
+                case RESOURCE_FILE_FILTER_MATCHES:
                 case RESOURCE_DIR_OR_FILE_FILTER_MATCHES:
                     result = clazzName.matches(superClassCriteria.getName());
                     break;
+                case RESOURCE_FILE_FILTER_STARTS:
                 case RESOURCE_DIR_OR_FILE_FILTER_STARTS:
                     result = clazzName.startsWith(superClassCriteria.getName());
                     break;
+                case RESOURCE_FILE_FILTER_ENDS:
                 case RESOURCE_DIR_OR_FILE_FILTER_ENDS:
                     result = clazzName.endsWith(superClassCriteria.getName());
                     break;
+                case RESOURCE_FILE_FILTER_CONTAINS:
                 case RESOURCE_DIR_OR_FILE_FILTER_CONTAINS:
                     result = clazzName.contains(superClassCriteria.getName());
                     break;
+                case RESOURCE_FILE_FILTER_NOT_EQUAL:
                 case RESOURCE_DIR_OR_FILE_FILTER_NOT_EQUAL:
                     result = !clazzName.equals(superClassCriteria.getName());
                     break;
+                case RESOURCE_FILE_FILTER_NOT_MATCHES:
                 case RESOURCE_DIR_OR_FILE_FILTER_NOT_MATCHES:
                     result = !clazzName.matches(superClassCriteria.getName());
                     break;
+                case RESOURCE_FILE_FILTER_NOT_STARTS:
                 case RESOURCE_DIR_OR_FILE_FILTER_NOT_STARTS:
                     result = !clazzName.startsWith(superClassCriteria.getName());
                     break;
+                case RESOURCE_FILE_FILTER_NOT_ENDS:
                 case RESOURCE_DIR_OR_FILE_FILTER_NOT_ENDS:
                     result = !clazzName.endsWith(superClassCriteria.getName());
                     break;
+                case RESOURCE_FILE_FILTER_NOT_CONTAINS:
                 case RESOURCE_DIR_OR_FILE_FILTER_NOT_CONTAINS:
                     result = !clazzName.contains(superClassCriteria.getName());
                     break;

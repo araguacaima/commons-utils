@@ -253,7 +253,7 @@ public class JarUtils {
         // fist get all directories,
         // then make those directory on the destination Path
         for (Enumeration<JarEntry> enums = jar.entries(); enums.hasMoreElements(); ) {
-            JarEntry entry = (JarEntry) enums.nextElement();
+            JarEntry entry = enums.nextElement();
 
             String fileName = destinationDir + File.separator + entry.getName();
             File f = new File(fileName);
@@ -266,7 +266,7 @@ public class JarUtils {
 
         //now create all files
         for (Enumeration<JarEntry> enums = jar.entries(); enums.hasMoreElements(); ) {
-            JarEntry entry = (JarEntry) enums.nextElement();
+            JarEntry entry = enums.nextElement();
 
             String fileName = destinationDir + File.separator + entry.getName();
             File f = new File(fileName);

@@ -15,8 +15,8 @@ public class Constants {
     public static final String API_BASE_NAME = "api.raml";
     public static final String COMPLETE_TEXT = "$$$COMPLETE$$$";
     public static final String APIS_COMMONS_COMMONS = "glapi-global-apis-commons-commons";
-    public static Locale LOCALE_EN = new Locale("en", "us");
-    public static Locale LOCALE_ES = new Locale("es", "es");
+    public static final Locale LOCALE_EN = new Locale("en", "us");
+    public static final Locale LOCALE_ES = new Locale("es", "es");
     public static Collection<Locale> LOCALES = new ArrayList<Locale>() {
         {
             add(LOCALE_EN);
@@ -73,7 +73,7 @@ public class Constants {
         QUERY_PARAM(""),
         PAYLOAD("payload");
 
-        String value;
+        final String value;
 
         SpecialQueryParams(String value) {
             this.value = value;
@@ -120,7 +120,7 @@ public class Constants {
         TEMPLATE("Template"),
         RAML("Raml");
 
-        String value;
+        final String value;
 
         JaxRsGenerationOrigin(String value) {
             this.value = value;
@@ -155,7 +155,7 @@ public class Constants {
         ASO("Aso"),
         APX("Apx");
 
-        String value;
+        final String value;
 
         JaxRsGenerationStyle(String value) {
             this.value = value;
@@ -186,12 +186,12 @@ public class Constants {
     }
 
     public enum RAML_VERSIONS {
-        RAML_1_0("1.0");
+        RAML_1_0();
 
-        String value;
+        final String value;
 
-        RAML_VERSIONS(String value) {
-            this.value = value;
+        RAML_VERSIONS() {
+            this.value = "1.0";
         }
 
         public static RAML_VERSIONS findValue(String value)
@@ -223,7 +223,7 @@ public class Constants {
         TBD("To Be Defined"),
         COMPLETE("Complete");
 
-        String value;
+        final String value;
 
         COMMONS_DESCRIPTIONS(String value) {
             this.value = value;

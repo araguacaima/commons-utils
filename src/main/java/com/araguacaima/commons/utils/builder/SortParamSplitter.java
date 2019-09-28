@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class SortParamSplitter implements SpecialParamSplitter {
 
-    private Constants.SpecialQueryParams specialQueryParam = Constants.SpecialQueryParams.SORT;
+    private final Constants.SpecialQueryParams specialQueryParam = Constants.SpecialQueryParams.SORT;
     private String completeParam;
     private String rightSideParam;
 

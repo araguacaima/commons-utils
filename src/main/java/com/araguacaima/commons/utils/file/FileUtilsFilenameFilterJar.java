@@ -175,8 +175,7 @@ public class FileUtilsFilenameFilterJar extends FileUtilsFilenameFilterImpl {
     }
 
     @Override
-    public Collection<URL> getResources(final ClassLoader classLoader)
-            throws IOException {
+    public Collection<URL> getResources(final ClassLoader classLoader) {
 
         final Collection<URL> result = new ArrayList<>();
 

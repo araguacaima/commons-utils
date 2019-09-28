@@ -50,10 +50,10 @@ public class ExtendableFiqlParser<T> {
     private static final String FORMAT_DATETIME = "yyyy-MM-dd HH:mm:ss:SSSSSS";
     private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
     private static final EnumsUtils enumsUtils = new EnumsUtils();
-    private static Map<String, ConditionType> operatorsMap;
+    private static final Map<String, ConditionType> operatorsMap;
 
     static {
-        operatorsMap = new HashMap<String, ConditionType>();
+        operatorsMap = new HashMap<>();
         operatorsMap.put(GT, ConditionType.GREATER_THAN);
         operatorsMap.put(GE, ConditionType.GREATER_OR_EQUALS);
         operatorsMap.put(LT, ConditionType.LESS_THAN);
@@ -77,7 +77,7 @@ public class ExtendableFiqlParser<T> {
     }
 
     public ExtendableFiqlParser(Class<T> tClass, ClassLoader classLoader, String packageBase) {
-        beanspector = new com.araguacaima.commons.utils.parser.Beanspector<T>(tClass, classLoader, packageBase);
+        beanspector = new com.araguacaima.commons.utils.parser.Beanspector<>(tClass, classLoader, packageBase);
     }
 
     public static void addOperator(final String operator, final ConditionType conditionType) {
@@ -119,8 +119,8 @@ public class ExtendableFiqlParser<T> {
     }
 
     private ASTNode<T> parseAndsOrsBrackets(final String expr) throws Exception {
-        final List<String> subexpressions = new ArrayList<String>();
-        final List<String> operators = new ArrayList<String>();
+        final List<String> subexpressions = new ArrayList<>();
+        final List<String> operators = new ArrayList<>();
         int level = 0;
         int lastIdx = 0;
         int idx;
@@ -332,7 +332,7 @@ public class ExtendableFiqlParser<T> {
 
     private class SubExpression implements ASTNode<T> {
         private final String operator;
-        private final List<ASTNode<T>> subnodes = new ArrayList<ASTNode<T>>();
+        private final List<ASTNode<T>> subnodes = new ArrayList<>();
 
         public SubExpression(final String operator) {
             this.operator = operator;
@@ -348,16 +348,16 @@ public class ExtendableFiqlParser<T> {
 
         @Override
         public String toString() {
-            String s = operator.equals(AND) ? "AND" : "OR";
-            s += ":[";
+            StringBuilder s = new StringBuilder(operator.equals(AND) ? "AND" : "OR");
+            s.append(":[");
             for (int i = 0; i < subnodes.size(); i++) {
-                s += subnodes.get(i);
+                s.append(subnodes.get(i));
                 if (i < subnodes.size() - 1) {
-                    s += ", ";
+                    s.append(", ");
                 }
             }
-            s += "]";
-            return s;
+            s.append("]");
+            return s.toString();
         }
 
         @Override
@@ -371,26 +371,26 @@ public class ExtendableFiqlParser<T> {
             }
             if (!hasSubtree && AND.equals(operator)) {
                 try {
-                    final Map<String, ConditionType> map = new HashMap<String, ConditionType>();
+                    final Map<String, ConditionType> map = new HashMap<>();
                     beanspector.instantiate(true);
                     for (final ASTNode<T> node : subnodes) {
                         final Comparison comp = (Comparison) node;
                         map.put(comp.getName(), operatorsMap.get(comp.getOperator()));
                         beanspector.setValue(comp.getName(), comp.getValue());
                     }
-                    return new ExtendedSearchCondition<T>(map, beanspector.getBean());
+                    return new ExtendedSearchCondition<>(map, beanspector.getBean());
                 } catch (final Throwable e) {
                     throw new RuntimeException(e);
                 }
             } else {
-                final List<SearchCondition<T>> scNodes = new ArrayList<SearchCondition<T>>();
+                final List<SearchCondition<T>> scNodes = new ArrayList<>();
                 for (final ASTNode<T> node : subnodes) {
                     scNodes.add(node.build(packageBase));
                 }
                 if (OR.equals(operator)) {
-                    return new OrSearchCondition<T>(scNodes);
+                    return new OrSearchCondition<>(scNodes);
                 } else {
-                    return new AndSearchCondition<T>(scNodes);
+                    return new AndSearchCondition<>(scNodes);
                 }
             }
         }
@@ -428,7 +428,7 @@ public class ExtendableFiqlParser<T> {
         public SearchCondition<T> build(String packageBase) throws Exception {
             final T cond = createTemplate(name, value);
             final ConditionType ct = operatorsMap.get(operator);
-            return new ExtendedSearchCondition<T>(ct, cond, packageBase);
+            return new ExtendedSearchCondition<>(ct, cond, packageBase);
         }
 
         private T createTemplate(final String setter, final Object val) throws Exception {

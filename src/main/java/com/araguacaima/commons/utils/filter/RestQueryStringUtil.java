@@ -40,9 +40,9 @@ public class RestQueryStringUtil {
         this.packageBase = packageBase;
     }
 
-    public <T> T createNewBeanAndFillItByExtractingFiqlFilter(String queryString, Class<T> dtoExtClass) throws IllegalArgumentException, IllegalAccessException, InstantiationException {
+    public <T> T createNewBeanAndFillItByExtractingFiqlFilter(String queryString, Class<T> dtoExtClass) throws IllegalArgumentException {
 
-        ExtendableFiqlParser<T> parser = new ExtendableFiqlParser<T>(dtoExtClass, classLoader, packageBase);
+        ExtendableFiqlParser<T> parser = new ExtendableFiqlParser<>(dtoExtClass, classLoader, packageBase);
         try {
             if (StringUtils.isNotBlank(queryString)) {
                 Map<Constants.SpecialQueryParams, Collection<SpecialParamSplitter>> specialParams = SpecialParamSplitterBuilder.build(queryString);

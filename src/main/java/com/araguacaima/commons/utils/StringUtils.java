@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.Clob;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -98,9 +99,9 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     public static final String TRUE = "true";
     public static final String UNDERSCORE = "_";
     public static final int UNICODE_HEX_LENGTH = 4;
-    private final String DEFAULT_STOP_FILTERS[] = {"junit.framework.TestCase.runTest",
+    private final String[] DEFAULT_STOP_FILTERS = {"junit.framework.TestCase.runTest",
             "junit.framework.TestSuite.runTest"};
-    private final String DEFAULT_TRACE_FILTERS[] = {"junit.framework.TestCase",
+    private final String[] DEFAULT_TRACE_FILTERS = {"junit.framework.TestCase",
             "junit.framework.TestResult",
             "junit.framework.TestSuite",
             "junit.framework.Assert.",
@@ -277,7 +278,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         StringBuilder htmlUnicode = new StringBuilder();
         char[] characters = input.toCharArray();
         for (char character : characters) {
-            htmlUnicode.append("&#").append(Integer.toString((int) character)).append(";");
+            htmlUnicode.append("&#").append(Integer.toString(character)).append(";");
         }
         return htmlUnicode.toString();
     }
@@ -320,9 +321,8 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         return code;
     }
 
-    public String decodeUTF8(byte[] bytes)
-            throws UnsupportedEncodingException {
-        return new String(bytes, "UTF-8");
+    public String decodeUTF8(byte[] bytes) {
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     public String deleteAll(String input, Collection tokens) {
@@ -374,20 +374,19 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     }
 
     public String enclose(String input, String encloseIn, String encloseOut) {
-        return (new StringBuffer().append(encloseIn).append(input).append(encloseOut)).toString();
+        return encloseIn + input + encloseOut;
     }
 
     public String encloseOnlyPrefix(String input, String enclosePrefix) {
-        return (new StringBuffer().append(enclosePrefix).append(input)).toString();
+        return enclosePrefix + input;
     }
 
     public String encloseOnlySuffix(String input, String encloseSuffix) {
-        return (new StringBuffer().append(input).append(encloseSuffix)).toString();
+        return input + encloseSuffix;
     }
 
-    public byte[] encodeUTF8(String string)
-            throws UnsupportedEncodingException {
-        return string.getBytes("UTF-8");
+    public byte[] encodeUTF8(String string) {
+        return string.getBytes(StandardCharsets.UTF_8);
     }
 
     public String filterStack(String stack) {
@@ -1069,7 +1068,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
             delimitador = "";
         }
         // StringBuilder result = new StringBuilder("");
-        StringBuilder result = new StringBuilder("");
+        StringBuilder result = new StringBuilder();
 
         iterateElements(elementos, delimitador, prev, post, result);
         return result.toString();
@@ -1188,11 +1187,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     public String splitWords(String input, boolean forceUncapitalized) {
         String[] underScoredInputList = input.split("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])");
-        String underScoredInput = StringUtils.EMPTY;
+        StringBuilder underScoredInput = new StringBuilder(StringUtils.EMPTY);
         for (String str : underScoredInputList) {
-            underScoredInput = underScoredInput + " " + (forceUncapitalized ? StringUtils.uncapitalize(str) : str);
+            underScoredInput.append(" ").append(forceUncapitalized ? StringUtils.uncapitalize(str) : str);
         }
-        return underScoredInput;
+        return underScoredInput.toString();
     }
 
     public String toUnderscore(String input) {

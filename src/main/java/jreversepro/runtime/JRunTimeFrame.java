@@ -1017,7 +1017,7 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
                     statement = localVar + " -= " + (-constant);
                     precedence = L_EVAL;
                 } else {
-                    statement = localVar + " += " + String.valueOf(constant);
+                    statement = localVar + " += " + constant;
                     precedence = L_EVAL;
                 }
                 break;
@@ -1244,7 +1244,8 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
             case 167: // goto
                 //No Change to stack
                 break;
-            case 168: { // jsr
+            case 168:
+            case 169: { // jsr
                 // Address of the immediately following instruction
                 /*
                  myStack.push(String.valueOf(thisIns.index +3) ,
@@ -1252,11 +1253,8 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
                  */
                 // Represents finally
                 break;
-            }
-            case 169: { // ret
-                // No change
-                break;
-            }
+            }// ret
+// No change
             case 170: // tableswitch
             case 171: // lookupswitch
             {
@@ -1552,7 +1550,9 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
                 precedence = VALUE;
                 break;
             }
-            case 196: { //wide  -doesn't affect stack
+            case 196:
+            case 201:
+            case 200: { //wide  -doesn't affect stack
                 // wide ignore it
                 break;
             }
@@ -1561,7 +1561,7 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
 
                 // Dimensions. Max 255.
                 int dimensions = thisIns.getArgUnsignedByte(2);
-                String strIndex[] = new String[dimensions];
+                String[] strIndex = new String[dimensions];
 
                 // ClassType
                 String classType = Helper.getJavaDataType(cpInfo.getClassName(offset), false);
@@ -1603,15 +1603,10 @@ public class JRunTimeFrame implements KeyWords, OperandConstants, BranchConstant
                 statement = OPR_NE;
                 precedence = L_LOGNEQ;
                 break;
-            }
-            case 200: { //goto_w
-                //No Change to stack
-                break;
-            }
-            case 201: { //jsr_w
-                // Represents finally
-                break;
-            }
+            }//goto_w
+//No Change to stack
+//jsr_w
+// Represents finally
         }// End of switch
     }
 

@@ -268,7 +268,7 @@ public class NumberUtils {
         if (haveDecimal) {
             parteEntera = number.substring(0, indexOfDot);
             //            log.debug("parteEntera = " + parteEntera);
-            parteDecimal = number.substring(indexOfDot + 1, number.length());
+            parteDecimal = number.substring(indexOfDot + 1);
             //            log.debug("haveDecimal = " + haveDecimal);
         } else {
             parteEntera = number;
@@ -280,7 +280,7 @@ public class NumberUtils {
         StringBuilder result = new StringBuilder();
         //        log.debug("number = " + number);
         if (isNegativo) {
-            parteEntera = parteEntera.substring(1, parteEntera.length());
+            parteEntera = parteEntera.substring(1);
         }
 
         int length = parteEntera.length();
@@ -296,7 +296,7 @@ public class NumberUtils {
         }
 
         //        log.debug("result = " + result);
-        int numberDecimales = decimalDigits > parteDecimal.length() ? parteDecimal.length() : decimalDigits;
+        int numberDecimales = Math.min(decimalDigits, parteDecimal.length());
         //        log.debug("numberDecimales = " + numberDecimales);
         //        log.debug("haveDecimal = " + haveDecimal);
         // TODO: Completar con ceros si number.lenght() > decimalDigits
@@ -594,7 +594,6 @@ public class NumberUtils {
     }
 
     // TODO: Definir una RegExp para manejarlo igual que el metodo isAnInteger(...)
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public boolean isANumber(String numberWannabe) {
         try {
             Double.parseDouble(numberWannabe);

@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class ShowSensitiveDataParamSplitter implements SpecialParamSplitter {
 
-    private Constants.SpecialQueryParams specialQueryParam = Constants.SpecialQueryParams.SHOW_SENSITIVE_DATA;
+    private final Constants.SpecialQueryParams specialQueryParam = Constants.SpecialQueryParams.SHOW_SENSITIVE_DATA;
     private String completeParam;
     private String rightSideParam;
 

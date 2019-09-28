@@ -94,7 +94,7 @@ public class CircularLinkedList {
         numberOfElements++;
     }
 
-    class ListNode {
+    static class ListNode {
         public Object data;
         public ListNode next;
 

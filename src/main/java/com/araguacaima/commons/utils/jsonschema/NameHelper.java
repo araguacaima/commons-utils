@@ -27,7 +27,7 @@ import static org.apache.commons.lang3.StringUtils.*;
 public class NameHelper extends org.jsonschema2pojo.util.NameHelper {
 
     private final boolean keepClassesNamesUnaltered;
-    private GenerationConfig generationConfig;
+    private final GenerationConfig generationConfig;
 
     public NameHelper(GenerationConfig generationConfig, boolean keepClassesNamesUnaltered) {
         super(generationConfig);

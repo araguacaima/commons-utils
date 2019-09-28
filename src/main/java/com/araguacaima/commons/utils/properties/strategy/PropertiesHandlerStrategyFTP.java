@@ -40,15 +40,15 @@ public class PropertiesHandlerStrategyFTP extends PropertiesHandlerStrategy {
     private static final String PROPERTIES_HANDLER_STRATEGY_NAME = PropertiesHandlerStrategy
             .PROPERTIES_HANDLER_STRATEGY_FTP;
     @Value("${ftp.local.file.path}")
-    private String ftpLocalFilePath = StringUtils.EMPTY;
+    private final String ftpLocalFilePath = StringUtils.EMPTY;
     @Value("${ftp.remote.file.path}")
-    private String ftpRemoteFilePath = StringUtils.EMPTY;
+    private final String ftpRemoteFilePath = StringUtils.EMPTY;
     @Value("${ftp.server.domain}")
-    private String ftpServerDomain = StringUtils.EMPTY;
+    private final String ftpServerDomain = StringUtils.EMPTY;
     @Value("${ftp.server.domain.login}")
-    private String ftpServerDomainLogin = StringUtils.EMPTY;
+    private final String ftpServerDomainLogin = StringUtils.EMPTY;
     @Value("${ftp.server.domain.password}")
-    private String ftpServerDomainPassword = StringUtils.EMPTY;
+    private final String ftpServerDomainPassword = StringUtils.EMPTY;
     private PropertiesHandlerStrategyInterface next;
 
     public PropertiesHandlerStrategyInterface getNext() {

@@ -144,7 +144,6 @@ public class EnumsUtils<T> {
         }
     }
 
-    @SuppressWarnings("JavaReflectionMemberAccess")
     public String getStringValue(Enum anEnum) {
         if (Enum.class.isAssignableFrom(anEnum.getClass())) {
             try {

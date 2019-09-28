@@ -103,7 +103,7 @@ public class DataTypesConverter {
         }
     }
 
-    public class DataTypeView {
+    public static class DataTypeView {
         public static final String COMPLEX_TYPE = "complex";
         private boolean complexDataType;
         private String dataType;

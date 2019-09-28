@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class ObjectRule extends org.jsonschema2pojo.rules.ObjectRule {
 
-    private RuleFactory ruleFactory;
+    private final RuleFactory ruleFactory;
 
     protected ObjectRule(RuleFactory ruleFactory, ParcelableHelper parcelableHelper, ReflectionHelper reflectionHelper) {
         super(ruleFactory, parcelableHelper, reflectionHelper);

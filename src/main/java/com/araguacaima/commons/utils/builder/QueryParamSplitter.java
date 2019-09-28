@@ -4,7 +4,7 @@ import com.araguacaima.commons.utils.Constants;
 
 public class QueryParamSplitter implements SpecialParamSplitter {
 
-    private Constants.SpecialQueryParams specialQueryParam = Constants.SpecialQueryParams.QUERY_PARAM;
+    private final Constants.SpecialQueryParams specialQueryParam = Constants.SpecialQueryParams.QUERY_PARAM;
     private String completeParam;
     private String rightSideParam;
     private String leftSideParam;

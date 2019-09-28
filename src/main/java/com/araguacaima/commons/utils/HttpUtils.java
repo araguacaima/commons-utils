@@ -251,7 +251,7 @@ public class HttpUtils {
                 httpClient.executeMethod(httpMethod);
                 return httpMethod.getResponseBodyAsString();
             } catch (final Exception e) {
-                throw new Exception("Status Code: " + String.valueOf(httpMethod.getStatusCode()) + " | " + e
+                throw new Exception("Status Code: " + httpMethod.getStatusCode() + " | " + e
                         .getMessage());
             } finally {
                 httpMethod.releaseConnection();
@@ -309,7 +309,7 @@ public class HttpUtils {
                 IOUtils.copy(httpMethod.getResponseBodyAsStream(), outputStream);
                 return new ByteArrayInputStream(outputStream.toByteArray());
             } catch (final Exception e) {
-                throw new Exception("Status Code: " + String.valueOf(httpMethod.getStatusCode()) + " | " + e
+                throw new Exception("Status Code: " + httpMethod.getStatusCode() + " | " + e
                         .getMessage());
             } finally {
                 // release connection

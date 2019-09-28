@@ -191,8 +191,7 @@ public class FileUtilsFilenameFilterPackage extends FileUtilsFilenameFilterImpl 
     }
 
     @Override
-    public Collection<URL> getResources(final ClassLoader classLoader)
-            throws IOException {
+    public Collection<URL> getResources(final ClassLoader classLoader) {
         final Collection<URL> result = new ArrayList<>();
         packageCriteriaCollection.add(packageCriteria);
         IterableUtils.forEach(packageCriteriaCollection, packageCriteria -> {
@@ -205,7 +204,7 @@ public class FileUtilsFilenameFilterPackage extends FileUtilsFilenameFilterImpl 
                     File transformedClassPath = null;
                     try {
                         if (url != null) {
-                            transformedClassPath = new File((URL.class).isInstance(url) ? url.getFile() : url
+                            transformedClassPath = new File(url instanceof URL ? url.getFile() : url
                                     .toString());
                             String fileNameDecoded = URLDecoder.decode(transformedClassPath.getPath(), "UTF-8");
                             transformedClassPath = new File(fileNameDecoded);
@@ -238,7 +237,7 @@ public class FileUtilsFilenameFilterPackage extends FileUtilsFilenameFilterImpl 
                 IterableUtils.forEach(resourcesPath, url -> {
                     File transformedClassPath;
                     try {
-                        transformedClassPath = new File((URL.class).isInstance(url) ? url.getFile() : url.toString());
+                        transformedClassPath = new File(url instanceof URL ? url.getFile() : url.toString());
                         String fileNameDecoded = URLDecoder.decode(transformedClassPath.getPath(), "UTF-8");
                         transformedClassPath = new File(fileNameDecoded);
                         final NotNullsLinkedHashSet<File> files = fileUtils.listFiles(transformedClassPath,

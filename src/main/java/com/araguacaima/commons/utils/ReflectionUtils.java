@@ -44,11 +44,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
-
-import static java.nio.charset.Charset.forName;
 
 @SuppressWarnings({"unchecked", "UnusedReturnValue"})
 @Component
@@ -116,7 +115,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     private static final FieldCompare FIELD_COMPARE = new FieldCompare();
     private static final DataTypesConverter dataTypesConverter = new DataTypesConverter();
     private static final Logger log = LoggerFactory.getLogger(ReflectionUtils.class);
-    private static EnhancedRandomBuilder randomBuilder;
+    private static final EnhancedRandomBuilder randomBuilder;
 
     static {
         final StandardToStringStyle tiesStyle = new StandardToStringStyle();
@@ -210,7 +209,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         randomBuilder = EnhancedRandomBuilder.aNewEnhancedRandomBuilder()
                 .seed(123L)
                 .objectPoolSize(100)
-                .charset(forName("UTF-8"))
+                .charset(StandardCharsets.UTF_8)
                 .timeRange(timeLower, timeUpper)
                 .dateRange(dateLower, dateUpper)
                 .stringLengthRange(5, 20)
@@ -343,7 +342,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return generics;
     }
 
-    @SuppressWarnings("JavaReflectionMemberAccess")
     public static Class extractGenerics(Field field) {
         Class clazz;
         final Type genericType = field.getGenericType();
@@ -825,7 +823,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return requestMap;
     }
 
-    @SuppressWarnings({"unchecked", "JavaReflectionMemberAccess"})
+    @SuppressWarnings({"unchecked"})
     public Object changeAnnotationValue(Annotation annotation, String key, Object newValue) {
         InvocationHandler handler = Proxy.getInvocationHandler(annotation);
         Field f;
@@ -1084,7 +1082,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
 
         if (includeParent) {
             Collection<Field> fields_ = getAllFieldsIncludingParents(object);
-            fields = fields_.toArray(new Field[fields_.size()]);
+            fields = fields_.toArray(new Field[0]);
         } else {
             fields = object.getClass().getDeclaredFields();
         }
@@ -1393,14 +1391,13 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                                                 .append(
                                                         StringUtils.BLANK_SPACE).append(StringUtils.isNotBlank(indentation)
                                                 && !isBasic(
-                                                value.getClass()) ? ((new StringBuffer()).append(StringUtils
-                                                .NEW_LINE)).toString() : StringUtils.EMPTY).append(
+                                                value.getClass()) ? String.valueOf(StringUtils
+                                                .NEW_LINE) : StringUtils.EMPTY).append(
                                                 formatObjectValues(value,
                                                         false,
                                                         false,
-                                                        !isBasic(value.getClass()) ? ((new StringBuffer()).append(
-                                                                indentation).append(StringUtils.TAB).append
-                                                                (StringUtils.TAB)).toString() : StringUtils.EMPTY,
+                                                        !isBasic(value.getClass()) ? indentation + StringUtils.TAB +
+                                                                StringUtils.TAB : StringUtils.EMPTY,
                                                         false)).append(StringUtils.NEW_LINE);
                                     } catch (Exception e) {
                                         objectValuesFormatted.append("[").append(i).append("]").append(StringUtils
@@ -1417,16 +1414,14 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                                         objectValuesFormatted.append(fieldName).append(StringUtils.BLANK_SPACE).append(
                                                 "(").append(getSimpleClassName(value.getClass())).append(")").append(
                                                 StringUtils.BLANK_SPACE).append(StringUtils.EQUAL_SYMBOL).append(
-                                                StringUtils.BLANK_SPACE).append(!isBasic(value.getClass()) ? ((new
-                                                StringBuffer()).append(
-                                                StringUtils.NEW_LINE)).toString() : StringUtils.EMPTY).append(value
+                                                StringUtils.BLANK_SPACE).append(!isBasic(value.getClass()) ? String.valueOf(StringUtils.NEW_LINE) : StringUtils.EMPTY).append(value
                                                 != object ? formatObjectValues(
                                                 value,
                                                 false,
                                                 false,
-                                                !isBasic(value.getClass()) ? ((new StringBuffer()).append(StringUtils
-                                                        .TAB).append(
-                                                        StringUtils.TAB)).toString() : StringUtils.EMPTY,
+                                                !isBasic(value.getClass()) ? String.valueOf(StringUtils
+                                                        .TAB) +
+                                                        StringUtils.TAB : StringUtils.EMPTY,
                                                 false) : toString(object)).append(StringUtils.NEW_LINE);
                                     } catch (IllegalAccessException | InvocationTargetException e) {
                                         Object valueOfField = UNKNOWN_VALUE;
@@ -1982,7 +1977,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T mergeObjects(T origin, T target)
             throws IllegalAccessException, InstantiationException {
         return mergeObjects(origin, target, false, false);

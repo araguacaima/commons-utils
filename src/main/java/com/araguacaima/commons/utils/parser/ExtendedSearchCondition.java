@@ -68,7 +68,7 @@ import java.util.*;
  */
 public class ExtendedSearchCondition<T> implements SearchCondition<T> {
 
-    private static Set<ConditionType> supportedTypes = new HashSet<>();
+    private static final Set<ConditionType> supportedTypes = new HashSet<>();
 
     static {
         supportedTypes.add(ConditionType.EQUALS);
@@ -166,9 +166,9 @@ public class ExtendedSearchCondition<T> implements SearchCondition<T> {
 
     private List<SearchCondition<T>> createConditions(final Map<String, ConditionType> getters2operators, final ConditionType sharedType) {
         if (isPrimitive(condition)) {
-            return Collections.singletonList(new PrimitiveSearchCondition<T>(null, condition, sharedType, condition));
+            return Collections.singletonList(new PrimitiveSearchCondition<>(null, condition, sharedType, condition));
         } else {
-            final List<SearchCondition<T>> list = new ArrayList<SearchCondition<T>>();
+            final List<SearchCondition<T>> list = new ArrayList<>();
             final Map<String, Object> get2val = getGettersAndValues(condition);
 
             for (final String getter : get2val.keySet()) {
@@ -176,11 +176,7 @@ public class ExtendedSearchCondition<T> implements SearchCondition<T> {
                 if (getters2operators != null) {
                     conditionType = getters2operators.get(getter);
                     if (conditionType == null) {
-                        conditionType = find(getters2operators, new Predicate() {
-                            public boolean evaluate(final Object o) {
-                                return o != null && ((String) o).startsWith(getter + ".");
-                            }
-                        });
+                        conditionType = find(getters2operators, o -> o != null && ((String) o).startsWith(getter + "."));
                     }
                 }
                 final ConditionType ct = getters2operators == null ? sharedType : conditionType;
@@ -191,7 +187,7 @@ public class ExtendedSearchCondition<T> implements SearchCondition<T> {
                 if (rval == null) {
                     continue;
                 }
-                list.add(new PrimitiveSearchCondition<T>(getter, rval, ct, condition));
+                list.add(new PrimitiveSearchCondition<>(getter, rval, ct, condition));
 
             }
             if (list.isEmpty()) {
@@ -293,15 +289,15 @@ public class ExtendedSearchCondition<T> implements SearchCondition<T> {
      * returned during one-pass invocation. Method isMet() will use its keys to
      * introspect getters of passed pojo object, and values from map in
      * comparison.
-     *
+     * @param T condition
      * @return template (condition) object getters mapped to their non-null
      * values
      */
     private Map<String, Object> getGettersAndValues(final T condition) {
 
-        final Map<String, Object> getters2values = new HashMap<String, Object>();
+        final Map<String, Object> getters2values = new HashMap<>();
         final Beanspector<T>
-                beanspector = new Beanspector<T>(condition, packageBase);
+                beanspector = new Beanspector<>(condition, packageBase);
         for (final String getter : beanspector.getGettersNames()) {
             final Object value = getValue(beanspector, getter, condition);
             getters2values.put(getter, value);
@@ -324,7 +320,7 @@ public class ExtendedSearchCondition<T> implements SearchCondition<T> {
     }
 
     public List<T> findAll(final Collection<T> pojos) {
-        final List<T> result = new ArrayList<T>();
+        final List<T> result = new ArrayList<>();
         for (final T pojo : pojos) {
             if (isMet(pojo)) {
                 result.add(pojo);

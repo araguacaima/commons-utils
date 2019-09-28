@@ -120,11 +120,10 @@ public class JDecompiler implements BranchConstants, KeyWords, JReverseEngineer,
      *
      * @throws RevEngineException   Encountered when the decompiler could not
      *                              decompile the code. Specific to decompiling engine.
-     * @throws IOException          thrown in case of a generic i/o error.
      * @throws ClassParserException Thrown in case of constantpool reference.
      */
     public void genCode()
-            throws RevEngineException, IOException, ClassParserException {
+            throws RevEngineException, ClassParserException {
 
         loadSymbolTable();
 

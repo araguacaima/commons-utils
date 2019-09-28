@@ -105,7 +105,7 @@ public class StackException extends ApplicationException implements Collection, 
         return detailedMsgs.toArray();
     }
 
-    public Object[] toArray(Object a[]) { /* Exception */
+    public Object[] toArray(Object[] a) { /* Exception */
         return detailedMsgs.toArray(a);
     }
 

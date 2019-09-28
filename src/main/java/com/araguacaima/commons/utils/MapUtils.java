@@ -195,7 +195,6 @@ public class MapUtils {
             if (key != null) {
                 String value = map.get(key);
                 if (value != null) {
-                    value = String.valueOf(value);
                 } else {
                     value = StringUtils.EMPTY;
                 }

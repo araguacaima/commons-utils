@@ -14,9 +14,9 @@ public enum HttpMethodEnum {
     DELETE("DELETE"),
     HEAD("HEAD");
 
-    private String value;
+    private final String value;
 
-    private HttpMethodEnum(String value) {
+    HttpMethodEnum(String value) {
         this.value = value.trim();
     }
 
@@ -46,8 +46,7 @@ public enum HttpMethodEnum {
     }
 
     public static HttpMethodEnum[] all() {
-        HttpMethodEnum[] all = new HttpMethodEnum[]{GET, POST, PATCH, PUT};
-        return all;
+        return new HttpMethodEnum[]{GET, POST, PATCH, PUT};
     }
 
     public String value() {

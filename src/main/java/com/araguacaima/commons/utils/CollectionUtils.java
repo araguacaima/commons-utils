@@ -84,8 +84,8 @@ public class CollectionUtils {
             if (input != null) {
                 try {
                     return propertyUtilsBean.getSimpleProperty(input, fieldName);
-                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException ignored) {
-                    ignored.printStackTrace();
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    e.printStackTrace();
                 }
             }
             return null;

@@ -507,7 +507,7 @@ public class JInstruction implements JJvmOpcodes, KeyWords {
      * @return String representation of JInstruction.
      */
     public String toString() {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         sb.append(" ").append(index).append(": ").append(insName);
         if (args == null) {
             return sb.toString();

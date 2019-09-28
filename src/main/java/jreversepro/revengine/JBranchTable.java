@@ -420,7 +420,7 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      * @return Stringified form of the class
      */
     public String toString() {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         sb.append(branchesToString());
         int size = gotos.size();
         if (size > 0) {
@@ -446,7 +446,7 @@ public class JBranchTable implements BranchConstants, JJvmOpcodes {
      * @return Returns a Stringifed version of the branches alone.
      */
     public String branchesToString() {
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         int size = branches.size();
         if (size > 0) {
             sb.append("Branches:\n");

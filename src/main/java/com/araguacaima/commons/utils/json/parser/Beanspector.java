@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
 /**
  * Bean introspection utility.
  */
-@SuppressWarnings("Annotator")
 public class Beanspector<T> {
 
     private final Map<String, Field> fields = new HashMap<>();
@@ -52,7 +51,6 @@ public class Beanspector<T> {
         init();
     }
 
-    @SuppressWarnings("unchecked")
     private void init() {
         fill(tclass, tobj, getters, setters, fields);
     }
@@ -121,7 +119,7 @@ public class Beanspector<T> {
             throws Exception {
         final String[] tokens = getterOrSetterName.split("\\.");
         if (tokens.length > 1) {
-            final String token = tokens[0].replaceFirst("\\[.*?\\]", StringUtils.EMPTY);
+            final String token = tokens[0].replaceFirst("\\[.*?]", StringUtils.EMPTY);
             Class<?> accessorType = getAccessorType(token);
             Class clazz = ReflectionUtils.extractGenerics(accessorType);
             if (accessorType != null) {
@@ -149,8 +147,7 @@ public class Beanspector<T> {
         }
     }
 
-    private Class<?> getAccessorType(final Class clazz, final String getterOrSetterName)
-            throws Exception {
+    private Class<?> getAccessorType(final Class clazz, final String getterOrSetterName) {
         final Map<String, Method> getters = new HashMap<>();
         final Map<String, Method> setters = new HashMap<>();
         final Map<String, Field> fields = new HashMap<>();
@@ -197,7 +194,7 @@ public class Beanspector<T> {
                                             final Map<String, Field> fields) {
 
         String[] splittedGetterOrSetterName = getterOrSetterName.split("<");
-        String property = splittedGetterOrSetterName[0].replaceFirst("\\[.*?\\]", StringUtils.EMPTY);
+        String property = splittedGetterOrSetterName[0].replaceFirst("\\[.*?]", StringUtils.EMPTY);
         if (splittedGetterOrSetterName.length > 1) {
             String[] genericTokens = splittedGetterOrSetterName[1].split(">");
             final String generic = genericTokens[0];

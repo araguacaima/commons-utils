@@ -538,7 +538,7 @@ public class JClassParser implements AppConstants {
             throws IOException {
         float floatValue = mDis.readFloat();
 
-        mCpInfo.addFloatEntry(String.valueOf(floatValue) + "f");
+        mCpInfo.addFloatEntry(floatValue + "f");
     }
 
     /**
@@ -553,7 +553,7 @@ public class JClassParser implements AppConstants {
 
         long longValue = mDis.readLong();
 
-        mCpInfo.addLongEntry(String.valueOf(longValue) + "L");
+        mCpInfo.addLongEntry(longValue + "L");
         mCpInfo.addNullEntry();
     }
 

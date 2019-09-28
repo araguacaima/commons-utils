@@ -31,8 +31,8 @@ class Beanspector<T> {
 
     private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
     private static final EnumsUtils enumsUtils = new EnumsUtils();
-    private final Map<String, Method> getters = new HashMap<String, Method>();
-    private final Map<String, Method> setters = new HashMap<String, Method>();
+    private final Map<String, Method> getters = new HashMap<>();
+    private final Map<String, Method> setters = new HashMap<>();
     private final ClassLoader tclassloader;
     private Class<T> tclass;
     private T tobj;
@@ -66,7 +66,6 @@ class Beanspector<T> {
         init();
     }
 
-    @SuppressWarnings("unchecked")
     private void init() {
         fill(tclass, tobj, getters, setters);
     }
@@ -86,7 +85,7 @@ class Beanspector<T> {
                 }
             }
             // check type equality for getter-setter pairs
-            final Set<String> pairs = new HashSet<String>(getters.keySet());
+            final Set<String> pairs = new HashSet<>(getters.keySet());
             pairs.retainAll(setters.keySet());
             for (final String accessor : pairs) {
                 final Class<?> getterClass = getters.get(accessor).getReturnType();
@@ -126,8 +125,8 @@ class Beanspector<T> {
     }
 
     private Class<?> getAccessorType(final Class clazz, final String getterOrSetterName) throws Exception {
-        final Map<String, Method> getters = new HashMap<String, Method>();
-        final Map<String, Method> setters = new HashMap<String, Method>();
+        final Map<String, Method> getters = new HashMap<>();
+        final Map<String, Method> setters = new HashMap<>();
         fill(clazz, null, getters, setters);
         final String[] tokens = getterOrSetterName.split("\\.");
         if (tokens.length > 1) {
@@ -154,12 +153,7 @@ class Beanspector<T> {
             Class<?> clazz = getTopLevelAccesorType(property, getters, setters);
             Reflections reflections = new Reflections(clazz.getPackage().getName(), tclassloader);
             Set<? extends Class<?>> classes = reflections.getSubTypesOf(clazz);
-            return (Class) CollectionUtils.find(classes, new Predicate() {
-                @Override
-                public boolean evaluate(Object object) {
-                    return ((Class) object).getSimpleName().equals(StringUtils.capitalize(generic));
-                }
-            });
+            return (Class) CollectionUtils.find(classes, (Predicate) object -> ((Class) object).getSimpleName().equals(StringUtils.capitalize(generic)));
         }
 
         Method m = getters.get(property);
@@ -185,7 +179,7 @@ class Beanspector<T> {
         }
     }
 
-    public Beanspector<T> swap(final T newobject) throws Exception {
+    public Beanspector<T> swap(final T newobject) {
         if (newobject == null) {
             throw new IllegalArgumentException("newobject is null");
         }
@@ -227,8 +221,6 @@ class Beanspector<T> {
             return getter.invoke(tobj);
         } catch (final InvocationTargetException e) {
             throw e.getCause();
-        } catch (final Exception e) {
-            throw e;
         }
     }
 
@@ -279,12 +271,7 @@ class Beanspector<T> {
                         Reflections reflections = new Reflections(packageBase, tclassloader);
                         Set<? extends Class<?>> classes = reflections.getSubTypesOf(propertyType);
                         final String finalGeneric = generic;
-                        Class<?> propertyType_ = (Class) CollectionUtils.find(classes, new Predicate() {
-                            @Override
-                            public boolean evaluate(Object object) {
-                                return ((Class) object).getSimpleName().equals(StringUtils.capitalize(finalGeneric));
-                            }
-                        });
+                        Class<?> propertyType_ = (Class) CollectionUtils.find(classes, (Predicate) object -> ((Class) object).getSimpleName().equals(StringUtils.capitalize(finalGeneric)));
                         if (propertyType_ != null) {
                             propertyType = propertyType_;
                             newInstance = propertyType_.newInstance();
@@ -316,12 +303,7 @@ class Beanspector<T> {
                             Reflections reflections = new Reflections(propertyType.getPackage().getName(), tclassloader);
                             Set<? extends Class<?>> classes = reflections.getSubTypesOf(propertyType);
                             final String finalGeneric = generic;
-                            propertyType = (Class) CollectionUtils.find(classes, new Predicate() {
-                                @Override
-                                public boolean evaluate(Object object) {
-                                    return ((Class) object).getSimpleName().equals(StringUtils.capitalize(finalGeneric));
-                                }
-                            });
+                            propertyType = (Class) CollectionUtils.find(classes, (Predicate) object -> ((Class) object).getSimpleName().equals(StringUtils.capitalize(finalGeneric)));
                         }
                         newInstance = propertyType.newInstance();
                     }
@@ -345,12 +327,7 @@ class Beanspector<T> {
                             Reflections reflections = new Reflections(propertyType_.getPackage().getName(), tclassloader);
                             Set<? extends Class<?>> classes = reflections.getSubTypesOf(propertyType_);
                             final String finalGeneric = generic;
-                            propertyType = (Class) CollectionUtils.find(classes, new Predicate() {
-                                @Override
-                                public boolean evaluate(Object object) {
-                                    return ((Class) object).getSimpleName().equals(StringUtils.capitalize(finalGeneric));
-                                }
-                            });
+                            propertyType = (Class) CollectionUtils.find(classes, (Predicate) object -> ((Class) object).getSimpleName().equals(StringUtils.capitalize(finalGeneric)));
                             Map<String, Object> objectMap = instantiateNestedProperties(propertyType.newInstance(),
                                     fieldName.replaceFirst(consumedProperty + "\\.", StringUtils.EMPTY));
                             expression = property + "." + objectMap.keySet().iterator().next();
@@ -416,11 +393,11 @@ class Beanspector<T> {
                     } catch (InstantiationException ignored) {
                         try {
                             newInstance = instantiatePrimitive(propertyType);
-                        } catch (IllegalArgumentException ignored1) {
+                        } catch (IllegalArgumentException e) {
                             if (propertyType.isEnum() || Enumeration.class.isAssignableFrom(propertyType)) {
                                 newInstance = enumsUtils.getAnyEnumElement(propertyType);
                             } else {
-                                throw ignored1;
+                                throw e;
                             }
                         }
                     }
@@ -432,17 +409,9 @@ class Beanspector<T> {
                     newObject.put(fieldName + "[0]", obj);
                 }
             }
-        } catch (final IllegalAccessException e) {
+        } catch (final InvocationTargetException | IntrospectionException | InstantiationException | NoSuchMethodException e) {
             throw new RuntimeException(e);
-        } catch (final InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (final NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (final InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IntrospectionException e) {
-            throw new RuntimeException(e);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
         return newObject;

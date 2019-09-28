@@ -69,7 +69,7 @@ public class DataTypesConverter_ESTest extends DataTypesConverter_ESTest_scaffol
     public void test03()
             throws Throwable {
         DataTypesConverter dataTypesConverter0 = new DataTypesConverter();
-        DataTypesConverter.DataTypeView dataTypesConverter_DataTypeView0 = dataTypesConverter0.new DataTypeView("?*wI+",
+        DataTypesConverter.DataTypeView dataTypesConverter_DataTypeView0 = new DataTypesConverter.DataTypeView("?*wI+",
                 "AdNr",
                 "Z&[lBp(QibQ2ir(6(F",
                 false);

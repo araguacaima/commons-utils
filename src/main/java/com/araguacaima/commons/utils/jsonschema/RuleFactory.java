@@ -21,7 +21,7 @@ public class RuleFactory extends org.jsonschema2pojo.rules.RuleFactory {
     private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
     private final String definitionsRoot;
     private final Map definitions;
-    private Map<String, JType> generatedTypes = new HashMap<>();
+    private final Map<String, JType> generatedTypes = new HashMap<>();
 
     public RuleFactory(GenerationConfig generationConfig, Annotator annotator, SchemaStore schemaStore, String definitionsRoot, Map definitions) throws NoSuchFieldException, IllegalAccessException {
         super(generationConfig, annotator, schemaStore);

@@ -40,12 +40,11 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
-@SuppressWarnings("Annotator")
 @Component
 public class JsonUtils {
 
-    private static Logger log = LoggerFactory.getLogger(JsonUtils.class);
-    private static GenerationConfig config = new DefaultGenerationConfig() {
+    private static final Logger log = LoggerFactory.getLogger(JsonUtils.class);
+    private static final GenerationConfig config = new DefaultGenerationConfig() {
 
         @Override
         public boolean isUsePrimitives() {
@@ -103,19 +102,18 @@ public class JsonUtils {
         }
 
     };
-    private static NoopAnnotator noopAnnotator = new NoopAnnotator();
-    private static SchemaStore schemaStore = new SchemaStore();
-    private static org.jsonschema2pojo.SchemaGenerator schemaGenerator = new org.jsonschema2pojo.SchemaGenerator();
+    private static final NoopAnnotator noopAnnotator = new NoopAnnotator();
+    private static final SchemaStore schemaStore = new SchemaStore();
+    private static final org.jsonschema2pojo.SchemaGenerator schemaGenerator = new org.jsonschema2pojo.SchemaGenerator();
     private final Map<String, Class> classesFound = new HashMap<>();
     private final SimpleModule module = new SimpleModule("serializers", Version.unknownVersion());
     private final FileUtils fileUtils = new FileUtils();
-    private final String CLASS_SUFFIX = "class";
     private ClassLoaderUtils classLoaderUtils;
     private MapUtils mapUtils;
     private ObjectMapper mapper;
     private Reflections reflections;
-    private EnumsUtils<Object> enumsUtils = new EnumsUtils<>();
-    private ReflectionUtils reflectionUtils = new ReflectionUtils(null);
+    private final EnumsUtils<Object> enumsUtils = new EnumsUtils<>();
+    private final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
 
     public JsonUtils() {
         init();
@@ -225,7 +223,7 @@ public class JsonUtils {
             throws Exception {
         Set<PriorityClass> result = new LinkedHashSet<>();
         String type = jsonPath.split("\\.")[0];
-        type = type.replaceFirst("\\[.*?\\]", StringUtils.EMPTY);
+        type = type.replaceFirst("\\[.*?]", StringUtils.EMPTY);
         final String capitalizedSubType = StringUtils.capitalize(type);
         String classname = StringUtils.EMPTY;
 
@@ -252,8 +250,7 @@ public class JsonUtils {
                         return type12.endsWith("." + capitalizedSubType);
                     });
         } catch (ReflectionsException re) {
-            Set<String> classPathList = new TreeSet<>();
-            classPathList.addAll(fullArtifactsPath);
+            Set<String> classPathList = new TreeSet<>(fullArtifactsPath);
             classLoaderUtils.loadResourcesIntoClassLoader(classPathList);
             subTypes = (Collection<String>) org.apache.commons.collections4.CollectionUtils.select(reflections
                             .getAllTypes(),
@@ -277,7 +274,7 @@ public class JsonUtils {
     public <T> Set<DataTypeInfo> createNewBeansHierarchyFromJsonPath(String jsonPath,
                                                                      Class<T> dtoExtClass,
                                                                      ClassLoader classLoader)
-            throws IllegalArgumentException, IllegalAccessException, InstantiationException {
+            throws IllegalArgumentException {
 
         JsonPathParser<T> parser = new JsonPathParser<>(dtoExtClass, classLoader);
         Set<DataTypeInfo> result = new LinkedHashSet<>();
@@ -285,7 +282,7 @@ public class JsonUtils {
             if (StringUtils.isNotBlank(jsonPath)) {
                 String[] tokens = jsonPath.split("\\.");
                 DataTypeInfo dataType = new DataTypeInfo();
-                String firstToken = StringUtils.uncapitalize(tokens[0].replaceFirst("\\[.*?\\]",
+                String firstToken = StringUtils.uncapitalize(tokens[0].replaceFirst("\\[.*?]",
                         StringUtils.EMPTY).replaceFirst("DTO", StringUtils.EMPTY));
                 dataType.setPath(firstToken);
                 dataType.setType(dtoExtClass);
@@ -297,7 +294,7 @@ public class JsonUtils {
                     for (int i = 1; i < tokens.length; i++) {
                         try {
                             String token = tokens[i];
-                            consumedTokens.append(".").append(token.replaceFirst("\\[.*?\\]", StringUtils.EMPTY));
+                            consumedTokens.append(".").append(token.replaceFirst("\\[.*?]", StringUtils.EMPTY));
                             String path = consumedTokens.toString();
                             Map<T, Field> map = null;
                             DataTypeInfo dataTypeInfo = new DataTypeInfo();
@@ -427,7 +424,7 @@ public class JsonUtils {
     }
 
     public <T> Map<T, Field> createNewBeanFromJsonPath(String jsonPath, Class<T> dtoExtClass, ClassLoader classLoader)
-            throws IllegalArgumentException, IllegalAccessException, InstantiationException {
+            throws IllegalArgumentException {
 
         JsonPathParser<T> parser = new JsonPathParser<>(dtoExtClass, classLoader);
         try {
@@ -646,6 +643,7 @@ public class JsonUtils {
     public void buildJsonSchemaMapFromClassFile(File rootDirectory, File file, Map<String, String> jsonSchemas, Collection<Option> with, Collection<Option> without) {
         String currentClass = null;
         String currentFile = fileUtils.getRelativePathFrom(rootDirectory, file);
+        String CLASS_SUFFIX = "class";
         if (com.araguacaima.commons.utils.StringUtils.isNotBlank(currentFile)) {
             currentFile = currentFile.substring(1) + File.separator + file.getName();
             currentClass = currentFile.replace("." + CLASS_SUFFIX, StringUtils.EMPTY).replaceAll("\\\\", ".");

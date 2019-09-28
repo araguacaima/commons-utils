@@ -636,7 +636,7 @@ public class JMethod extends JMember implements KeyWords {
      * @return Returns the code/information about the method.
      */
     public String getLocalStackInfo() {
-        StringBuilder result = new StringBuilder("");
+        StringBuilder result = new StringBuilder();
         result.append("\n\t  // Max Locals ").append(maxLocals);
         result.append("  , Max Stack ").append(maxStack);
         if (exceptionBlocks != null) {

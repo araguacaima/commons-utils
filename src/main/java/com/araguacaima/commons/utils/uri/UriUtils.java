@@ -20,9 +20,9 @@ import java.util.regex.Pattern;
 @Component
 public class UriUtils {
 
-    private static Pattern INSIDE_CURLY_BRACKETS_PATTERN = Pattern.compile("\\{([^}]*)\\}");
-    private static ReflectionUtils reflectionUtils = new ReflectionUtils(null);
-    private static EnumsUtils<Object> enumsUtils = new EnumsUtils<>();
+    private static final Pattern INSIDE_CURLY_BRACKETS_PATTERN = Pattern.compile("\\{([^}]*)}");
+    private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
+    private static final EnumsUtils<Object> enumsUtils = new EnumsUtils<>();
 
     public static PathAndQueryString extractPathAndQueryString(String uri) throws MalformedURLException {
         if (StringUtils.isNotBlank(uri)) {
@@ -127,8 +127,7 @@ public class UriUtils {
         return StringUtils.EMPTY;
     }
 
-    private static String decorateFullyQualifiedType(String origin, String type, String canonicalModelPackageNameBase)
-            throws ClassNotFoundException {
+    private static String decorateFullyQualifiedType(String origin, String type, String canonicalModelPackageNameBase) {
         type = type.trim();
         String importType = StringUtils.capitalize(type);
         String result = reflectionUtils.getFullyQualifiedJavaTypeOrNull(type, false);
@@ -162,7 +161,7 @@ public class UriUtils {
     public static String getDataBetweenCurlyBrackets(String str) {
         String data = StringUtils.EMPTY;
         if (StringUtils.isNotBlank(str)) {
-            Pattern p = Pattern.compile("\\{([^}]*)\\}");
+            Pattern p = Pattern.compile("\\{([^}]*)}");
             Matcher m = p.matcher(str);
 
             while (m.find()) {
@@ -175,8 +174,8 @@ public class UriUtils {
     public static class PathAndQueryString {
         String path = null;
         String queryString = null;
-        Map<Constants.SpecialQueryParams, Map<String, String>> tokenizedQueryParams = new HashMap<>();
-        Map<Constants.UrlParams, Collection<String>> traversedPathAndQueryParams = new HashMap<>();
+        final Map<Constants.SpecialQueryParams, Map<String, String>> tokenizedQueryParams = new HashMap<>();
+        final Map<Constants.UrlParams, Collection<String>> traversedPathAndQueryParams = new HashMap<>();
 
         public String getPath() {
             return path;
