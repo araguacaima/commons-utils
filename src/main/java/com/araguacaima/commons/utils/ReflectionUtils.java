@@ -519,7 +519,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils im
             boolean result = type.equals("List") || type.startsWith("List<") || type.startsWith("java.util.List<") || type.equals(
                     "Collection") || type.startsWith("Collection<") || type.startsWith("java.util.Collection<");
             if (!result) {
-                String firstPartType = StringUtils.defaultIfBlank(returnNativeClass(type, true), type.split("<")[0]);
+                String firstPartType = StringUtils.defaultIfBlank(returnNativeClass(type), type.split("<")[0]);
                 result = Class.forName(firstPartType) != null;
             }
             return result;
@@ -587,21 +587,13 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils im
         return CtMethod.make(sb, declaringClass);
     }
 
-    public String returnNativeClass(String type, boolean considerLists) {
+    public String returnNativeClass(String type) {
         Class clazz;
         type = type.split("<")[0];
         for (String javaTypePrefix : COMMONS_TYPES_PREFIXES) {
             try {
-                clazz = Class.forName(type.contains(".") ? type : javaTypePrefix + "." +
-                        type);
-                if (considerLists) {
-                    if (isList(type)) {
-                        return "java.util.List<" + clazz.getName() + ">";
-                    }
-                }
-                if (!COMMONS_JAVA_TYPES_EXCLUSIONS.contains(clazz.getName())) {
-                    return clazz.getName();
-                }
+                clazz = Class.forName(type.contains(".") ? type : javaTypePrefix + "." + type);
+                return clazz.getName();
             } catch (ClassNotFoundException ignored) {
 
             }
