@@ -586,6 +586,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
 
     public static String returnNativeClass(String type, boolean considerLists) {
         Class clazz;
+        type = type.split("<")[0];
         for (String javaTypePrefix : COMMONS_TYPES_PREFIXES) {
             try {
                 clazz = Class.forName(type.contains(".") ? type : javaTypePrefix + "." +
