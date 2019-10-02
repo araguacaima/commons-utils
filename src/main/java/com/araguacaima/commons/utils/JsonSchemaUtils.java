@@ -98,6 +98,7 @@ public class JsonSchemaUtils<T extends ClassLoader> {
                         value.clear();
                         if (reflectionUtils.isCollectionImplementation(innerId)) {
                             type = reflectionUtils.getExtractedGenerics(innerId);
+                            innerId = reflectionUtils.returnNativeClass(innerId);
                             value.put("type", "array");
                             Map map__ = new HashMap();
                             map__.put("$ref", "#/definitions/" + type.replaceAll("\\.", "/"));
@@ -105,7 +106,7 @@ public class JsonSchemaUtils<T extends ClassLoader> {
                             boolean uniqueItems = false;
                             try {
                                 Class clazz = Class.forName(innerId);
-                                uniqueItems = Iterable.class.isAssignableFrom(clazz);
+                                uniqueItems = Set.class.isAssignableFrom(clazz);
                             } catch (Throwable ignored) {
                             }
                             value.put("uniqueItems", uniqueItems);
