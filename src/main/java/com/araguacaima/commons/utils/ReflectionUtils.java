@@ -311,7 +311,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils im
     public boolean isCollectionImplementation(String className) {
         Class collectionClass;
         try {
-            String firstPartType = StringUtils.defaultIfBlank(getFullyQualifiedJavaTypeOrNull(className, true), className.split("<")[0]);
+            String firstPartType = StringUtils.defaultIfBlank(returnNativeClass(className), className.split("<")[0]);
             collectionClass = Class.forName(firstPartType);
         } catch (ClassNotFoundException e) {
             try {
