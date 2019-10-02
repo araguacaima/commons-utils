@@ -299,14 +299,14 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
-    public static boolean isCollectionImplementation(String clazz) {
+    public static boolean isCollectionImplementation(String className) {
         Class collectionClass;
         try {
-            String firstPartType = clazz.split("<")[0];
+            String firstPartType = StringUtils.defaultIfBlank(getFullyQualifiedJavaTypeOrNull(className, true), className.split("<")[0]);
             collectionClass = Class.forName(firstPartType);
         } catch (ClassNotFoundException e) {
             try {
-                collectionClass = Class.forName(clazz);
+                collectionClass = Class.forName(className);
             } catch (ClassNotFoundException ex) {
                 return false;
             }
@@ -537,7 +537,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     }
 
     /**
-     *
      * @param e
      * @param <E>
      * @param <F>
@@ -585,7 +584,28 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return CtMethod.make(sb, declaringClass);
     }
 
-    public String getFullyQualifiedJavaTypeOrNull(String type, boolean considerLists) {
+    public static String returnNativeClass(String type, boolean considerLists) {
+        Class clazz;
+        for (String javaTypePrefix : COMMONS_TYPES_PREFIXES) {
+            try {
+                clazz = Class.forName(type.contains(".") ? type : javaTypePrefix + "." +
+                        type);
+                if (considerLists) {
+                    if (isList(type)) {
+                        return "java.util.List<" + clazz.getName() + ">";
+                    }
+                }
+                if (!COMMONS_JAVA_TYPES_EXCLUSIONS.contains(clazz.getName())) {
+                    return clazz.getName();
+                }
+            } catch (ClassNotFoundException ignored) {
+
+            }
+        }
+        return null;
+    }
+
+    public static String getFullyQualifiedJavaTypeOrNull(String type, boolean considerLists) {
         if (type == null) {
             return null;
         }
