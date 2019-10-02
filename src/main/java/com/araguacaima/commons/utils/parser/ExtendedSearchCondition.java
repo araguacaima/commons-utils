@@ -93,7 +93,7 @@ public class ExtendedSearchCondition<T> implements SearchCondition<T> {
      *
      * @param cType       shared condition type
      * @param condition   template object
-     * @param packageBase
+     * @param packageBase Package base
      */
     public ExtendedSearchCondition(final ConditionType cType, final T condition, final String packageBase) {
         if (cType == null) {

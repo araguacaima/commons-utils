@@ -90,19 +90,7 @@ public class BaseConverterUtils {
             'y',
             'z'};
 
-    /**
-     * Obtiene la representación en base decimal del numero en base 16 representado por el parámetro de entrada
-     *
-     * @param base16Number El número en base decimal al cual se le desea obtener su representación en base 16
-     * @return Un double con la representación del número de entrada en base 16 convertido a base decimal
-     * @throws NumberFormatException Si no es posible obtener un número en base decimal a partir del parametro de
-     * entrada en base 16, o si la representación en base 16 del parametro de entrada
-     * no es correcta, según la definición del conjunto ordenado de caracteres de
-     * representación <code>digits</code>
-     */
-
     private static final BaseConverterUtils INSTANCE = BaseConverterUtils.getInstance();
-    ;
 
     private BaseConverterUtils() {
         if (INSTANCE != null) {

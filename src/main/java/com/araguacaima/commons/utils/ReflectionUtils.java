@@ -545,12 +545,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils im
         return clazz != null && Map.class.isAssignableFrom(clazz);
     }
 
-    /**
-     * @param e
-     * @param <E>
-     * @param <F>
-     * @return
-     */
     public <E, F> F deepClone(E e) {
         ByteArrayOutputStream bo = new ByteArrayOutputStream();
         ObjectOutputStream oo;
