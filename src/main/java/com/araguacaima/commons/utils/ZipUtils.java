@@ -33,7 +33,7 @@ import java.util.zip.ZipInputStream;
 
 public class ZipUtils {
 
-    private static final ZipUtils INSTANCE = ZipUtils.getInstance();
+    private static final ZipUtils INSTANCE = new ZipUtils();
     ;
 
     private ZipUtils() {

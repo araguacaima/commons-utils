@@ -43,7 +43,7 @@ public class ExceptionUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ExceptionUtils.class);
 
-    private static final ExceptionUtils INSTANCE = ExceptionUtils.getInstance();
+    private static final ExceptionUtils INSTANCE = new ExceptionUtils();
     ;
 
     private ExceptionUtils() {

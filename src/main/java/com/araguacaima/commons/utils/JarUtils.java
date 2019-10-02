@@ -44,7 +44,7 @@ public class JarUtils {
 
     private static final Logger log = LoggerFactory.getLogger(JarUtils.class);
 
-    private static final JarUtils INSTANCE = JarUtils.getInstance();
+    private static final JarUtils INSTANCE = new JarUtils();
 
     private JarUtils() {
         if (INSTANCE != null) {

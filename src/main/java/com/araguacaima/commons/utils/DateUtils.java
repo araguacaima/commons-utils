@@ -54,7 +54,7 @@ public class DateUtils {
     public static final long MILLISECONDS_IN_DAY = 3600L * 24L * 1000L;
     public static final int SHORT_DATE_LENGTH = 10;
     private static final Logger log = LoggerFactory.getLogger(DateUtils.class);
-    private static final DateUtils INSTANCE = DateUtils.getInstance();
+    private static final DateUtils INSTANCE = new DateUtils();
     // Formato para crear objetos Date desde javascript
     public final SimpleDateFormat sdfjs = new SimpleDateFormat("yyyy,MM,dd");
     // Formato para manejo de nombres de archivos.  No formatear fechas con este formato.

@@ -74,7 +74,7 @@ public class NumberUtils {
     private static final String DEFAULT_DECIMAL_SEPARATOR = ",";
     private static final String DEFAULT_ORIGINAL_DECIMAL_SEPARATOR = ".";
     private static final String DEFAULT_SEPARATOR = StringUtils.EMPTY;
-    private static final NumberUtils INSTANCE = NumberUtils.getInstance();
+    private static final NumberUtils INSTANCE = new NumberUtils();
     //    public  final String ZERO_STRING = "0";
     //    public  final String ONE_STRING = "1";
     // En lugar de definir nuestros metodos, usaremos las constantes ROUND

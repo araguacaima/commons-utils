@@ -16,7 +16,7 @@ public class CollectionUtils {
 
     private static final PropertyUtilsBean propertyUtilsBean = new PropertyUtilsBean();
 
-    private static final CollectionUtils INSTANCE = CollectionUtils.getInstance();
+    private static final CollectionUtils INSTANCE = new CollectionUtils();
     ;
 
     private CollectionUtils() {

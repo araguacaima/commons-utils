@@ -114,7 +114,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils im
     private static final DataTypesConverter dataTypesConverter = new DataTypesConverter();
     private static final Logger log = LoggerFactory.getLogger(ReflectionUtils.class);
     private static final EnhancedRandomBuilder randomBuilder;
-    private static final ReflectionUtils INSTANCE = ReflectionUtils.getInstance();
+    private static final ReflectionUtils INSTANCE = new ReflectionUtils();
 
     static {
         final StandardToStringStyle tiesStyle = new StandardToStringStyle();

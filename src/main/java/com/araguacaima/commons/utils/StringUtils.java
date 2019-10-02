@@ -97,7 +97,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     public static final String TRUE = "true";
     public static final String UNDERSCORE = "_";
     public static final int UNICODE_HEX_LENGTH = 4;
-    private static final StringUtils INSTANCE = StringUtils.getInstance();
+    private static final StringUtils INSTANCE = new StringUtils();
     private final String[] DEFAULT_STOP_FILTERS = {"junit.framework.TestCase.runTest",
             "junit.framework.TestSuite.runTest"};
     private final String[] DEFAULT_TRACE_FILTERS = {"junit.framework.TestCase",
@@ -112,7 +112,6 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     private final ExceptionUtils exceptionUtils = ExceptionUtils.getInstance();
     private final Logger log = LoggerFactory.getLogger(StringUtils.class);
     private final NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate = new NotNullOrEmptyStringPredicate();
-    ;
 
     private StringUtils() {
         if (INSTANCE != null) {

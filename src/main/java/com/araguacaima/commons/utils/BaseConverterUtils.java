@@ -90,7 +90,7 @@ public class BaseConverterUtils {
             'y',
             'z'};
 
-    private static final BaseConverterUtils INSTANCE = BaseConverterUtils.getInstance();
+    private static final BaseConverterUtils INSTANCE = new BaseConverterUtils();
 
     private BaseConverterUtils() {
         if (INSTANCE != null) {

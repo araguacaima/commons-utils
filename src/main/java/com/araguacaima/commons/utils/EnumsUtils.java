@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
 public class EnumsUtils<T> {
 
     private static final Logger log = LoggerFactory.getLogger(EnumsUtils.class);
-    private static final EnumsUtils INSTANCE = EnumsUtils.getInstance();
+    private static final EnumsUtils INSTANCE = new EnumsUtils();
     private final Pattern getterPattern = Pattern.compile("(?:get|is)\\p{Upper}+");
     private final RandomDataGenerator randomData = new RandomDataGenerator();
     ;

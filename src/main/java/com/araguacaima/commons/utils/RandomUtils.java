@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class RandomUtils {
 
-    private static final RandomUtils INSTANCE = RandomUtils.getInstance();
+    private static final RandomUtils INSTANCE = new RandomUtils();
     ;
 
     private RandomUtils() {

@@ -17,11 +17,11 @@ public class PropertiesHandlerUtils {
 
     private static final Map<String, PropertiesHandler> instancesMap = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(PropertiesHandler.class);
-    private static final PropertiesHandlerUtils INSTANCE = PropertiesHandlerUtils.getInstance();
     private final FileUtils fileUtils = new FileUtils();
     private final MapUtils mapUtils = MapUtils.getInstance();
     private final NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate = new NotNullOrEmptyStringObjectPredicate();
-    ;
+
+    private static final PropertiesHandlerUtils INSTANCE = new PropertiesHandlerUtils();
 
     private PropertiesHandlerUtils() {
         if (INSTANCE != null) {

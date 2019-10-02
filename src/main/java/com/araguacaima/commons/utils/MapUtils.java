@@ -39,8 +39,7 @@ public class MapUtils {
     public static final StringKeyHashMapUtil stringKeyHashMapUtil = new StringKeyHashMapUtil();
     private static final Logger log = LoggerFactory.getLogger(MapUtils.class);
 
-    private static final MapUtils INSTANCE = MapUtils.getInstance();
-    ;
+    private static final MapUtils INSTANCE = new MapUtils();
 
     private MapUtils() {
         if (INSTANCE != null) {

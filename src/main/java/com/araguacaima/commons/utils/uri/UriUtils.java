@@ -22,8 +22,7 @@ public class UriUtils {
     private static final ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
     private static final EnumsUtils<?> enumsUtils = EnumsUtils.getInstance();
 
-    private static final UriUtils INSTANCE = UriUtils.getInstance();
-    ;
+    private static final UriUtils INSTANCE = new UriUtils();
 
     private UriUtils() {
         if (INSTANCE != null) {
