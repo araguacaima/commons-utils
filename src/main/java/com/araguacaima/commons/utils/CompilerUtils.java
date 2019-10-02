@@ -13,8 +13,24 @@ import java.util.*;
 public class CompilerUtils {
 
     private static final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+    private static final CompilerUtils INSTANCE = CompilerUtils.getInstance();
     private JsonUtils jsonUtils = new JsonUtils();
     private MapUtils mapUtils = MapUtils.getInstance();
+
+    private CompilerUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
+    ;
+
+    public static CompilerUtils getInstance() {
+        return INSTANCE;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
+    }
 
     @FunctionalInterface
     private interface ThrowingBiFunction<T, U, R> {

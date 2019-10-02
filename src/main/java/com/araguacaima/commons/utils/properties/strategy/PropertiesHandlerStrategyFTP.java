@@ -22,14 +22,12 @@ package com.araguacaima.commons.utils.properties.strategy;
 import com.araguacaima.commons.exception.core.PropertiesUtilException;
 import com.araguacaima.commons.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-@Component("FTP")
 public class PropertiesHandlerStrategyFTP extends PropertiesHandlerStrategy {
 
     private static final String PROPERTIES_FTP_LOCAL_FILE_PATH = "PROPERTIES_FTP_LOCAL_FILE_PATH";

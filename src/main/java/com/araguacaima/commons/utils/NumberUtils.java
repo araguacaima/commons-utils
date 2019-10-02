@@ -24,8 +24,6 @@ import com.araguacaima.commons.exception.core.Severity;
 import com.araguacaima.commons.exception.core.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormatSymbols;
@@ -61,7 +59,7 @@ import java.util.regex.Pattern;
  * </ul>
  */
 
-@Component
+
 public class NumberUtils {
 
     //    public  final int FORMAT_NUMBER_WITHOUT_DOTS = 0;
@@ -76,6 +74,7 @@ public class NumberUtils {
     private static final String DEFAULT_DECIMAL_SEPARATOR = ",";
     private static final String DEFAULT_ORIGINAL_DECIMAL_SEPARATOR = ".";
     private static final String DEFAULT_SEPARATOR = StringUtils.EMPTY;
+    private static final NumberUtils INSTANCE = NumberUtils.getInstance();
     //    public  final String ZERO_STRING = "0";
     //    public  final String ONE_STRING = "1";
     // En lugar de definir nuestros metodos, usaremos las constantes ROUND
@@ -87,7 +86,7 @@ public class NumberUtils {
     public BigDecimal BIG_ZERO = new BigDecimal(0); // Util para algunas comparaciones
     private NumberFormat decimalFormatter;
     private long serie = 0;
-    private StringUtils stringUtils;
+    private StringUtils stringUtils = StringUtils.getInstance();
 
     {
         // TODO: Decidir que Locale y que Precision se usaran.
@@ -98,10 +97,20 @@ public class NumberUtils {
         decimalFormatter.setMinimumFractionDigits(FRACTION_DIGITS);
         decimalFormatter.setMaximumFractionDigits(FRACTION_DIGITS);
     }
+    ;
 
-    @Autowired
-    public NumberUtils(StringUtils stringUtils) {
-        this.stringUtils = stringUtils;
+    private NumberUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
+
+    public static NumberUtils getInstance() {
+        return INSTANCE;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
     }
 
     /**

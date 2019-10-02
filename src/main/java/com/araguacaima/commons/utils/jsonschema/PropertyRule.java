@@ -40,7 +40,7 @@ import java.util.Map;
  */
 public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
 
-    private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
+    private static final ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
     private final String definitionsRoot;
     private final Map definitions;
 
@@ -92,7 +92,7 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
                         ref = ref.substring(1);
                     }
                 }
-                PackageClassUtils packageClassUtils = new PackageClassUtils(ref).invoke();
+                PackageClassUtils packageClassUtils = PackageClassUtils.instance(ref);
                 ref = packageClassUtils.getPackageName();
                 String className = packageClassUtils.getClassName();
                 JFieldVar fieldVar = jclass.fields().get(nodeName);

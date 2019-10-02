@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class RuleFactory extends org.jsonschema2pojo.rules.RuleFactory {
 
-    private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
+    private static final ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
     private final String definitionsRoot;
     private final Map definitions;
     private final Map<String, JType> generatedTypes = new HashMap<>();

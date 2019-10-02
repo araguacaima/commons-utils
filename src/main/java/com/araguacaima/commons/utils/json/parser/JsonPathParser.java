@@ -19,6 +19,8 @@ public class JsonPathParser<T> {
 
     private final Beanspector<T> beanspector;
     private SyntaxtNode<T> node;
+    private ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
+    ;
 
     /**
      * Creates Json parser.
@@ -54,9 +56,9 @@ public class JsonPathParser<T> {
      * @param jsonPathExpression json path expression.
      * @return tree of {@link T}
      * objects representing runtime structure.
-     * @throws JsonParseException        when expression does not follow JSON_PATH grammar
-     * @throws InstantiationException    when expression does not follow JSON_PATH grammar
-     * @throws IllegalAccessException    when expression does not follow JSON_PATH grammar
+     * @throws JsonParseException     when expression does not follow JSON_PATH grammar
+     * @throws InstantiationException when expression does not follow JSON_PATH grammar
+     * @throws IllegalAccessException when expression does not follow JSON_PATH grammar
      */
     public Map<T, Field> parse(final String jsonPathExpression)
             throws
@@ -87,7 +89,7 @@ public class JsonPathParser<T> {
             }
             firstTokenType = beanspector.getAccessorType(token);
             if (firstTokenType != null) {
-                isCollection = ReflectionUtils.isCollectionImplementation(firstTokenType);
+                isCollection = reflectionUtils.isCollectionImplementation(firstTokenType);
             }
             valueType = beanspector.getAccessorType(setter);
 
@@ -95,14 +97,14 @@ public class JsonPathParser<T> {
             throw new JsonParseException("", JsonLocation.NA, e);
         }
 
-        if (ReflectionUtils.isCollectionImplementation(valueType)) {
-            valueType = ReflectionUtils.createAndInitializeTypedCollection(ReflectionUtils.extractGenerics(valueType),
+        if (reflectionUtils.isCollectionImplementation(valueType)) {
+            valueType = reflectionUtils.createAndInitializeTypedCollection(reflectionUtils.extractGenerics(valueType),
                     null).getClass();
         }
 
         if (isCollection) {
             try {
-                valueType = ReflectionUtils.createAndInitializeTypedCollection(firstTokenType, null).getClass();
+                valueType = reflectionUtils.createAndInitializeTypedCollection(firstTokenType, null).getClass();
             } catch (final Exception e) {
                 throw new JsonParseException("Cannot set value for attribute '" + methodName + "' of type '" +
                         firstTokenType.getSimpleName() + "' as a part of a collection",

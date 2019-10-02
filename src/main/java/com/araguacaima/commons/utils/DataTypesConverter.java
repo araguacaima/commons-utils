@@ -21,13 +21,12 @@ package com.araguacaima.commons.utils;
 
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
+
 public class DataTypesConverter {
 
     private static final Map<String, Class> PRIMITIVE_CLASS_MAP = new HashMap<>();

@@ -29,7 +29,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test00()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
@@ -51,7 +51,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test01()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
@@ -71,7 +71,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test02()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
@@ -92,7 +92,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test03()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
@@ -113,7 +113,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test04()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
@@ -135,7 +135,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test05()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
@@ -157,7 +157,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test06()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
@@ -179,7 +179,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test07()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
@@ -207,7 +207,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test08()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
@@ -235,7 +235,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test09()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
@@ -262,7 +262,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test10()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
@@ -284,7 +284,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test11()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
@@ -305,7 +305,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test12()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
@@ -327,7 +327,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     public void test13()
             throws Throwable {
         System.setCurrentTimeMillis(1L);
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
@@ -349,7 +349,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test14()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
@@ -377,7 +377,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     public void test15()
             throws Throwable {
         System.setCurrentTimeMillis(1L);
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
@@ -399,7 +399,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test16()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
@@ -421,7 +421,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test17()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         assertEquals(86400000L, DateUtils.MILLISECONDS_IN_DAY);
         assertEquals(10, DateUtils.SHORT_DATE_LENGTH);
         assertEquals(19, DateUtils.LONG_DATE_LENGTH);
@@ -442,7 +442,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test18()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
         assertTrue(dateUtils0.isEmpty(null));
     }
@@ -450,7 +450,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test19()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
         boolean boolean0 = dateUtils0.isEmpty("DD-MM-AAAA");
         assertTrue(boolean0);
@@ -459,7 +459,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test20()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
         java.sql.Date date0 = dateUtils0.getSqlDate((Date) null);
         assertNull(date0);
@@ -468,7 +468,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test21()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
         Date date0 = dateUtils0.getDateWithZeroHour((Date) null);
         assertNull(date0);
@@ -477,7 +477,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test22()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
         Date date0 = dateUtils0.getDateByString(" 23:59:59", true);
         assertNull(date0);
@@ -486,7 +486,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test23()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
         Date date0 = dateUtils0.getDateByString("PDuJ", false);
         assertNull(date0);
@@ -495,7 +495,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test24()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
         String string0 = dateUtils0.formatDateTime((Date) null);
         assertNull(string0);
@@ -504,7 +504,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test25()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
         String string0 = dateUtils0.formatDate((Date) null);
         assertNull(string0);
@@ -513,9 +513,9 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test26()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
-        DateUtils dateUtils1 = new DateUtils();
+        DateUtils dateUtils1 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils1, (Class<?>) DateUtils.class);
         dateUtils1.sdf = dateUtils0.sdft;
         Date date0 = dateUtils1.getDateByString(" 00:00:00");
@@ -527,7 +527,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test27()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
         String string0 = dateUtils0.completeDate("yyyy-MM-dd", "yyyy-MM-dd");
         assertEquals("yyyy-MM-ddyyyy-MM-dd", string0);
@@ -536,7 +536,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test28()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
         String[] stringArray0 = new String[1];
         dateUtils0.main(stringArray0);
@@ -546,7 +546,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test29()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
         String string0 = dateUtils0.completeDateFirst((String) null);
         assertNull(string0);
@@ -555,7 +555,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test30()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
         Date date0 = dateUtils0.getDateByString(" 00:00:00");
         assertNull(date0);
@@ -564,7 +564,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test31()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
         String string0 = dateUtils0.today();
         assertEquals("14/02/2014", string0);
@@ -573,7 +573,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test32()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
         // Undeclared exception!
         try {
@@ -591,7 +591,7 @@ public class DateUtils_ESTest extends DateUtils_ESTest_scaffolding {
     @Test
     public void test33()
             throws Throwable {
-        DateUtils dateUtils0 = new DateUtils();
+        DateUtils dateUtils0 = DateUtils.getInstance();
         Injector.executePostConstruct((Object) dateUtils0, (Class<?>) DateUtils.class);
         // Undeclared exception!
         try {

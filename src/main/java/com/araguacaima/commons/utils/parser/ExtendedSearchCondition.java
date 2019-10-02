@@ -91,8 +91,8 @@ public class ExtendedSearchCondition<T> implements SearchCondition<T> {
      * applied in all comparison; see {@link #isMet(Object)} for details of
      * comparison.
      *
-     * @param cType     shared condition type
-     * @param condition template object
+     * @param cType       shared condition type
+     * @param condition   template object
      * @param packageBase
      */
     public ExtendedSearchCondition(final ConditionType cType, final T condition, final String packageBase) {
@@ -290,6 +290,7 @@ public class ExtendedSearchCondition<T> implements SearchCondition<T> {
      * returned during one-pass invocation. Method isMet() will use its keys to
      * introspect getters of passed pojo object, and values from map in
      * comparison.
+     *
      * @param condition Condition
      * @return map
      */

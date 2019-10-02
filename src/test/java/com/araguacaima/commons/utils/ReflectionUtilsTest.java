@@ -6,7 +6,7 @@ import org.junit.Test;
 public class ReflectionUtilsTest {
 
     private A object;
-    private ReflectionUtils reflectionUtils = new ReflectionUtils(null);
+    private ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
 
     public ReflectionUtilsTest() {
         object = new A();

@@ -27,9 +27,6 @@ import org.reflections.Reflections;
 import org.reflections.ReflectionsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,7 +37,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
-@Component
+
 public class JsonUtils {
 
     private static final Logger log = LoggerFactory.getLogger(JsonUtils.class);
@@ -108,25 +105,15 @@ public class JsonUtils {
     private final Map<String, Class> classesFound = new HashMap<>();
     private final SimpleModule module = new SimpleModule("serializers", Version.unknownVersion());
     private final FileUtils fileUtils = new FileUtils();
+    private final EnumsUtils<?> enumsUtils = EnumsUtils.getInstance();
+    private final ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
     private ClassLoaderUtils classLoaderUtils;
     private MapUtils mapUtils;
     private ObjectMapper mapper;
     private Reflections reflections;
-    private final EnumsUtils<Object> enumsUtils = new EnumsUtils<>();
-    private final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
 
     public JsonUtils() {
         init();
-    }
-
-    @Autowired
-    public JsonUtils(ClassLoaderUtils classLoaderUtils,
-                     MapUtils mapUtils,
-                     @Qualifier("reflections") Reflections reflections) {
-        init();
-        this.classLoaderUtils = classLoaderUtils;
-        this.mapUtils = mapUtils;
-        this.reflections = reflections;
     }
 
     private void init() {
@@ -161,7 +148,7 @@ public class JsonUtils {
         return mapper;
     }
 
-    public void addDeserializer(Class clazz, JsonDeserializer deserializer) {
+    public void addDeserializer(Class clazz, JsonDeserializer<Object> deserializer) {
         this.module.addDeserializer(clazz, deserializer);
     }
 
@@ -245,7 +232,7 @@ public class JsonUtils {
         try {
             subTypes = (Collection<String>) org.apache.commons.collections4.CollectionUtils.select(reflections
                             .getAllTypes(),
-                    (Predicate) object -> {
+                    (Predicate<String>) object -> {
                         String type12 = (String) object;
                         return type12.endsWith("." + capitalizedSubType);
                     });
@@ -254,7 +241,7 @@ public class JsonUtils {
             classLoaderUtils.loadResourcesIntoClassLoader(classPathList);
             subTypes = (Collection<String>) org.apache.commons.collections4.CollectionUtils.select(reflections
                             .getAllTypes(),
-                    (Predicate) object -> {
+                    (Predicate<String>) object -> {
                         String type1 = (String) object;
                         return type1.endsWith("." + capitalizedSubType);
                     });
@@ -311,7 +298,7 @@ public class JsonUtils {
                                 Field field = map.get(type);
                                 if (field != null) {
                                     Class clazz = field.getType();
-                                    if (ReflectionUtils.isCollectionImplementation(clazz)) {
+                                    if (reflectionUtils.isCollectionImplementation(clazz)) {
 
                                         ParameterizedType genericType = (ParameterizedType) field.getGenericType();
                                         Class generic = (Class) genericType.getActualTypeArguments()[0];
@@ -354,7 +341,7 @@ public class JsonUtils {
     private boolean fieldFilter(Field field, Class finalClazz) {
         Set<Method> getters;
         String capitalizedFieldName = StringUtils.capitalize(field.getName());
-        Class clazz = ReflectionUtils.extractGenerics(field);
+        Class clazz = reflectionUtils.extractGenerics(field);
         if (!Boolean.class.isAssignableFrom(clazz) && !Boolean.TYPE.equals(clazz)) {
             getters = org.reflections.ReflectionUtils.getAllMethods(finalClazz,
                     org.reflections.ReflectionUtils.withModifier(Modifier.PUBLIC),
@@ -565,7 +552,7 @@ public class JsonUtils {
                     visited,
                     clazz,
                     includeDatatype,
-                    ReflectionUtils.isCollectionImplementation(clazz));
+                    reflectionUtils.isCollectionImplementation(clazz));
         }
         return new LinkedHashSet<>();
     }
@@ -581,7 +568,7 @@ public class JsonUtils {
                 StringBuilder classRow = new StringBuilder();
                 boolean isEnum = clazz.isEnum();
                 if (isCollection) {
-                    Class generics = ReflectionUtils.extractGenerics(clazz);
+                    Class generics = reflectionUtils.extractGenerics(clazz);
                     sb.append("[]");
                     if (generics != null && !Object.class.equals(generics)) {
                         clazz = generics;
@@ -600,8 +587,8 @@ public class JsonUtils {
 
                 org.springframework.util.ReflectionUtils.doWithFields(clazz,
                         field -> {
-                            Class<?> type = ReflectionUtils.extractGenerics(field);
-                            boolean fieldIsCollection = ReflectionUtils.isCollectionImplementation(field.getType());
+                            Class<?> type = reflectionUtils.extractGenerics(field);
+                            boolean fieldIsCollection = reflectionUtils.isCollectionImplementation(field.getType());
                             StringBuilder fieldRow = new StringBuilder(sb).append(".").append(field.getName());
 
                             if (reflectionUtils.getSimpleJavaTypeOrNull(type) == null || fieldIsCollection) {
@@ -653,7 +640,7 @@ public class JsonUtils {
                     ctClass = pool.makeClassIfNew(new FileInputStream(file));
                 }
                 ctClass.defrost();
-                Class class_ = cl.loadClass(currentClass);
+                Class<?> class_ = cl.loadClass(currentClass);
                 String jsonSchema = getJsonSchema(class_, true, with, without);
                 String className = ctClass.getName();
                 log.debug("Class '" + className + "' loaded successfully!. Schema: \n" + jsonSchema);
@@ -677,11 +664,11 @@ public class JsonUtils {
 
     }
 
-    public String getJsonSchema(Class clazz, boolean showVersion) {
+    public String getJsonSchema(Class<?> clazz, boolean showVersion) {
         return getJsonSchema(clazz, showVersion, Collections.singletonList(Option.DEFINITIONS_FOR_ALL_OBJECTS), null);
     }
 
-    public String getJsonSchema(Class clazz, boolean showVersion, Collection<Option> with, Collection<Option> without) {
+    public String getJsonSchema(Class<?> clazz, boolean showVersion, Collection<Option> with, Collection<Option> without) {
         ObjectMapper objectMapper = new ObjectMapper();
         SchemaGeneratorConfigBuilder configBuilder = new SchemaGeneratorConfigBuilder(objectMapper, OptionPreset.PLAIN_JSON);
         if (showVersion) {
@@ -712,7 +699,7 @@ public class JsonUtils {
         return jsonSchema.toString();
     }
 
-    public void jsonToSourceClassFile(String json, String className, String packageName, File rootDirectory, String definitionsRoot, Map root) throws IOException, NoSuchFieldException, IllegalAccessException {
+    public void jsonToSourceClassFile(String json, String className, String packageName, File rootDirectory, String definitionsRoot, Map<String, LinkedHashMap> root) throws IOException, NoSuchFieldException, IllegalAccessException {
         JCodeModel codeModel = new JCodeModel();
         SchemaMapper mapper = new SchemaMapper(new RuleFactory(config, noopAnnotator, schemaStore, definitionsRoot, root), schemaGenerator);
         mapper.generate(codeModel, className, packageName, json);

@@ -8,7 +8,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +17,7 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-@Component
+
 public abstract class FileUtilsFilenameFilterImpl implements FileUtilsFilenameFilter<File> {
 
     protected static Logger log = LoggerFactory.getLogger(FileUtilsFilenameFilter.class);

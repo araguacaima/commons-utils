@@ -23,8 +23,6 @@ import com.araguacaima.commons.utils.PropertiesHandlerUtils;
 import com.araguacaima.commons.utils.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
 import java.util.Enumeration;
@@ -43,7 +41,7 @@ import java.util.Properties;
  * @see java.util.ResourceBundle
  */
 
-@Component
+
 public class MessageHandler {
     public static final String ERRORS = "errors";
     public static final String EXCEPTIONS = "exceptions";
@@ -58,7 +56,7 @@ public class MessageHandler {
     private final PropertiesHandlerUtils propertiesHandlerUtils;
     private String defaultFile = null;
 
-    @Autowired
+
     public MessageHandler(PropertiesHandlerUtils propertiesHandlerUtils) {
         this.propertiesHandlerUtils = propertiesHandlerUtils;
     }

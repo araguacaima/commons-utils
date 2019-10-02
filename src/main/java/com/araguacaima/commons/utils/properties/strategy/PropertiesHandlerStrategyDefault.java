@@ -20,13 +20,11 @@
 package com.araguacaima.commons.utils.properties.strategy;
 
 import com.araguacaima.commons.exception.core.PropertiesUtilException;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-@Component("Default")
 public class PropertiesHandlerStrategyDefault extends PropertiesHandlerStrategy {
 
     private static final String PROPERTIES_HANDLER_STRATEGY_NAME = PropertiesHandlerStrategy

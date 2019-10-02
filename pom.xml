@@ -58,7 +58,6 @@
         <slf4j.version>1.7.25</slf4j.version>
         <commons-beanutils-commons-beanutils>1.9.3</commons-beanutils-commons-beanutils>
         <org.apache.commons-commons-lang3>3.6</org.apache.commons-commons-lang3>
-        <org.springframework-spring-core>4.3.10.RELEASE</org.springframework-spring-core>
         <joda-time-joda-time>2.9.9</joda-time-joda-time>
         <commons-io-commons-io>2.5</commons-io-commons-io>
         <org.apache.commons-commons-collections4>4.1</org.apache.commons-commons-collections4>
@@ -137,20 +136,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${org.apache.commons-commons-lang3}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <version>${org.springframework-spring-core}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${org.springframework-spring-core}</version>
             <scope>compile</scope>
         </dependency>
 

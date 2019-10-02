@@ -2,12 +2,10 @@ package com.araguacaima.commons.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.Properties;
 
-@Component
+
 public class RunningMode {
 
     public static final String RUNNING_MODE_BYPASSING = "running.mode_bypass";
@@ -20,7 +18,7 @@ public class RunningMode {
     private String logFileSourceName;
     private String runningMode = RUNNING_MODE_DEFAULT;
 
-    @Autowired
+
     public RunningMode(PropertiesHandlerUtils propertiesHandlerUtils) {
         this.propertiesHandlerUtils = propertiesHandlerUtils;
     }

@@ -21,8 +21,6 @@ package com.araguacaima.commons.exception.core;
 
 import com.araguacaima.commons.exception.MessageHandler;
 import com.araguacaima.commons.utils.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +39,7 @@ import java.util.Locale;
  * </ul>
  * @see com.araguacaima.commons.exception.MessageHandler
  */
-@Component
+
 public class Exceptions {
 
     public static final String INVALID_PARAMETERS = "INVALID_PARAMETERS";
@@ -54,7 +52,7 @@ public class Exceptions {
     private static FileUtils fileUtils;
     private final Hashtable exceptions = new Hashtable();
 
-    @Autowired
+
     public Exceptions(FileUtils fileUtils) {
         Exceptions.fileUtils = fileUtils;
         if (bundle == null || !bundle.exists()) {

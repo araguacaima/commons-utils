@@ -16,6 +16,19 @@ public class CollectionUtils {
 
     private static final PropertyUtilsBean propertyUtilsBean = new PropertyUtilsBean();
 
+    private static final CollectionUtils INSTANCE = CollectionUtils.getInstance();
+    ;
+
+    private CollectionUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
+
+    public static CollectionUtils getInstance() {
+        return INSTANCE;
+    }
+
     public static List<Object> buildEmptyList(List collection) {
         return new ArrayList<Object>(collection);
     }
@@ -102,5 +115,9 @@ public class CollectionUtils {
                 collection,
                 (Transformer) input -> input == null ? StringUtils.EMPTY : input.toString());
         return new NotNullsLinkedHashSet<>(false, null, collection_);
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
     }
 }

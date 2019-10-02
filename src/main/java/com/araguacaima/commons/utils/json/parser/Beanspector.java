@@ -24,6 +24,8 @@ public class Beanspector<T> {
     private Field lastTokenField;
     private Class<T> tclass;
     private T tobj;
+    private ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
+    ;
 
     public Beanspector(final Class<T> tclass) {
         this(tclass, tclass.getClassLoader());
@@ -87,7 +89,7 @@ public class Beanspector<T> {
                             setterClass.getName()));
                 }
             }
-            for (final Field field : ReflectionUtils.getAllFieldsIncludingParents(tclass)) {
+            for (final Field field : reflectionUtils.getAllFieldsIncludingParents(tclass)) {
                 field.setAccessible(true);
                 fields.put(field.getName(), field);
             }
@@ -121,12 +123,12 @@ public class Beanspector<T> {
         if (tokens.length > 1) {
             final String token = tokens[0].replaceFirst("\\[.*?]", StringUtils.EMPTY);
             Class<?> accessorType = getAccessorType(token);
-            Class clazz = ReflectionUtils.extractGenerics(accessorType);
+            Class clazz = reflectionUtils.extractGenerics(accessorType);
             if (accessorType != null) {
-                if (ReflectionUtils.isCollectionImplementation(accessorType)) {
+                if (reflectionUtils.isCollectionImplementation(accessorType)) {
                     if (this.tobj == null) {
-                        Class generics = ReflectionUtils.extractGenerics(accessorType);
-                        this.tobj = (T) ReflectionUtils.createCollectionObject(generics);
+                        Class generics = reflectionUtils.extractGenerics(accessorType);
+                        this.tobj = (T) reflectionUtils.createCollectionObject(generics);
                     }
                 }
             }
@@ -156,8 +158,8 @@ public class Beanspector<T> {
         if (tokens.length > 1) {
             final String token = tokens[0];
             Class<?> accessorType = getAccessorType(clazz, token);
-            if (ReflectionUtils.isCollectionImplementation(accessorType)) {
-                return getAccessorType(ReflectionUtils.extractGenerics(accessorType),
+            if (reflectionUtils.isCollectionImplementation(accessorType)) {
+                return getAccessorType(reflectionUtils.extractGenerics(accessorType),
                         getterOrSetterName.replaceFirst(Pattern.quote(token) + "\\.", StringUtils.EMPTY));
             } else {
                 return getAccessorType(accessorType,
@@ -221,13 +223,13 @@ public class Beanspector<T> {
         }
         Class<?> returnType = m.getReturnType();
 
-        if (ReflectionUtils.isCollectionImplementation(returnType)) {
+        if (reflectionUtils.isCollectionImplementation(returnType)) {
             Type genericReturnType = m.getGenericReturnType();
             try {
                 returnType = (Class) (((ParameterizedType) genericReturnType).getActualTypeArguments()[0]);
             } catch (Throwable ignored) {
                 assert genericReturnType instanceof Class;
-                return ReflectionUtils.extractGenerics((Class) genericReturnType);
+                return reflectionUtils.extractGenerics((Class) genericReturnType);
             }
         }
 

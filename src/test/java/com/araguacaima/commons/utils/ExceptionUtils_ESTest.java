@@ -33,7 +33,7 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
     @Test
     public void test00()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         Exception exception0 = mock(Exception.class, new ViolatedAssumptionAnswer());
         doReturn((Throwable) null).when(exception0).getCause();
         doReturn((String) null).when(exception0).getMessage();
@@ -48,7 +48,7 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
     @Test
     public void test01()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         Locale locale0 = Locale.TAIWAN;
         // Undeclared exception!
         try {
@@ -66,7 +66,7 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
     @Test
     public void test02()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         // Undeclared exception!
         try {
             exceptionUtils0.getMessage((Exception) null);
@@ -83,14 +83,14 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
     @Test
     public void test03()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         assertEquals("Error Unknown (null Exception)", exceptionUtils0.cleanMessage((String) null, (0), (10)));
     }
 
     @Test
     public void test04()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         assertEquals("j~'h{ gIj?XEyfA~", exceptionUtils0.cleanMessage("j~'h{ gIj?XEyfA~"));
     }
 
@@ -99,14 +99,14 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
             throws Throwable {
         Exception exception0 = mock(Exception.class, new ViolatedAssumptionAnswer());
         doReturn((String) null).when(exception0).getMessage();
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         assertNull(exceptionUtils0.cleanMessage(exception0, 5175, 0));
     }
 
     @Test
     public void test06()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         String string0 = exceptionUtils0.cleanMessage((Exception) null, (-933), (-933));
         assertNull(string0);
     }
@@ -114,7 +114,7 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
     @Test
     public void test07()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         Exception exception0 = mock(Exception.class, new ViolatedAssumptionAnswer());
         doReturn((Throwable) null).when(exception0).getCause();
         doReturn((String) null).when(exception0).getMessage();
@@ -130,7 +130,7 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
         Exception exception0 = mock(Exception.class, new ViolatedAssumptionAnswer());
         doReturn((String) null).when(exception0).getMessage();
         Locale locale0 = Locale.FRENCH;
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         String string0 = exceptionUtils0.getMessage(exception0, locale0);
         assertNull(string0);
     }
@@ -138,7 +138,7 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
     @Test
     public void test09()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         Exception exception0 = exceptionUtils0.cleanException((Exception) null);
         assertNull(exceptionUtils0.cleanMessage(exception0, (-14)));
     }
@@ -146,7 +146,7 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
     @Test
     public void test10()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         Exception exception0 = mock(Exception.class, new ViolatedAssumptionAnswer());
         doReturn((Throwable) null).when(exception0).getCause();
         doReturn((String) null).when(exception0).getMessage();
@@ -158,7 +158,7 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
     @Test
     public void test11()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         String string0 = exceptionUtils0.cleanMessage((Exception) null, 993);
         assertNull(string0);
     }
@@ -166,14 +166,14 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
     @Test
     public void test12()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         assertEquals("", exceptionUtils0.cleanMessage((Exception) null));
     }
 
     @Test
     public void test13()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         Exception exception0 = mock(Exception.class, new ViolatedAssumptionAnswer());
         doReturn((Throwable) null).when(exception0).getCause();
         doReturn((String) null).when(exception0).getMessage();
@@ -185,7 +185,7 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
     @Test
     public void test14()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         Exception exception0 = mock(Exception.class, new ViolatedAssumptionAnswer());
         doReturn((Throwable) null).when(exception0).getCause();
         doReturn((String) null).when(exception0).getMessage();
@@ -201,7 +201,7 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
     @Test
     public void test15()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         assertEquals("Error Unknown (null Exception)", exceptionUtils0.cleanMessage("", 0));
 
     }
@@ -209,14 +209,14 @@ public class ExceptionUtils_ESTest extends ExceptionUtils_ESTest_scaffolding {
     @Test
     public void test16()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         exceptionUtils0.handleException((Exception) null);
     }
 
     @Test
     public void test17()
             throws Throwable {
-        ExceptionUtils exceptionUtils0 = new ExceptionUtils();
+        ExceptionUtils exceptionUtils0 = ExceptionUtils.getInstance();
         Exception exception0 = mock(Exception.class, new ViolatedAssumptionAnswer());
         doReturn((Throwable) null).when(exception0).getCause();
         doReturn((String) null).when(exception0).getMessage();

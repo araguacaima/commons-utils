@@ -8,8 +8,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -22,7 +20,7 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-@Component
+
 public class ClassLoaderUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ClassLoaderUtils.class);
@@ -36,21 +34,15 @@ public class ClassLoaderUtils {
     private final Class<URLClassLoader> sysclass = URLClassLoader.class;
     private String classPath;
     private Collection<String> classPathCollection = new NotNullsLinkedHashSet<>();
-    private FileUtils fileUtils;
+    private FileUtils fileUtils = new FileUtils();
     private boolean isClassPathLoaded = false;
-    private MapUtils mapUtils;
+    private MapUtils mapUtils = MapUtils.getInstance();
     private Method methodAddURL;
-    private StringUtils stringUtils;
+    private StringUtils stringUtils = StringUtils.getInstance();
     private URLClassLoader sysloader;
     private boolean sysloaderDirty;
 
     private ClassLoaderUtils() {
-    }
-
-    @Autowired
-    public ClassLoaderUtils(MapUtils mapUtils, StringUtils stringUtils) {
-        this.mapUtils = mapUtils;
-        this.stringUtils = stringUtils;
     }
 
     public ClassLoaderUtils(ClassLoader classLoader) {

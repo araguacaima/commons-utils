@@ -12,7 +12,7 @@ import java.util.*;
 public class JsonSchemaUtils<T extends ClassLoader> {
 
     public static final String DEFINITIONS_ROOT = "definitions";
-    private static ReflectionUtils reflectionUtils = new ReflectionUtils(null);
+    private static ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
     private final JsonUtils jsonUtils = new JsonUtils();
     private final MapUtils mapUtils = MapUtils.getInstance();
     private CompilerUtils.FilesCompiler<T> filesCompiler;
@@ -96,8 +96,8 @@ public class JsonSchemaUtils<T extends ClassLoader> {
                     if (StringUtils.isNotBlank(innerId) && innerId.contains(".")) {
                         String type;
                         value.clear();
-                        if (ReflectionUtils.isCollectionImplementation(innerId)) {
-                            type = ReflectionUtils.getExtractedGenerics(innerId);
+                        if (reflectionUtils.isCollectionImplementation(innerId)) {
+                            type = reflectionUtils.getExtractedGenerics(innerId);
                             value.put("type", "array");
                             Map map__ = new HashMap();
                             map__.put("$ref", "#/definitions/" + type.replaceAll("\\.", "/"));
@@ -137,7 +137,7 @@ public class JsonSchemaUtils<T extends ClassLoader> {
                 if (map.containsKey("enum")) {
                     continue;//TODO Move enum to an independent class
                 }
-                PackageClassUtils packageClassUtils = new PackageClassUtils(id).invoke();
+                PackageClassUtils packageClassUtils = PackageClassUtils.instance(id);
                 String className = packageClassUtils.getClassName();
                 String packageName = packageClassUtils.getPackageName();
                 Map filteredDefinitions = filterSchema(definitions, id);
@@ -150,7 +150,7 @@ public class JsonSchemaUtils<T extends ClassLoader> {
 
     private LinkedHashMap<String, LinkedHashMap> filterSchema(LinkedHashMap<String, LinkedHashMap> definitions, String id) throws InstantiationException, IllegalAccessException {
         LinkedHashMap<String, LinkedHashMap> map = new LinkedHashMap<>(mapUtils.traverseAndCreateNew(definitions));
-        PackageClassUtils packageClassUtils = new PackageClassUtils(id).invoke();
+        PackageClassUtils packageClassUtils = PackageClassUtils.instance(id);
         String className = packageClassUtils.getClassName();
         String packageName = packageClassUtils.getPackageName();
         Map innerMap = mapUtils.getLastValueFromPackageName(packageName, map);

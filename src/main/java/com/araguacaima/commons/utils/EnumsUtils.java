@@ -23,7 +23,6 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,15 +34,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("unchecked")
-@Component
+
 public class EnumsUtils<T> {
 
     private static final Logger log = LoggerFactory.getLogger(EnumsUtils.class);
+    private static final EnumsUtils INSTANCE = EnumsUtils.getInstance();
     private final Pattern getterPattern = Pattern.compile("(?:get|is)\\p{Upper}+");
     private final RandomDataGenerator randomData = new RandomDataGenerator();
+    ;
 
-    public EnumsUtils() {
+    private EnumsUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
 
+    public static EnumsUtils getInstance() {
+        return INSTANCE;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
     }
 
     public T getAnyEnumElement(Class<T> enumType) {

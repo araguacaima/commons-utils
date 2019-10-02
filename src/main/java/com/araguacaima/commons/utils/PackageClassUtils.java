@@ -6,14 +6,12 @@ public class PackageClassUtils {
 
     private static final FileUtils fileUtils = new FileUtils();
 
-
     private String id;
     private String className;
     private String packageName;
     private String fullyQualifiedClassName;
 
-
-    public PackageClassUtils(String id) {
+    private PackageClassUtils(String id) {
         this.id = id;
         if (this.id != null) {
             if (this.id.startsWith(".") || this.id.startsWith("\\") || this.id.startsWith("/")) {

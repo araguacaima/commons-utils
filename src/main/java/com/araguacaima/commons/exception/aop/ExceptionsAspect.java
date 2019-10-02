@@ -21,9 +21,7 @@ package com.araguacaima.commons.exception.aop;
 
 import com.araguacaima.commons.exception.core.GeneralException;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.stereotype.Component;
+
 
 /**
  * Provides a way to intercept thrown {@link Throwable} in such a way that it can be wrapped into a new
@@ -40,9 +38,6 @@ import org.springframework.stereotype.Component;
  * @see com.araguacaima.commons.exception.MessageHandler
  */
 @Aspect
-@EnableAspectJAutoProxy
-@Configurable
-@Component
 public class ExceptionsAspect {
 
 }

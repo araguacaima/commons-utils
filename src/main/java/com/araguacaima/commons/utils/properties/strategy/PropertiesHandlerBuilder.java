@@ -22,13 +22,12 @@ package com.araguacaima.commons.utils.properties.strategy;
 import com.araguacaima.commons.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 @SuppressWarnings("UnusedReturnValue")
-@Component
+
 public class PropertiesHandlerBuilder {
 
     public static final String PROPERTIES_HANDLER_STRATEGY_POLICY = "PROPERTIES_HANDLER_STRATEGY_POLICY";

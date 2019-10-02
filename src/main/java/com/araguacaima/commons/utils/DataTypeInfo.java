@@ -13,6 +13,8 @@ public class DataTypeInfo implements Comparable<DataTypeInfo> {
     private Field field;
     private String path;
     private Class type;
+    private ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
+    ;
 
     @Override
     public int compareTo(DataTypeInfo o) {
@@ -59,7 +61,7 @@ public class DataTypeInfo implements Comparable<DataTypeInfo> {
     public void setType(Class type) {
         this.type = type;
         if (this.type != null) {
-            this.setCollection(ReflectionUtils.isCollectionImplementation(this.type));
+            this.setCollection(reflectionUtils.isCollectionImplementation(this.type));
         }
     }
 

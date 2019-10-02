@@ -31,8 +31,6 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.net.ftp.FTPClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -53,7 +51,7 @@ import java.util.zip.ZipOutputStream;
  * Simple helper for basic file operations.
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@Component
+
 public class FileUtils extends org.apache.commons.io.FileUtils {
 
     public static final int DEFAULT_FILTER_TYPE;
@@ -97,22 +95,14 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public final String DEFAULT_PATH = "/";
-    private DateUtils dateUtils;
+    private DateUtils dateUtils = DateUtils.getInstance();
     private String filterCriterion;
     private NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters = new NotNullsLinkedHashSet<>();
-    private JarUtils jarUtils;
-    private NumberUtils numberUtils;
+    private JarUtils jarUtils = JarUtils.getInstance();
+    private NumberUtils numberUtils = NumberUtils.getInstance();
     private int recursionLevel;
     private int searchType;
-    private StringUtils stringUtils;
-
-    @Autowired
-    public FileUtils(DateUtils dateUtils, JarUtils jarUtils, NumberUtils numberUtils, StringUtils stringUtils) {
-        this.dateUtils = dateUtils;
-        this.jarUtils = jarUtils;
-        this.numberUtils = numberUtils;
-        this.stringUtils = stringUtils;
-    }
+    private StringUtils stringUtils = StringUtils.getInstance();
 
     public FileUtils() {
         setSearchType(DEFAULT_SEARCH_TYPE);

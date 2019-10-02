@@ -10,19 +10,30 @@ import com.araguacaima.commons.utils.builder.SpecialParamSplitterBuilder;
 import com.araguacaima.commons.utils.filter.RestQueryStringUtil;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component
 public class UriUtils {
 
     private static final Pattern INSIDE_CURLY_BRACKETS_PATTERN = Pattern.compile("\\{([^}]*)}");
-    private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
-    private static final EnumsUtils<Object> enumsUtils = new EnumsUtils<>();
+    private static final ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
+    private static final EnumsUtils<?> enumsUtils = EnumsUtils.getInstance();
+
+    private static final UriUtils INSTANCE = UriUtils.getInstance();
+    ;
+
+    private UriUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
+
+    public static UriUtils getInstance() {
+        return INSTANCE;
+    }
 
     public static PathAndQueryString extractPathAndQueryString(String uri) throws MalformedURLException {
         if (StringUtils.isNotBlank(uri)) {
@@ -172,11 +183,15 @@ public class UriUtils {
         return data;
     }
 
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
+    }
+
     public static class PathAndQueryString {
-        String path = null;
-        String queryString = null;
         final Map<Constants.SpecialQueryParams, Map<String, String>> tokenizedQueryParams = new HashMap<>();
         final Map<Constants.UrlParams, Collection<String>> traversedPathAndQueryParams = new HashMap<>();
+        String path = null;
+        String queryString = null;
 
         public String getPath() {
             return path;

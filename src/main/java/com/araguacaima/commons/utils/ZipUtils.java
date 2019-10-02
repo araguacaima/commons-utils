@@ -20,7 +20,6 @@
 package com.araguacaima.commons.utils;
 
 import org.apache.commons.io.FileUtils;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,10 +30,24 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@Component
+
 public class ZipUtils {
 
-    public ZipUtils() {
+    private static final ZipUtils INSTANCE = ZipUtils.getInstance();
+    ;
+
+    private ZipUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
+
+    public static ZipUtils getInstance() {
+        return INSTANCE;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
     }
 
     public boolean isValid(final File file) {

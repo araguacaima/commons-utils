@@ -2,15 +2,13 @@ package com.araguacaima.commons.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-@Component
+
 public class HTMLDecorator {
     public static final int ACTUAL_RENDERING_TAG_FONT = 1;
     public static final int ACTUAL_RENDERING_TAG_IMG = 0;
@@ -45,7 +43,7 @@ public class HTMLDecorator {
     public String imageSource;
     public int imageWidth = DEFAULT_IMAGE_WIDTH;
 
-    @Autowired
+
     public HTMLDecorator(ReflectionUtils reflectionUtils) {
         this.reflectionUtils = reflectionUtils;
 

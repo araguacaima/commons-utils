@@ -24,12 +24,11 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component
+
 public class MapUtils {
 
     public static final int EVALUATE_BOTH_KEY_AND_VALUE = 0;
@@ -40,14 +39,17 @@ public class MapUtils {
     public static final StringKeyHashMapUtil stringKeyHashMapUtil = new StringKeyHashMapUtil();
     private static final Logger log = LoggerFactory.getLogger(MapUtils.class);
 
-    /**
-     * <code>MapUtils</code> should not normally be instantiated.
-     */
+    private static final MapUtils INSTANCE = MapUtils.getInstance();
+    ;
+
     private MapUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
     }
 
     public static MapUtils getInstance() {
-        return new MapUtils();
+        return INSTANCE;
     }
 
     public static Map<String, String> fromProperties(final Properties properties) {
@@ -76,6 +78,10 @@ public class MapUtils {
 
     public static <K, V> Map<K, V> clone(Map<K, V> original) {
         return original.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
     }
 
     public <E, T> Map find(Map<E, T> map, Predicate<E> keyPredicate, Predicate<T> valuePredicate, int evaluationType) {

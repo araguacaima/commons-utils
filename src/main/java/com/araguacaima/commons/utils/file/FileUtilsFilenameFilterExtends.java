@@ -5,8 +5,6 @@ import com.araguacaima.commons.utils.StringUtils;
 import jreversepro.parser.ClassParserException;
 import jreversepro.reflect.JClassInfo;
 import jreversepro.revengine.JSerializer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-@Component
+
 public class FileUtilsFilenameFilterExtends extends FileUtilsFilenameFilterImpl {
 
     public static final int DEFAULT_FILTER_TYPE = FileUtilsFilenameFilter.RESOURCE_DIR_OR_FILE_FILTER_EQUALS;
@@ -24,7 +22,7 @@ public class FileUtilsFilenameFilterExtends extends FileUtilsFilenameFilterImpl 
     private StringUtils stringUtils;
     private Class superClassCriteria;
 
-    @Autowired
+
     public FileUtilsFilenameFilterExtends(ClassLoaderUtils classLoaderUtils, StringUtils stringUtils) {
         super();
         this.classLoaderUtils = classLoaderUtils;

@@ -48,8 +48,8 @@ public class ExtendableFiqlParser<T> {
     public static final String NEQ = "!=";
 
     private static final String FORMAT_DATETIME = "yyyy-MM-dd HH:mm:ss:SSSSSS";
-    private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
-    private static final EnumsUtils enumsUtils = new EnumsUtils();
+    private static final ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
+    private static final EnumsUtils enumsUtils = EnumsUtils.getInstance();
     private static final Map<String, ConditionType> operatorsMap;
 
     static {
@@ -233,7 +233,7 @@ public class ExtendableFiqlParser<T> {
             }
 
             firstTokenType = beanspector.getAccessorType(token);
-            isCollection = ReflectionUtils.isCollectionImplementation(firstTokenType);
+            isCollection = reflectionUtils.isCollectionImplementation(firstTokenType);
 
             valueType = beanspector.getAccessorType(setter);
 
@@ -301,8 +301,8 @@ public class ExtendableFiqlParser<T> {
             castedValue = enumsUtils.getEnum(valueType, valueEnum);
         } else {
             try {
-                if (ReflectionUtils.isCollectionImplementation(valueType)) {
-                    castedValue = reflectionUtils.createAndInitializeCollection(ReflectionUtils.extractGenerics(valueType), methodName, value);
+                if (reflectionUtils.isCollectionImplementation(valueType)) {
+                    castedValue = reflectionUtils.createAndInitializeCollection(reflectionUtils.extractGenerics(valueType), methodName, value);
                 } else {
                     castedValue = InjectionUtils.convertStringToPrimitive(value, valueType);
                 }

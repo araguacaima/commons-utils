@@ -30,7 +30,7 @@ public class JarUtils_ESTest extends JarUtils_ESTest_scaffolding {
     @Test
     public void test0()
             throws Throwable {
-        JarUtils jarUtils0 = new JarUtils();
+        JarUtils jarUtils0 = JarUtils.getInstance();
         boolean boolean0 = jarUtils0.findClassOnJar("XBE{k8hgB=", "");
         assertFalse(boolean0);
     }
@@ -38,7 +38,7 @@ public class JarUtils_ESTest extends JarUtils_ESTest_scaffolding {
     @Test
     public void test1()
             throws Throwable {
-        JarUtils jarUtils0 = new JarUtils();
+        JarUtils jarUtils0 = JarUtils.getInstance();
         ArrayList<String> arrayList0 = jarUtils0.listClassesOnJar("Cq");
         assertEquals(0, arrayList0.size());
     }
@@ -46,7 +46,7 @@ public class JarUtils_ESTest extends JarUtils_ESTest_scaffolding {
     @Test
     public void test2()
             throws Throwable {
-        JarUtils jarUtils0 = new JarUtils();
+        JarUtils jarUtils0 = JarUtils.getInstance();
         // Undeclared exception!
         try {
             jarUtils0.generateJarFromDirectory((String) null, (String) null, 3550);
@@ -63,7 +63,7 @@ public class JarUtils_ESTest extends JarUtils_ESTest_scaffolding {
     @Test
     public void test3()
             throws Throwable {
-        JarUtils jarUtils0 = new JarUtils();
+        JarUtils jarUtils0 = JarUtils.getInstance();
         FileSystemHandling.shouldAllThrowIOExceptions();
         try {
             jarUtils0.generateJarFromDirectory("D;/q", " |oZaDj6", 1527);
@@ -80,7 +80,7 @@ public class JarUtils_ESTest extends JarUtils_ESTest_scaffolding {
     @Test
     public void test4()
             throws Throwable {
-        JarUtils jarUtils0 = new JarUtils();
+        JarUtils jarUtils0 = JarUtils.getInstance();
         try {
             jarUtils0.generateJarFromDirectory((String) null, "", 0);
             fail("Expecting exception: FileNotFoundException");
@@ -96,7 +96,7 @@ public class JarUtils_ESTest extends JarUtils_ESTest_scaffolding {
     @Test
     public void test5()
             throws Throwable {
-        JarUtils jarUtils0 = new JarUtils();
+        JarUtils jarUtils0 = JarUtils.getInstance();
         // Undeclared exception!
         try {
             jarUtils0.generateJarFromDirectory("V%GFM(dF}LEYhY.kT", (String) null);
@@ -113,7 +113,7 @@ public class JarUtils_ESTest extends JarUtils_ESTest_scaffolding {
     @Test
     public void test6()
             throws Throwable {
-        JarUtils jarUtils0 = new JarUtils();
+        JarUtils jarUtils0 = JarUtils.getInstance();
         FileSystemHandling.shouldAllThrowIOExceptions();
         try {
             jarUtils0.generateJarFromDirectory("Q", "Q");
@@ -130,7 +130,7 @@ public class JarUtils_ESTest extends JarUtils_ESTest_scaffolding {
     @Test
     public void test7()
             throws Throwable {
-        JarUtils jarUtils0 = new JarUtils();
+        JarUtils jarUtils0 = JarUtils.getInstance();
         try {
             jarUtils0.generateJarFromDirectory("XBE{k8hgB=", "");
             fail("Expecting exception: FileNotFoundException");
@@ -146,14 +146,14 @@ public class JarUtils_ESTest extends JarUtils_ESTest_scaffolding {
     @Test
     public void test8()
             throws Throwable {
-        JarUtils jarUtils0 = new JarUtils();
+        JarUtils jarUtils0 = JarUtils.getInstance();
         jarUtils0.generateJarFromDirectory("Q", "Q");
     }
 
     @Test
     public void test9()
             throws Throwable {
-        JarUtils jarUtils0 = new JarUtils();
+        JarUtils jarUtils0 = JarUtils.getInstance();
         jarUtils0.generateJarFromDirectory("D;/q", " |oZaDj6", 1527);
     }
 }

@@ -22,7 +22,6 @@ package com.araguacaima.commons.utils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -40,13 +39,25 @@ import java.util.zip.ZipEntry;
  * <li> 2014-11-26 (AMMA)  Creacion de la clase. </li>
  * </ul>
  */
-@Component
+
 public class JarUtils {
 
     private static final Logger log = LoggerFactory.getLogger(JarUtils.class);
 
-    public JarUtils() {
+    private static final JarUtils INSTANCE = JarUtils.getInstance();
 
+    private JarUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
+
+    public static JarUtils getInstance() {
+        return INSTANCE;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
     }
 
     @SuppressWarnings("SameReturnValue")

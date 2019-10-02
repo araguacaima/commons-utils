@@ -24,8 +24,6 @@ import org.apache.commons.collections4.IterableUtils;
 import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +34,7 @@ import java.util.regex.Pattern;
 
 import static com.google.common.base.CaseFormat.*;
 
-@Component
+
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     public static final String AMPERSAND = "&";
@@ -99,6 +97,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     public static final String TRUE = "true";
     public static final String UNDERSCORE = "_";
     public static final int UNICODE_HEX_LENGTH = 4;
+    private static final StringUtils INSTANCE = StringUtils.getInstance();
     private final String[] DEFAULT_STOP_FILTERS = {"junit.framework.TestCase.runTest",
             "junit.framework.TestSuite.runTest"};
     private final String[] DEFAULT_TRACE_FILTERS = {"junit.framework.TestCase",
@@ -110,14 +109,19 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
             "junit.textui.TestRunner",
             "java.lang.reflect.Method.invoke(",
             "org.apache.tools.ant."};
-    private final ExceptionUtils exceptionUtils;
+    private final ExceptionUtils exceptionUtils = ExceptionUtils.getInstance();
     private final Logger log = LoggerFactory.getLogger(StringUtils.class);
-    private final NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate;
+    private final NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate = new NotNullOrEmptyStringPredicate();
+    ;
 
-    @Autowired
-    public StringUtils(NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate, ExceptionUtils exceptionUtils) {
-        this.notNullOrEmptyStringPredicate = notNullOrEmptyStringPredicate;
-        this.exceptionUtils = exceptionUtils;
+    private StringUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
+
+    public static StringUtils getInstance() {
+        return INSTANCE;
     }
 
     public static int firstIndexOf(String input, Collection tokens) {
@@ -159,6 +163,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     public static String getLastToken(String text, String separator) {
         return text.substring(text.lastIndexOf(separator) + 1);
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
     }
 
     /**

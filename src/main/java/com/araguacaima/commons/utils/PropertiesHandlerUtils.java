@@ -6,30 +6,35 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.*;
 
-@Component
+
 public class PropertiesHandlerUtils {
 
     private static final Map<String, PropertiesHandler> instancesMap = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(PropertiesHandler.class);
-    private final FileUtils fileUtils;
-    private final MapUtils mapUtils;
-    private final NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate;
+    private static final PropertiesHandlerUtils INSTANCE = PropertiesHandlerUtils.getInstance();
+    private final FileUtils fileUtils = new FileUtils();
+    private final MapUtils mapUtils = MapUtils.getInstance();
+    private final NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate = new NotNullOrEmptyStringObjectPredicate();
+    ;
 
-    @Autowired
-    public PropertiesHandlerUtils(MapUtils mapUtils,
-                                  FileUtils fileUtils,
-                                  NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate) {
-        this.mapUtils = mapUtils;
-        this.fileUtils = fileUtils;
-        this.notNullOrEmptyStringObjectPredicate = notNullOrEmptyStringObjectPredicate;
+    private PropertiesHandlerUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
+
+    public static PropertiesHandlerUtils getInstance() {
+        return INSTANCE;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
     }
 
     public PropertiesHandler getHandler(String logFileSourceName) {

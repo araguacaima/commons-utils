@@ -24,14 +24,12 @@ import com.araguacaima.commons.utils.FileUtils;
 import com.araguacaima.commons.utils.PropertiesHandlerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Properties;
 
-@Component
+
 public abstract class PropertiesHandlerStrategy implements PropertiesHandlerStrategyInterface {
 
     public static final String PROPERTIES_HANDLER_STRATEGY_CLASSPATH = "CLASSPATH";
@@ -50,7 +48,7 @@ public abstract class PropertiesHandlerStrategy implements PropertiesHandlerStra
     protected PropertiesHandlerUtils propertiesHandlerUtils;
     Properties properties;
 
-    @Autowired
+
     public PropertiesHandlerStrategy(PropertiesHandlerUtils propertiesHandlerUtils,
                                      FileUtils fileUtils,
                                      PropertiesHandlerStrategyPath propertiesHandlerStrategyPath) {

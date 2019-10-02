@@ -19,7 +19,7 @@ import java.util.Set;
 
 public class ArrayRule extends org.jsonschema2pojo.rules.ArrayRule {
 
-    private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
+    private static final ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
     private String definitionsRoot;
     private Map definitions;
     private RuleFactory ruleFactory;

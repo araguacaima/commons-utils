@@ -34,8 +34,6 @@ import org.apache.commons.lang3.builder.StandardToStringStyle;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import sun.reflect.ConstructorAccessor;
 import sun.reflect.FieldAccessor;
 import sun.reflect.ReflectionFactory;
@@ -50,8 +48,8 @@ import java.time.LocalTime;
 import java.util.*;
 
 @SuppressWarnings({"unchecked", "UnusedReturnValue"})
-@Component
-public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
+
+public class ReflectionUtils extends org.springframework.util.ReflectionUtils implements Serializable {
 
     public static final List BASIC_CLASSES = Arrays.asList(String.class,
             Boolean.class,
@@ -116,6 +114,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     private static final DataTypesConverter dataTypesConverter = new DataTypesConverter();
     private static final Logger log = LoggerFactory.getLogger(ReflectionUtils.class);
     private static final EnhancedRandomBuilder randomBuilder;
+    private static final ReflectionUtils INSTANCE = ReflectionUtils.getInstance();
 
     static {
         final StandardToStringStyle tiesStyle = new StandardToStringStyle();
@@ -221,13 +220,23 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
 
     private final ReflectionFactory reflectionFactory = ReflectionFactory.getReflectionFactory();
     private StringUtils stringUtils;
+    ;
 
-    @Autowired
-    public ReflectionUtils(StringUtils stringUtils) {
-        this.stringUtils = stringUtils;
+    private ReflectionUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
     }
 
-    public static Object createCollectionObject(Class<?> clazz)
+    public static ReflectionUtils getInstance() {
+        return INSTANCE;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
+    }
+
+    public Object createCollectionObject(Class<?> clazz)
             throws IllegalAccessException, InstantiationException {
         Class generics = extractGenerics(clazz);
         Object bean = generics.newInstance();
@@ -254,7 +263,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
-    public static Class extractGenerics(Class clazz) {
+    public Class extractGenerics(Class clazz) {
         if (clazz == null) {
             return null;
         }
@@ -285,7 +294,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
 
     }
 
-    private static Object getObject_(Class<?> clazz, Object value, Class<?> generics) {
+    private Object getObject_(Class<?> clazz, Object value, Class<?> generics) {
         Object result = null;
         if (Object[].class.isAssignableFrom(clazz) || clazz.isArray()) {
             try {
@@ -299,7 +308,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
-    public static boolean isCollectionImplementation(String className) {
+    public boolean isCollectionImplementation(String className) {
         Class collectionClass;
         try {
             String firstPartType = StringUtils.defaultIfBlank(getFullyQualifiedJavaTypeOrNull(className, true), className.split("<")[0]);
@@ -314,12 +323,12 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return isCollectionImplementation(collectionClass);
     }
 
-    public static boolean isCollectionImplementation(Class clazz) {
+    public boolean isCollectionImplementation(Class clazz) {
         return clazz != null && (Collection.class.isAssignableFrom(clazz) || Object[].class.isAssignableFrom(clazz)
                 || clazz.isArray());
     }
 
-    private static Class getClass(Class clazz) {
+    private Class getClass(Class clazz) {
         Class generics = null;
         if (Object[].class.isAssignableFrom(clazz)) {
             try {
@@ -342,7 +351,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return generics;
     }
 
-    public static Class extractGenerics(Field field) {
+    public Class extractGenerics(Field field) {
         Class clazz;
         final Type genericType = field.getGenericType();
         Type[] typeArguments = null;
@@ -357,7 +366,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return extractGenerics(clazz);
     }
 
-    private static Class getType(Type genericType) {
+    private Class getType(Type genericType) {
         Type[] typeArguments = null;
         Class clazz = null;
         try {
@@ -388,35 +397,35 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return clazz;
     }
 
-    private static boolean fieldIsNotContainedIn(Field field, Collection<String> excludeFields) {
+    private boolean fieldIsNotContainedIn(Field field, Collection<String> excludeFields) {
         return !fieldIsContainedIn(field, excludeFields);
     }
 
-    private static boolean fieldIsContainedIn(Field field, Collection<String> excludeFields) {
+    private boolean fieldIsContainedIn(Field field, Collection<String> excludeFields) {
         return IterableUtils.find(excludeFields, fieldName -> fieldNameEqualsToPredicate(field, fieldName)) != null;
     }
 
-    private static boolean fieldNameEqualsToPredicate(Field field, String fieldName) {
+    private boolean fieldNameEqualsToPredicate(Field field, String fieldName) {
         return !StringUtils.isBlank(fieldName) && field.getName().equals(fieldName);
     }
 
-    private static boolean fieldNameIsNotContainedIn(String fieldName, Collection<String> excludeFields) {
+    private boolean fieldNameIsNotContainedIn(String fieldName, Collection<String> excludeFields) {
         return !fieldNameIsContainedIn(fieldName, excludeFields);
     }
 
-    private static boolean fieldNameIsContainedIn(String fieldName, Collection<String> excludeFields) {
+    private boolean fieldNameIsContainedIn(String fieldName, Collection<String> excludeFields) {
         return excludeFields.contains(fieldName);
     }
 
-    public static Collection<String> getAllFieldNamesIncludingParents(Class clazz) {
+    public Collection<String> getAllFieldNamesIncludingParents(Class clazz) {
         return CollectionUtils.collect(getAllFieldsIncludingParents(clazz,
                 null,
                 Modifier.VOLATILE | Modifier.NATIVE | Modifier.TRANSIENT), FIELD_NAME_TRANSFORMER);
     }
 
-    public static Collection<Field> getAllFieldsIncludingParents(Class clazz,
-                                                                 final Integer modifiersInclusion,
-                                                                 final Integer modifiersExclusion) {
+    public Collection<Field> getAllFieldsIncludingParents(Class clazz,
+                                                          final Integer modifiersInclusion,
+                                                          final Integer modifiersExclusion) {
         final Collection<Field> fields = new ArrayList<>();
         FieldFilter fieldFilterModifierInclusion = field -> modifiersInclusion == null || (field.getModifiers() &
                 modifiersInclusion) != 0;
@@ -429,19 +438,19 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return fields;
     }
 
-    public static Collection<String> getAllFieldsNamesOfType(Object object, final Class type) {
+    public Collection<String> getAllFieldsNamesOfType(Object object, final Class type) {
         return getAllFieldsNamesOfType(object.getClass(), null, type);
     }
 
-    public static Collection<String> getAllFieldsNamesOfType(Class clazz,
-                                                             Collection<String> excludeFields,
-                                                             final Class type) {
+    public Collection<String> getAllFieldsNamesOfType(Class clazz,
+                                                      Collection<String> excludeFields,
+                                                      final Class type) {
         return CollectionUtils.collect(getAllFieldsOfType(clazz, excludeFields, type), FIELD_NAME_TRANSFORMER);
     }
 
-    public static Collection<Field> getAllFieldsOfType(Class clazz,
-                                                       Collection<String> excludeFields,
-                                                       final Class type) {
+    public Collection<Field> getAllFieldsOfType(Class clazz,
+                                                Collection<String> excludeFields,
+                                                final Class type) {
         final Collection<Field> result = new ArrayList();
         if (clazz != null) {
             IterableUtils.forEach(getAllFieldsIncludingParents(clazz, excludeFields), field -> {
@@ -453,7 +462,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
-    public static Collection<Field> getAllFieldsIncludingParents(Class clazz, Collection<String> excludeFields) {
+    public Collection<Field> getAllFieldsIncludingParents(Class clazz, Collection<String> excludeFields) {
         Collection<Field> result = getAllFieldsIncludingParents(clazz);
         if (CollectionUtils.isEmpty(excludeFields)) {
             return result;
@@ -462,13 +471,13 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
-    public static Collection<Field> getAllFieldsIncludingParents(Class clazz) {
+    public Collection<Field> getAllFieldsIncludingParents(Class clazz) {
         return getAllFieldsIncludingParents(clazz,
                 null,
                 Modifier.STATIC | Modifier.VOLATILE | Modifier.NATIVE | Modifier.TRANSIENT);
     }
 
-    public static String getExtractedGenerics(String s) {
+    public String getExtractedGenerics(String s) {
         String s1 = s.trim();
         try {
             String firstPartType = s1.split("<")[1];
@@ -485,11 +494,11 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
      * @return The class name
      * @deprecated
      */
-    public static String getSimpleClassName(Object object) {
+    public String getSimpleClassName(Object object) {
         return getSimpleClassName(object.getClass());
     }
 
-    public static String getSimpleClassName(Class clazz) {
+    public String getSimpleClassName(Class clazz) {
         String className = null;
         if (clazz != null) {
             className = clazz.getName();
@@ -505,12 +514,12 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return className;
     }
 
-    public static boolean isList(String type) {
+    public boolean isList(String type) {
         try {
             boolean result = type.equals("List") || type.startsWith("List<") || type.startsWith("java.util.List<") || type.equals(
                     "Collection") || type.startsWith("Collection<") || type.startsWith("java.util.Collection<");
             if (!result) {
-                String firstPartType = type.split("<")[0];
+                String firstPartType = StringUtils.defaultIfBlank(returnNativeClass(type, true), type.split("<")[0]);
                 result = Class.forName(firstPartType) != null;
             }
             return result;
@@ -519,7 +528,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         }
     }
 
-    public static Collection<Object> createAndInitializeTypedCollection(Class<?> typedClassForCollection, Object
+    public Collection<Object> createAndInitializeTypedCollection(Class<?> typedClassForCollection, Object
             value)
             throws IllegalAccessException, InstantiationException {
         Collection<Object> result = new ArrayList<>();
@@ -532,7 +541,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
-    public static boolean isMapImplementation(Class clazz) {
+    public boolean isMapImplementation(Class clazz) {
         return clazz != null && Map.class.isAssignableFrom(clazz);
     }
 
@@ -542,7 +551,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
      * @param <F>
      * @return
      */
-    public static <E, F> F deepClone(E e) {
+    public <E, F> F deepClone(E e) {
         ByteArrayOutputStream bo = new ByteArrayOutputStream();
         ObjectOutputStream oo;
         try {
@@ -562,7 +571,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         }
     }
 
-    public static CtMethod generateGetter(CtClass declaringClass, String fieldName, CtClass fieldClass)
+    public CtMethod generateGetter(CtClass declaringClass, String fieldName, CtClass fieldClass)
             throws CannotCompileException {
 
         Class clazz = fieldClass.getClass();
@@ -574,7 +583,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return CtMethod.make(sb, declaringClass);
     }
 
-    public static CtMethod generateSetter(CtClass declaringClass, String fieldName, CtClass fieldClass)
+    public CtMethod generateSetter(CtClass declaringClass, String fieldName, CtClass fieldClass)
             throws CannotCompileException {
 
         String setterName = "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
@@ -584,7 +593,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return CtMethod.make(sb, declaringClass);
     }
 
-    public static String returnNativeClass(String type, boolean considerLists) {
+    public String returnNativeClass(String type, boolean considerLists) {
         Class clazz;
         type = type.split("<")[0];
         for (String javaTypePrefix : COMMONS_TYPES_PREFIXES) {
@@ -606,7 +615,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return null;
     }
 
-    public static String getFullyQualifiedJavaTypeOrNull(String type, boolean considerLists) {
+    public String getFullyQualifiedJavaTypeOrNull(String type, boolean considerLists) {
         if (type == null) {
             return null;
         }
@@ -2118,7 +2127,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             field.setAccessible(true);
             Object object_ = field.get(entity);
             if (object_ != null) {
-                if (ReflectionUtils.isCollectionImplementation(object_.getClass())) {
+                if (isCollectionImplementation(object_.getClass())) {
                     ((Collection) object_).forEach(iter -> {
                         traverseForExtraction(iter, iter.getClass(), outcomingClass, result);
                         T iter1 = (T) iter;
@@ -2128,10 +2137,10 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                     });
                 } else {
                     if (!result.contains(object_)) {
-                        Class<?> generic = ReflectionUtils.extractGenerics(field);
+                        Class<?> generic = extractGenerics(field);
                         if (outcomingClass.isAssignableFrom(generic)) {
                             Class<?> fieldType = field.getType();
-                            if (ReflectionUtils.isCollectionImplementation(fieldType)) {
+                            if (isCollectionImplementation(fieldType)) {
                                 ((Collection) object_).forEach(iter -> {
                                     traverseForExtraction(iter, generic, outcomingClass, result);
                                     T iter1 = (T) iter;
@@ -2168,7 +2177,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         }
         Class aClass = null;
         try {
-            aClass = ReflectionUtils.extractGenerics(field);
+            aClass = extractGenerics(field);
         } catch (Throwable t) {
             t.printStackTrace();
         }

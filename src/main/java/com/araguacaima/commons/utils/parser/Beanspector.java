@@ -29,8 +29,8 @@ import java.util.*;
  */
 class Beanspector<T> {
 
-    private static final ReflectionUtils reflectionUtils = new ReflectionUtils(null);
-    private static final EnumsUtils enumsUtils = new EnumsUtils();
+    private static final ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
+    private static final EnumsUtils enumsUtils = EnumsUtils.getInstance();
     private final Map<String, Method> getters = new HashMap<>();
     private final Map<String, Method> setters = new HashMap<>();
     private final ClassLoader tclassloader;
@@ -117,7 +117,7 @@ class Beanspector<T> {
         final String[] tokens = getterOrSetterName.split("\\.");
         if (tokens.length > 1) {
             final String token = tokens[0];
-            Class clazz = ReflectionUtils.extractGenerics(getAccessorType(token));
+            Class clazz = reflectionUtils.extractGenerics(getAccessorType(token));
             return getAccessorType(clazz, getterOrSetterName.replaceFirst(token + "\\.", StringUtils.EMPTY));
         } else {
             return getTopLevelAccesorType(getterOrSetterName, getters, setters);
@@ -132,8 +132,8 @@ class Beanspector<T> {
         if (tokens.length > 1) {
             final String token = tokens[0];
             Class<?> accessorType = getAccessorType(clazz, token);
-            if (ReflectionUtils.isCollectionImplementation(accessorType)) {
-                return getAccessorType(ReflectionUtils.extractGenerics(accessorType), getterOrSetterName.replaceFirst(token + "\\.", StringUtils.EMPTY));
+            if (reflectionUtils.isCollectionImplementation(accessorType)) {
+                return getAccessorType(reflectionUtils.extractGenerics(accessorType), getterOrSetterName.replaceFirst(token + "\\.", StringUtils.EMPTY));
             } else {
                 return getAccessorType(accessorType, getterOrSetterName.replaceFirst(token + "\\.", StringUtils.EMPTY));
             }
@@ -167,13 +167,13 @@ class Beanspector<T> {
         }
         Class<?> returnType = m.getReturnType();
 
-        if (ReflectionUtils.isCollectionImplementation(returnType)) {
+        if (reflectionUtils.isCollectionImplementation(returnType)) {
             Type genericReturnType = m.getGenericReturnType();
             try {
                 return (Class) (((ParameterizedType) genericReturnType).getActualTypeArguments()[0]);
             } catch (Throwable ignored) {
                 assert genericReturnType instanceof Class;
-                return ReflectionUtils.extractGenerics((Class) genericReturnType);
+                return reflectionUtils.extractGenerics((Class) genericReturnType);
             }
         } else {
             return returnType;
@@ -204,7 +204,7 @@ class Beanspector<T> {
         } else {
             type = value.getClass();
         }
-        if (ReflectionUtils.isCollectionImplementation(type)) {
+        if (reflectionUtils.isCollectionImplementation(type)) {
             Object value1 = reflectionUtils.getValueFromCollectionImplementation(value);
             PropertyUtils.setProperty(getBean(), setterName.split("\\.")[0], value1);
         } else {
@@ -264,7 +264,7 @@ class Beanspector<T> {
                 Class<?> propertyType = getAccessorType(obj.getClass(), property);
                 String expression = property;
 
-                if (ReflectionUtils.isCollectionImplementation(originalPropertyType)) {
+                if (reflectionUtils.isCollectionImplementation(originalPropertyType)) {
                     boolean anInterface = propertyType.isInterface();
                     if (anInterface) {
 
@@ -322,7 +322,7 @@ class Beanspector<T> {
                     expression = property + "[0]." + expression;
                 } else if (originalPropertyType.isInterface()) {
                     if (StringUtils.isNotBlank(generic)) {
-                        Class<?> propertyType_ = ReflectionUtils.extractGenerics(propertyType);
+                        Class<?> propertyType_ = reflectionUtils.extractGenerics(propertyType);
                         if (!propertyType_.getSimpleName().equals(StringUtils.capitalize(generic))) {
                             Reflections reflections = new Reflections(propertyType_.getPackage().getName(), tclassloader);
                             Set<? extends Class<?>> classes = reflections.getSubTypesOf(propertyType_);
@@ -333,13 +333,13 @@ class Beanspector<T> {
                             expression = property + "." + objectMap.keySet().iterator().next();
                             newInstance = objectMap.values().iterator().next();
                         }
-                    } else if (ReflectionUtils.isCollectionImplementation(propertyType)) {
+                    } else if (reflectionUtils.isCollectionImplementation(propertyType)) {
                         Map<String, Object> objectMap = instantiateNestedProperties(propertyType.newInstance(),
                                 fieldName.replaceFirst(consumedProperty + "\\.", StringUtils.EMPTY));
                         expression = objectMap.keySet().iterator().next();
                         nestedObject = objectMap.values().iterator().next();
 
-                        newInstance = ReflectionUtils.createAndInitializeTypedCollection(propertyType, nestedObject);
+                        newInstance = reflectionUtils.createAndInitializeTypedCollection(propertyType, nestedObject);
                         expression = expression + "[0]";
                     } else {
                         PropertyDescriptor[] propertyDescriptors = Introspector.getBeanInfo(propertyType).getPropertyDescriptors();
@@ -387,7 +387,7 @@ class Beanspector<T> {
                 Class<?> originalPropertyType = PropertyUtils.getPropertyDescriptor(obj, fieldName).getPropertyType();
                 Class<?> propertyType = getAccessorType(obj.getClass(), fieldName);
 
-                if (!ReflectionUtils.isCollectionImplementation(originalPropertyType)) {
+                if (!reflectionUtils.isCollectionImplementation(originalPropertyType)) {
                     try {
                         newInstance = propertyType.newInstance();
                     } catch (InstantiationException ignored) {
@@ -404,7 +404,7 @@ class Beanspector<T> {
                     PropertyUtils.setProperty(obj, fieldName, newInstance);
                     newObject.put(fieldName, obj);
                 } else {
-                    newInstance = ReflectionUtils.createAndInitializeTypedCollection(propertyType, null);
+                    newInstance = reflectionUtils.createAndInitializeTypedCollection(propertyType, null);
                     PropertyUtils.setProperty(obj, fieldName, newInstance);
                     newObject.put(fieldName + "[0]", obj);
                 }

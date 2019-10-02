@@ -24,7 +24,6 @@ import com.araguacaima.commons.exception.core.Exceptions;
 import com.araguacaima.commons.exception.core.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.Locale;
 
@@ -39,10 +38,27 @@ import java.util.Locale;
  * </ul>
  */
 @SuppressWarnings("WeakerAccess")
-@Component
+
 public class ExceptionUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ExceptionUtils.class);
+
+    private static final ExceptionUtils INSTANCE = ExceptionUtils.getInstance();
+    ;
+
+    private ExceptionUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
+
+    public static ExceptionUtils getInstance() {
+        return INSTANCE;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
+    }
 
     /**
      * Elimina las excepciones anidadas, hasta llegar a la inicial
