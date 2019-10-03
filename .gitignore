@@ -11,3 +11,5 @@ bin/
 out/
 LICENSE
 *.tmp
+/pom.xml.releaseBackup
+/release.properties

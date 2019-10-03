@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.araguacaima</groupId>
     <artifactId>commons-utils</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>Common utilities is a set of java utilities for managing commmon actions when working with enums,
@@ -41,6 +40,7 @@
         <connection>scm:git:git://github.com/araguacaima/commons-utils.git</connection>
         <developerConnection>scm:git:ssh://github.com:araguacaima/commons-utils.git</developerConnection>
         <url>https://github.com/araguacaima/commons-utils/tree/master</url>
+        <tag>commons-utils-1.0.1</tag>
     </scm>
 
     <distributionManagement>
@@ -278,12 +278,6 @@
             <version>${org.apache.logging.log4j}</version>
             <scope>test</scope>
         </dependency>
-
-<!--        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf</artifactId>
-            <version>3.3.3</version>
-        </dependency>-->
 
         <dependency>
             <groupId>org.apache.cxf</groupId>
