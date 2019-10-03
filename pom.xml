@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.araguacaima</groupId>
     <artifactId>commons-utils</artifactId>
-    <version>1.0.1</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>Common utilities is a set of java utilities for managing commmon actions when working with enums,
@@ -84,13 +84,13 @@
         <org.apache.maven.plugins-maven-source-plugin>3.0.1</org.apache.maven.plugins-maven-source-plugin>
         <org.apache.maven.plugins-maven-javadoc-plugin>3.0.0-M1</org.apache.maven.plugins-maven-javadoc-plugin>
         <org.apache.maven.plugins-maven-compiler-plugin>3.6.2</org.apache.maven.plugins-maven-compiler-plugin>
-        <org.apache.maven.plugins-maven-surefire-plugin>2.20</org.apache.maven.plugins-maven-surefire-plugin>
+        <org.apache.maven.plugins-maven-surefire-plugin>3.0.0-M3</org.apache.maven.plugins-maven-surefire-plugin>
         <org.apache.maven.plugins-maven-enforcer-plugin>3.0.0-M1</org.apache.maven.plugins-maven-enforcer-plugin>
         <org.apache.maven.plugin-maven-jar-plugin>3.0.2</org.apache.maven.plugin-maven-jar-plugin>
         <org.apache.maven.plugin-maven-dependency-plugin>3.0.1</org.apache.maven.plugin-maven-dependency-plugin>
         <org.codehaus.mojo-aspectj-maven-plugin>1.8</org.codehaus.mojo-aspectj-maven-plugin>
         <org.apache.maven.plugins-maven-jar-plugin>3.0.2</org.apache.maven.plugins-maven-jar-plugin>
-        <maven.skip.tests>true</maven.skip.tests>
+        <maven.skipTests>true</maven.skipTests>
 
         <!-- tests -->
         <org.evosuite-evosuite-standalone-runtime>1.0.5</org.evosuite-evosuite-standalone-runtime>
@@ -558,6 +558,7 @@
                             <value>org.evosuite.runtime.InitializingListener</value>
                         </property>
                     </properties>
+                    <skipTests>${maven.skipTests}</skipTests>
                 </configuration>
             </plugin>
 
