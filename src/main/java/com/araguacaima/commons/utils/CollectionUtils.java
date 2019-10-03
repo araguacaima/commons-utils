@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Alejandro on 03/12/2014.
@@ -119,5 +120,13 @@ public class CollectionUtils {
 
     public Object clone() throws CloneNotSupportedException {
         throw new CloneNotSupportedException("Cannot clone instance of this class");
+    }
+
+    public boolean isEmpty(Collection<?> collection) {
+        return (collection == null || collection.isEmpty());
+    }
+
+    public boolean isEmpty(Map<?, ?> map) {
+        return (map == null || map.isEmpty());
     }
 }

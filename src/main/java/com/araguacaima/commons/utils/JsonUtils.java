@@ -585,7 +585,7 @@ public class JsonUtils {
                 mappings.add(classRow.toString());
                 final Class finalClazz = clazz;
 
-                org.springframework.util.ReflectionUtils.doWithFields(clazz,
+                reflectionUtils.doWithFields(clazz,
                         field -> {
                             Class<?> type = reflectionUtils.extractGenerics(field);
                             boolean fieldIsCollection = reflectionUtils.isCollectionImplementation(field.getType());

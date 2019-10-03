@@ -24,7 +24,6 @@ import com.araguacaima.commons.utils.FileUtils;
 import com.araguacaima.commons.utils.PropertiesHandlerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;
 import java.util.Properties;
@@ -41,7 +40,7 @@ public abstract class PropertiesHandlerStrategy implements PropertiesHandlerStra
     static final Logger log = LoggerFactory.getLogger(PropertiesHandlerStrategy.class);
     public static boolean isInitialized = false;
     protected String PROPERTY_KEY_PREFIX;
-    @Value("application.id")
+
     protected String applicationId;
     protected PropertiesHandlerStrategyPath defaultHandler;
     protected FileUtils fileUtils;

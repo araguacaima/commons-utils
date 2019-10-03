@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  * Parses <a
  * href="http://tools.ietf.org/html/draft-nottingham-atompub-fiql-00">FIQL</a>
  * expression to construct
- * {@link org.apache.cxf.jaxrs.ext.search.SearchCondition} structure. Since this
+ * {@link SearchCondition} structure. Since this
  * class operates on Java type T, not on XML structures "selectors" part of
  * specification is not applicable; instead selectors describes getters of type
  * T used as search condition type (see
@@ -109,7 +109,7 @@ public class ExtendableFiqlParser<T> {
      *
      * @param fiqlExpression expression of filter.
      * @param packageBase    Package base.
-     * @return tree of {@link org.apache.cxf.jaxrs.ext.search.SearchCondition}
+     * @return tree of {@link SearchCondition}
      * objects representing runtime search structure.
      * @throws Exception when expression does not follow FIQL grammar
      */

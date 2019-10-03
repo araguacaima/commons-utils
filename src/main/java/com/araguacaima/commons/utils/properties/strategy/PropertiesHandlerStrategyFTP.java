@@ -21,7 +21,6 @@ package com.araguacaima.commons.utils.properties.strategy;
 
 import com.araguacaima.commons.exception.core.PropertiesUtilException;
 import com.araguacaima.commons.utils.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.util.HashMap;
@@ -37,15 +36,10 @@ public class PropertiesHandlerStrategyFTP extends PropertiesHandlerStrategy {
     private static final String PROPERTIES_FTP_SERVER_DOMAIN_PASSWORD = "PROPERTIES_FTP_SERVER_DOMAIN_PASSWORD";
     private static final String PROPERTIES_HANDLER_STRATEGY_NAME = PropertiesHandlerStrategy
             .PROPERTIES_HANDLER_STRATEGY_FTP;
-    @Value("${ftp.local.file.path}")
     private final String ftpLocalFilePath = StringUtils.EMPTY;
-    @Value("${ftp.remote.file.path}")
     private final String ftpRemoteFilePath = StringUtils.EMPTY;
-    @Value("${ftp.server.domain}")
     private final String ftpServerDomain = StringUtils.EMPTY;
-    @Value("${ftp.server.domain.login}")
     private final String ftpServerDomainLogin = StringUtils.EMPTY;
-    @Value("${ftp.server.domain.password}")
     private final String ftpServerDomainPassword = StringUtils.EMPTY;
     private PropertiesHandlerStrategyInterface next;
 

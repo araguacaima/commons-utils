@@ -29,8 +29,6 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -56,7 +54,6 @@ import java.util.List;
  * </ul>
  */
 
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class HttpUtils {
 
     private static Logger log = LoggerFactory.getLogger(HttpUtils.class);

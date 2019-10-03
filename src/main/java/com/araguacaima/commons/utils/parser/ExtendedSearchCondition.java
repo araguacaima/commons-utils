@@ -330,31 +330,8 @@ public class ExtendedSearchCondition<T> implements SearchCondition<T> {
         return result;
     }
 
-    public String toSQL(final String table, final String... columns) {
-        if (isPrimitive(condition)) {
-            return null;
-        }
-        final StringBuilder sb = new StringBuilder();
-
-        if (table != null) {
-            SearchUtils.startSqlQuery(sb, table, columns);
-        }
-
-        boolean first = true;
-        for (final SearchCondition<T> sc : scts) {
-            final PrimitiveStatement ps = sc.getStatement();
-            if (ps.getPropery() == null) {
-                continue;
-            }
-            if (!first) {
-                sb.append(" ").append(joiningType.toString()).append(" ");
-            } else {
-                first = false;
-            }
-
-            sb.append(sc.toSQL(null));
-        }
-        return sb.toString();
+    public String toSQL(String table, String... columns) {
+        return SearchUtils.toSQL(this, table, columns);
     }
 
     public PrimitiveStatement getStatement() {
@@ -363,5 +340,10 @@ public class ExtendedSearchCondition<T> implements SearchCondition<T> {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public void accept(SearchConditionVisitor<T, ?> visitor) {
+        visitor.visit(this);
     }
 }

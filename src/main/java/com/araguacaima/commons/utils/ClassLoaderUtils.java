@@ -41,6 +41,7 @@ public class ClassLoaderUtils {
     private StringUtils stringUtils = StringUtils.getInstance();
     private URLClassLoader sysloader;
     private boolean sysloaderDirty;
+    private ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
 
     private ClassLoaderUtils() {
     }
@@ -673,7 +674,7 @@ public class ClassLoaderUtils {
         if (!sysloaderDirty && sysloader != null) {
             final ClassLoader cl = this.getClass().getClassLoader();
 
-            org.springframework.util.ReflectionUtils.doWithFields(sysloader.getClass(), field -> {
+            reflectionUtils.doWithFields(sysloader.getClass(), field -> {
 
                 log.debug("Found field '" + field + "' in type " + field.getDeclaringClass() + ". The " + "recently "
                         + "created sysloader has been adapted to ensure that its parent " + "corresponds with the " +
