@@ -1228,7 +1228,22 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         return underScoredInput;
     }
 
+    public boolean hasLength(CharSequence str) {
+        return (str != null && str.length() > 0);
+    }
 
+    public boolean hasText(CharSequence str) {
+        return (str != null && str.length() > 0 && containsText(str));
+    }
+    private boolean containsText(CharSequence str) {
+        int strLen = str.length();
+        for (int i = 0; i < strLen; i++) {
+            if (!Character.isWhitespace(str.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 
