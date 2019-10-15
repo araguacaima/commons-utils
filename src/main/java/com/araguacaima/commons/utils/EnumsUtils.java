@@ -24,6 +24,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.PrivilegedAction;
@@ -41,7 +42,7 @@ public class EnumsUtils<T> {
     private static final EnumsUtils INSTANCE = new EnumsUtils();
     private final Pattern getterPattern = Pattern.compile("(?:get|is)\\p{Upper}+");
     private final RandomDataGenerator randomData = new RandomDataGenerator();
-    ;
+    private ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
 
     private EnumsUtils() {
         if (INSTANCE != null) {
@@ -95,7 +96,19 @@ public class EnumsUtils<T> {
         T result = null;
         if (constants != null) {
             List<T> enumConstants = Arrays.asList(constants);
-            result = IterableUtils.find(enumConstants, object -> object.toString().equals(name));
+            result = IterableUtils.find(enumConstants, object -> {
+                try {
+                    if (object.toString().equals(name)) {
+                        return true;
+                    } else {
+                        Field fieldName = reflectionUtils.getField(object.getClass(), "name");
+                        fieldName.setAccessible(true);
+                        return fieldName.get(object).equals(name);
+                    }
+                } catch (IllegalAccessException e) {
+                    return false;
+                }
+            });
         }
         if (result != null)
             return result;
