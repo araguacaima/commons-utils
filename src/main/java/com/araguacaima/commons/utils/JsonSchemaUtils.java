@@ -135,9 +135,6 @@ public class JsonSchemaUtils<T extends ClassLoader> {
             Map map_ = mapUtils.getLastValueFromPackageName(id, definitions);
             if (map_ != null) {
                 Map map = new LinkedHashMap<>(mapUtils.traverseAndCreateNew(map_));
-                if (map.containsKey("enum")) {
-                    //TODO Move enum to an independent class
-                }
                 PackageClassUtils packageClassUtils = PackageClassUtils.instance(id);
                 String className = packageClassUtils.getClassName();
                 String packageName = packageClassUtils.getPackageName();

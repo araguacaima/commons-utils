@@ -101,29 +101,31 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
                     if (type.getClass().isAssignableFrom(JDefinedClass.class)) {
                         JDefinedClass jDefinedClass = (JDefinedClass) type;
                         JPackage jPackage = jDefinedClass._package();
-                        if (!jPackage.name().equals(ref)) {
-                            Field fieldOuter = reflectionUtils.getField(JDefinedClass.class, "outer");
+                        Field fieldOuter = reflectionUtils.getField(JDefinedClass.class, "outer");
+                        try {
+                            fieldOuter.setAccessible(true);
+                            JClassContainer outer = (JClassContainer) fieldOuter.get(type);
+                            JCodeModel owner = jclass.owner();
+                            JPackage newPackage = owner._package(ref);
+                            fieldOuter.set(type, newPackage);
                             try {
-                                fieldOuter.setAccessible(true);
-                                JClassContainer outer = (JClassContainer) fieldOuter.get(type);
+                                Field fieldClasses;
                                 if (outer.isPackage()) {
-                                    JCodeModel owner = jclass.owner();
-                                    JPackage newPackage = owner._package(ref);
-                                    fieldOuter.set(type, newPackage);
-                                    Field fieldClasses = reflectionUtils.getField(JPackage.class, "classes");
-                                    try {
-                                        fieldClasses.setAccessible(true);
-                                        Map<String, JDefinedClass> classesNew = (Map<String, JDefinedClass>) fieldClasses.get(newPackage);
-                                        classesNew.put(className, jDefinedClass);
-                                        Map<String, JDefinedClass> classesOld = (Map<String, JDefinedClass>) fieldClasses.get(outer);
-                                        classesOld.remove(className);
-                                    } catch (Throwable t) {
-                                        t.printStackTrace();
-                                    }
+                                    fieldClasses = reflectionUtils.getField(JPackage.class, "classes");
+                                    fieldClasses.setAccessible(true);
+                                    Map<String, JDefinedClass> classesNew = (Map<String, JDefinedClass>) fieldClasses.get(newPackage);
+                                    classesNew.put(className, jDefinedClass);
+                                } else {
+                                    fieldClasses = reflectionUtils.getField(JDefinedClass.class, "classes");
+                                    fieldClasses.setAccessible(true);
                                 }
+                                Map<String, JDefinedClass> classesOld = (Map<String, JDefinedClass>) fieldClasses.get(outer);
+                                classesOld.remove(className);
                             } catch (Throwable t) {
                                 t.printStackTrace();
                             }
+                        } catch (Throwable t) {
+                            t.printStackTrace();
                         }
                     }
                 }
