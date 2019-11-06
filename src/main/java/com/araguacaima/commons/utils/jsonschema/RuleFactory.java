@@ -13,8 +13,7 @@ import org.jsonschema2pojo.util.ParcelableHelper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class RuleFactory extends org.jsonschema2pojo.rules.RuleFactory {
 
@@ -22,6 +21,7 @@ public class RuleFactory extends org.jsonschema2pojo.rules.RuleFactory {
     private final String definitionsRoot;
     private final Map definitions;
     private final Map<String, JType> generatedTypes = new HashMap<>();
+    private final Set<String> generatedClassNames = new HashSet<>();
 
     public RuleFactory(GenerationConfig generationConfig, Annotator annotator, SchemaStore schemaStore, String definitionsRoot, Map definitions) throws NoSuchFieldException, IllegalAccessException {
         super(generationConfig, annotator, schemaStore);
@@ -76,5 +76,17 @@ public class RuleFactory extends org.jsonschema2pojo.rules.RuleFactory {
 
     public Map<String, JType> getGeneratedTypes() {
         return generatedTypes;
+    }
+
+    public Set<String> getGeneratedClassNames() {
+        return generatedClassNames;
+    }
+
+    public void addGeneratedClassName(String generatedClassName) {
+        generatedClassNames.add(generatedClassName);
+    }
+
+    public boolean classNameAlreadyGenerated(String generatedClassName) {
+        return generatedClassNames.contains(generatedClassName);
     }
 }

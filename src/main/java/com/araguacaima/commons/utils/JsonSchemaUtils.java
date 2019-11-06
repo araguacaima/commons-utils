@@ -1,6 +1,8 @@
 package com.araguacaima.commons.utils;
 
+import com.araguacaima.commons.utils.jsonschema.RuleFactory;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import org.jsonschema2pojo.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +18,67 @@ public class JsonSchemaUtils<T extends ClassLoader> {
     private final JsonUtils jsonUtils = new JsonUtils();
     private final MapUtils mapUtils = MapUtils.getInstance();
     private CompilerUtils.FilesCompiler<T> filesCompiler;
+    private static final NoopAnnotator noopAnnotator = new NoopAnnotator();
+    private static final SchemaStore schemaStore = new SchemaStore();
+    private static final org.jsonschema2pojo.SchemaGenerator schemaGenerator = new org.jsonschema2pojo.SchemaGenerator();
+    private static final GenerationConfig config = new DefaultGenerationConfig() {
+
+        @Override
+        public boolean isUsePrimitives() {
+            return true;
+        }
+
+        @Override
+        public boolean isUseLongIntegers() {
+            return true;
+        }
+
+        @Override
+        public AnnotationStyle getAnnotationStyle() {
+            return AnnotationStyle.NONE;
+        }
+
+        @Override
+        public InclusionLevel getInclusionLevel() {
+            return InclusionLevel.ALWAYS;
+        }
+
+        @Override
+        public boolean isUseOptionalForGetters() {
+            return false;
+        }
+
+        @Override
+        public boolean isRemoveOldOutput() {
+            return true;
+        }
+
+        @Override
+        public boolean isSerializable() {
+            return true;
+        }
+
+        @Override
+        public boolean isIncludeConstructors() {
+            return true;
+        }
+
+        @Override
+        public boolean isIncludeAdditionalProperties() {
+            return false;
+        }
+
+        @Override
+        public String getTargetVersion() {
+            return "1.8";
+        }
+
+        @Override
+        public Language getTargetLanguage() {
+            return Language.JAVA;
+        }
+
+    };
 
     public JsonSchemaUtils(T classLoader) {
         if (classLoader != null) {
@@ -41,6 +104,7 @@ public class JsonSchemaUtils<T extends ClassLoader> {
     @SuppressWarnings("unchecked")
     public Set<Class<?>> processFile(String json, String packageName, File sourceCodeDirectory, File compiledClassesDirectory) throws IOException, NoSuchFieldException, IllegalAccessException, URISyntaxException, InstantiationException {
         try {
+            FileUtils.cleanDirectory(sourceCodeDirectory);
             Map jsonSchema = jsonUtils.fromJSON(json, Map.class);
             String id = String.valueOf(jsonSchema.get("$id"));
             String className_;
@@ -55,7 +119,8 @@ public class JsonSchemaUtils<T extends ClassLoader> {
             LinkedHashMap<String, LinkedHashMap> definitionMap = new LinkedHashMap<>();
             Set<String> ids = new LinkedHashSet<>();
             buildDefinitions(packageName, ids, definitionMap, (Map<String, Object>) jsonSchema.get(DEFINITIONS_ROOT));
-            jsonUtils.jsonToSourceClassFile(json, className_, packageName_, sourceCodeDirectory, DEFINITIONS_ROOT, definitionMap);
+            RuleFactory ruleFactory = new RuleFactory(config, noopAnnotator, schemaStore, DEFINITIONS_ROOT, definitionMap);
+            jsonUtils.jsonToSourceClassFile(json, className_, packageName_, sourceCodeDirectory, ruleFactory, schemaGenerator);
         } catch (MismatchedInputException ignored) {
             Collection<Map<String, Object>> jsonSchemas = jsonUtils.fromJSON(json, Collection.class);
             Set<String> ids = new LinkedHashSet<>();
@@ -131,6 +196,7 @@ public class JsonSchemaUtils<T extends ClassLoader> {
     @SuppressWarnings("unchecked")
     private void definitionsToClasses(LinkedHashMap<String, LinkedHashMap> definitions, Set<String> ids, File rootDirectory) throws IOException, NoSuchFieldException, IllegalAccessException, InstantiationException {
         FileUtils.cleanDirectory(rootDirectory);
+        RuleFactory ruleFactory = new RuleFactory(config, noopAnnotator, schemaStore, DEFINITIONS_ROOT, definitions);
         for (String id : ids) {
             Map map_ = mapUtils.getLastValueFromPackageName(id, definitions);
             if (map_ != null) {
@@ -141,7 +207,7 @@ public class JsonSchemaUtils<T extends ClassLoader> {
                 Map filteredDefinitions = filterSchema(definitions, id);
                 map.put(DEFINITIONS_ROOT, filteredDefinitions);
                 String json = jsonUtils.toJSON(map);
-                jsonUtils.jsonToSourceClassFile(json, StringUtils.capitalize(className), packageName, rootDirectory, DEFINITIONS_ROOT, definitions);
+                jsonUtils.jsonToSourceClassFile(json, StringUtils.capitalize(className), packageName, rootDirectory, ruleFactory, schemaGenerator);
             }
         }
     }

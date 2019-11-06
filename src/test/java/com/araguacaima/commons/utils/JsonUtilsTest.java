@@ -1,6 +1,8 @@
 package com.araguacaima.commons.utils;
 
+import com.araguacaima.commons.utils.jsonschema.RuleFactory;
 import io.codearte.jfairy.producer.person.Person;
+import org.jsonschema2pojo.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,6 +15,68 @@ public class JsonUtilsTest {
 
     JsonUtils jsonUtils = new JsonUtils();
     private File sourceClassesDir;
+    private static final NoopAnnotator noopAnnotator = new NoopAnnotator();
+    private static final SchemaStore schemaStore = new SchemaStore();
+    private static final org.jsonschema2pojo.SchemaGenerator schemaGenerator = new org.jsonschema2pojo.SchemaGenerator();
+    private static final GenerationConfig config = new DefaultGenerationConfig() {
+
+        @Override
+        public boolean isUsePrimitives() {
+            return true;
+        }
+
+        @Override
+        public boolean isUseLongIntegers() {
+            return true;
+        }
+
+        @Override
+        public AnnotationStyle getAnnotationStyle() {
+            return AnnotationStyle.NONE;
+        }
+
+        @Override
+        public InclusionLevel getInclusionLevel() {
+            return InclusionLevel.ALWAYS;
+        }
+
+        @Override
+        public boolean isUseOptionalForGetters() {
+            return false;
+        }
+
+        @Override
+        public boolean isRemoveOldOutput() {
+            return true;
+        }
+
+        @Override
+        public boolean isSerializable() {
+            return true;
+        }
+
+        @Override
+        public boolean isIncludeConstructors() {
+            return true;
+        }
+
+        @Override
+        public boolean isIncludeAdditionalProperties() {
+            return false;
+        }
+
+        @Override
+        public String getTargetVersion() {
+            return "1.8";
+        }
+
+        @Override
+        public Language getTargetLanguage() {
+            return Language.JAVA;
+        }
+
+    };
+
 
     @Before
     public void init() {
@@ -77,6 +141,7 @@ public class JsonUtilsTest {
                 "}";
         String className = "Example";
         String packageName = "foo.bar";
-        jsonUtils.jsonToSourceClassFile(json, StringUtils.capitalize(className), packageName, sourceClassesDir, DEFINITIONS_ROOT, null);
+        RuleFactory ruleFactory = new RuleFactory(config, noopAnnotator, schemaStore, DEFINITIONS_ROOT, null);
+        jsonUtils.jsonToSourceClassFile(json, StringUtils.capitalize(className), packageName, sourceClassesDir, ruleFactory, schemaGenerator);
     }
 }

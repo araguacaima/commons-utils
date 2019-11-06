@@ -10,9 +10,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.bohnman.squiggly.Squiggly;
-import com.github.victools.jsonschema.generator.SchemaGenerator;
 import com.github.victools.jsonschema.generator.*;
 import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JType;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.Loader;
@@ -22,7 +22,7 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
-import org.jsonschema2pojo.*;
+import org.jsonschema2pojo.SchemaMapper;
 import org.reflections.Reflections;
 import org.reflections.ReflectionsException;
 import org.slf4j.Logger;
@@ -41,67 +41,6 @@ import java.util.*;
 public class JsonUtils {
 
     private static final Logger log = LoggerFactory.getLogger(JsonUtils.class);
-    private static final GenerationConfig config = new DefaultGenerationConfig() {
-
-        @Override
-        public boolean isUsePrimitives() {
-            return true;
-        }
-
-        @Override
-        public boolean isUseLongIntegers() {
-            return true;
-        }
-
-        @Override
-        public AnnotationStyle getAnnotationStyle() {
-            return AnnotationStyle.NONE;
-        }
-
-        @Override
-        public InclusionLevel getInclusionLevel() {
-            return InclusionLevel.ALWAYS;
-        }
-
-        @Override
-        public boolean isUseOptionalForGetters() {
-            return false;
-        }
-
-        @Override
-        public boolean isRemoveOldOutput() {
-            return true;
-        }
-
-        @Override
-        public boolean isSerializable() {
-            return true;
-        }
-
-        @Override
-        public boolean isIncludeConstructors() {
-            return true;
-        }
-
-        @Override
-        public boolean isIncludeAdditionalProperties() {
-            return false;
-        }
-
-        @Override
-        public String getTargetVersion() {
-            return "1.8";
-        }
-
-        @Override
-        public Language getTargetLanguage() {
-            return Language.JAVA;
-        }
-
-    };
-    private static final NoopAnnotator noopAnnotator = new NoopAnnotator();
-    private static final SchemaStore schemaStore = new SchemaStore();
-    private static final org.jsonschema2pojo.SchemaGenerator schemaGenerator = new org.jsonschema2pojo.SchemaGenerator();
     private final Map<String, Class> classesFound = new HashMap<>();
     private final SimpleModule module = new SimpleModule("serializers", Version.unknownVersion());
     private final FileUtils fileUtils = new FileUtils();
@@ -699,11 +638,16 @@ public class JsonUtils {
         return jsonSchema.toString();
     }
 
-    public void jsonToSourceClassFile(String json, String className, String packageName, File rootDirectory, String definitionsRoot, Map<String, LinkedHashMap> root) throws IOException, NoSuchFieldException, IllegalAccessException {
-        JCodeModel codeModel = new JCodeModel();
-        SchemaMapper mapper = new SchemaMapper(new RuleFactory(config, noopAnnotator, schemaStore, definitionsRoot, root), schemaGenerator);
-        mapper.generate(codeModel, className, packageName, json);
-        codeModel.build(rootDirectory);
+    public void jsonToSourceClassFile(String json, String className, String packageName, File rootDirectory, RuleFactory ruleFactory, org.jsonschema2pojo.SchemaGenerator schemaGenerator) throws IOException {
+        String fullClassName = packageName + "." + className;
+        if (!ruleFactory.classNameAlreadyGenerated(fullClassName)) {
+            JCodeModel codeModel = new JCodeModel();
+            SchemaMapper mapper = new SchemaMapper(ruleFactory, schemaGenerator);
+            JType type = mapper.generate(codeModel, className, packageName, json);
+            codeModel.build(rootDirectory);
+            ruleFactory.addGeneratedClassName(fullClassName);
+            ruleFactory.getGeneratedTypes().values().forEach(type_ -> ruleFactory.addGeneratedClassName(type_.fullName()));
+        }
     }
 
     private class PriorityClass implements Comparable<PriorityClass> {

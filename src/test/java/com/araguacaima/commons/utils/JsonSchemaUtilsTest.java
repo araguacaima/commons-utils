@@ -6,6 +6,8 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class JsonSchemaUtilsTest {
 
@@ -15,235 +17,14 @@ public class JsonSchemaUtilsTest {
     private File compiledClassesDir;
     private String schemas;
 
+    @SuppressWarnings({"ConstantConditions", "ResultOfMethodCallIgnored"})
     @Before
-    public void init() {
+    public void init() throws IOException {
         JsonSchemaUtils<ClassLoader> jsonSchemaUtils = new JsonSchemaUtils<>(JsonSchemaUtilsTest.class.getClassLoader());
-        schema = "  {\n" +
-                "    \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n" +
-                "    \"type\": \"object\",\n" +
-                "    \"properties\": {\n" +
-                "      \"description\": {\n" +
-                "        \"type\": \"string\"\n" +
-                "      },\n" +
-                "      \"id\": {\n" +
-                "        \"type\": \"string\"\n" +
-                "      },\n" +
-                "      \"questions\": {\n" +
-                "        \"type\": \"array\",\n" +
-                "        \"items\": {\n" +
-                "          \"type\": \"object\",\n" +
-                "          \"properties\": {\n" +
-                "            \"calculatedScore\": {\n" +
-                "              \"type\": \"number\"\n" +
-                "            },\n" +
-                "            \"description\": {\n" +
-                "              \"type\": \"string\"\n" +
-                "            },\n" +
-                "            \"maxScore\": {\n" +
-                "              \"type\": \"integer\"\n" +
-                "            },\n" +
-                "            \"options\": {\n" +
-                "              \"type\": \"array\",\n" +
-                "              \"items\": {\n" +
-                "                \"type\": \"object\",\n" +
-                "                \"properties\": {\n" +
-                "                  \"description\": {\n" +
-                "                    \"type\": \"string\"\n" +
-                "                  },\n" +
-                "                  \"selected\": {\n" +
-                "                    \"type\": \"boolean\"\n" +
-                "                  },\n" +
-                "                  \"title\": {\n" +
-                "                    \"type\": \"string\"\n" +
-                "                  },\n" +
-                "                  \"weighing\": {\n" +
-                "                    \"type\": \"number\"\n" +
-                "                  }\n" +
-                "                },\n" +
-                "                \"$id\": \"com.araguacaima.braas.core.drools.model.forms.QuestionOption\"\n" +
-                "              },\n" +
-                "              \"$id\": \"java.util.Set<com.araguacaima.braas.core.drools.model.forms.QuestionOption>\"\n" +
-                "            },\n" +
-                "            \"title\": {\n" +
-                "              \"type\": \"string\"\n" +
-                "            },\n" +
-                "            \"type\": {\n" +
-                "              \"type\": \"string\",\n" +
-                "              \"enum\": [\n" +
-                "                \"BOOLEAN\",\n" +
-                "                \"MULTIPLE\",\n" +
-                "                \"SINGLE\",\n" +
-                "                \"TRISTATE\"\n" +
-                "              ],\n" +
-                "              \"$id\": \"com.araguacaima.braas.core.drools.model.forms.QuestionType\"\n" +
-                "            }\n" +
-                "          },\n" +
-                "          \"$id\": \"com.araguacaima.braas.core.drools.model.forms.Question\"\n" +
-                "        },\n" +
-                "        \"$id\": \"java.util.Set<com.araguacaima.braas.core.drools.model.forms.Question>\"\n" +
-                "      },\n" +
-                "      \"title\": {\n" +
-                "        \"type\": \"string\"\n" +
-                "      },\n" +
-                "      \"url\": {\n" +
-                "        \"type\": \"string\"\n" +
-                "      }\n" +
-                "    },\n" +
-                "    \"$id\": \"com.araguacaima.braas.core.drools.model.forms.Form\"\n" +
-                "  }\n";
-        schemas = "[\n" +
-                "  {\n" +
-                "    \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n" +
-                "    \"type\": \"object\",\n" +
-                "    \"properties\": {\n" +
-                "      \"calculatedScore\": {\n" +
-                "        \"type\": \"number\"\n" +
-                "      },\n" +
-                "      \"description\": {\n" +
-                "        \"type\": \"string\"\n" +
-                "      },\n" +
-                "      \"maxScore\": {\n" +
-                "        \"type\": \"integer\"\n" +
-                "      },\n" +
-                "      \"options\": {\n" +
-                "        \"type\": \"array\",\n" +
-                "        \"items\": {\n" +
-                "          \"type\": \"object\",\n" +
-                "          \"properties\": {\n" +
-                "            \"description\": {\n" +
-                "              \"type\": \"string\"\n" +
-                "            },\n" +
-                "            \"selected\": {\n" +
-                "              \"type\": \"boolean\"\n" +
-                "            },\n" +
-                "            \"title\": {\n" +
-                "              \"type\": \"string\"\n" +
-                "            },\n" +
-                "            \"weighing\": {\n" +
-                "              \"type\": \"number\"\n" +
-                "            }\n" +
-                "          },\n" +
-                "          \"$id\": \"com.araguacaima.braas.core.drools.model.forms.QuestionOption\"\n" +
-                "        },\n" +
-                "        \"$id\": \"java.util.Set<com.araguacaima.braas.core.drools.model.forms.QuestionOption>\"\n" +
-                "      },\n" +
-                "      \"title\": {\n" +
-                "        \"type\": \"string\"\n" +
-                "      },\n" +
-                "      \"type\": {\n" +
-                "        \"type\": \"string\",\n" +
-                "        \"enum\": [\n" +
-                "          \"BOOLEAN\",\n" +
-                "          \"MULTIPLE\",\n" +
-                "          \"SINGLE\"\n" +
-                "        ],\n" +
-                "        \"$id\": \"com.araguacaima.braas.core.drools.model.forms.QuestionType\"\n" +
-                "      }\n" +
-                "    },\n" +
-                "    \"$id\": \"com.araguacaima.braas.core.drools.model.forms.Question\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n" +
-                "    \"type\": \"string\",\n" +
-                "    \"enum\": [\n" +
-                "      \"BOOLEAN\",\n" +
-                "      \"MULTIPLE\",\n" +
-                "      \"SINGLE\"\n" +
-                "    ],\n" +
-                "    \"$id\": \"com.araguacaima.braas.core.drools.model.forms.QuestionType\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n" +
-                "    \"type\": \"object\",\n" +
-                "    \"properties\": {\n" +
-                "      \"description\": {\n" +
-                "        \"type\": \"string\"\n" +
-                "      },\n" +
-                "      \"selected\": {\n" +
-                "        \"type\": \"boolean\"\n" +
-                "      },\n" +
-                "      \"title\": {\n" +
-                "        \"type\": \"string\"\n" +
-                "      },\n" +
-                "      \"weighing\": {\n" +
-                "        \"type\": \"number\"\n" +
-                "      }\n" +
-                "    },\n" +
-                "    \"$id\": \"com.araguacaima.braas.core.drools.model.forms.QuestionOption\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n" +
-                "    \"type\": \"object\",\n" +
-                "    \"properties\": {\n" +
-                "      \"description\": {\n" +
-                "        \"type\": \"string\"\n" +
-                "      },\n" +
-                "      \"id\": {\n" +
-                "        \"type\": \"string\"\n" +
-                "      },\n" +
-                "      \"questions\": {\n" +
-                "        \"type\": \"array\",\n" +
-                "        \"items\": {\n" +
-                "          \"type\": \"object\",\n" +
-                "          \"properties\": {\n" +
-                "            \"calculatedScore\": {\n" +
-                "              \"type\": \"number\"\n" +
-                "            },\n" +
-                "            \"description\": {\n" +
-                "              \"type\": \"string\"\n" +
-                "            },\n" +
-                "            \"maxScore\": {\n" +
-                "              \"type\": \"integer\"\n" +
-                "            },\n" +
-                "            \"options\": {\n" +
-                "              \"type\": \"array\",\n" +
-                "              \"items\": {\n" +
-                "                \"type\": \"object\",\n" +
-                "                \"properties\": {\n" +
-                "                  \"description\": {\n" +
-                "                    \"type\": \"string\"\n" +
-                "                  },\n" +
-                "                  \"selected\": {\n" +
-                "                    \"type\": \"boolean\"\n" +
-                "                  },\n" +
-                "                  \"title\": {\n" +
-                "                    \"type\": \"string\"\n" +
-                "                  },\n" +
-                "                  \"weighing\": {\n" +
-                "                    \"type\": \"number\"\n" +
-                "                  }\n" +
-                "                },\n" +
-                "                \"$id\": \"com.araguacaima.braas.core.drools.model.forms.QuestionOption\"\n" +
-                "              },\n" +
-                "              \"$id\": \"java.util.Set<com.araguacaima.braas.core.drools.model.forms.QuestionOption>\"\n" +
-                "            },\n" +
-                "            \"title\": {\n" +
-                "              \"type\": \"string\"\n" +
-                "            },\n" +
-                "            \"type\": {\n" +
-                "              \"type\": \"string\",\n" +
-                "              \"enum\": [\n" +
-                "                \"BOOLEAN\",\n" +
-                "                \"MULTIPLE\",\n" +
-                "                \"SINGLE\"\n" +
-                "              ],\n" +
-                "              \"$id\": \"com.araguacaima.braas.core.drools.model.forms.QuestionType\"\n" +
-                "            }\n" +
-                "          },\n" +
-                "          \"$id\": \"com.araguacaima.braas.core.drools.model.forms.Question\"\n" +
-                "        },\n" +
-                "        \"$id\": \"java.util.Set<com.araguacaima.braas.core.drools.model.forms.Question>\"\n" +
-                "      },\n" +
-                "      \"title\": {\n" +
-                "        \"type\": \"string\"\n" +
-                "      },\n" +
-                "      \"url\": {\n" +
-                "        \"type\": \"string\"\n" +
-                "      }\n" +
-                "    },\n" +
-                "    \"$id\": \"com.araguacaima.braas.core.drools.model.forms.Form\"\n" +
-                "  }\n" +
-                "]";
+        URL resourceSchema = JsonSchemaUtilsTest.class.getClassLoader().getResource("forms-json-schemas.json");
+        schema = FileUtils.readFileToString(new File(resourceSchema.getFile()), StandardCharsets.UTF_8);
+        URL resourceSchemas = JsonSchemaUtilsTest.class.getClassLoader().getResource("forms-json-schemas.json");
+        schemas = FileUtils.readFileToString(new File(resourceSchemas.getFile()), StandardCharsets.UTF_8);
         File file = new File(System.getProperty("java.io.tmpdir"), "jsonSchemaUtils");
         if (!file.exists()) {
             file = FileUtils.createTempDir("jsonSchemaUtils");
@@ -252,7 +33,6 @@ public class JsonSchemaUtilsTest {
         sourceClassesDir.mkdirs();
         compiledClassesDir = new File(file, "compiled");
         compiledClassesDir.mkdirs();
-
     }
 
     @Test
