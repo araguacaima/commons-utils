@@ -3,6 +3,8 @@ package com.araguacaima.commons.utils;
 import org.apache.commons.io.FileUtils;
 import org.joor.Reflect;
 import org.joor.ReflectException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.tools.*;
 import java.io.*;
@@ -16,6 +18,7 @@ public class CompilerUtils {
     private JsonUtils jsonUtils = new JsonUtils();
     private MapUtils mapUtils = MapUtils.getInstance();
     private static final CompilerUtils INSTANCE = new CompilerUtils();
+    private static final Logger log = LoggerFactory.getLogger(CompilerUtils.class);
 
     private CompilerUtils() {
         if (INSTANCE != null) {
@@ -51,7 +54,9 @@ public class CompilerUtils {
                 PackageClassUtils packageClassUtils = PackageClassUtils.instance(sourceCodeDirectory, file, ".java");
                 String content = org.apache.commons.io.FileUtils.readFileToString(file, StandardCharsets.UTF_8);
                 String className = packageClassUtils.getFullyQualifiedClassName();
-                files_.add(new CharSequenceJavaFileObject(className, content));
+                CharSequenceJavaFileObject e = new CharSequenceJavaFileObject(className, content);
+                files_.add(e);
+                log.info(content);
             }
             return compile(options, files_, compiledClassesDirectory);
         }
