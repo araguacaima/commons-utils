@@ -25,7 +25,6 @@ import com.sun.codemodel.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jsonschema2pojo.GenerationConfig;
 import org.jsonschema2pojo.Schema;
-import org.jsonschema2pojo.rules.RuleFactory;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -43,9 +42,11 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
     private static final ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
     private final String definitionsRoot;
     private final Map definitions;
+    private final RuleFactory ruleFactory;
 
     PropertyRule(RuleFactory ruleFactory, String definitionsRoot, Map definitions) {
         super(ruleFactory);
+        this.ruleFactory = ruleFactory;
         this.definitionsRoot = definitionsRoot;
         this.definitions = definitions;
     }
@@ -98,34 +99,38 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
                 JFieldVar fieldVar = jclass.fields().get(nodeName);
                 if (fieldVar != null) {
                     JType type = fieldVar.type();
-                    if (type.getClass().isAssignableFrom(JDefinedClass.class)) {
-                        JDefinedClass jDefinedClass = (JDefinedClass) type;
-                        JPackage jPackage = jDefinedClass._package();
-                        Field fieldOuter = reflectionUtils.getField(JDefinedClass.class, "outer");
-                        try {
-                            fieldOuter.setAccessible(true);
-                            JClassContainer outer = (JClassContainer) fieldOuter.get(type);
-                            JCodeModel owner = jclass.owner();
-                            JPackage newPackage = owner._package(ref);
-                            fieldOuter.set(type, newPackage);
+                    String fullyQualifiedClassName = packageClassUtils.getFullyQualifiedClassName();
+                    JType generatedType = ruleFactory.getGeneratedClassName(fullyQualifiedClassName);
+                    if (generatedType == null) {
+                        ruleFactory.addGeneratedClassName(fullyQualifiedClassName, type);
+                        if (type.getClass().isAssignableFrom(JDefinedClass.class)) {
+                            JDefinedClass jDefinedClass = (JDefinedClass) type;
+                            JPackage jPackage = jDefinedClass._package();
+                            Field fieldOuter = reflectionUtils.getField(JDefinedClass.class, "outer");
                             try {
-                                Field fieldClasses;
-                                if (outer.isPackage()) {
-                                    fieldClasses = reflectionUtils.getField(JPackage.class, "classes");
+                                fieldOuter.setAccessible(true);
+                                JClassContainer outer = (JClassContainer) fieldOuter.get(type);
+                                JCodeModel owner = jclass.owner();
+                                JPackage newPackage = owner._package(ref);
+                                fieldOuter.set(type, newPackage);
+                                try {
+                                    Field fieldClasses = reflectionUtils.getField(JPackage.class, "classes");
                                     fieldClasses.setAccessible(true);
                                     Map<String, JDefinedClass> classesNew = (Map<String, JDefinedClass>) fieldClasses.get(newPackage);
                                     classesNew.put(className, jDefinedClass);
-                                } else {
-                                    fieldClasses = reflectionUtils.getField(JDefinedClass.class, "classes");
-                                    fieldClasses.setAccessible(true);
+                                    if (outer.isClass()) {
+                                        fieldClasses = reflectionUtils.getField(JDefinedClass.class, "classes");
+                                        fieldClasses.setAccessible(true);
+                                        Map<String, JDefinedClass> classesOld = (Map<String, JDefinedClass>) fieldClasses.get(outer);
+                                        classesOld.remove(className);
+                                    }
+
+                                } catch (Throwable t) {
+                                    t.printStackTrace();
                                 }
-                                Map<String, JDefinedClass> classesOld = (Map<String, JDefinedClass>) fieldClasses.get(outer);
-                                classesOld.remove(className);
                             } catch (Throwable t) {
                                 t.printStackTrace();
                             }
-                        } catch (Throwable t) {
-                            t.printStackTrace();
                         }
                     }
                 }

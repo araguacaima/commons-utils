@@ -30,6 +30,10 @@ public class ObjectRule extends org.jsonschema2pojo.rules.ObjectRule {
     public JType apply(String nodeName, JsonNode node, JsonNode parent, JPackage _package, Schema schema) {
         Map<String, JType> generatedTypes = ruleFactory.getGeneratedTypes();
         JType jType = generatedTypes.get(nodeName);
+        String fullClassName = _package.name() + "." + nodeName;
+        if (jType == null) {
+            jType = ruleFactory.getGeneratedClassName(fullClassName);
+        }
         if (jType == null) {
             jType = super.apply(nodeName, node, parent, _package, schema);
             generatedTypes.put(nodeName, jType);

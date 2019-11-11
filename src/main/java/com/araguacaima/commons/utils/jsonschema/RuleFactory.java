@@ -13,7 +13,8 @@ import org.jsonschema2pojo.util.ParcelableHelper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RuleFactory extends org.jsonschema2pojo.rules.RuleFactory {
 
@@ -21,7 +22,7 @@ public class RuleFactory extends org.jsonschema2pojo.rules.RuleFactory {
     private final String definitionsRoot;
     private final Map definitions;
     private final Map<String, JType> generatedTypes = new HashMap<>();
-    private final Set<String> generatedClassNames = new HashSet<>();
+    private final Map<String, JType> generatedClassNames = new HashMap<>();
 
     public RuleFactory(GenerationConfig generationConfig, Annotator annotator, SchemaStore schemaStore, String definitionsRoot, Map definitions) throws NoSuchFieldException, IllegalAccessException {
         super(generationConfig, annotator, schemaStore);
@@ -74,19 +75,32 @@ public class RuleFactory extends org.jsonschema2pojo.rules.RuleFactory {
         return new ObjectRule(this, new ParcelableHelper(), getReflectionHelper());
     }
 
+    @Override
+    public Rule<JDefinedClass, JDefinedClass> getPropertiesRule() {
+        return new PropertiesRule(this);
+    }
+
     public Map<String, JType> getGeneratedTypes() {
         return generatedTypes;
     }
 
-    public Set<String> getGeneratedClassNames() {
+    public Map<String, JType> getGeneratedClassNames() {
         return generatedClassNames;
     }
 
-    public void addGeneratedClassName(String generatedClassName) {
-        generatedClassNames.add(generatedClassName);
+    public void addGeneratedClassName(String generatedClassName, JType type) {
+        generatedClassNames.put(generatedClassName, type);
     }
 
     public boolean classNameAlreadyGenerated(String generatedClassName) {
-        return generatedClassNames.contains(generatedClassName);
+        return getGeneratedClassName(generatedClassName) != null;
+    }
+
+    public JType getGeneratedType(String generatedType) {
+        return generatedTypes.get(generatedType);
+    }
+
+    public JType getGeneratedClassName(String generatedClassName) {
+        return generatedClassNames.get(generatedClassName);
     }
 }

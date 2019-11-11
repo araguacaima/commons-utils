@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.bohnman.squiggly.Squiggly;
 import com.github.victools.jsonschema.generator.*;
 import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JType;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -644,9 +645,16 @@ public class JsonUtils {
             JCodeModel codeModel = new JCodeModel();
             SchemaMapper mapper = new SchemaMapper(ruleFactory, schemaGenerator);
             JType type = mapper.generate(codeModel, className, packageName, json);
-            codeModel.build(rootDirectory);
-            ruleFactory.addGeneratedClassName(fullClassName);
-            ruleFactory.getGeneratedTypes().values().forEach(type_ -> ruleFactory.addGeneratedClassName(type_.fullName()));
+            JType generatedType = ruleFactory.getGeneratedClassName(fullClassName);
+            if (generatedType == null) {
+                codeModel.build(rootDirectory);
+                Collection<File> files = FileUtils.listFiles(rootDirectory, new String[]{"java"}, true);
+                ruleFactory.getGeneratedTypes().forEach((key, value) -> {
+                    JDefinedClass clazz = (JDefinedClass) value.boxify();
+                    ruleFactory.addGeneratedClassName(clazz.getPackage().name() + "." + key, value);
+                });
+                ruleFactory.addGeneratedClassName(((JDefinedClass) type.boxify()).getPackage().name() + "." + className, type);
+            }
         }
     }
 
