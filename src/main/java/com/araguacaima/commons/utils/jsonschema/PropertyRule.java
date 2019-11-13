@@ -30,10 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.lang.reflect.Field;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -129,13 +126,12 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
                                     if (outer.isClass()) {
                                         fieldClasses = reflectionUtils.getField(JDefinedClass.class, "classes");
                                         fieldClasses.setAccessible(true);
-                                        Map<String, JDefinedClass> classesOld = (Map<String, JDefinedClass>) fieldClasses.get(outer);
-                                        classesOld.remove(className);
                                         JDefinedClass outer1 = (JDefinedClass) outer;
-                                        Iterator<JDefinedClass> classes = outer1.classes();
-                                        Set<String> classClasses = new HashSet<>();
-                                        classes.forEachRemaining(clazz -> classClasses.add(clazz.name()));
-                                        log.info("#### outer: " + outer1.name() + " | classes: " + StringUtils.join(classClasses));
+                                        Map<String, JDefinedClass> classesOld = (Map<String, JDefinedClass>) fieldClasses.get(outer1);
+                                        log.info("#### outer: " + outer1.name() + " | classes before: " + Arrays.toString(outer1.listClasses()));
+                                        classesOld.remove(className);
+                                        fieldClasses.set(outer1, classesOld);
+                                        log.info("#### outer: " + outer1.name() + " | classes after: "  + Arrays.toString(outer1.listClasses()));
                                     } else {
                                         log.info("#### outer '" + ((JPackage) outer).name() + "' is not a class");
                                     }
