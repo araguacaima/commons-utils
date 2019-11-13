@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.bohnman.squiggly.Squiggly;
 import com.github.victools.jsonschema.generator.*;
 import com.sun.codemodel.JCodeModel;
-import com.sun.codemodel.JDefinedClass;
-import com.sun.codemodel.JType;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.Loader;
@@ -641,22 +639,9 @@ public class JsonUtils {
 
     public void jsonToSourceClassFile(String json, String className, String packageName, File rootDirectory, RuleFactory ruleFactory, org.jsonschema2pojo.SchemaGenerator schemaGenerator) throws IOException {
         String fullClassName = packageName + "." + className;
-        //if (!ruleFactory.classNameAlreadyGenerated(fullClassName)) {
-            JCodeModel codeModel = new JCodeModel();
-            SchemaMapper mapper = new SchemaMapper(ruleFactory, schemaGenerator);
-            //log.trace("#### evaluating: " + json);
-            JType type = mapper.generate(codeModel, className, packageName, json);
-            //JType generatedType = ruleFactory.getGeneratedClassName(fullClassName);
-            //if (generatedType == null) {
-                codeModel.build(rootDirectory);
-                /*Collection<File> files = FileUtils.listFiles(rootDirectory, new String[]{"java"}, true);
-                ruleFactory.getGeneratedTypes().forEach((key, value) -> {
-                    JDefinedClass clazz = (JDefinedClass) value.boxify();
-                    ruleFactory.addGeneratedClassName(clazz.getPackage().name() + "." + key, value);
-                });
-                ruleFactory.addGeneratedClassName(((JDefinedClass) type.boxify()).getPackage().name() + "." + className, type);*/
-            //}
-        //}
+        JCodeModel codeModel = new JCodeModel();
+        SchemaMapper mapper = new SchemaMapper(ruleFactory, schemaGenerator);
+        mapper.generate(codeModel, className, packageName, json);
     }
 
     private class PriorityClass implements Comparable<PriorityClass> {

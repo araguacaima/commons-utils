@@ -56,7 +56,7 @@ public class CompilerUtils {
                 String className = packageClassUtils.getFullyQualifiedClassName();
                 CharSequenceJavaFileObject e = new CharSequenceJavaFileObject(className, content);
                 files_.add(e);
-                log.info(content);
+                log.trace(content);
             }
             return compile(options, files_, compiledClassesDirectory);
         }
