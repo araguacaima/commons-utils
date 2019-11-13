@@ -28,8 +28,12 @@ import org.jsonschema2pojo.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -104,12 +108,10 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
                 if (fieldVar != null) {
                     JType type = fieldVar.type();
                     String fullyQualifiedClassName = packageClassUtils.getFullyQualifiedClassName();
-                    JType generatedType = ruleFactory.getGeneratedClassName(fullyQualifiedClassName);
+                    /*JType generatedType = ruleFactory.getGeneratedClassName(fullyQualifiedClassName);
                     if (generatedType == null) {
-                        ruleFactory.addGeneratedClassName(fullyQualifiedClassName, type);
-                        Class<? extends JType> aClass = type.getClass();
-                        log.info("#### type: " + aClass.getName());
-                        if (aClass.isAssignableFrom(JDefinedClass.class)) {
+                        ruleFactory.addGeneratedClassName(fullyQualifiedClassName, type);*/
+                        if (type.getClass().isAssignableFrom(JDefinedClass.class)) {
                             JDefinedClass jDefinedClass = (JDefinedClass) type;
                             JPackage jPackage = jDefinedClass._package();
                             Field fieldOuter = reflectionUtils.getField(JDefinedClass.class, "outer");
@@ -130,7 +132,10 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
                                         Map<String, JDefinedClass> classesOld = (Map<String, JDefinedClass>) fieldClasses.get(outer);
                                         classesOld.remove(className);
                                         JDefinedClass outer1 = (JDefinedClass) outer;
-                                        log.info("#### outer: " + outer1.name() + " | classes: " + StringUtils.join(outer1.classes()));
+                                        Iterator<JDefinedClass> classes = outer1.classes();
+                                        Set<String> classClasses = new HashSet<>();
+                                        classes.forEachRemaining(clazz -> classClasses.add(clazz.name()));
+                                        log.info("#### outer: " + outer1.name() + " | classes: " + StringUtils.join(classClasses));
                                     } else {
                                         log.info("#### outer '" + ((JPackage) outer).name() + "' is not a class");
                                     }
@@ -138,13 +143,16 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
                                 } catch (Throwable t) {
                                     t.printStackTrace();
                                 }
-                                log.info("#### package: " + newPackage.name() + " | classes: " + StringUtils.join(newPackage.classes()));
+                                Iterator<JDefinedClass> classes = newPackage.classes();
+                                Set<String> packageClasses = new HashSet<>();
+                                classes.forEachRemaining(clazz -> packageClasses.add(clazz.name()));
+                                log.info("#### package: " + newPackage.name() + " | classes: " + StringUtils.join(packageClasses));
 
                             } catch (Throwable t) {
                                 t.printStackTrace();
                             }
                         }
-                    }
+                    //}
                 }
             }
         }

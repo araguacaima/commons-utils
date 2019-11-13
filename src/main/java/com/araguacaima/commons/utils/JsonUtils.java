@@ -641,22 +641,22 @@ public class JsonUtils {
 
     public void jsonToSourceClassFile(String json, String className, String packageName, File rootDirectory, RuleFactory ruleFactory, org.jsonschema2pojo.SchemaGenerator schemaGenerator) throws IOException {
         String fullClassName = packageName + "." + className;
-        if (!ruleFactory.classNameAlreadyGenerated(fullClassName)) {
+        //if (!ruleFactory.classNameAlreadyGenerated(fullClassName)) {
             JCodeModel codeModel = new JCodeModel();
             SchemaMapper mapper = new SchemaMapper(ruleFactory, schemaGenerator);
-            log.info("#### evaluating: " + json);
+            log.trace("#### evaluating: " + json);
             JType type = mapper.generate(codeModel, className, packageName, json);
-            JType generatedType = ruleFactory.getGeneratedClassName(fullClassName);
-            if (generatedType == null) {
+            //JType generatedType = ruleFactory.getGeneratedClassName(fullClassName);
+            //if (generatedType == null) {
                 codeModel.build(rootDirectory);
-                Collection<File> files = FileUtils.listFiles(rootDirectory, new String[]{"java"}, true);
+                /*Collection<File> files = FileUtils.listFiles(rootDirectory, new String[]{"java"}, true);
                 ruleFactory.getGeneratedTypes().forEach((key, value) -> {
                     JDefinedClass clazz = (JDefinedClass) value.boxify();
                     ruleFactory.addGeneratedClassName(clazz.getPackage().name() + "." + key, value);
                 });
-                ruleFactory.addGeneratedClassName(((JDefinedClass) type.boxify()).getPackage().name() + "." + className, type);
-            }
-        }
+                ruleFactory.addGeneratedClassName(((JDefinedClass) type.boxify()).getPackage().name() + "." + className, type);*/
+            //}
+        //}
     }
 
     private class PriorityClass implements Comparable<PriorityClass> {

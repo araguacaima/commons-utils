@@ -44,7 +44,7 @@ public class PropertiesRule extends org.jsonschema2pojo.rules.PropertiesRule {
             if (isComplexType(node1)) {
                 JDefinedClass type1 = (JDefinedClass) jclass.fields().get(property).type().boxify();
                 String generatedClassName = type1.getPackage().name() + "." + type1.name();
-                ruleFactory.addGeneratedClassName(generatedClassName, type1);
+                ruleFactory.addGeneratedType(generatedClassName, type1);
             }
         }
 

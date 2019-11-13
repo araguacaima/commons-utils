@@ -22,7 +22,7 @@ public class RuleFactory extends org.jsonschema2pojo.rules.RuleFactory {
     private final String definitionsRoot;
     private final Map definitions;
     private final Map<String, JType> generatedTypes = new HashMap<>();
-    private final Map<String, JType> generatedClassNames = new HashMap<>();
+    /*private final Map<String, JType> generatedClassNames = new HashMap<>();*/
 
     public RuleFactory(GenerationConfig generationConfig, Annotator annotator, SchemaStore schemaStore, String definitionsRoot, Map definitions) throws NoSuchFieldException, IllegalAccessException {
         super(generationConfig, annotator, schemaStore);
@@ -84,6 +84,22 @@ public class RuleFactory extends org.jsonschema2pojo.rules.RuleFactory {
         return generatedTypes;
     }
 
+    public boolean isTypeGenerated(String generatedType) {
+        return getGeneratedTypes().get(generatedType) != null;
+    }
+
+    public JType getGeneratedType(String generatedType) {
+        return generatedTypes.get(generatedType);
+    }
+
+    public void addGeneratedType(String generatedType, JType type) {
+        getGeneratedTypes().put(generatedType, type);
+    }
+/*
+    public JType getGeneratedClassName(String generatedClassName) {
+        return generatedClassNames.get(generatedClassName);
+    }
+
     public Map<String, JType> getGeneratedClassNames() {
         return generatedClassNames;
     }
@@ -91,16 +107,6 @@ public class RuleFactory extends org.jsonschema2pojo.rules.RuleFactory {
     public void addGeneratedClassName(String generatedClassName, JType type) {
         generatedClassNames.put(generatedClassName, type);
     }
-
-    public boolean classNameAlreadyGenerated(String generatedClassName) {
-        return getGeneratedClassName(generatedClassName) != null;
-    }
-
-    public JType getGeneratedType(String generatedType) {
-        return generatedTypes.get(generatedType);
-    }
-
-    public JType getGeneratedClassName(String generatedClassName) {
-        return generatedClassNames.get(generatedClassName);
-    }
+*/
 }
+
