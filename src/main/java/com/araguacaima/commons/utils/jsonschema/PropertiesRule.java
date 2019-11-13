@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.sun.codemodel.*;
 import org.jsonschema2pojo.Schema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 
 public class PropertiesRule extends org.jsonschema2pojo.rules.PropertiesRule {
 
-
+    private static final Logger logger = LoggerFactory.getLogger(PropertiesRule.class);
     private final RuleFactory ruleFactory;
 
     PropertiesRule(RuleFactory ruleFactory) {

@@ -644,6 +644,7 @@ public class JsonUtils {
         if (!ruleFactory.classNameAlreadyGenerated(fullClassName)) {
             JCodeModel codeModel = new JCodeModel();
             SchemaMapper mapper = new SchemaMapper(ruleFactory, schemaGenerator);
+            log.info("#### evaluating: " + json);
             JType type = mapper.generate(codeModel, className, packageName, json);
             JType generatedType = ruleFactory.getGeneratedClassName(fullClassName);
             if (generatedType == null) {

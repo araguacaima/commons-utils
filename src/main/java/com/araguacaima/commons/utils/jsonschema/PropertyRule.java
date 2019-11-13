@@ -25,6 +25,8 @@ import com.sun.codemodel.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jsonschema2pojo.GenerationConfig;
 import org.jsonschema2pojo.Schema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -39,6 +41,7 @@ import java.util.Map;
  */
 public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
 
+    private static final Logger log = LoggerFactory.getLogger(PropertyRule.class);
     private static final ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
     private final String definitionsRoot;
     private final Map definitions;
@@ -93,6 +96,7 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
                         ref = ref.substring(1);
                     }
                 }
+                log.info("#### nodeName: " + nodeName + " | ref: " + ref);
                 PackageClassUtils packageClassUtils = PackageClassUtils.instance(ref);
                 ref = packageClassUtils.getPackageName();
                 String className = packageClassUtils.getClassName();
@@ -103,7 +107,9 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
                     JType generatedType = ruleFactory.getGeneratedClassName(fullyQualifiedClassName);
                     if (generatedType == null) {
                         ruleFactory.addGeneratedClassName(fullyQualifiedClassName, type);
-                        if (type.getClass().isAssignableFrom(JDefinedClass.class)) {
+                        Class<? extends JType> aClass = type.getClass();
+                        log.info("#### type: " + aClass.getName());
+                        if (aClass.isAssignableFrom(JDefinedClass.class)) {
                             JDefinedClass jDefinedClass = (JDefinedClass) type;
                             JPackage jPackage = jDefinedClass._package();
                             Field fieldOuter = reflectionUtils.getField(JDefinedClass.class, "outer");
@@ -123,11 +129,17 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
                                         fieldClasses.setAccessible(true);
                                         Map<String, JDefinedClass> classesOld = (Map<String, JDefinedClass>) fieldClasses.get(outer);
                                         classesOld.remove(className);
+                                        JDefinedClass outer1 = (JDefinedClass) outer;
+                                        log.info("#### outer: " + outer1.name() + " | classes: " + StringUtils.join(outer1.classes()));
+                                    } else {
+                                        log.info("#### outer '" + ((JPackage) outer).name() + "' is not a class");
                                     }
 
                                 } catch (Throwable t) {
                                     t.printStackTrace();
                                 }
+                                log.info("#### package: " + newPackage.name() + " | classes: " + StringUtils.join(newPackage.classes()));
+
                             } catch (Throwable t) {
                                 t.printStackTrace();
                             }
