@@ -28,9 +28,10 @@ import org.jsonschema2pojo.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.*;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -105,50 +106,47 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
                 if (fieldVar != null) {
                     JType type = fieldVar.type();
                     String fullyQualifiedClassName = packageClassUtils.getFullyQualifiedClassName();
-                    /*JType generatedType = ruleFactory.getGeneratedClassName(fullyQualifiedClassName);
-                    if (generatedType == null) {
-                        ruleFactory.addGeneratedClassName(fullyQualifiedClassName, type);*/
-                        if (type.getClass().isAssignableFrom(JDefinedClass.class)) {
-                            JDefinedClass jDefinedClass = (JDefinedClass) type;
-                            JPackage jPackage = jDefinedClass._package();
-                            Field fieldOuter = reflectionUtils.getField(JDefinedClass.class, "outer");
+                    if (type.getClass().isAssignableFrom(JDefinedClass.class)) {
+                        JDefinedClass jDefinedClass = (JDefinedClass) type;
+                        JPackage jPackage = jDefinedClass._package();
+                        Field fieldOuter = reflectionUtils.getField(JDefinedClass.class, "outer");
+                        try {
+                            fieldOuter.setAccessible(true);
+                            JClassContainer outer = (JClassContainer) fieldOuter.get(type);
+                            JCodeModel owner = jclass.owner();
+                            JPackage newPackage = owner._package(ref);
+                            fieldOuter.set(type, newPackage);
                             try {
-                                fieldOuter.setAccessible(true);
-                                JClassContainer outer = (JClassContainer) fieldOuter.get(type);
-                                JCodeModel owner = jclass.owner();
-                                JPackage newPackage = owner._package(ref);
-                                fieldOuter.set(type, newPackage);
-                                try {
-                                    Field fieldClasses = reflectionUtils.getField(JPackage.class, "classes");
+                                Field packageClasses = reflectionUtils.getField(JPackage.class, "classes");
+                                packageClasses.setAccessible(true);
+                                Map<String, JDefinedClass> classesNew = (Map<String, JDefinedClass>) packageClasses.get(newPackage);
+                                classesNew.put(className, jDefinedClass);
+                                Set<String> fieldClassesList = new LinkedHashSet<>();
+                                if (outer.isClass()) {
+                                    Field fieldClasses = reflectionUtils.getField(JDefinedClass.class, "classes");
                                     fieldClasses.setAccessible(true);
-                                    Map<String, JDefinedClass> classesNew = (Map<String, JDefinedClass>) fieldClasses.get(newPackage);
-                                    classesNew.put(className, jDefinedClass);
-                                    if (outer.isClass()) {
-                                        fieldClasses = reflectionUtils.getField(JDefinedClass.class, "classes");
-                                        fieldClasses.setAccessible(true);
-                                        JDefinedClass outer1 = (JDefinedClass) outer;
-                                        Map<String, JDefinedClass> classesOld = (Map<String, JDefinedClass>) fieldClasses.get(outer1);
-                                        log.info("#### outer: " + outer1.name() + " | classes before: " + Arrays.toString(outer1.listClasses()));
-                                        classesOld.remove(className);
-                                        fieldClasses.set(outer1, classesOld);
-                                        log.info("#### outer: " + outer1.name() + " | classes after: "  + Arrays.toString(outer1.listClasses()));
-                                    } else {
-                                        log.info("#### outer '" + ((JPackage) outer).name() + "' is not a class");
-                                    }
-
-                                } catch (Throwable t) {
-                                    t.printStackTrace();
+                                    JDefinedClass outer1 = (JDefinedClass) outer;
+                                    Map<String, JDefinedClass> classes = (Map<String, JDefinedClass>) fieldClasses.get(outer1);
+                                    classes.forEach((key, value) -> fieldClassesList.add(value.name()));
+                                    log.info("#### outer: " + outer1.name() + " | classes before: " + StringUtils.join(fieldClassesList));
+                                    classes.remove(className);
+                                    fieldClasses.set(outer1, classes);
+                                    fieldClassesList.clear();
+                                    classes.forEach((key, value) -> fieldClassesList.add(value.name()));
+                                    log.info("#### outer: " + outer1.name() + " | classes after: " + StringUtils.join(fieldClassesList));
+                                } else {
+                                    log.info("#### outer '" + ((JPackage) outer).name() + "' is not a class");
                                 }
-                                Iterator<JDefinedClass> classes = newPackage.classes();
-                                Set<String> packageClasses = new HashSet<>();
-                                classes.forEachRemaining(clazz -> packageClasses.add(clazz.name()));
-                                log.info("#### package: " + newPackage.name() + " | classes: " + StringUtils.join(packageClasses));
-
+                                fieldClassesList.clear();
+                                classesNew.forEach((key, value) -> fieldClassesList.add(value.name()));
+                                log.info("#### package: " + newPackage.name() + " | classes: " + StringUtils.join(fieldClassesList));
                             } catch (Throwable t) {
                                 t.printStackTrace();
                             }
+                        } catch (Throwable t) {
+                            t.printStackTrace();
                         }
-                    //}
+                    }
                 }
             }
         }
