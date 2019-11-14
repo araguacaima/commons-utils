@@ -105,10 +105,8 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
                 JFieldVar fieldVar = jclass.fields().get(nodeName);
                 if (fieldVar != null) {
                     JType type = fieldVar.type();
-                    String fullyQualifiedClassName = packageClassUtils.getFullyQualifiedClassName();
                     if (type.getClass().isAssignableFrom(JDefinedClass.class)) {
                         JDefinedClass jDefinedClass = (JDefinedClass) type;
-                        JPackage jPackage = jDefinedClass._package();
                         Field fieldOuter = reflectionUtils.getField(JDefinedClass.class, "outer");
                         try {
                             fieldOuter.setAccessible(true);
@@ -121,25 +119,14 @@ public class PropertyRule extends org.jsonschema2pojo.rules.PropertyRule {
                                 packageClasses.setAccessible(true);
                                 Map<String, JDefinedClass> classesNew = (Map<String, JDefinedClass>) packageClasses.get(newPackage);
                                 classesNew.put(className, jDefinedClass);
-                                Set<String> fieldClassesList = new LinkedHashSet<>();
                                 if (outer.isClass()) {
-                                    Field fieldClasses = reflectionUtils.getField(JDefinedClass.class, "classes");
+                                    Field fieldClasses = JDefinedClass.class.getDeclaredField("classes");
                                     fieldClasses.setAccessible(true);
                                     JDefinedClass outer1 = (JDefinedClass) outer;
-                                    Map<String, JDefinedClass> classes = (Map<String, JDefinedClass>) fieldClasses.get(outer1);
-                                    classes.forEach((key, value) -> fieldClassesList.add(value.name()));
-                                    log.info("#### outer: " + outer1.name() + " | classes before: " + StringUtils.join(fieldClassesList));
-                                    classes.remove(className);
-                                    fieldClasses.set(outer1, classes);
-                                    fieldClassesList.clear();
-                                    classes.forEach((key, value) -> fieldClassesList.add(value.name()));
-                                    log.info("#### outer: " + outer1.name() + " | classes after: " + StringUtils.join(fieldClassesList));
-                                } else {
-                                    log.info("#### outer '" + ((JPackage) outer).name() + "' is not a class");
+                                    Map<String, JDefinedClass> existentClasses = (Map<String, JDefinedClass>) fieldClasses.get(outer1);
+                                    existentClasses.remove(className);
+                                    existentClasses.remove(className.toUpperCase());
                                 }
-                                fieldClassesList.clear();
-                                classesNew.forEach((key, value) -> fieldClassesList.add(value.name()));
-                                log.info("#### package: " + newPackage.name() + " | classes: " + StringUtils.join(fieldClassesList));
                             } catch (Throwable t) {
                                 t.printStackTrace();
                             }

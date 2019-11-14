@@ -1442,7 +1442,7 @@ public class ReflectionUtils implements Serializable {
                                         Object valueOfField = UNKNOWN_VALUE;
                                         Field field;
                                         try {
-                                            field = getFieldByFieldName(object, fieldName);
+                                            field = getField(object, fieldName);
                                             field.setAccessible(true);
                                             valueOfField = field.get(object);
                                         } catch (IllegalAccessException e1) {
@@ -1458,7 +1458,7 @@ public class ReflectionUtils implements Serializable {
                                                 .NEW_LINE);
                                     } catch (NullPointerException e) {
                                         Object valueOfField = UNKNOWN_VALUE;
-                                        Field field = getFieldByFieldName(object, fieldName);
+                                        Field field = getField(object, fieldName);
                                         objectValuesFormatted.append(field == null ? getSimpleClassName(method
                                                 .getReturnType()) : getSimpleClassName(
                                                 field.getType())).append(")").append(StringUtils.BLANK_SPACE).append(
@@ -1469,7 +1469,7 @@ public class ReflectionUtils implements Serializable {
                                         Object valueOfField = UNKNOWN_VALUE;
                                         Field field;
                                         try {
-                                            field = getFieldByFieldName(object, fieldName);
+                                            field = getField(object, fieldName);
 
                                             if (field != null) {
                                                 field.setAccessible(true);
@@ -1740,7 +1740,7 @@ public class ReflectionUtils implements Serializable {
         } catch (IllegalAccessException | InvocationTargetException e) {
             log.error("Impossible to invoke method: " + "get" + fieldName + " because of an " + e.getClass().getName());
             try {
-                Field field = getFieldByFieldName(object, fieldName);
+                Field field = getField(object, fieldName);
                 field.setAccessible(true);
                 value = field.get(object);
             } catch (IllegalAccessException e1) {
@@ -1751,7 +1751,7 @@ public class ReflectionUtils implements Serializable {
             log.error("Impossible to invoke method: " + "get" + fieldName + " because of an NullPointerException, " +
                     "may be the incoming field :" + fieldName + " have not a getter");
             try {
-                Field field = getFieldByFieldName(object, fieldName);
+                Field field = getField(object, fieldName);
                 if (field != null) {
                     field.setAccessible(true);
                     value = field.get(object);
@@ -1768,13 +1768,8 @@ public class ReflectionUtils implements Serializable {
         return CollectionUtils.select(getAllMethodsIncludingParents(clazz), METHOD_IS_GETTER_PREDICATE);
     }
 
-    public Field getFieldByFieldName(Object object, final String fieldName) {
-        return getFieldByFieldName(object.getClass(), fieldName);
-    }
-
-    public Field getFieldByFieldName(Class clazz, final String fieldName) {
-        return IterableUtils.find(getAllFieldsIncludingParents(clazz),
-                field -> fieldNameEqualsToPredicate(field, fieldName));
+    public Field getField(Object object, final String fieldName) {
+        return getField(object.getClass(), fieldName);
     }
 
     public String getFullyQualifiedJavaTypeOrNull(Object object) {

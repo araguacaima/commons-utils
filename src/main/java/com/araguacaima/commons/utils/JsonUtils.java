@@ -642,6 +642,7 @@ public class JsonUtils {
         JCodeModel codeModel = new JCodeModel();
         SchemaMapper mapper = new SchemaMapper(ruleFactory, schemaGenerator);
         mapper.generate(codeModel, className, packageName, json);
+        codeModel.build(rootDirectory);
     }
 
     private class PriorityClass implements Comparable<PriorityClass> {
