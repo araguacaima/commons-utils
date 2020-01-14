@@ -19,13 +19,12 @@
 
 package com.araguacaima.commons.utils;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.PrivilegedAction;
@@ -36,15 +35,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("unchecked")
-@Component
+
 public class EnumsUtils<T> {
 
     private static final Logger log = LoggerFactory.getLogger(EnumsUtils.class);
+    private static final EnumsUtils INSTANCE = new EnumsUtils();
     private final Pattern getterPattern = Pattern.compile("(?:get|is)\\p{Upper}+");
     private final RandomDataGenerator randomData = new RandomDataGenerator();
+    private ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
 
-    public EnumsUtils() {
+    private EnumsUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
 
+    public static EnumsUtils getInstance() {
+        return INSTANCE;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
     }
 
     public T getAnyEnumElement(Class<T> enumType) {
@@ -85,7 +96,19 @@ public class EnumsUtils<T> {
         T result = null;
         if (constants != null) {
             List<T> enumConstants = Arrays.asList(constants);
-            result = (T) IterableUtils.find(enumConstants, object -> object.toString().equals(name));
+            result = IterableUtils.find(enumConstants, object -> {
+                try {
+                    if (object.toString().equals(name)) {
+                        return true;
+                    } else {
+                        Field fieldName = reflectionUtils.getField(object.getClass(), "name");
+                        fieldName.setAccessible(true);
+                        return fieldName.get(object).equals(name);
+                    }
+                } catch (IllegalAccessException e) {
+                    return false;
+                }
+            });
         }
         if (result != null)
             return result;
@@ -145,24 +168,21 @@ public class EnumsUtils<T> {
         }
     }
 
-    @SuppressWarnings("JavaReflectionMemberAccess")
     public String getStringValue(Enum anEnum) {
-        if (Enum.class.isAssignableFrom(anEnum.getClass())) {
-            try {
-                final Method value = anEnum.getClass().getMethod("value");
-                java.security.AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-                    value.setAccessible(true);
-                    return null;
-                });
-                return (String) value.invoke(anEnum);
-            } catch (NoSuchMethodException e) {
-                return anEnum.toString();
-            } catch (InvocationTargetException | IllegalAccessException e) {
-                log.error(e.getMessage());
-            }
-            return anEnum.name();
+        Enum.class.isAssignableFrom(anEnum.getClass());
+        try {
+            final Method value = anEnum.getClass().getMethod("value");
+            java.security.AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                value.setAccessible(true);
+                return null;
+            });
+            return (String) value.invoke(anEnum);
+        } catch (NoSuchMethodException e) {
+            return anEnum.toString();
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            log.error(e.getMessage());
         }
-        return null;
+        return anEnum.name();
     }
 
     public List<String> getValuesList(Class enumerateClazz) {

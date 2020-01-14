@@ -20,14 +20,12 @@
 package com.araguacaima.commons.exception.aop;
 
 import com.araguacaima.commons.exception.core.GeneralException;
-import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.stereotype.Component;
+
 
 /**
- * Provides a way to intercept thrown {@link Throwable} in such a way that it can be wrapped into a new {@link GeneralException}
+ * Provides a way to intercept thrown {@link Throwable} in such a way that it can be wrapped into a new
+ * {@link GeneralException}
  * after determining how should be handled such exception using a chain of responsibility pattern.
  *
  * @author Alejandro Manuel Méndez Araguacaima (AMMA) araguacaima@gmail.com
@@ -40,22 +38,6 @@ import org.springframework.stereotype.Component;
  * @see com.araguacaima.commons.exception.MessageHandler
  */
 @Aspect
-@EnableAspectJAutoProxy
-@Configurable
-@Component
 public class ExceptionsAspect {
 
-    /**
-     * Catch the exception thrown and wrap it in a new exception
-     *
-     * @param ex Exception to be thrown
-     * @throws GeneralException after original exception is handled
-     */
-    @AfterThrowing(pointcut = "execution(* *..*())",
-                   throwing = "ex")
-    public void errorInterceptor(Throwable ex)
-            throws GeneralException {
-        //TODO Call Chain of responsibility
-
-    }
 }

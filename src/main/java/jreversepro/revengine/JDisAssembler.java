@@ -22,23 +22,21 @@
  */
 package jreversepro.revengine;
 
-import java.util.List;
-import java.util.Enumeration;
+import jreversepro.common.JJvmOpcodes;
+import jreversepro.parser.ClassParserException;
+import jreversepro.reflect.JConstantPool;
+import jreversepro.reflect.JImport;
+import jreversepro.reflect.JInstruction;
+import jreversepro.reflect.JMethod;
+import jreversepro.runtime.JSymbolTable;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
 //import jreversepro.common.Helper;
 //import jreversepro.common.JJvmSet;
-import jreversepro.common.JJvmOpcodes;
-import jreversepro.reflect.JConstantPool;
-import jreversepro.reflect.JInstruction;
-import jreversepro.reflect.JMethod;
-import jreversepro.reflect.JImport;
-
-import jreversepro.parser.ClassParserException;
-
-import jreversepro.runtime.JSymbolTable;
 
 /**
  * <b>JDisAssembler</b> writes out the assebly byte codes.
@@ -51,17 +49,17 @@ public class JDisAssembler implements JReverseEngineer, JJvmOpcodes {
      * byteIns is the Vector of instructions. Individual elements are
      * JInstruction.
      */
-    List byteIns;
+    final List<JInstruction> byteIns;
 
     /**
      * ConstantPool Information.
      */
-    JConstantPool cpInfo;
+    final JConstantPool cpInfo;
 
     /**
      * Reference to current method.
      */
-    JMethod curMethod;
+    final JMethod curMethod;
 
     /**
      * @param rhsMethod Method for which the disassembler is going to act.
@@ -78,12 +76,11 @@ public class JDisAssembler implements JReverseEngineer, JJvmOpcodes {
      *
      * @throws IOException          Thrown incase we encounter any i/o erro
      *                              while disassembling.
-     * @throws RevEngineException   Thrown in case we encounter any
-     *                              logical error while trying to disasseble.
      * @throws ClassParserException Thrown in case of an invalid
      *                              constantpool reference.
      */
-    public void genCode() throws RevEngineException, IOException, ClassParserException {
+    public void genCode()
+            throws IOException, ClassParserException {
 
         StringBuffer assembly = new StringBuffer("\t{");
         //assembly.append(JDecompiler.getMethodHeaders(curMethod, null));
@@ -93,23 +90,23 @@ public class JDisAssembler implements JReverseEngineer, JJvmOpcodes {
             JImport importInfo = cpInfo.getImportedClasses();
             curMethod.setSymbolTable(new JSymbolTable(curMethod, importInfo));
 
-            Enumeration enumIns = Collections.enumeration(byteIns);
+            Enumeration<JInstruction> enumIns = Collections.enumeration(byteIns);
             while (enumIns.hasMoreElements()) {
-                JInstruction thisIns = (JInstruction) enumIns.nextElement();
-                if (thisIns.opcode == OPCODE_TABLESWITCH) {
-                    JSwitchTable switches = new JSwitchTable(curMethod, thisIns, null);
-                    assembly.append("\n\t\t" + thisIns.index + ": ");
-                    assembly.append("tableswitch ");
-                    assembly.append(switches.disassemble());
-                } else if (thisIns.opcode == OPCODE_LOOKUPSWITCH) {
-                    JSwitchTable switches = new JSwitchTable(curMethod, thisIns, null);
-                    assembly.append("\n\t\t" + thisIns.index + ": ");
-                    assembly.append("lookupswitch ");
-                    assembly.append(switches.disassemble());
-                } else if (thisIns.opcode == OPCODE_WIDE) {
-                    //Handling to be done here.
-                } else {
-                    dealDefault(assembly, thisIns);
+                JInstruction thisIns = enumIns.nextElement();
+                if (thisIns.opcode != OPCODE_WIDE) {
+                    if (thisIns.opcode == OPCODE_TABLESWITCH) {
+                        JSwitchTable switches = new JSwitchTable(curMethod, thisIns, null);
+                        assembly.append("\n\t\t").append(thisIns.index).append(": ");
+                        assembly.append("tableswitch ");
+                        assembly.append(switches.disassemble());
+                    } else if (thisIns.opcode == OPCODE_LOOKUPSWITCH) {
+                        JSwitchTable switches = new JSwitchTable(curMethod, thisIns, null);
+                        assembly.append("\n\t\t").append(thisIns.index).append(": ");
+                        assembly.append("lookupswitch ");
+                        assembly.append(switches.disassemble());
+                    } else {
+                        dealDefault(assembly, thisIns);
+                    }
                 }
             }
         } catch (RevEngineException ree) {
@@ -132,8 +129,9 @@ public class JDisAssembler implements JReverseEngineer, JJvmOpcodes {
      * @throws ClassParserException Thrown in case of an invalid
      *                              constantpool reference.
      */
-    private void dealDefault(StringBuffer assembly, JInstruction thisIns) throws ClassParserException {
-        assembly.append("\n\t\t" + thisIns.index + ": ");
+    private void dealDefault(StringBuffer assembly, JInstruction thisIns)
+            throws ClassParserException {
+        assembly.append("\n\t\t").append(thisIns.index).append(": ");
         String ins = thisIns.getInsName();
         assembly.append(ins);
         if (thisIns.args == null) {
@@ -146,26 +144,26 @@ public class JDisAssembler implements JReverseEngineer, JJvmOpcodes {
 
                 assembly.append(" #");
                 //Indicates an index to the Constant Pool
-                assembly.append(thisByte + " <");
+                assembly.append(thisByte).append(" <");
                 assembly.append(cpInfo.getTagDescriptor(thisByte));
                 assembly.append(" >");
             } else {
-                assembly.append(" " + thisByte);
+                assembly.append(" ").append(thisByte);
             }
         } else if (len == 2) {
             int value = thisIns.getArgUnsignedShort();
             assembly.append(" ");
-            if (ins.indexOf("if") != -1 || thisIns.opcode == OPCODE_GOTO || thisIns.opcode == OPCODE_JSR) {
+            if (ins.contains("if") || thisIns.opcode == OPCODE_GOTO || thisIns.opcode == OPCODE_JSR) {
 
                 assembly.append(thisIns.getTargetPc());
             } else if (thisIns.opcode == OPCODE_IINC) {
-                assembly.append(thisIns.getArgUnsignedByte() + " " + thisIns.getArgUnsignedByte(1));
+                assembly.append(thisIns.getArgUnsignedByte()).append(" ").append(thisIns.getArgUnsignedByte(1));
             } else if (thisIns.opcode == OPCODE_SIPUSH) {
                 assembly.append(value);
             } else {
                 assembly.append("#");
                 //Indicates an index to the Constant Pool
-                assembly.append(value + " <");
+                assembly.append(value).append(" <");
                 assembly.append(cpInfo.getTagDescriptor(value));
                 assembly.append(" >");
             }
@@ -173,7 +171,7 @@ public class JDisAssembler implements JReverseEngineer, JJvmOpcodes {
             int value = thisIns.getArgUnsignedShort();
             assembly.append(" #");
             //Indicates an index to the Constant Pool
-            assembly.append(value + " <");
+            assembly.append(value).append(" <");
             assembly.append(cpInfo.getTagDescriptor(value));
             assembly.append(" >");
         }

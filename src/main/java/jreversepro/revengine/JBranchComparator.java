@@ -1,24 +1,23 @@
-/**
- * @(#)JBranchComparator.java
- * JReversePro - Java Decompiler / Disassembler.
+/*
+  @(#)JBranchComparator.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 2002 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
- *
+ * <p>
  * This program is free software; you can redistribute it and/or modify
  * it , under the terms of the GNU General Public License as published
  * by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with this program.If not, write to
- *  The Free Software Foundation, Inc.,
- *  59 Temple Place - Suite 330,
- *  Boston, MA 02111-1307, USA.
- **/
+ * The Free Software Foundation, Inc.,
+ * 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
 
 package jreversepro.revengine;
 
@@ -32,8 +31,8 @@ import java.util.Comparator;
  *
  * @author Karthik Kumar.
  */
-public class JBranchComparator implements Comparator {
-    private static Logger log = LoggerFactory.getLogger(JBranchComparator.class);
+public class JBranchComparator <T> implements Comparator<T> {
+    private static final Logger log = LoggerFactory.getLogger(JBranchComparator.class);
 
     /**
      * Method to compare two JBranchComparator objects
@@ -41,8 +40,8 @@ public class JBranchComparator implements Comparator {
      * @param o1 First Object to be compared.
      * @param o2 Second object to be compared.
      * @return -1 if First branch overlaps Second branch,
-     *         1 if first branch doesnt overlap and exactly outside the second
-     *         branch.
+     * 1 if first branch doesnt overlap and exactly outside the second
+     * branch.
      */
     public int compare(Object o1, Object o2) {
         if (!(o1 instanceof JBranchEntry) || !(o2 instanceof JBranchEntry)) {
@@ -77,7 +76,7 @@ public class JBranchComparator implements Comparator {
     /**
      * @param obj R.H.S object to be compared.
      * @return true, if both are equal.
-     *         false, otherwise.
+     * false, otherwise.
      */
     public boolean equals(Object obj) {
         return (obj instanceof JBranchEntry);

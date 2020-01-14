@@ -17,7 +17,7 @@ import java.util.List;
 public class FileUtilsFilenameFilterImplements extends FileUtilsFilenameFilterImpl {
 
     public static final int DEFAULT_FILTER_TYPE = FileUtilsFilenameFilter.RESOURCE_DIR_OR_FILE_FILTER_EQUALS;
-    private ClassLoader classLoader;
+    private final ClassLoader classLoader;
     private Class interfaceCriteria;
 
     public FileUtilsFilenameFilterImplements() {
@@ -109,61 +109,51 @@ public class FileUtilsFilenameFilterImplements extends FileUtilsFilenameFilterIm
             String clazzName = clazz.getName();
             switch (filterType) {
                 case RESOURCE_FILE_FILTER_EQUALS:
-                    return clazzName.equals(interfaceCriteria.getName());
-
-                case RESOURCE_FILE_FILTER_MATCHES:
-                    return clazzName.matches(interfaceCriteria.getName());
-
-                case RESOURCE_FILE_FILTER_STARTS:
-                    return clazzName.startsWith(interfaceCriteria.getName());
-
-                case RESOURCE_FILE_FILTER_ENDS:
-                    return clazzName.endsWith(interfaceCriteria.getName());
-
-                case RESOURCE_FILE_FILTER_CONTAINS:
-                    return clazzName.contains(interfaceCriteria.getName());
-
-                case RESOURCE_FILE_FILTER_NOT_EQUAL:
-                    return !clazzName.equals(interfaceCriteria.getName());
-
-                case RESOURCE_FILE_FILTER_NOT_MATCHES:
-                    return !clazzName.matches(interfaceCriteria.getName());
-
-                case RESOURCE_FILE_FILTER_NOT_STARTS:
-                    return !clazzName.startsWith(interfaceCriteria.getName());
-
-                case RESOURCE_FILE_FILTER_NOT_ENDS:
-                    return !clazzName.endsWith(interfaceCriteria.getName());
-
-                case RESOURCE_FILE_FILTER_NOT_CONTAINS:
-                    return !clazzName.contains(interfaceCriteria.getName());
 
                 case RESOURCE_DIR_OR_FILE_FILTER_EQUALS:
                     return clazzName.equals(interfaceCriteria.getName());
 
+                case RESOURCE_FILE_FILTER_MATCHES:
+
                 case RESOURCE_DIR_OR_FILE_FILTER_MATCHES:
                     return clazzName.matches(interfaceCriteria.getName());
+
+                case RESOURCE_FILE_FILTER_STARTS:
 
                 case RESOURCE_DIR_OR_FILE_FILTER_STARTS:
                     return clazzName.startsWith(interfaceCriteria.getName());
 
+                case RESOURCE_FILE_FILTER_ENDS:
+
                 case RESOURCE_DIR_OR_FILE_FILTER_ENDS:
                     return clazzName.endsWith(interfaceCriteria.getName());
+
+                case RESOURCE_FILE_FILTER_CONTAINS:
 
                 case RESOURCE_DIR_OR_FILE_FILTER_CONTAINS:
                     return clazzName.contains(interfaceCriteria.getName());
 
+                case RESOURCE_FILE_FILTER_NOT_EQUAL:
+
                 case RESOURCE_DIR_OR_FILE_FILTER_NOT_EQUAL:
                     return !clazzName.equals(interfaceCriteria.getName());
+
+                case RESOURCE_FILE_FILTER_NOT_MATCHES:
 
                 case RESOURCE_DIR_OR_FILE_FILTER_NOT_MATCHES:
                     return !clazzName.matches(interfaceCriteria.getName());
 
+                case RESOURCE_FILE_FILTER_NOT_STARTS:
+
                 case RESOURCE_DIR_OR_FILE_FILTER_NOT_STARTS:
                     return !clazzName.startsWith(interfaceCriteria.getName());
 
+                case RESOURCE_FILE_FILTER_NOT_ENDS:
+
                 case RESOURCE_DIR_OR_FILE_FILTER_NOT_ENDS:
                     return !clazzName.endsWith(interfaceCriteria.getName());
+
+                case RESOURCE_FILE_FILTER_NOT_CONTAINS:
 
                 case RESOURCE_DIR_OR_FILE_FILTER_NOT_CONTAINS:
                     return !clazzName.contains(interfaceCriteria.getName());
@@ -206,6 +196,11 @@ public class FileUtilsFilenameFilterImplements extends FileUtilsFilenameFilterIm
         return interfaceCriteria;
     }
 
+    @Override
+    public Collection<String> getResourcePaths(final ClassLoader classLoader)
+            throws IOException {
+        return transformURLIntoStringPaths(getResources(classLoader));
+    }
 
     @Override
     public Collection<URL> getResources(final ClassLoader classLoader)
@@ -220,18 +215,11 @@ public class FileUtilsFilenameFilterImplements extends FileUtilsFilenameFilterIm
         return Collections.list(classLoader.getResources(interfaceCriteriaTransformed));
     }
 
-    @Override
-    public Collection<String> getResourcePaths(final ClassLoader classLoader)
-            throws IOException {
-        return transformURLIntoStringPaths(getResources(classLoader));
-    }
-
-    public Collection<URL> getResources()
-            throws IOException {
-        String interfaceCriteriaTransformed = interfaceCriteria.getName().indexOf(".") != -1 ? interfaceCriteria
-                .getName().substring(
-                0,
-                interfaceCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;
+    public Collection<URL> getResources() {
+        String interfaceCriteriaTransformed = interfaceCriteria.getName().contains(".") ? interfaceCriteria.getName()
+                .substring(
+                        0,
+                        interfaceCriteria.getName().lastIndexOf(".")) : StringUtils.EMPTY;
         interfaceCriteriaTransformed = interfaceCriteriaTransformed.replaceAll("\\.", StringUtils.SLASH).replaceAll(
                 "\\\\\\*",
                 StringUtils.EMPTY);

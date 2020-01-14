@@ -12,7 +12,7 @@
         <Logger name="com.araguacaima.commons.exception.core" level="off" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="com.araguacaima.commons.utils" level="off" additivity="false">
+        <Logger name="com.araguacaima.commons.utils" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Root level="trace">

@@ -24,7 +24,6 @@
 
 package jreversepro.reflect.method;
 
-import jreversepro.reflect.*;
 import jreversepro.revengine.JBranchEntry;
 
 /**
@@ -33,19 +32,20 @@ import jreversepro.revengine.JBranchEntry;
 public class JFinallyBlock extends JBlockObject {
 
     /**
-     * Associated Branch Entry
-     */
-    private JBranchEntry branch;
-
-    /**
      * Creates a new instance of JFinallyBlock
+     *
+     * @param _jbe The branch
      */
     public JFinallyBlock(JBranchEntry _jbe) {
-        branch = _jbe;
+        /*
+      Associated Branch Entry
+     */
     }
 
     /**
      * Outputs any starting code to open the block
+     *
+     * @return The starting code to open the block
      */
     protected String getEntryCode() {
         return "finally {\n";
@@ -53,6 +53,8 @@ public class JFinallyBlock extends JBlockObject {
 
     /**
      * Outputs any terminating code to close the block
+     *
+     * @return The terminating code to close the block
      */
     protected String getExitCode() {
         return "}\n";

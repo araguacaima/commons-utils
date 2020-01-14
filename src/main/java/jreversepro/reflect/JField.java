@@ -43,20 +43,20 @@ public class JField extends JMember {
     }
 
     /**
-     * Setter method for value.
-     *
-     * @param rhsValue New Value
-     */
-    public void setValue(String rhsValue) {
-        value = rhsValue;
-    }
-
-    /**
      * Getter method for value.
      *
      * @return Returns value
      */
     public String getValue() {
         return value;
+    }
+
+    /**
+     * Setter method for value.
+     *
+     * @param rhsValue New Value
+     */
+    public void setValue(String rhsValue) {
+        value = rhsValue;
     }
 }

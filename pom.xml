@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.araguacaima</groupId>
     <artifactId>commons-utils</artifactId>
-    <version>1.0-RELEASE</version>
+    <version>1.5.4</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>Common utilities is a set of java utilities for managing commmon actions when working with enums,
@@ -17,7 +16,8 @@
         * commons-lang3 (apache)
         * commons-io (apache)
         * commons-math3 (apache)
-        * commons-collections4
+        * commons-collections4 (apache)
+        * jreversepro (akkumar)
     </description>
     <url>http://maven.apache.org</url>
 
@@ -40,6 +40,7 @@
         <connection>scm:git:git://github.com/araguacaima/commons-utils.git</connection>
         <developerConnection>scm:git:ssh://github.com:araguacaima/commons-utils.git</developerConnection>
         <url>https://github.com/araguacaima/commons-utils/tree/master</url>
+        <tag>commons-utils-1.5.4</tag>
     </scm>
 
     <distributionManagement>
@@ -55,22 +56,21 @@
 
     <properties>
         <slf4j.version>1.7.25</slf4j.version>
-        <commons-beanutils-commons-beanutils>1.9.3</commons-beanutils-commons-beanutils>
+        <commons-beanutils-commons-beanutils>1.9.4</commons-beanutils-commons-beanutils>
         <org.apache.commons-commons-lang3>3.6</org.apache.commons-commons-lang3>
-        <org.springframework-spring-core>4.3.10.RELEASE</org.springframework-spring-core>
         <joda-time-joda-time>2.9.9</joda-time-joda-time>
-        <com.google.collections-google-collections>1.0</com.google.collections-google-collections>
         <commons-io-commons-io>2.5</commons-io-commons-io>
         <org.apache.commons-commons-collections4>4.1</org.apache.commons-commons-collections4>
-        <javax.servlet-servlet-api>2.5</javax.servlet-servlet-api>
+        <javax.servlet-servlet-api>3.1.0</javax.servlet-servlet-api>
         <commons-httpclient-commons-httpclient>3.1</commons-httpclient-commons-httpclient>
         <org.apache.commons-commons-math3>3.6.1</org.apache.commons-commons-math3>
         <org.apache.logging.log4j>2.9.0</org.apache.logging.log4j>
         <aspectj.version>1.8.4</aspectj.version>
         <org.reflections-reflections>0.9.10</org.reflections-reflections>
-        <com.fasterxml.jackson.core-jackson-databind>2.7.1-1</com.fasterxml.jackson.core-jackson-databind>
-        <com.fasterxml.jackson.core-jackson-core>2.7.1</com.fasterxml.jackson.core-jackson-core>
-        <com.fasterxml.jackson.module-jackson-module-jsonSchema>2.7.1
+        <com.fasterxml.jackson.core-jackson-annotations>2.9.8</com.fasterxml.jackson.core-jackson-annotations>
+        <com.fasterxml.jackson.core-jackson-core>2.9.8</com.fasterxml.jackson.core-jackson-core>
+        <com.fasterxml.jackson.core-jackson-databind>2.9.10.1</com.fasterxml.jackson.core-jackson-databind>
+        <com.fasterxml.jackson.module-jackson-module-jsonSchema>2.9.8
         </com.fasterxml.jackson.module-jackson-module-jsonSchema>
 
         <!-- Generic properties -->
@@ -84,13 +84,13 @@
         <org.apache.maven.plugins-maven-source-plugin>3.0.1</org.apache.maven.plugins-maven-source-plugin>
         <org.apache.maven.plugins-maven-javadoc-plugin>3.0.0-M1</org.apache.maven.plugins-maven-javadoc-plugin>
         <org.apache.maven.plugins-maven-compiler-plugin>3.6.2</org.apache.maven.plugins-maven-compiler-plugin>
-        <org.apache.maven.plugins-maven-surefire-plugin>2.20</org.apache.maven.plugins-maven-surefire-plugin>
+        <org.apache.maven.plugins-maven-surefire-plugin>3.0.0-M3</org.apache.maven.plugins-maven-surefire-plugin>
         <org.apache.maven.plugins-maven-enforcer-plugin>3.0.0-M1</org.apache.maven.plugins-maven-enforcer-plugin>
         <org.apache.maven.plugin-maven-jar-plugin>3.0.2</org.apache.maven.plugin-maven-jar-plugin>
         <org.apache.maven.plugin-maven-dependency-plugin>3.0.1</org.apache.maven.plugin-maven-dependency-plugin>
         <org.codehaus.mojo-aspectj-maven-plugin>1.8</org.codehaus.mojo-aspectj-maven-plugin>
         <org.apache.maven.plugins-maven-jar-plugin>3.0.2</org.apache.maven.plugins-maven-jar-plugin>
-        <maven.skip.tests>true</maven.skip.tests>
+        <maven.skipTests>true</maven.skipTests>
 
         <!-- tests -->
         <org.evosuite-evosuite-standalone-runtime>1.0.5</org.evosuite-evosuite-standalone-runtime>
@@ -102,6 +102,13 @@
         <org.apache.maven.plugins-maven-gpg-plugin>1.6</org.apache.maven.plugins-maven-gpg-plugin>
         <org.apache.maven.plugins-maven-release-plugin>2.5.3</org.apache.maven.plugins-maven-release-plugin>
 
+        <commons-net-commons-net>2.0</commons-net-commons-net>
+        <io.github.benas-random-beans>3.7.0</io.github.benas-random-beans>
+        <org.apache.cxf-cxf-rt-rs-extension-search>3.3.3</org.apache.cxf-cxf-rt-rs-extension-search>
+        <com.github.bohnman-squiggly-filter-jackson>1.3.11</com.github.bohnman-squiggly-filter-jackson>
+        <io.codearte.jfairy-jfairy>0.5.9</io.codearte.jfairy-jfairy>
+        <org.atteo-evo-inflector>1.2.2</org.atteo-evo-inflector>
+        <org.jooq-joor-java-8>0.9.12</org.jooq-joor-java-8>
     </properties>
 
     <dependencies>
@@ -122,53 +129,40 @@
                     <artifactId>commons-collections</artifactId>
                 </exclusion>
             </exclusions>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${org.apache.commons-commons-lang3}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <version>${org.springframework-spring-core}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${org.springframework-spring-core}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>${joda-time-joda-time}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.collections</groupId>
-            <artifactId>google-collections</artifactId>
-            <version>${com.google.collections-google-collections}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${commons-io-commons-io}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
             <version>${org.apache.commons-commons-collections4}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
             <version>${javax.servlet-servlet-api}</version>
         </dependency>
 
@@ -176,24 +170,28 @@
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
             <version>${commons-httpclient-commons-httpclient}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>${org.apache.commons-commons-math3}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
             <version>${aspectj.version}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
             <version>${aspectj.version}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -206,24 +204,42 @@
                     <artifactId>guava</artifactId>
                 </exclusion>
             </exclusions>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${com.fasterxml.jackson.core-jackson-databind}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <version>${com.fasterxml.jackson.core-jackson-core}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jsonSchema</artifactId>
             <version>${com.fasterxml.jackson.module-jackson-module-jsonSchema}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>${commons-net-commons-net}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.benas</groupId>
+            <artifactId>random-beans</artifactId>
+            <version>${io.github.benas-random-beans}</version>
+            <scope>compile</scope>
         </dependency>
 
         <!-- Tests -->
@@ -264,16 +280,52 @@
         </dependency>
 
         <dependency>
-            <groupId>org.evosuite.plugins</groupId>
-            <artifactId>evosuite-maven-plugin</artifactId>
-            <version>${org.evosuite.plugins-evosuite-maven-plugin}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-            <version>2.0</version>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-extension-search</artifactId>
+            <version>${org.apache.cxf-cxf-rt-rs-extension-search}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.bohnman</groupId>
+            <artifactId>squiggly-filter-jackson</artifactId>
+            <version>${com.github.bohnman-squiggly-filter-jackson}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jsonschema2pojo</groupId>
+            <artifactId>jsonschema2pojo-core</artifactId>
+            <version>1.0.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.victools</groupId>
+            <artifactId>jsonschema-generator</artifactId>
+            <version>3.2.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.codearte.jfairy</groupId>
+            <artifactId>jfairy</artifactId>
+            <version>${io.codearte.jfairy-jfairy}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.atteo</groupId>
+            <artifactId>evo-inflector</artifactId>
+            <version>${org.atteo-evo-inflector}</version>
+            <scope>compile</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>joor-java-8</artifactId>
+            <version>${org.jooq-joor-java-8}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -441,11 +493,9 @@
                             </execution>
                         </executions>
                     </plugin>
-
                 </plugins>
             </build>
         </profile>
-
     </profiles>
 
     <build>
@@ -508,6 +558,7 @@
                             <value>org.evosuite.runtime.InitializingListener</value>
                         </property>
                     </properties>
+                    <skipTests>${maven.skipTests}</skipTests>
                 </configuration>
             </plugin>
 

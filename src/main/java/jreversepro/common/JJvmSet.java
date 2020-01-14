@@ -30,36 +30,26 @@ package jreversepro.common;
 public class JJvmSet implements JJvmOpcodes {
 
     /**
-     * sOpCode array contains the sOpCode string for each
-     * opcode.
+     * Length of the variable length opcode lookupswitch
      */
-    private static String[] sOpCode;
-
-    /**
-     * sLength array contains the length of each opcode.
-     */
-    private static int[] sLength;
-
+    public static final int LOOKUP_LEN = -3;
     /**
      * Length of the variable length opcode tableswitch
      */
     public static final int TABLE_LEN = -2;
-
     /**
-     * Length of the variable length opcode lookupswitch
+     * sLength array contains the length of each opcode.
      */
-    public static final int LOOKUP_LEN = -3;
-
+    private static final int[] sLength;
     /**
-     * Private constructor to prevent creation of instance.
+     * sOpCode array contains the sOpCode string for each
+     * opcode.
      */
-    private JJvmSet() {
-    }
-    // Not to be instantiated.
+    private static final String[] sOpCode;
 
-    /**
-     * Initializes thr JVM Opcode set.
-     **/
+    /*
+      Initializes thr JVM Opcode set.
+     */
     static {
         sOpCode = new String[256];
         sLength = new int[256];
@@ -82,51 +72,12 @@ public class JJvmSet implements JJvmOpcodes {
         assign13();
         assign14();
     }
+    // Not to be instantiated.
 
     /**
-     * Returns the OpCode string.
-     *
-     * @param index Index of the Opcode
-     * @return Returns the OpCode string corresponding to
-     *         the opcode aIndex.
+     * Private constructor to prevent creation of instance.
      */
-    public static final String getIns(int index) {
-        return sOpCode[index];
-    }
-
-    /**
-     * Returns the OpCode Length.
-     *
-     * @param index Index of the Opcode
-     * @param wide  Wide instruction.
-     * @return Returns the Length of the JVM Instruction with
-     *         this opcode.
-     */
-    public static final int getInsLen(int index, boolean wide) {
-        // wide instructions
-        switch (index) {
-            case OPCODE_ILOAD:
-            case OPCODE_LLOAD:
-            case OPCODE_FLOAD:
-            case OPCODE_DLOAD:
-            case OPCODE_ALOAD:
-            case OPCODE_ISTORE:
-            case OPCODE_LSTORE:
-            case OPCODE_FSTORE:
-            case OPCODE_DSTORE:
-            case OPCODE_ASTORE:
-            case OPCODE_RET:
-                if (wide) {
-                    return sLength[index] + 1;
-                }
-                break;
-            case OPCODE_IINC:
-                if (wide) {
-                    return sLength[index] + 2;
-                }
-                break;
-        }
-        return sLength[index];
+    private JJvmSet() {
     }
 
     /**
@@ -237,6 +188,265 @@ public class JJvmSet implements JJvmOpcodes {
 
         sOpCode[l + 15] = "lload_1";
         sLength[l + 15] = 1;
+    }
+
+    /**
+     * Assigns opcode information for opcodes 160-175
+     */
+    private static void assign10() {
+        int l = 160;
+
+        sOpCode[l] = "if_icmpne";
+        sLength[l] = 3;
+
+        sOpCode[l + 1] = "if_icmplt";
+        sLength[l + 1] = 3;
+
+        sOpCode[l + 2] = "if_icmpge";
+        sLength[l + 2] = 3;
+
+        sOpCode[l + 3] = "if_cmpgt";
+        sLength[l + 3] = 3;
+
+        sOpCode[l + 4] = "if_icmple";
+        sLength[l + 4] = 3;
+
+        sOpCode[l + 5] = "if_acmpeq";
+        sLength[l + 5] = 3;
+
+        sOpCode[l + 6] = "if_acmpne";
+        sLength[l + 6] = 3;
+
+        sOpCode[l + 7] = "goto";
+        sLength[l + 7] = 3;
+
+        sOpCode[l + 8] = "jsr";
+        sLength[l + 8] = 3;
+
+        sOpCode[l + 9] = "ret";
+        sLength[l + 9] = 2;
+
+        sOpCode[l + 10] = "tableswitch";
+        sLength[l + 10] = TABLE_LEN;
+        // Variable size instruction - 170
+
+        sOpCode[l + 11] = "lookupswitch";
+        sLength[l + 11] = LOOKUP_LEN;
+        // Variable size instruction - 171
+
+        sOpCode[l + 12] = "ireturn";
+        sLength[l + 12] = 1;
+
+        sOpCode[l + 13] = "lreturn";
+        sLength[l + 13] = 1;
+
+        sOpCode[l + 14] = "freturn";
+        sLength[l + 14] = 1;
+
+        sOpCode[l + 15] = "dreturn";
+        sLength[l + 15] = 1;
+    }
+
+    /**
+     * Assigns opcode information for opcodes 176-191
+     */
+    private static void assign11() {
+        int l = 176;
+
+        sOpCode[l] = "areturn";
+        sLength[l] = 1;
+
+        sOpCode[l + 1] = "return";
+        sLength[l + 1] = 1;
+
+        sOpCode[l + 2] = "getstatic";
+        sLength[l + 2] = 3;
+
+        sOpCode[l + 3] = "putstatic";
+        sLength[l + 3] = 3;
+
+        sOpCode[l + 4] = "getfield";
+        sLength[l + 4] = 3;
+
+        sOpCode[l + 5] = "putfield";
+        sLength[l + 5] = 3;
+
+        sOpCode[l + 6] = "invokevirtual";
+        sLength[l + 6] = 3;
+
+        sOpCode[l + 7] = "invokespecial";
+        sLength[l + 7] = 3;
+
+        sOpCode[l + 8] = "invokestatic";
+        sLength[l + 8] = 3;
+
+        sOpCode[l + 9] = "invokeinterface";
+        sLength[l + 9] = 5;
+
+        sOpCode[l + 10] = "xxxunusedxxx";
+        sLength[l + 10] = 1;
+
+        sOpCode[l + 11] = "new";
+        sLength[l + 11] = 3;
+
+        sOpCode[l + 12] = "newarray";
+        sLength[l + 12] = 2;
+
+        sOpCode[l + 13] = "anewarray";
+        sLength[l + 13] = 3;
+
+        // Get length
+        sOpCode[l + 14] = "arraylength";
+        sLength[l + 14] = 1;
+
+        // Throw exception or error
+        sOpCode[l + 15] = "athrow";
+        sLength[l + 15] = 1;
+    }
+
+    /**
+     * Assigns opcode information for opcodes 192-207
+     */
+    private static void assign12() {
+        int l = 192;
+
+        sOpCode[l] = "checkcast";
+        sLength[l] = 3;
+
+        sOpCode[l + 1] = "instanceof";
+        sLength[l + 1] = 3;
+
+        sOpCode[l + 2] = "monitorenter";
+        sLength[l + 2] = 1;
+
+        sOpCode[l + 3] = "monitorexit";
+        sLength[l + 3] = 1;
+
+        sOpCode[l + 4] = "wide";
+        sLength[l + 4] = 1;
+
+        sOpCode[l + 5] = "multianewarray";
+        sLength[l + 5] = 4;
+
+        sOpCode[l + 6] = "ifnull";
+        sLength[l + 6] = 3;
+
+        sOpCode[l + 7] = "ifnonnull";
+        sLength[l + 7] = 3;
+
+        sOpCode[l + 8] = "goto_w";
+        sLength[l + 8] = 5;
+
+        sOpCode[l + 9] = "jsr_w";
+        sLength[l + 9] = 5;
+
+        sOpCode[l + 10] = "_quick";
+        sLength[l + 10] = 1;
+
+        // Quick instructions
+        sOpCode[l + 11] = "ldc_quick";
+        sLength[l + 11] = 2;
+
+        sOpCode[l + 12] = "ldc_w_quick";
+        sLength[l + 12] = 3;
+
+        sOpCode[l + 13] = "ldc2_w_quick";
+        sLength[l + 13] = 3;
+
+        // Get length
+        sOpCode[l + 14] = "getfield_quick";
+        sLength[l + 14] = 3;
+
+        sOpCode[l + 15] = "putfield_quick";
+        sLength[l + 15] = 3;
+    }
+
+    /**
+     * Assigns opcode information for opcodes 208-223
+     */
+    private static void assign13() {
+        int l = 208;
+
+        sOpCode[l] = "getfield2_quick";
+        sLength[l] = 3;
+
+        sOpCode[l + 1] = "putfield2_quick";
+        sLength[l + 1] = 3;
+
+        sOpCode[l + 2] = "getstatic_quick";
+        sLength[l + 2] = 1;
+
+        sOpCode[l + 3] = "putstatic_quick";
+        sLength[l + 3] = 1;
+
+        sOpCode[l + 4] = "getstatic2_quick";
+        sLength[l + 4] = 3;
+
+        sOpCode[l + 5] = "putstatic2_quick";
+        sLength[l + 5] = 4;
+
+        sOpCode[l + 6] = "invokevirtual_quick";
+        sLength[l + 6] = 3;
+
+        sOpCode[l + 7] = "invokenonvirtual_quick";
+        sLength[l + 7] = 3;
+
+        sOpCode[l + 8] = "invokesuper_quick";
+        sLength[l + 8] = 3;
+
+        sOpCode[l + 9] = "invokestatic_quick";
+        sLength[l + 9] = 3;
+
+        sOpCode[l + 10] = "invokeinterface_quick";
+        sLength[l + 10] = 5;
+
+        sOpCode[l + 11] = "invokevirtualobject_quick";
+        sLength[l + 11] = 3;
+
+        sOpCode[l + 12] = "220-Undefined";
+        sLength[l + 12] = 1;
+        // cafe babe
+
+        sOpCode[l + 13] = "new_quick";
+        sLength[l + 13] = 3;
+
+        sOpCode[l + 14] = "anewarray_quick";
+        sLength[l + 14] = 3;
+
+        sOpCode[l + 15] = "multianewarray_quick";
+        sLength[l + 15] = 4;
+    }
+
+    /**
+     * Assigns opcode information for opcodes 224-255.
+     */
+    private static void assign14() {
+        int l = 224;
+
+        sOpCode[l] = "checkcast_quick";
+        sLength[l] = 3;
+
+        sOpCode[l + 1] = "instanceof_quick";
+        sLength[l + 1] = 3;
+
+        sOpCode[l + 2] = "invokevirtual_quick_w";
+        sLength[l + 2] = 3;
+
+        sOpCode[l + 3] = "getfield_quick_w";
+        sLength[l + 3] = 3;
+
+        sOpCode[l + 4] = "putfield_quick_w";
+        sLength[l + 4] = 3;
+
+        // Reserved  Op-codes
+        sOpCode[202] = "breakpoint";
+        sLength[202] = 1;
+
+        sOpCode[254] = "impdep1";
+        sLength[254] = 1;
+
+        sOpCode[255] = "impdep2";
+        sLength[255] = 1;
     }
 
     /**
@@ -698,261 +908,48 @@ public class JJvmSet implements JJvmOpcodes {
     }
 
     /**
-     * Assigns opcode information for opcodes 160-175
+     * Returns the OpCode string.
+     *
+     * @param index Index of the Opcode
+     * @return Returns the OpCode string corresponding to
+     * the opcode aIndex.
      */
-    private static void assign10() {
-        int l = 160;
-
-        sOpCode[l] = "if_icmpne";
-        sLength[l] = 3;
-
-        sOpCode[l + 1] = "if_icmplt";
-        sLength[l + 1] = 3;
-
-        sOpCode[l + 2] = "if_icmpge";
-        sLength[l + 2] = 3;
-
-        sOpCode[l + 3] = "if_cmpgt";
-        sLength[l + 3] = 3;
-
-        sOpCode[l + 4] = "if_icmple";
-        sLength[l + 4] = 3;
-
-        sOpCode[l + 5] = "if_acmpeq";
-        sLength[l + 5] = 3;
-
-        sOpCode[l + 6] = "if_acmpne";
-        sLength[l + 6] = 3;
-
-        sOpCode[l + 7] = "goto";
-        sLength[l + 7] = 3;
-
-        sOpCode[l + 8] = "jsr";
-        sLength[l + 8] = 3;
-
-        sOpCode[l + 9] = "ret";
-        sLength[l + 9] = 2;
-
-        sOpCode[l + 10] = "tableswitch";
-        sLength[l + 10] = TABLE_LEN;
-        // Variable size instruction - 170
-
-        sOpCode[l + 11] = "lookupswitch";
-        sLength[l + 11] = LOOKUP_LEN;
-        // Variable size instruction - 171
-
-        sOpCode[l + 12] = "ireturn";
-        sLength[l + 12] = 1;
-
-        sOpCode[l + 13] = "lreturn";
-        sLength[l + 13] = 1;
-
-        sOpCode[l + 14] = "freturn";
-        sLength[l + 14] = 1;
-
-        sOpCode[l + 15] = "dreturn";
-        sLength[l + 15] = 1;
+    public static String getIns(int index) {
+        return sOpCode[index];
     }
 
     /**
-     * Assigns opcode information for opcodes 176-191
+     * Returns the OpCode Length.
+     *
+     * @param index Index of the Opcode
+     * @param wide  Wide instruction.
+     * @return Returns the Length of the JVM Instruction with
+     * this opcode.
      */
-    private static void assign11() {
-        int l = 176;
-
-        sOpCode[l] = "areturn";
-        sLength[l] = 1;
-
-        sOpCode[l + 1] = "return";
-        sLength[l + 1] = 1;
-
-        sOpCode[l + 2] = "getstatic";
-        sLength[l + 2] = 3;
-
-        sOpCode[l + 3] = "putstatic";
-        sLength[l + 3] = 3;
-
-        sOpCode[l + 4] = "getfield";
-        sLength[l + 4] = 3;
-
-        sOpCode[l + 5] = "putfield";
-        sLength[l + 5] = 3;
-
-        sOpCode[l + 6] = "invokevirtual";
-        sLength[l + 6] = 3;
-
-        sOpCode[l + 7] = "invokespecial";
-        sLength[l + 7] = 3;
-
-        sOpCode[l + 8] = "invokestatic";
-        sLength[l + 8] = 3;
-
-        sOpCode[l + 9] = "invokeinterface";
-        sLength[l + 9] = 5;
-
-        sOpCode[l + 10] = "xxxunusedxxx";
-        sLength[l + 10] = 1;
-
-        sOpCode[l + 11] = "new";
-        sLength[l + 11] = 3;
-
-        sOpCode[l + 12] = "newarray";
-        sLength[l + 12] = 2;
-
-        sOpCode[l + 13] = "anewarray";
-        sLength[l + 13] = 3;
-
-        // Get length
-        sOpCode[l + 14] = "arraylength";
-        sLength[l + 14] = 1;
-
-        // Throw exception or error
-        sOpCode[l + 15] = "athrow";
-        sLength[l + 15] = 1;
-    }
-
-    /**
-     * Assigns opcode information for opcodes 192-207
-     */
-    private static void assign12() {
-        int l = 192;
-
-        sOpCode[l] = "checkcast";
-        sLength[l] = 3;
-
-        sOpCode[l + 1] = "instanceof";
-        sLength[l + 1] = 3;
-
-        sOpCode[l + 2] = "monitorenter";
-        sLength[l + 2] = 1;
-
-        sOpCode[l + 3] = "monitorexit";
-        sLength[l + 3] = 1;
-
-        sOpCode[l + 4] = "wide";
-        sLength[l + 4] = 1;
-
-        sOpCode[l + 5] = "multianewarray";
-        sLength[l + 5] = 4;
-
-        sOpCode[l + 6] = "ifnull";
-        sLength[l + 6] = 3;
-
-        sOpCode[l + 7] = "ifnonnull";
-        sLength[l + 7] = 3;
-
-        sOpCode[l + 8] = "goto_w";
-        sLength[l + 8] = 5;
-
-        sOpCode[l + 9] = "jsr_w";
-        sLength[l + 9] = 5;
-
-        sOpCode[l + 10] = "_quick";
-        sLength[l + 10] = 1;
-
-        // Quick instructions
-        sOpCode[l + 11] = "ldc_quick";
-        sLength[l + 11] = 2;
-
-        sOpCode[l + 12] = "ldc_w_quick";
-        sLength[l + 12] = 3;
-
-        sOpCode[l + 13] = "ldc2_w_quick";
-        sLength[l + 13] = 3;
-
-        // Get length
-        sOpCode[l + 14] = "getfield_quick";
-        sLength[l + 14] = 3;
-
-        sOpCode[l + 15] = "putfield_quick";
-        sLength[l + 15] = 3;
-    }
-
-    /**
-     * Assigns opcode information for opcodes 208-223
-     */
-    private static void assign13() {
-        int l = 208;
-
-        sOpCode[l] = "getfield2_quick";
-        sLength[l] = 3;
-
-        sOpCode[l + 1] = "putfield2_quick";
-        sLength[l + 1] = 3;
-
-        sOpCode[l + 2] = "getstatic_quick";
-        sLength[l + 2] = 1;
-
-        sOpCode[l + 3] = "putstatic_quick";
-        sLength[l + 3] = 1;
-
-        sOpCode[l + 4] = "getstatic2_quick";
-        sLength[l + 4] = 3;
-
-        sOpCode[l + 5] = "putstatic2_quick";
-        sLength[l + 5] = 4;
-
-        sOpCode[l + 6] = "invokevirtual_quick";
-        sLength[l + 6] = 3;
-
-        sOpCode[l + 7] = "invokenonvirtual_quick";
-        sLength[l + 7] = 3;
-
-        sOpCode[l + 8] = "invokesuper_quick";
-        sLength[l + 8] = 3;
-
-        sOpCode[l + 9] = "invokestatic_quick";
-        sLength[l + 9] = 3;
-
-        sOpCode[l + 10] = "invokeinterface_quick";
-        sLength[l + 10] = 5;
-
-        sOpCode[l + 11] = "invokevirtualobject_quick";
-        sLength[l + 11] = 3;
-
-        sOpCode[l + 12] = "220-Undefined";
-        sLength[l + 12] = 1;
-        // cafe babe
-
-        sOpCode[l + 13] = "new_quick";
-        sLength[l + 13] = 3;
-
-        sOpCode[l + 14] = "anewarray_quick";
-        sLength[l + 14] = 3;
-
-        sOpCode[l + 15] = "multianewarray_quick";
-        sLength[l + 15] = 4;
-    }
-
-    /**
-     * Assigns opcode information for opcodes 224-255.
-     */
-    private static void assign14() {
-        int l = 224;
-
-        sOpCode[l] = "checkcast_quick";
-        sLength[l] = 3;
-
-        sOpCode[l + 1] = "instanceof_quick";
-        sLength[l + 1] = 3;
-
-        sOpCode[l + 2] = "invokevirtual_quick_w";
-        sLength[l + 2] = 3;
-
-        sOpCode[l + 3] = "getfield_quick_w";
-        sLength[l + 3] = 3;
-
-        sOpCode[l + 4] = "putfield_quick_w";
-        sLength[l + 4] = 3;
-
-        // Reserved  Op-codes
-        sOpCode[202] = "breakpoint";
-        sLength[202] = 1;
-
-        sOpCode[254] = "impdep1";
-        sLength[254] = 1;
-
-        sOpCode[255] = "impdep2";
-        sLength[255] = 1;
+    public static int getInsLen(int index, boolean wide) {
+        // wide instructions
+        switch (index) {
+            case OPCODE_ILOAD:
+            case OPCODE_LLOAD:
+            case OPCODE_FLOAD:
+            case OPCODE_DLOAD:
+            case OPCODE_ALOAD:
+            case OPCODE_ISTORE:
+            case OPCODE_LSTORE:
+            case OPCODE_FSTORE:
+            case OPCODE_DSTORE:
+            case OPCODE_ASTORE:
+            case OPCODE_RET:
+                if (wide) {
+                    return sLength[index] + 1;
+                }
+                break;
+            case OPCODE_IINC:
+                if (wide) {
+                    return sLength[index] + 2;
+                }
+                break;
+        }
+        return sLength[index];
     }
 }

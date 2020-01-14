@@ -21,15 +21,12 @@ package com.araguacaima.commons.utils.properties.strategy;
 
 import com.araguacaima.commons.exception.core.PropertiesUtilException;
 import com.araguacaima.commons.utils.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-@Component("URL")
 public class PropertiesHandlerStrategyURL extends PropertiesHandlerStrategy {
 
     private static final String PROPERTIES_HANDLER_STRATEGY_NAME = PropertiesHandlerStrategy
@@ -40,16 +37,6 @@ public class PropertiesHandlerStrategyURL extends PropertiesHandlerStrategy {
     private static final String PROPERTIES_URL_SERVER_DOMAIN_LOGIN = "PROPERTIES_URL_SERVER_DOMAIN_LOGIN";
     private static final String PROPERTIES_URL_SERVER_DOMAIN_PASSWORD = "PROPERTIES_URL_SERVER_DOMAIN_PASSWORD";
     private PropertiesHandlerStrategyInterface next;
-    @Value("${url.local.file.path}")
-    private String urlLocalFilePath = StringUtils.EMPTY;
-    @Value("${url.remote.file.path}")
-    private String urlRemoteFilePath = StringUtils.EMPTY;
-    @Value("${url.server.domain.and.port}")
-    private String urlServerDomainAndPort = StringUtils.EMPTY;
-    @Value("${url.server.domain.login}")
-    private String urlServerDomainLogin = StringUtils.EMPTY;
-    @Value("${url.server.domain.password}")
-    private String urlServerDomainPassword = StringUtils.EMPTY;
 
     @Override
     public PropertiesHandlerStrategyInterface getNext() {
@@ -63,7 +50,7 @@ public class PropertiesHandlerStrategyURL extends PropertiesHandlerStrategy {
 
     @Override
     public Map<String, String> getOriginProperties() {
-        Map<String, String> originProperties = new HashMap<String, String>();
+        Map<String, String> originProperties = new HashMap<>();
         originProperties.put(PROPERTIES_URL_REMOTE_FILE_PATH, PROPERTIES_URL_REMOTE_FILE_PATH);
         originProperties.put(PROPERTIES_URL_LOCAL_FILE_PATH, PROPERTIES_URL_LOCAL_FILE_PATH);
         originProperties.put(PROPERTIES_URL_SERVER_DOMAIN_AND_PORT, PROPERTIES_URL_SERVER_DOMAIN_AND_PORT);
@@ -76,7 +63,16 @@ public class PropertiesHandlerStrategyURL extends PropertiesHandlerStrategy {
     public Properties getProperties()
             throws PropertiesUtilException {
 
-        File file = fileUtils.getFileFromURL(urlLocalFilePath, urlRemoteFilePath, urlServerDomainAndPort, urlServerDomainLogin, urlServerDomainPassword);
+        String urlServerDomainPassword = StringUtils.EMPTY;
+        String urlServerDomainLogin = StringUtils.EMPTY;
+        String urlServerDomainAndPort = StringUtils.EMPTY;
+        String urlRemoteFilePath = StringUtils.EMPTY;
+        String urlLocalFilePath = StringUtils.EMPTY;
+        File file = fileUtils.getFileFromURL(urlLocalFilePath,
+                urlRemoteFilePath,
+                urlServerDomainAndPort,
+                urlServerDomainLogin,
+                urlServerDomainPassword);
         if (file != null) {
             properties = propertiesHandlerUtils.getHandler(file.getPath(), true).getProperties();
         }
@@ -85,7 +81,6 @@ public class PropertiesHandlerStrategyURL extends PropertiesHandlerStrategy {
 
     /**
      * @return the file obtained from URL
-     * @noinspection ResultOfMethodCallIgnored
      */
 
     @Override

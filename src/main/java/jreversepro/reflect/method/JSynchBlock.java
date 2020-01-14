@@ -24,7 +24,6 @@
 
 package jreversepro.reflect.method;
 
-import jreversepro.reflect.*;
 import jreversepro.revengine.JBranchEntry;
 
 /**
@@ -35,20 +34,18 @@ public class JSynchBlock extends JBlockObject {
     /**
      * Exception variable name
      */
-    private String synchVar;
-
-    /**
-     * Associated Branch Entry
-     */
-    private JBranchEntry branch;
+    private final String synchVar;
 
     /**
      * Creates a new instance of JSynchBlock
      *
+     * @param _jbe Branch
      * @param _var The variable name to synch on
      */
     public JSynchBlock(JBranchEntry _jbe, String _var) {
-        branch = _jbe;
+        /*
+      Associated Branch Entry
+     */
         synchVar = _var;
     }
 

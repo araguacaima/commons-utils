@@ -4,67 +4,71 @@ import com.araguacaima.commons.utils.file.FileUtilsFilenameFilter;
 import jreversepro.parser.ClassParserException;
 import jreversepro.reflect.JClassInfo;
 import jreversepro.revengine.JSerializer;
-import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StreamCorruptedException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.*;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-@Component
+
 public class ClassLoaderUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ClassLoaderUtils.class);
-    public static Comparator<? super Class> CLASS_COMPARATOR = (Comparator<Class>) (o1, o2) -> o1.getName().compareTo
-            (o2.getName());
+    public static Comparator<? super Class> CLASS_COMPARATOR = new ClassNameCompare();
     private final ClassNameCompare CLASS_NAME_COMPARE = new ClassNameCompare();
     private final ClassNameCompareIgnoreCase CLASS_NAME_COMPARE_IGNORE_CASE = new ClassNameCompareIgnoreCase();
     private final Class[] parameters = new Class[]{URL.class};
     private final Class[] parametersAddURL = new Class[]{URL.class};
     private final Class[] parametersFindClass = new Class[]{String.class};
     private final Map<String, NotNullsLinkedHashSet<URL>> resourcesAndPaths = new HashMap<>();
+    private final Class<URLClassLoader> sysclass = URLClassLoader.class;
     private String classPath;
     private Collection<String> classPathCollection = new NotNullsLinkedHashSet<>();
-    private FileUtils fileUtils;
+    private FileUtils fileUtils = new FileUtils();
     private boolean isClassPathLoaded = false;
-    private MapUtils mapUtils;
+    private MapUtils mapUtils = MapUtils.getInstance();
     private Method methodAddURL;
-    private Method methodFindClass;
-    private StringUtils stringUtils;
-    private Class<URLClassLoader> sysclass = URLClassLoader.class;
+    private StringUtils stringUtils = StringUtils.getInstance();
     private URLClassLoader sysloader;
     private boolean sysloaderDirty;
+    private ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
 
     private ClassLoaderUtils() {
     }
 
-    @Autowired
-    public ClassLoaderUtils(MapUtils mapUtils, StringUtils stringUtils) {
-        this.mapUtils = mapUtils;
-        this.stringUtils = stringUtils;
-    }
-
-    public ClassLoaderUtils(ClassLoader classLoader)
-            throws MalformedURLException {
+    public ClassLoaderUtils(ClassLoader classLoader) {
         setClassLoader(classLoader);
     }
 
     public ClassLoaderUtils(URLClassLoader sysloader) {
         this.sysloader = sysloader;
+    }
+
+    public static ClassLoader getRootClassLoader(ClassLoader cl) {
+        if (cl != null) {
+            ClassLoader parent = cl.getParent();
+            ClassLoader rootClassLoader = getRootClassLoader(parent);
+            if (rootClassLoader != null) {
+                return rootClassLoader;
+            } else {
+                if (parent != null) {
+                    return parent;
+                } else {
+                    return cl;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -109,26 +113,25 @@ public class ClassLoaderUtils {
             loadClassPath();
         }
         URLClassLoader sysLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        URL urls[] = sysLoader.getURLs();
-        for (int i = 0; i < urls.length; i++) {
-            if (urls[i].getPath().equals(u.getPath())) {
+        URL[] urls = sysLoader.getURLs();
+        for (URL url : urls) {
+            if (url.getPath().equals(u.getPath())) {
                 log.debug("URL " + u + " is already in the classPath");
                 return;
             }
         }
-        Class sysclass = URLClassLoader.class;
+        Class<URLClassLoader> sysclass = URLClassLoader.class;
         try {
             Method method = sysclass.getDeclaredMethod("addURL", parameters);
             method.setAccessible(true);
-            method.invoke(sysLoader, new Object[]{u});
+            method.invoke(sysLoader, u);
         } catch (Throwable t) {
             t.printStackTrace();
             throw new IOException("Error, could not add URL to system classloader");
         }
     }
 
-    private void loadClassPath()
-            throws IOException {
+    private void loadClassPath() {
         final URLClassLoader sysLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
         if (!StringUtils.isBlank(classPath) && !isClassPathLoaded) {
             Collection<String> classPath = Arrays.asList(this.classPath.split(StringUtils.SEMICOLON_SYMBOL));
@@ -173,17 +176,13 @@ public class ClassLoaderUtils {
     /**
      * Searches the classpath for all classes matching a specified search criteria, returning them in a Collection.
      * The search criteria is specified via incoming filters parameters of the type FileUtilsFilenameFilterImpl
-     * <p/>
+     * <br>
      *
      * @param filters A set of the filters to be applied to the current ClassLoader reacheable's files
      * @return A new Map that contains a set of classes for each on interface parckage or inheritance incoming filter
-     * @throws ClassNotFoundException               if the current thread's classloader cannot load
-     *                                              a requested class for any reason
-     * @throws java.io.UnsupportedEncodingException If any path constains an invalid character
      */
 
-    public Collection<Class> findClasses(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters)
-            throws ClassNotFoundException, IOException {
+    public Collection<Class<?>> findClasses(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters) {
         Collection<File> classpath = findResources(filters, new NotNullsLinkedHashSet<>());
         return getClassesFromClasspath(classpath);
     }
@@ -193,23 +192,19 @@ public class ClassLoaderUtils {
      * criterias
      * from classpath before searching for, returning them in a Collection.
      * The search criteria is specified via incoming filters parameters of the type FileUtilsFilenameFilterImpl
-     * <p/>
+     * <br>
      *
      * @param filters         A set of the filters to be applied to the current ClassLoader reacheable's files
      * @param filesExclusions A Collection of files names that will be excluded from the classpath
      * @return A new Map that contains a set of classes for each on interface parckage or inheritance incoming filter
-     * @throws ClassNotFoundException               if the current thread's classloader cannot load
-     *                                              a requested class for any reason
-     * @throws java.io.UnsupportedEncodingException If any path constains an invalid character
      */
     public Collection<File> findResources(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters,
-                                          final NotNullsLinkedHashSet<FileUtilsFilenameFilter> filesExclusions)
-            throws ClassNotFoundException, IOException {
+                                          final NotNullsLinkedHashSet<FileUtilsFilenameFilter> filesExclusions) {
         return findResources(filters, filesExclusions, null);
     }
 
-    private Collection<Class> getClassesFromClasspath(Collection<File> classpath) {
-        NotNullsLinkedHashSet<Class> result = new NotNullsLinkedHashSet<>();
+    private Collection<Class<?>> getClassesFromClasspath(Collection<File> classpath) {
+        NotNullsLinkedHashSet<Class<?>> result = new NotNullsLinkedHashSet<>();
 
         for (File fileClassPath : classpath) {
             String name = fileClassPath.getPath();
@@ -217,7 +212,7 @@ public class ClassLoaderUtils {
             boolean isValidClass = name.endsWith(".class");
 
             if (isValidClass) {
-                Class clazz = Object.class;
+                Class<?> clazz = Object.class;
                 JSerializer jSerializer = new JSerializer();
                 JClassInfo infoClass;
                 try {
@@ -227,24 +222,24 @@ public class ClassLoaderUtils {
                     log.debug("Bytecode for Class '" + infoClass.getThisClass(true) + "' reached!");
                     clazz = Class.forName(infoClass.getThisClass(true).replaceAll(StringUtils.SLASH, "."));
                     log.debug("Class '" + clazz.getName() + "' loaded!");
-                } catch (ClassNotFoundException ignored) {
-                    log.debug("ClassNotFoundException: " + ignored.getMessage());
-                } catch (FileNotFoundException ignored) {
-                    log.debug("FileNotFoundException: " + ignored.getMessage());
-                } catch (StreamCorruptedException ignored) {
-                    log.debug("StreamCorruptedException: " + ignored.getMessage());
-                } catch (IOException ignored) {
-                    log.debug("IOException: " + ignored.getMessage());
-                } catch (ClassParserException ignored) {
-                    log.debug("ClassParserException: " + ignored.getMessage());
-                } catch (NoClassDefFoundError ignored) {
-                    log.debug("NoClassDefFoundError: " + ignored.getMessage());
-                } catch (NullPointerException ignored) {
-                    log.debug("NullPointerException: " + ignored.getMessage());
-                } catch (Exception ignored) {
-                    log.debug("Exception: " + ignored.getMessage());
-                } catch (Throwable ignored) {
-                    log.debug("Throwable: " + ignored.getMessage());
+                } catch (ClassNotFoundException e) {
+                    log.debug("ClassNotFoundException: " + e.getMessage());
+                } catch (FileNotFoundException e) {
+                    log.debug("FileNotFoundException: " + e.getMessage());
+                } catch (StreamCorruptedException e) {
+                    log.debug("StreamCorruptedException: " + e.getMessage());
+                } catch (IOException e) {
+                    log.debug("IOException: " + e.getMessage());
+                } catch (ClassParserException e) {
+                    log.debug("ClassParserException: " + e.getMessage());
+                } catch (NoClassDefFoundError e) {
+                    log.debug("NoClassDefFoundError: " + e.getMessage());
+                } catch (NullPointerException e) {
+                    log.debug("NullPointerException: " + e.getMessage());
+                } catch (Exception e) {
+                    log.debug("Exception: " + e.getMessage());
+                } catch (Throwable e) {
+                    log.debug("Throwable: " + e.getMessage());
                 }
                 if (clazz == Object.class) {
                     ClassLoaderUtils classLoaderUtils = new ClassLoaderUtils();
@@ -260,14 +255,14 @@ public class ClassLoaderUtils {
                         log.debug("classFile (2): " + classFile);
                         clazz = classLoaderUtils.getClassLoader().loadClass(classFile);
                         log.debug("clazz: " + clazz.getName());
-                    } catch (ClassNotFoundException ignored) {
-                        log.debug("ClassNotFoundException: " + ignored.getMessage());
-                    } catch (NoClassDefFoundError ignored) {
-                        log.debug("NoClassDefFoundError: " + ignored.getMessage());
-                    } catch (StringIndexOutOfBoundsException ignored) {
-                        log.debug("StringIndexOutOfBoundsException: " + ignored.getMessage());
-                    } catch (ArrayIndexOutOfBoundsException ignored) {
-                        log.debug("ArrayIndexOutOfBoundsException: " + ignored.getMessage());
+                    } catch (ClassNotFoundException e) {
+                        log.debug("ClassNotFoundException: " + e.getMessage());
+                    } catch (NoClassDefFoundError e) {
+                        log.debug("NoClassDefFoundError: " + e.getMessage());
+                    } catch (StringIndexOutOfBoundsException e) {
+                        log.debug("StringIndexOutOfBoundsException: " + e.getMessage());
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        log.debug("ArrayIndexOutOfBoundsException: " + e.getMessage());
                         String classname = stringUtils.replaceLast(fileClassPath.getName().replaceAll(StringUtils
                                         .BACKSLASH + StringUtils.BACKSLASH,
                                 ".").replaceAll(StringUtils.SLASH, "."), ".class", StringUtils.EMPTY);
@@ -291,18 +286,18 @@ public class ClassLoaderUtils {
                                         log.debug("classPackage + classname: '" + classPackage + classname);
                                         clazz = classLoaderUtils.getClassLoader().loadClass(classPackage + classname);
                                         break;
-                                    } catch (ClassNotFoundException ignored4) {
-                                        log.debug("ClassNotFoundException: " + classname + ". " + ignored4.getMessage
+                                    } catch (ClassNotFoundException e4) {
+                                        log.debug("ClassNotFoundException: " + classname + ". " + e4.getMessage
                                                 ());
                                     }
                                 }
                                 if (clazz == Object.class) {
                                     throw new Exception("The related classname '" + name + "' is not found");
                                 }
-                            } catch (ClassNotFoundException ignored3) {
-                                log.debug("ClassNotFoundException: " + classname + ". " + ignored3.getMessage());
-                            } catch (Exception ignored3) {
-                                log.debug("Exception: " + classname + ". " + ignored3.getMessage());
+                            } catch (ClassNotFoundException e3) {
+                                log.debug("ClassNotFoundException: " + classname + ". " + e3.getMessage());
+                            } catch (Exception e3) {
+                                log.debug("Exception: " + classname + ". " + e3.getMessage());
                             }
                         }
                     } catch (NullPointerException ignored) {
@@ -314,7 +309,7 @@ public class ClassLoaderUtils {
                 }
             }
         }
-        List<Class> classesOrdered = new ArrayList<>(result);
+        List<Class<?>> classesOrdered = new ArrayList<>(result);
         classesOrdered.sort(getClassNameCompare());
 
         return classesOrdered;
@@ -325,38 +320,29 @@ public class ClassLoaderUtils {
      * criterias
      * from classpath before searching for, returning them in a Collection.
      * The search criteria is specified via incoming filters parameters of the type FileUtilsFilenameFilterImpl
-     * <p/>
+     * <br>
      *
      * @param filters         A set of the filters to be applied to the current ClassLoader reacheable's files
      * @param filesExclusions A Collection of files names that will be excluded from the classpath
      * @param classLoader     The classLoader to find resources
      * @return A new Map that contains a set of classes for each on interface parckage or inheritance incoming filter
-     * @throws ClassNotFoundException               if the current thread's classloader cannot load
-     *                                              a requested class for any reason
-     * @throws java.io.UnsupportedEncodingException If any path constains an invalid character
      */
     public Collection<File> findResources(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters,
                                           final NotNullsLinkedHashSet<FileUtilsFilenameFilter> filesExclusions,
-                                          final ClassLoader classLoader)
-            throws ClassNotFoundException, IOException {
+                                          final ClassLoader classLoader) {
 
-        final NotNullsLinkedHashSet<URL> classPaths = new NotNullsLinkedHashSet();
+        final NotNullsLinkedHashSet<URL> classPaths = new NotNullsLinkedHashSet<>();
 
         if (filters != null) {
-            IterableUtils.forEach(filters, new Closure() {
-                public void execute(Object o) {
-                    try {
-                        FileUtilsFilenameFilter fileUtilsFilenameFilter = (FileUtilsFilenameFilter) o;
-                        if (classLoader == null) {
-                            classPaths.addAll(fileUtilsFilenameFilter.getResources());
-                        } else {
-                            classPaths.addAll(fileUtilsFilenameFilter.getResources(classLoader));
-                        }
-                    } catch (NullPointerException npe) {
-                        log.info("class '" + o + "' could not be found");
-                    } catch (IOException e) {
-                        log.info("class '" + o + "' could not be found");
+            IterableUtils.forEach(filters, o -> {
+                try {
+                    if (classLoader == null) {
+                        classPaths.addAll(o.getResources());
+                    } else {
+                        classPaths.addAll(o.getResources(classLoader));
                     }
+                } catch (NullPointerException | IOException npe) {
+                    log.info("class '" + o + "' could not be found");
                 }
             });
         }
@@ -372,7 +358,7 @@ public class ClassLoaderUtils {
             try {
 
                 if (url != null) {
-                    transformedClassPath = new File((URL.class).isInstance(url) ? url.getFile() : url.toString());
+                    transformedClassPath = new File(url.getFile());
                     String fileNameDecoded = URLDecoder.decode(transformedClassPath.getPath(), "UTF-8");
                     fileNameDecoded = fileNameDecoded.replaceFirst("file:\\\\", StringUtils.EMPTY);
                     transformedClassPath = new File(fileNameDecoded);
@@ -384,7 +370,7 @@ public class ClassLoaderUtils {
 
         });
 
-        NotNullsLinkedHashSet<Class> filesPaths = new NotNullsLinkedHashSet<Class>();
+        NotNullsLinkedHashSet<Class> filesPaths = new NotNullsLinkedHashSet<>();
 
         fileUtils.addFilters(filters);
         final StringBuffer strbuff = new StringBuffer();
@@ -403,12 +389,12 @@ public class ClassLoaderUtils {
         return sysloader == null ? this.getClass().getClassLoader() : sysloader;
     }
 
-    public ClassNameCompare getClassNameCompare() {
-        return CLASS_NAME_COMPARE;
-    }
-
     public void setClassLoader(ClassLoader classLoader) {
         this.sysloader = URLClassLoader.newInstance(new URL[]{classLoader.getResource(".")});
+    }
+
+    public ClassNameCompare getClassNameCompare() {
+        return CLASS_NAME_COMPARE;
     }
 
     /**
@@ -416,19 +402,15 @@ public class ClassLoaderUtils {
      * criterias
      * from classpath before searching for, returning them in a Collection.
      * The search criteria is specified via incoming filters parameters of the type FileUtilsFilenameFilterImpl
-     * <p/>
+     * <br>
      *
      * @param filters         A set of the filters to be applied to the current ClassLoader reacheable's files
      * @param filesExclusions A Collection of files names that will be excluded from the classpath
      * @return A new Map that contains a set of classes for each on interface parckage or inheritance incoming filter
-     * @throws ClassNotFoundException               if the current thread's classloader cannot load
-     *                                              a requested class for any reason
-     * @throws java.io.UnsupportedEncodingException If any path constains an invalid character
      */
-    public Collection<File> findClasses(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters,
-                                        final NotNullsLinkedHashSet<FileUtilsFilenameFilter> filesExclusions)
-            throws ClassNotFoundException, IOException {
-        Collection classpath = findResources(filters, filesExclusions);
+    public Collection<Class<?>> findClasses(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters,
+                                            final NotNullsLinkedHashSet<FileUtilsFilenameFilter> filesExclusions) {
+        Collection<File> classpath = findResources(filters, filesExclusions);
         return getClassesFromClasspath(classpath);
     }
 
@@ -453,17 +435,13 @@ public class ClassLoaderUtils {
     /**
      * Searches the classpath for all resources matching a specified search criteria, returning them in a Collection.
      * The search criteria is specified via incoming filters parameters of the type FileUtilsFilenameFilterImpl
-     * <p/>
+     * <br>
      *
      * @param filters A set of the filters to be applied to the current ClassLoader reacheable's files
      * @return A new Map that contains a set of classes for each on interface parckage or inheritance incoming filter
-     * @throws ClassNotFoundException               if the current thread's classloader cannot load
-     *                                              a requested class for any reason
-     * @throws java.io.UnsupportedEncodingException If any path constains an invalid character
      */
 
-    public Collection<File> findResources(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters)
-            throws ClassNotFoundException, IOException {
+    public Collection findResources(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters) {
 
         return findResources(filters, new NotNullsLinkedHashSet());
     }
@@ -473,18 +451,14 @@ public class ClassLoaderUtils {
      * criterias
      * from classpath before searching for, returning them in a Collection.
      * The search criteria is specified via incoming filters parameters of the type FileUtilsFilenameFilterImpl
-     * <p/>
+     * <br>
      *
      * @param filters     A set of the filters to be applied to the current ClassLoader reacheable's files
      * @param classLoader The classLoader to find resources
      * @return A new Map that contains a set of classes for each on interface parckage or inheritance incoming filter
-     * @throws ClassNotFoundException               if the current thread's classloader cannot load
-     *                                              a requested class for any reason
-     * @throws java.io.UnsupportedEncodingException If any path constains an invalid character
      */
     public Collection<File> findResources(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters,
-                                          ClassLoader classLoader)
-            throws ClassNotFoundException, IOException {
+                                          ClassLoader classLoader) {
         return findResources(filters, null, classLoader);
     }
 
@@ -492,7 +466,7 @@ public class ClassLoaderUtils {
         return CLASS_NAME_COMPARE_IGNORE_CASE;
     }
 
-    protected String getClasspath()
+    public String getClasspath()
             throws MalformedURLException {
         if (classPath == null) {
             setClasspath(System.getProperty("java.class.path"));
@@ -504,29 +478,31 @@ public class ClassLoaderUtils {
             throws MalformedURLException {
         this.classPath = classPath;
         if (!StringUtils.isBlank(this.classPath)) {
-            classPathCollection = Arrays.asList(this.classPath.split(StringUtils.SEMICOLON_SYMBOL));
+            classPathCollection = Arrays.asList(this.classPath.split(this.classPath.contains(StringUtils.SEMICOLON_SYMBOL) ? StringUtils.SEMICOLON_SYMBOL : StringUtils.COLON_SYMBOL));
         }
 
         if (!isClassPathLoaded) {
-            try {
-                loadClassPath();
-            } catch (IOException ignored) {
-            }
+            loadClassPath();
         }
         fillClassPathClassLoaderMap(null, null);
     }
 
+    public void addToClasspath(String newPath) throws MalformedURLException {
+        String newClasspath = getClasspath();
+        if (newClasspath.contains(";")) {
+            newClasspath = newClasspath + ";" + newPath;
+        } else {
+            newClasspath = newClasspath + ":" + newPath;
+        }
+        setClasspath(newClasspath);
+    }
+
     public String getPathForResource(final String resource) {
-        NotNullsLinkedHashSet result = new NotNullsLinkedHashSet((mapUtils.find(resourcesAndPaths,
-                new Predicate() {
-                    public boolean evaluate(Object o) {
-                        String file = (String) o;
-                        return file.equals(resource) || file.endsWith(resource);
-                    }
-                },
+        NotNullsLinkedHashSet<Object> result = new NotNullsLinkedHashSet<Object>((mapUtils.find(resourcesAndPaths,
+                o -> o.equals(resource) || o.endsWith(resource),
                 null,
                 MapUtils.EVALUATE_JUST_KEY)).values());
-        if (result != null && result.size() > 0) {
+        if (result.size() > 0) {
             try {
                 String file = ((URL) result.toArray()[0]).getFile();
                 if (file.indexOf(StringUtils.SLASH) == 0) {
@@ -542,19 +518,17 @@ public class ClassLoaderUtils {
     }
 
     public Collection<URL> getResources(String path) {
-        Collection resources = new ArrayList();
+        Collection<URL> resources = new ArrayList<>();
         try {
             resources = Collections.list(ClassLoaderUtils.class.getClassLoader().getResources(path));
         } catch (Exception ignored) {
         }
-        Collection result = new NotNullsLinkedHashSet();
+        Collection<URL> result = new NotNullsLinkedHashSet<>();
         NotNullsLinkedHashSet<URL> resourceAndPaths = resourcesAndPaths.get(path);
         if (resourceAndPaths != null) {
             result.addAll(resourceAndPaths);
         }
-        if (resources != null) {
-            result.addAll(resources);
-        }
+        result.addAll(resources);
         return result;
     }
 
@@ -567,9 +541,9 @@ public class ClassLoaderUtils {
             throws MalformedURLException {
         this.classPath = classPath;
         if (!StringUtils.isBlank(this.classPath)) {
-            Collection classPathSplitted = Arrays.asList(this.classPath.split(StringUtils.SEMICOLON_SYMBOL));
-            for (Object aClassPathSplitted : classPathSplitted) {
-                final String classPathToken = (String) aClassPathSplitted;
+            String[] classPathSplitted = this.classPath.split(StringUtils.SEMICOLON_SYMBOL);
+            for (String aClassPathSplitted : classPathSplitted) {
+                final String classPathToken = aClassPathSplitted;
                 String classPathStored = IterableUtils.find(classPathCollection, o -> o.endsWith(classPathToken));
                 if (StringUtils.isBlank(classPathStored)) {
                     classPathCollection.add(classPathToken);
@@ -577,10 +551,8 @@ public class ClassLoaderUtils {
             }
         }
         if (!isClassPathLoaded) {
-            try {
-                loadClassPath();
-            } catch (IOException ignored) {
-            }
+
+            loadClassPath();
         }
         fillClassPathClassLoaderMap(applicationName, contextName);
     }
@@ -605,9 +577,8 @@ public class ClassLoaderUtils {
                 }
                 Collections.reverse(fileTokensResult);
                 StringBuilder sb = new StringBuilder();
-                for (Object aFileTokensResult : fileTokensResult) {
-                    String token = (String) aFileTokensResult;
-                    sb.append(token).append(StringUtils.SLASH);
+                for (String aFileTokensResult : fileTokensResult) {
+                    sb.append(aFileTokensResult).append(StringUtils.SLASH);
                 }
                 if (sb.lastIndexOf(StringUtils.SLASH) == sb.length()) {
                     sb.deleteCharAt(sb.length() - 1);
@@ -645,7 +616,7 @@ public class ClassLoaderUtils {
         try {
             methodAddURL = sysclass.getDeclaredMethod("addURL", parametersAddURL);
             methodAddURL.setAccessible(true);
-            methodFindClass = sysclass.getDeclaredMethod("findClass", parametersFindClass);
+            Method methodFindClass = sysclass.getDeclaredMethod("findClass", parametersFindClass);
             methodFindClass.setAccessible(true);
             sysloaderDirty = false;
         } catch (NoSuchMethodException e) {
@@ -656,7 +627,7 @@ public class ClassLoaderUtils {
     }
 
     public Collection<Class> loadClassesInsideJar(File jarFileFullPath)
-            throws ClassNotFoundException, IOException, NoSuchFieldException, IllegalAccessException {
+            throws ClassNotFoundException, IOException {
         Collection<Class> classes = new ArrayList<>();
         if (jarFileFullPath != null) {
             JarFile jarFile = new JarFile(jarFileFullPath);
@@ -679,7 +650,7 @@ public class ClassLoaderUtils {
                 }
                 // -6 because of .class
                 String classNamePackage = je.getName().substring(0, je.getName().length() - 6);
-                String className = classNamePackage.replace('/', '.');
+                String className = classNamePackage.replaceAll("/", ".").replaceAll("\\\\", ".");
                 try {
                     try {
                         classes.add(Class.forName(className));
@@ -699,37 +670,24 @@ public class ClassLoaderUtils {
         return classes;
     }
 
-    public void fixCurrentClassLoader()
-            throws NoSuchFieldException, IllegalAccessException {
+    public void fixCurrentClassLoader() {
         if (!sysloaderDirty && sysloader != null) {
             final ClassLoader cl = this.getClass().getClassLoader();
 
-            org.springframework.util.ReflectionUtils.doWithFields(sysloader.getClass(),
-                    new org.springframework.util.ReflectionUtils.FieldCallback() {
+            reflectionUtils.doWithFields(sysloader.getClass(), field -> {
 
-                        @Override
-                        public void doWith(final Field field)
-                                throws IllegalArgumentException, IllegalAccessException {
+                log.debug("Found field '" + field + "' in type " + field.getDeclaringClass() + ". The " + "recently "
+                        + "created sysloader has been adapted to ensure that its parent " + "corresponds with the " +
+                        "current classloader '" + cl.getClass().getName() + "' ");
+                field.setAccessible(true);
+                field.set(sysloader, cl);
 
-                            log.debug("Found field '" + field + "' in type " + field.getDeclaringClass() + ". The " +
-                                    "recently created sysloader has been adapted to ensure that its parent " +
-                                    "corresponds with the current classloader '" + cl.getClass().getName() + "' ");
-                            field.setAccessible(true);
-                            field.set(sysloader, cl);
-
-                        }
-                    },
-                    new org.springframework.util.ReflectionUtils.FieldFilter() {
-                        @Override
-                        public boolean matches(final Field field) {
-                            return field.getName().equals("parent");
-                        }
-                    });
+            }, field -> field.getName().equals("parent"));
         }
     }
 
     public void addURLToDependencies(URL urlToBeAddedToDependencies)
-            throws IOException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+            throws IOException {
         if (sysloader == null || sysloaderDirty) {
             URL[] urls = {urlToBeAddedToDependencies};
             sysloader = URLClassLoader.newInstance(urls);
@@ -748,7 +706,7 @@ public class ClassLoaderUtils {
     }
 
     public void loadResourcesIntoClassLoader(Set<String> resources)
-            throws IOException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+            throws IOException {
         for (String resource : resources) {
             log.debug("Adding resource '" + resource + "' into main ClassLoader");
             addResourceToDependencies(resource);
@@ -757,7 +715,7 @@ public class ClassLoaderUtils {
     }
 
     public void addResourceToDependencies(String resourceToBeAddedToDependencies)
-            throws IOException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+            throws IOException {
         addURLToDependencies(new File(resourceToBeAddedToDependencies).toURI().toURL());
     }
 
@@ -785,13 +743,12 @@ public class ClassLoaderUtils {
     }
 
     public void reloadClass(Class<?> clazz)
-            throws ClassNotFoundException, IOException {
+            throws ClassNotFoundException {
         removeClass(clazz);
         loadClass(clazz);
     }
 
-    public void removeClass(Class clazz)
-            throws ClassNotFoundException, IOException {
+    public void removeClass(Class clazz) {
         if (clazz != null) {
 
             try {
@@ -807,9 +764,9 @@ public class ClassLoaderUtils {
         }
     }
 
-    public Class loadClass(Class classToBeLoaded)
+    public void loadClass(Class classToBeLoaded)
             throws ClassNotFoundException {
-        return loadClass(classToBeLoaded.getName());
+        loadClass(classToBeLoaded.getName());
     }
 
     public Class loadClass(String classToBeLoaded)
@@ -820,8 +777,7 @@ public class ClassLoaderUtils {
         return sysloader.loadClass(classToBeLoaded);
     }
 
-    public void removeClass(String className)
-            throws ClassNotFoundException, IOException {
+    public void removeClass(String className) {
         if (StringUtils.isNotBlank(className)) {
             try {
                 removeClass(Class.forName(className));
@@ -836,7 +792,7 @@ public class ClassLoaderUtils {
     }
 
     public void removeClassesInsideJar(File jarFileFullPath)
-            throws ClassNotFoundException, IOException, NoSuchFieldException, IllegalAccessException {
+            throws IOException {
         if (jarFileFullPath != null) {
             JarFile jarFile = new JarFile(jarFileFullPath);
             Enumeration<JarEntry> e = jarFile.entries();
@@ -877,7 +833,7 @@ public class ClassLoaderUtils {
     }
 
     public void removeJar(File jarFileFullPath)
-            throws ClassNotFoundException, IOException {
+            throws IOException {
         if (jarFileFullPath != null) {
             try {
                 JarFile jarFile = new JarFile(jarFileFullPath);
@@ -897,7 +853,7 @@ public class ClassLoaderUtils {
                         cl.close();
                     } catch (Throwable t) {
                         log.debug("Class '" + className + "' skiped from Classloader unloading step because of it is " +
-                                "" + "not loaded into it");
+                                "" + "" + "" + "" + "" + "not loaded into it");
                     }
                 }
             } catch (FileNotFoundException ignored) {
@@ -914,8 +870,7 @@ public class ClassLoaderUtils {
         }
     }
 
-    private void unloadJarFromClassLoader(File jarFileFullPath)
-            throws IOException {
+    private void unloadJarFromClassLoader(File jarFileFullPath) {
         try {
 
             // open cached connection to just created clone of test JAR
@@ -943,9 +898,11 @@ public class ClassLoaderUtils {
     }
 
     /**
-     * Validates the class path and reports any non-existent * or invalid class path entries.
-     * <p> * Valid class path entries include directories,
-     * <code>.zip</code> * files, and <code>.jar</code> files.
+     * Validates the class path and reports any non-existent or invalid class path entries.
+     * <br>
+     * Valid class path entries include directories, <code>.zip</code> and <code>.jar</code> files.
+     *
+     * @throws MalformedURLException If classpath is not valid
      */
     public void validate()
             throws MalformedURLException {
@@ -959,17 +916,18 @@ public class ClassLoaderUtils {
                 log.info("\nClasspath element '" + element + "' " + "does not exist.");
             } else if ((!f.isDirectory()) && (!element.toLowerCase().endsWith(".jar")) && (!element.toLowerCase()
                     .endsWith(
-                    ".zip"))) {
+                            ".zip"))) {
                 log.info("\nClasspath element '" + element + "' " + "is not a directory, .jar file, or .zip file.");
             }
         }
     }
 
     /**
-     * Prints the absolute pathname of the class file * containing the specified class name, as prescribed by the
+     * Prints the absolute pathname of the class file containing the specified class name, as prescribed by the
      * class path.
      *
      * @param className Name of the class.
+     * @throws MalformedURLException If classpath is not valid
      */
     public void which(String className)
             throws MalformedURLException {
@@ -985,7 +943,7 @@ public class ClassLoaderUtils {
         printClasspath();
     }
 
-    private class ClassNameCompare implements Comparator<Class> {
+    private static class ClassNameCompare implements Comparator<Class> {
         public int compare(Class o1, Class o2) {
             String path1 = o1.getName();
             String path2 = o2.getName();
@@ -993,7 +951,7 @@ public class ClassLoaderUtils {
         }
     }
 
-    private class ClassNameCompareIgnoreCase implements Comparator<Class> {
+    private static class ClassNameCompareIgnoreCase implements Comparator<Class> {
         public int compare(Class o1, Class o2) {
             String path1 = o1.getName();
             String path2 = o2.getName();

@@ -2,11 +2,9 @@ package com.araguacaima.commons.utils.json.parser;
 
 import com.araguacaima.commons.utils.ReflectionUtils;
 import com.araguacaima.commons.utils.StringUtils;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.IterableUtils;
 import org.reflections.Reflections;
 
-import java.beans.IntrospectionException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -19,16 +17,27 @@ import java.util.regex.Pattern;
  */
 public class Beanspector<T> {
 
-    private final Map<String, Method> getters = new HashMap<String, Method>();
-    private final Map<String, Method> setters = new HashMap<String, Method>();
-    private final Map<String, Field> fields = new HashMap<String, Field>();
+    private final Map<String, Field> fields = new HashMap<>();
+    private final Map<String, Method> getters = new HashMap<>();
+    private final Map<String, Method> setters = new HashMap<>();
     private final ClassLoader tclassloader;
+    private Field lastTokenField;
     private Class<T> tclass;
     private T tobj;
-    private Field lastTokenField;
+    private ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
+    ;
 
     public Beanspector(final Class<T> tclass) {
         this(tclass, tclass.getClassLoader());
+    }
+
+    public Beanspector(Class<T> tclass, ClassLoader classLoader) {
+        if (tclass == null) {
+            throw new IllegalArgumentException("tclass is null");
+        }
+        this.tclass = tclass;
+        this.tclassloader = classLoader;
+        init();
     }
 
     public Beanspector(final T tobj) {
@@ -44,22 +53,15 @@ public class Beanspector<T> {
         init();
     }
 
-    public Beanspector(Class<T> tclass, ClassLoader classLoader) {
-        if (tclass == null) {
-            throw new IllegalArgumentException("tclass is null");
-        }
-        this.tclass = tclass;
-        this.tclassloader = classLoader;
-        init();
-    }
-
-    @SuppressWarnings("unchecked")
     private void init() {
         fill(tclass, tobj, getters, setters, fields);
     }
 
-    private void fill(Class tclass, final Object tobj, final Map<String, Method> getters,
-                      final Map<String, Method> setters, final Map<String, Field> fields) {
+    private void fill(Class tclass,
+                      final Object tobj,
+                      final Map<String, Method> getters,
+                      final Map<String, Method> setters,
+                      final Map<String, Field> fields) {
         if (tclass == null) {
             if (tobj != null) {
                 tclass = tobj.getClass();
@@ -74,18 +76,20 @@ public class Beanspector<T> {
                 }
             }
             // check type equality for getter-setter pairs
-            final Set<String> pairs = new HashSet<String>(getters.keySet());
+            final Set<String> pairs = new HashSet<>(getters.keySet());
             pairs.retainAll(setters.keySet());
             for (final String accessor : pairs) {
                 final Class<?> getterClass = getters.get(accessor).getReturnType();
                 final Class<?> setterClass = setters.get(accessor).getParameterTypes()[0];
                 if (!getterClass.equals(setterClass)) {
                     throw new IllegalArgumentException(String.format(
-                            "Accessor '%s' type mismatch, getter type is %s while setter type is %s", accessor, getterClass.getName(),
+                            "Accessor '%s' type mismatch, getter type is %s while setter type is %s",
+                            accessor,
+                            getterClass.getName(),
                             setterClass.getName()));
                 }
             }
-            for (final Field field : ReflectionUtils.getAllFieldsIncludingParents(tclass)) {
+            for (final Field field : reflectionUtils.getAllFieldsIncludingParents(tclass)) {
                 field.setAccessible(true);
                 fields.put(field.getName(), field);
             }
@@ -94,29 +98,37 @@ public class Beanspector<T> {
         }
     }
 
-    public T getBean() {
-        return tobj;
+    private boolean isGetter(final Method m) {
+        return m.getParameterTypes().length == 0 && (m.getName().startsWith("get") || m.getName().startsWith("is"));
     }
 
-    public Set<String> getGettersNames() {
-        return Collections.unmodifiableSet(getters.keySet());
+    private String getterName(final Method m) {
+        return StringUtils.uncapitalize(m.getName().startsWith("is") ? m.getName().substring(2) : m.getName()
+                .startsWith(
+                        "get") ? m.getName().substring(3) : m.getName());
     }
 
-    public Set<String> getSettersNames() {
-        return Collections.unmodifiableSet(setters.keySet());
+    private boolean isSetter(final Method m) {
+        return m.getReturnType().equals(void.class) && m.getParameterTypes().length == 1 && (m.getName().startsWith(
+                "set") || m.getName().startsWith("is"));
     }
 
-    public Class<?> getAccessorType(final String getterOrSetterName) throws Exception {
+    private String setterName(final Method m) {
+        return StringUtils.uncapitalize(m.getName().replace("is", "").replace("set", ""));
+    }
+
+    public Class<?> getAccessorType(final String getterOrSetterName)
+            throws Exception {
         final String[] tokens = getterOrSetterName.split("\\.");
         if (tokens.length > 1) {
-            final String token = tokens[0].replaceFirst("\\[.*?\\]", StringUtils.EMPTY);
+            final String token = tokens[0].replaceFirst("\\[.*?]", StringUtils.EMPTY);
             Class<?> accessorType = getAccessorType(token);
-            Class clazz = ReflectionUtils.extractGenerics(accessorType);
+            Class clazz = reflectionUtils.extractGenerics(accessorType);
             if (accessorType != null) {
-                if (ReflectionUtils.isCollectionImplementation(accessorType)) {
+                if (reflectionUtils.isCollectionImplementation(accessorType)) {
                     if (this.tobj == null) {
-                        Class generics = ReflectionUtils.extractGenerics(accessorType);
-                        this.tobj = (T) ReflectionUtils.createCollectionObject(generics);
+                        Class generics = reflectionUtils.extractGenerics(accessorType);
+                        this.tobj = (T) reflectionUtils.createCollectionObject(generics);
                     }
                 }
             }
@@ -131,50 +143,75 @@ public class Beanspector<T> {
             }
         } else {
             if (this.tobj == null) {
-                this.tobj = (T) getTclass().newInstance();
+                this.tobj = getTclass().newInstance();
             }
             return getTopLevelAccesorType(getterOrSetterName, getters, setters, fields);
         }
     }
 
-    private Class<?> getAccessorType(final Class clazz, final String getterOrSetterName) throws Exception {
-        final Map<String, Method> getters = new HashMap<String, Method>();
-        final Map<String, Method> setters = new HashMap<String, Method>();
-        final Map<String, Field> fields = new HashMap<String, Field>();
+    private Class<?> getAccessorType(final Class clazz, final String getterOrSetterName) {
+        final Map<String, Method> getters = new HashMap<>();
+        final Map<String, Method> setters = new HashMap<>();
+        final Map<String, Field> fields = new HashMap<>();
         fill(clazz, null, getters, setters, fields);
         final String[] tokens = getterOrSetterName.split("\\.");
         if (tokens.length > 1) {
             final String token = tokens[0];
             Class<?> accessorType = getAccessorType(clazz, token);
-            if (ReflectionUtils.isCollectionImplementation(accessorType)) {
-                return getAccessorType(ReflectionUtils.extractGenerics(accessorType),
+            if (reflectionUtils.isCollectionImplementation(accessorType)) {
+                return getAccessorType(reflectionUtils.extractGenerics(accessorType),
                         getterOrSetterName.replaceFirst(Pattern.quote(token) + "\\.", StringUtils.EMPTY));
             } else {
-                return getAccessorType(accessorType, getterOrSetterName.replaceFirst(Pattern.quote(token) + "\\.", StringUtils.EMPTY));
+                return getAccessorType(accessorType,
+                        getterOrSetterName.replaceFirst(Pattern.quote(token) + "\\.", StringUtils.EMPTY));
             }
         } else {
             return getTopLevelAccesorType(getterOrSetterName, getters, setters, fields);
         }
     }
 
-    private Class<?> getTopLevelAccesorType(final String getterOrSetterName, final Map<String, Method> getters,
+    public T getBean() {
+        return tobj;
+    }
+
+    public Set<String> getGettersNames() {
+        return Collections.unmodifiableSet(getters.keySet());
+    }
+
+    public Field getLastTokenField() {
+        return this.lastTokenField;
+    }
+
+    public Set<String> getSettersNames() {
+        return Collections.unmodifiableSet(setters.keySet());
+    }
+
+    public Class<T> getTclass() {
+        return tclass;
+    }
+
+    private Class<?> getTopLevelAccesorType(final String getterOrSetterName,
+                                            final Map<String, Method> getters,
                                             final Map<String, Method> setters,
-                                            final Map<String, Field> fields) throws IntrospectionException {
+                                            final Map<String, Field> fields) {
 
         String[] splittedGetterOrSetterName = getterOrSetterName.split("<");
-        String property = splittedGetterOrSetterName[0].replaceFirst("\\[.*?\\]", StringUtils.EMPTY);
+        String property = splittedGetterOrSetterName[0].replaceFirst("\\[.*?]", StringUtils.EMPTY);
         if (splittedGetterOrSetterName.length > 1) {
             String[] genericTokens = splittedGetterOrSetterName[1].split(">");
             final String generic = genericTokens[0];
             Class<?> clazz = getTopLevelAccesorType(property, getters, setters, fields);
-            Reflections reflections = new Reflections(clazz.getPackage().getName(), tclassloader);
-            Set<? extends Class<?>> classes = reflections.getSubTypesOf(clazz);
-            return (Class) CollectionUtils.find(classes, new Predicate() {
-                @Override
-                public boolean evaluate(Object object) {
-                    return ((Class) object).getSimpleName().equals(StringUtils.capitalize(generic));
-                }
-            });
+            Reflections reflections = null;
+            if (clazz != null) {
+                reflections = new Reflections(clazz.getPackage().getName(), tclassloader);
+            }
+            Set<? extends Class<?>> classes = null;
+            if (reflections != null) {
+                classes = reflections.getSubTypesOf(clazz);
+            }
+
+            return IterableUtils.find(classes,
+                    object -> object.getSimpleName().equals(StringUtils.capitalize(generic)));
         }
 
         Method m = getters.get(property);
@@ -186,42 +223,17 @@ public class Beanspector<T> {
         }
         Class<?> returnType = m.getReturnType();
 
-        if (ReflectionUtils.isCollectionImplementation(returnType)) {
+        if (reflectionUtils.isCollectionImplementation(returnType)) {
             Type genericReturnType = m.getGenericReturnType();
             try {
                 returnType = (Class) (((ParameterizedType) genericReturnType).getActualTypeArguments()[0]);
             } catch (Throwable ignored) {
-                return ReflectionUtils.extractGenerics((Class) genericReturnType);
+                assert genericReturnType instanceof Class;
+                return reflectionUtils.extractGenerics((Class) genericReturnType);
             }
         }
 
         this.lastTokenField = fields.get(property);
         return returnType;
-    }
-
-    private boolean isGetter(final Method m) {
-        return m.getParameterTypes().length == 0 && (m.getName().startsWith("get") || m.getName().startsWith("is"));
-    }
-
-    private String getterName(final Method m) {
-        return StringUtils.uncapitalize(m.getName().startsWith("is") ? m.getName().substring(2) : m.getName().startsWith("get") ? m
-                .getName().substring(3) : m.getName());
-    }
-
-    private boolean isSetter(final Method m) {
-        return m.getReturnType().equals(void.class) && m.getParameterTypes().length == 1
-                && (m.getName().startsWith("set") || m.getName().startsWith("is"));
-    }
-
-    private String setterName(final Method m) {
-        return StringUtils.uncapitalize(m.getName().replace("is", "").replace("set", ""));
-    }
-
-    public Field getLastTokenField() {
-        return this.lastTokenField;
-    }
-
-    public Class<T> getTclass() {
-        return tclass;
     }
 }

@@ -22,12 +22,12 @@
  */
 package jreversepro.reflect;
 
-import java.util.List;
+import jreversepro.common.Helper;
+import jreversepro.common.KeyWords;
+
 import java.util.ArrayList;
 import java.util.Collections;
-
-import jreversepro.common.KeyWords;
-import jreversepro.common.Helper;
+import java.util.List;
 
 /**
  * Describes the Set fof import statements.
@@ -40,34 +40,22 @@ public class JImport {
      * List of classes that are referenced by this class.
      * The elements of this list are 'String'.
      */
-    private List classes;
+    private final List<String> classes;
 
     /**
      * no-arg constructor
      */
     public JImport() {
-        this.classes = new ArrayList(5);
-    }
-
-    /**
-     * Adds a new class to the list of classes
-     * referenced by the current class.
-     *
-     * @param importClass name of new class.
-     */
-    public void addClass(String importClass) {
-        if (!classes.contains(importClass)) {
-            classes.add(importClass);
-        }
+        this.classes = new ArrayList<>(5);
     }
 
     /**
      * Returns the Class name alone from a fully qualified name.
-     * <p/>
+     * <br>
      * For Example , if <code>FullName = java/lang/StringBuffer,</code>
      * <br>then a call to <code>getClassName(arg)</code> returns the
      * value <code>StringBuffer </code>.
-     * <p/>
+     * <br>
      *
      * @param fullQualifiedName A Fully Qualified Name.
      * @return the class name , alone.
@@ -79,6 +67,18 @@ public class JImport {
             return aFullName.substring(dotIndex + 1);
         } else {
             return aFullName;
+        }
+    }
+
+    /**
+     * Adds a new class to the list of classes
+     * referenced by the current class.
+     *
+     * @param importClass name of new class.
+     */
+    public void addClass(String importClass) {
+        if (!classes.contains(importClass)) {
+            classes.add(importClass);
         }
     }
 
@@ -98,19 +98,19 @@ public class JImport {
     public String getImportClasses(String packageName) {
         //Code to be written here.
         Collections.sort(classes);
-        StringBuffer sb = new StringBuffer();
-        List restrictPackages = new ArrayList(2);
+        StringBuilder sb = new StringBuilder();
+        List<String> restrictPackages = new ArrayList<>(2);
         restrictPackages.add(packageName);
         restrictPackages.add(KeyWords.DEFAULT_PACKAGE);
 
-        for (int i = 0; i < classes.size(); i++) {
-            String currentClass = (String) classes.get(i);
+        for (String aClass : classes) {
+            String currentClass = aClass;
             if (currentClass.indexOf('/') != -1) {
                 String currentPackage = Helper.getPackageName(currentClass);
                 if (!restrictPackages.contains(currentPackage)) {
                     currentClass = currentClass.replace('/', '.');
                     sb.append("import ");
-                    sb.append(currentClass + ";\n");
+                    sb.append(currentClass).append(";\n");
                 }
             }
         }

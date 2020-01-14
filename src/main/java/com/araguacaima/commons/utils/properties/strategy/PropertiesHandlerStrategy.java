@@ -24,14 +24,11 @@ import com.araguacaima.commons.utils.FileUtils;
 import com.araguacaima.commons.utils.PropertiesHandlerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Properties;
 
-@Component
+
 public abstract class PropertiesHandlerStrategy implements PropertiesHandlerStrategyInterface {
 
     public static final String PROPERTIES_HANDLER_STRATEGY_CLASSPATH = "CLASSPATH";
@@ -43,14 +40,14 @@ public abstract class PropertiesHandlerStrategy implements PropertiesHandlerStra
     static final Logger log = LoggerFactory.getLogger(PropertiesHandlerStrategy.class);
     public static boolean isInitialized = false;
     protected String PROPERTY_KEY_PREFIX;
+
+    protected String applicationId;
+    protected PropertiesHandlerStrategyPath defaultHandler;
     protected FileUtils fileUtils;
     protected PropertiesHandlerUtils propertiesHandlerUtils;
     Properties properties;
-    @Value("application.id")
-    protected String applicationId;
-    protected PropertiesHandlerStrategyPath defaultHandler;
 
-    @Autowired
+
     public PropertiesHandlerStrategy(PropertiesHandlerUtils propertiesHandlerUtils,
                                      FileUtils fileUtils,
                                      PropertiesHandlerStrategyPath propertiesHandlerStrategyPath) {
@@ -62,10 +59,6 @@ public abstract class PropertiesHandlerStrategy implements PropertiesHandlerStra
     PropertiesHandlerStrategy() {
 
     }
-
-    public abstract PropertiesHandlerStrategyInterface getNext();
-
-    public abstract void setNext(PropertiesHandlerStrategyInterface next);
 
     public abstract Map<String, String> getOriginProperties();
 
@@ -81,6 +74,10 @@ public abstract class PropertiesHandlerStrategy implements PropertiesHandlerStra
             return properties;
         }
     }
+
+    public abstract PropertiesHandlerStrategyInterface getNext();
+
+    public abstract void setNext(PropertiesHandlerStrategyInterface next);
 
     public abstract String getPropertiesHandlerStrategyName();
 

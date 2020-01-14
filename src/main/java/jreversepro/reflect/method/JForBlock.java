@@ -24,7 +24,6 @@
 
 package jreversepro.reflect.method;
 
-import jreversepro.reflect.*;
 import jreversepro.revengine.JBranchEntry;
 
 /**
@@ -36,24 +35,20 @@ public class JForBlock extends JBlockObject {
      * Contains stringified init FOR expression
      */
     private String init;
-
+    /**
+     * Contains stringified loop FOR expression
+     */
+    private String loop;
     /**
      * Contains stringified conditional test FOR expression
      */
     private String test;
 
     /**
-     * Contains stringified loop FOR expression
-     */
-    private String loop;
-
-    /**
-     * Associated Branch Entry
-     */
-    private JBranchEntry branch;
-
-    /**
      * Creates a new instance of JForBlock
+     *
+     * @param _jbe  Branch
+     * @param _test The test expression
      */
     public JForBlock(JBranchEntry _jbe, String _test) {
         this(_jbe, "", _test, "");
@@ -61,37 +56,25 @@ public class JForBlock extends JBlockObject {
 
     /**
      * Creates a new instance of JForBlock
+     *
+     * @param _jbe  Branch
+     * @param _init The init expression
+     * @param _test The test expression
+     * @param _loop The loop expression
      */
     public JForBlock(JBranchEntry _jbe, String _init, String _test, String _loop) {
-        branch = _jbe;
+        /*
+      Associated Branch Entry
+     */
         init = _init;
         test = _test;
-        loop = _loop;
-    }
-
-    /**
-     * Set the init expression
-     */
-    public void setInitExpr(String _init) {
-        init = _init;
-    }
-
-    /**
-     * Set the loop expression
-     */
-    public void setTestExpr(String _test) {
-        test = _test;
-    }
-
-    /**
-     * Set the loop expression
-     */
-    public void setLoopExpr(String _loop) {
         loop = _loop;
     }
 
     /**
      * Outputs any starting code to open the block
+     *
+     * @return The starting code to open the block
      */
     protected String getEntryCode() {
         if (isSimpleBlock()) {
@@ -103,6 +86,8 @@ public class JForBlock extends JBlockObject {
 
     /**
      * Outputs any terminating code to close the block
+     *
+     * @return The terminating code to close the block
      */
     protected String getExitCode() {
         if (isSimpleBlock()) {
@@ -110,6 +95,33 @@ public class JForBlock extends JBlockObject {
         } else {
             return "}\n";
         }
+    }
+
+    /**
+     * Set the init expression
+     *
+     * @param _init The init expression
+     */
+    public void setInitExpr(String _init) {
+        init = _init;
+    }
+
+    /**
+     * Set the loop expression
+     *
+     * @param _loop The loop expression
+     */
+    public void setLoopExpr(String _loop) {
+        loop = _loop;
+    }
+
+    /**
+     * Set the test expression
+     *
+     * @param _test The test expression
+     */
+    public void setTestExpr(String _test) {
+        test = _test;
     }
 
 }

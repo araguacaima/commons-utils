@@ -2,7 +2,6 @@ package com.araguacaima.commons.utils.json.parser;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
@@ -21,8 +20,8 @@ public class LocalDateTimeDeserializer extends StdScalarDeserializer<LocalDateTi
     }
 
     @Override
-    public LocalDateTime deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException,
-            JsonProcessingException {
+    public LocalDateTime deserialize(JsonParser jp, DeserializationContext ctxt)
+            throws IOException {
         String dateStr = null;
         String timeStr = null;
         String fieldName = null;
@@ -44,8 +43,7 @@ public class LocalDateTimeDeserializer extends StdScalarDeserializer<LocalDateTi
             }
         }
         if (dateStr != null && timeStr != null) {
-            LocalDateTime dateTime = LocalDateTime.parse(dateStr + "T" + timeStr, DATETIME_FORMAT);
-            return dateTime;
+            return LocalDateTime.parse(dateStr + "T" + timeStr, DATETIME_FORMAT);
         }
         return null;
     }

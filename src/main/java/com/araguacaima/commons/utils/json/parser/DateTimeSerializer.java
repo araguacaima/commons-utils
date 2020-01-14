@@ -1,7 +1,6 @@
 package com.araguacaima.commons.utils.json.parser;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import org.joda.time.DateTime;
@@ -23,8 +22,8 @@ public class DateTimeSerializer extends StdScalarSerializer<DateTime> {
     }
 
     @Override
-    public void serialize(DateTime value, JsonGenerator jgen, SerializerProvider provider) throws
-            IOException {
+    public void serialize(DateTime value, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException {
         jgen.writeString(DATE_FORMAT.print(value));
     }
 }

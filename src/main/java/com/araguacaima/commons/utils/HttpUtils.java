@@ -29,10 +29,6 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -57,8 +53,7 @@ import java.util.List;
  * <li> 2014-11-26 (AMMA)  Creacion de la clase. </li>
  * </ul>
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+
 public class HttpUtils {
 
     private static Logger log = LoggerFactory.getLogger(HttpUtils.class);
@@ -109,9 +104,6 @@ public class HttpUtils {
                      Integer connectionTimeout,
                      Integer readTimeout) {
 
-        if (httpClient == null) {
-            httpClient = new HttpClient();
-        }
         // set host
         if (port != null && host != null) {
             httpClient.getHostConfiguration().setHost(host, port);
@@ -149,7 +141,7 @@ public class HttpUtils {
         this(host, port, username, password, null, null, null, null, connectionTimeout, readTimeout);
     }
 
-    @Autowired
+
     public HttpUtils(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
@@ -251,7 +243,7 @@ public class HttpUtils {
                 httpClient.executeMethod(httpMethod);
                 return httpMethod.getResponseBodyAsString();
             } catch (final Exception e) {
-                throw new Exception("Status Code: " + String.valueOf(httpMethod.getStatusCode()) + " | " + e
+                throw new Exception("Status Code: " + httpMethod.getStatusCode() + " | " + e
                         .getMessage());
             } finally {
                 httpMethod.releaseConnection();
@@ -309,7 +301,7 @@ public class HttpUtils {
                 IOUtils.copy(httpMethod.getResponseBodyAsStream(), outputStream);
                 return new ByteArrayInputStream(outputStream.toByteArray());
             } catch (final Exception e) {
-                throw new Exception("Status Code: " + String.valueOf(httpMethod.getStatusCode()) + " | " + e
+                throw new Exception("Status Code: " + httpMethod.getStatusCode() + " | " + e
                         .getMessage());
             } finally {
                 // release connection

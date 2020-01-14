@@ -1,18 +1,12 @@
 package com.araguacaima.commons.utils.json.parser;
 
-/**
- * Created by Alejandro on 20/11/2014.
- */
-
 import com.araguacaima.commons.utils.ReflectionUtils;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParseException;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Parses <a
@@ -25,6 +19,8 @@ public class JsonPathParser<T> {
 
     private final Beanspector<T> beanspector;
     private SyntaxtNode<T> node;
+    private ReflectionUtils reflectionUtils = ReflectionUtils.getInstance();
+    ;
 
     /**
      * Creates Json parser.
@@ -33,12 +29,24 @@ public class JsonPathParser<T> {
      *               tree. Class T must have accessible no-arg constructor and
      *               complementary setters to these used in Json expressions.
      */
-    public JsonPathParser(final Class<T> tclass) throws InstantiationException, IllegalAccessException {
+    public JsonPathParser(final Class<T> tclass) {
         this(tclass, tclass.getClassLoader());
     }
 
-    public JsonPathParser(Class<T> tClass, ClassLoader classLoader) throws IllegalAccessException, InstantiationException {
-        beanspector = new Beanspector<T>(tClass, classLoader);
+    public JsonPathParser(Class<T> tClass, ClassLoader classLoader) {
+        beanspector = new Beanspector<>(tClass, classLoader);
+    }
+
+    public Object getBean() {
+        return beanspector.getBean();
+    }
+
+    public SyntaxtNode<T> getNode() {
+        return node;
+    }
+
+    public Class getTclass() {
+        return beanspector.getTclass();
     }
 
     /**
@@ -48,11 +56,15 @@ public class JsonPathParser<T> {
      * @param jsonPathExpression json path expression.
      * @return tree of {@link T}
      * objects representing runtime structure.
-     * @throws JsonParseException when expression does not follow JSON_PATH grammar
+     * @throws JsonParseException     when expression does not follow JSON_PATH grammar
+     * @throws InstantiationException when expression does not follow JSON_PATH grammar
+     * @throws IllegalAccessException when expression does not follow JSON_PATH grammar
      */
     public Map<T, Field> parse(final String jsonPathExpression)
-            throws JsonParseException, NoSuchMethodException, InstantiationException,
-            IllegalAccessException, InvocationTargetException {
+            throws
+            JsonParseException,
+            InstantiationException,
+            IllegalAccessException {
         this.node = parseDatatype(jsonPathExpression);
         return new HashMap<T, Field>() {{
             put(node.getBean(), node.getField());
@@ -60,8 +72,7 @@ public class JsonPathParser<T> {
     }
 
     private SyntaxtNode<T> parseDatatype(final String setter)
-            throws JsonParseException, InvocationTargetException, NoSuchMethodException,
-            InstantiationException, IllegalAccessException {
+            throws JsonParseException, InstantiationException, IllegalAccessException {
         Class<?> firstTokenType;
         Class<?> valueType;
         boolean isCollection = false;
@@ -78,7 +89,7 @@ public class JsonPathParser<T> {
             }
             firstTokenType = beanspector.getAccessorType(token);
             if (firstTokenType != null) {
-                isCollection = ReflectionUtils.isCollectionImplementation(firstTokenType);
+                isCollection = reflectionUtils.isCollectionImplementation(firstTokenType);
             }
             valueType = beanspector.getAccessorType(setter);
 
@@ -86,30 +97,22 @@ public class JsonPathParser<T> {
             throw new JsonParseException("", JsonLocation.NA, e);
         }
 
-        if (ReflectionUtils.isCollectionImplementation(valueType)) {
-            valueType = ReflectionUtils.createAndInitializeTypedCollection(ReflectionUtils.extractGenerics(valueType), null).getClass();
+        if (reflectionUtils.isCollectionImplementation(valueType)) {
+            valueType = reflectionUtils.createAndInitializeTypedCollection(reflectionUtils.extractGenerics(valueType),
+                    null).getClass();
         }
 
         if (isCollection) {
             try {
-                valueType = ReflectionUtils.createAndInitializeTypedCollection(firstTokenType, null).getClass();
+                valueType = reflectionUtils.createAndInitializeTypedCollection(firstTokenType, null).getClass();
             } catch (final Exception e) {
-                throw new JsonParseException("Cannot set value for attribute '" + methodName + "' of type '" + firstTokenType.getSimpleName() + "' as a part of a collection", JsonLocation.NA, e);
+                throw new JsonParseException("Cannot set value for attribute '" + methodName + "' of type '" +
+                        firstTokenType.getSimpleName() + "' as a part of a collection",
+                        JsonLocation.NA,
+                        e);
             }
         }
         return new Pair(setter, valueType);
-    }
-
-    public Object getBean() {
-        return beanspector.getBean();
-    }
-
-    public Class getTclass() {
-        return beanspector.getTclass();
-    }
-
-    public SyntaxtNode<T> getNode() {
-        return node;
     }
 
     private class Pair implements SyntaxtNode<T> {
@@ -119,6 +122,16 @@ public class JsonPathParser<T> {
         public Pair(final String name, final Class type) {
             this.name = name;
             this.type = type;
+        }
+
+        @Override
+        public T getBean() {
+            return beanspector.getBean();
+        }
+
+        @Override
+        public Field getField() {
+            return beanspector.getLastTokenField();
         }
 
         public String getName() {
@@ -132,16 +145,6 @@ public class JsonPathParser<T> {
         @Override
         public String toString() {
             return name + " " + type + " (" + type.getSimpleName() + ")";
-        }
-
-        @Override
-        public T getBean() throws JsonParseException {
-            return (T) beanspector.getBean();
-        }
-
-        @Override
-        public Field getField() {
-            return beanspector.getLastTokenField();
         }
     }
 }

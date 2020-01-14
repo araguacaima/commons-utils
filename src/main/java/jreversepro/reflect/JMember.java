@@ -30,62 +30,51 @@ package jreversepro.reflect;
 public class JMember {
 
     /**
-     * Public access specifier.
+     * Qualifer 'abstract'
      */
-    public static final int ACC_PUBLIC = 0x0001;
-
-    /**
-     * Private access specifier.
-     */
-    public static final int ACC_PRIVATE = 0x0002;
-
-    /**
-     * Protected access specifier.
-     */
-    public static final int ACC_PROTECTED = 0x0004;
-
-    /**
-     * Qualifer 'static'
-     */
-    public static final int ACC_STATIC = 0x0008;
-
+    public static final int ACC_ABSTRACT = 0x0400;
     /**
      * Qualifier 'final'
      */
     public static final int ACC_FINAL = 0x0010;
-
-    /**
-     * Qualifer 'synchronized'
-     */
-    public static final int ACC_SYNCHRONIZED = 0x0020;
-
     /**
      * Qualifer 'native'
      */
     public static final int ACC_NATIVE = 0x0100;
-
     /**
-     * Qualifer 'abstract'
+     * Private access specifier.
      */
-    public static final int ACC_ABSTRACT = 0x0400;
-
+    public static final int ACC_PRIVATE = 0x0002;
+    /**
+     * Protected access specifier.
+     */
+    public static final int ACC_PROTECTED = 0x0004;
+    /**
+     * Public access specifier.
+     */
+    public static final int ACC_PUBLIC = 0x0001;
+    /**
+     * Qualifer 'static'
+     */
+    public static final int ACC_STATIC = 0x0008;
     /**
      * Qualifer 'strictfp'
      */
     public static final int ACC_STRICT = 0x0800;
-
     /**
-     * Qualifer 'volatile'.
-     * This qualifer is valid for fields only.
+     * Qualifer 'synchronized'
      */
-    public static final int ACC_VOLATILE = 0x0040;
-
+    public static final int ACC_SYNCHRONIZED = 0x0020;
     /**
      * Qualifer 'transient'
      * This qualifer is valid for fields only.
      */
     public static final int ACC_TRANSIENT = 0x0080;
-
+    /**
+     * Qualifer 'volatile'.
+     * This qualifer is valid for fields only.
+     */
+    public static final int ACC_VOLATILE = 0x0040;
     /**
      * This field contains the datatype of the member.
      */
@@ -104,12 +93,28 @@ public class JMember {
     protected int qualifier;
 
     /**
+     * @return Returns the data type
+     */
+    public String getDatatype() {
+        return datatype;
+    }
+
+    /**
      * Setter method for datatype.
      *
      * @param rhsType data type value.
      */
     public void setDatatype(String rhsType) {
         datatype = rhsType;
+    }
+
+    /**
+     * Getter method for name
+     *
+     * @return Returns name of the member.
+     */
+    public String getName() {
+        return name;
     }
 
     /**
@@ -122,12 +127,29 @@ public class JMember {
     }
 
     /**
+     * Getter method for the qualifier.
+     *
+     * @return Returns the qualifier integer.
+     */
+    public int getQualifier() {
+        return qualifier;
+    }
+
+    /**
      * Setter method for qualifiers.
      *
      * @param rhsQualify qualifier value
      */
     public void setQualifier(int rhsQualify) {
         qualifier = rhsQualify;
+    }
+
+    /**
+     * @return Returns the qualifier in
+     * string format.
+     */
+    public String getQualifierName() {
+        return getStringRep(qualifier, true);
     }
 
     /**
@@ -147,8 +169,7 @@ public class JMember {
      */
     public static String getStringRep(int rhsQualifier, boolean memberOnly) {
 
-        StringBuffer access = new StringBuffer("");
-        int qualifier = rhsQualifier;
+        StringBuilder access = new StringBuilder();
         if ((rhsQualifier & ACC_PUBLIC) != 0) {
             access.append("public ");
         } else if ((rhsQualifier & ACC_PRIVATE) != 0) {
@@ -189,39 +210,6 @@ public class JMember {
             }
         }
         return access.toString();
-    }
-
-    /**
-     * Getter method for name
-     *
-     * @return Returns name of the member.
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Getter method for the qualifier.
-     *
-     * @return Returns the qualifier integer.
-     */
-    public int getQualifier() {
-        return qualifier;
-    }
-
-    /**
-     * @return Returns the qualifier in
-     *         string format.
-     */
-    public String getQualifierName() {
-        return getStringRep(qualifier, true);
-    }
-
-    /**
-     * @return Returns the data type
-     */
-    public String getDatatype() {
-        return datatype;
     }
 
     /**

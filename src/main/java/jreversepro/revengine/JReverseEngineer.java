@@ -36,10 +36,8 @@ public interface JReverseEngineer {
     /**
      * Message that appears when decompiling fails.
      */
-    static final String DECOMPILE_FAILED_MSG = "\n\t\t/**\nDecompilation failed for the method. "
-                                               + "Thanks for reporting the bug to me at "
-                                               + "akkumar@users.sourceforge.net by attaching this "
-                                               + "class file .\n **/";
+    String DECOMPILE_FAILED_MSG = "\n\t\t/**\nDecompilation failed for the method. " + "Thanks for reporting the bug " +
+            "" + "to me at " + "akkumar@users.sourceforge.net by attaching this " + "class file .\n **/";
 
     /**
      * Generates the code for disassembler and decompiler.
@@ -50,5 +48,6 @@ public interface JReverseEngineer {
      * @throws ClassParserException Thrown in case of an invalid
      *                              constantpool reference.
      */
-    void genCode() throws RevEngineException, IOException, ClassParserException;
+    void genCode()
+            throws RevEngineException, IOException, ClassParserException;
 }

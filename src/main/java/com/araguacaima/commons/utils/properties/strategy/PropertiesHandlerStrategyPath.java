@@ -21,13 +21,11 @@ package com.araguacaima.commons.utils.properties.strategy;
 
 import com.araguacaima.commons.exception.core.PropertiesUtilException;
 import com.araguacaima.commons.utils.StringUtils;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-@Component("Path")
 public class PropertiesHandlerStrategyPath extends PropertiesHandlerStrategy {
 
     private static final String PROPERTIES_FILE_PATH = "PROPERTIES_FILE_PATH";
@@ -45,7 +43,7 @@ public class PropertiesHandlerStrategyPath extends PropertiesHandlerStrategy {
     }
 
     public Map<String, String> getOriginProperties() {
-        Map<String, String> originProperties = new HashMap<String, String>();
+        Map<String, String> originProperties = new HashMap<>();
         originProperties.put(PROPERTIES_FILE_PATH, fileInPath);
         return originProperties;
     }

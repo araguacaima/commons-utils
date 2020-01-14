@@ -21,18 +21,20 @@ package com.araguacaima.commons.utils;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
+import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.Clob;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component
+import static com.google.common.base.CaseFormat.*;
+
+
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     public static final String AMPERSAND = "&";
@@ -95,9 +97,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     public static final String TRUE = "true";
     public static final String UNDERSCORE = "_";
     public static final int UNICODE_HEX_LENGTH = 4;
-    private final String DEFAULT_STOP_FILTERS[] = {"junit.framework.TestCase.runTest",
+    private static final StringUtils INSTANCE = new StringUtils();
+    private final String[] DEFAULT_STOP_FILTERS = {"junit.framework.TestCase.runTest",
             "junit.framework.TestSuite.runTest"};
-    private final String DEFAULT_TRACE_FILTERS[] = {"junit.framework.TestCase",
+    private final String[] DEFAULT_TRACE_FILTERS = {"junit.framework.TestCase",
             "junit.framework.TestResult",
             "junit.framework.TestSuite",
             "junit.framework.Assert.",
@@ -106,14 +109,63 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
             "junit.textui.TestRunner",
             "java.lang.reflect.Method.invoke(",
             "org.apache.tools.ant."};
-    private final ExceptionUtils exceptionUtils;
+    private final ExceptionUtils exceptionUtils = ExceptionUtils.getInstance();
     private final Logger log = LoggerFactory.getLogger(StringUtils.class);
-    private final NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate;
+    private final NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate = new NotNullOrEmptyStringPredicate();
 
-    @Autowired
-    public StringUtils(NotNullOrEmptyStringPredicate notNullOrEmptyStringPredicate, ExceptionUtils exceptionUtils) {
-        this.notNullOrEmptyStringPredicate = notNullOrEmptyStringPredicate;
-        this.exceptionUtils = exceptionUtils;
+    private StringUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
+
+    public static StringUtils getInstance() {
+        return INSTANCE;
+    }
+
+    public static int firstIndexOf(String input, Collection tokens) {
+        int firstIndexOf = input.length() + 1;
+        for (Object token1 : tokens) {
+            String token = (String) token1;
+            int newIndexOf = input.indexOf(token);
+            if (newIndexOf != -1 & newIndexOf <= firstIndexOf) {
+                firstIndexOf = newIndexOf;
+            }
+        }
+        return firstIndexOf > input.length() ? -1 : firstIndexOf;
+    }
+
+    /**
+     * Trim characters in prefix
+     *
+     * @param str String
+     * @param ch  character which has to be removed
+     * @return null, if str is null, otherwise string will be returned
+     * without character prefixed
+     */
+    public static String leftTrim(String str, char ch) {
+        if (str == null) {
+            return null;
+        }
+        int count = str.length();
+        int len = str.length();
+        int st = 0;
+        int off = 0;
+        char[] val = str.toCharArray();
+
+        while ((st < len) && (val[off + st] == ch)) {
+            st++;
+        }
+
+        return st > 0 ? str.substring(st, len) : str;
+    }
+
+    public static String getLastToken(String text, String separator) {
+        return text.substring(text.lastIndexOf(separator) + 1);
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
     }
 
     /**
@@ -233,7 +285,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         StringBuilder htmlUnicode = new StringBuilder();
         char[] characters = input.toCharArray();
         for (char character : characters) {
-            htmlUnicode.append("&#").append(Integer.toString((int) character)).append(";");
+            htmlUnicode.append("&#").append(Integer.toString(character)).append(";");
         }
         return htmlUnicode.toString();
     }
@@ -276,9 +328,8 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         return code;
     }
 
-    public String decodeUTF8(byte[] bytes)
-            throws UnsupportedEncodingException {
-        return new String(bytes, "UTF-8");
+    public String decodeUTF8(byte[] bytes) {
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     public String deleteAll(String input, Collection tokens) {
@@ -330,20 +381,19 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     }
 
     public String enclose(String input, String encloseIn, String encloseOut) {
-        return (new StringBuffer().append(encloseIn).append(input).append(encloseOut)).toString();
+        return encloseIn + input + encloseOut;
     }
 
     public String encloseOnlyPrefix(String input, String enclosePrefix) {
-        return (new StringBuffer().append(enclosePrefix).append(input)).toString();
+        return enclosePrefix + input;
     }
 
     public String encloseOnlySuffix(String input, String encloseSuffix) {
-        return (new StringBuffer().append(input).append(encloseSuffix)).toString();
+        return input + encloseSuffix;
     }
 
-    public byte[] encodeUTF8(String string)
-            throws UnsupportedEncodingException {
-        return string.getBytes("UTF-8");
+    public byte[] encodeUTF8(String string) {
+        return string.getBytes(StandardCharsets.UTF_8);
     }
 
     public String filterStack(String stack) {
@@ -389,18 +439,6 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         }
 
         return false;
-    }
-
-    public static int firstIndexOf(String input, Collection tokens) {
-        int firstIndexOf = input.length() + 1;
-        for (Object token1 : tokens) {
-            String token = (String) token1;
-            int newIndexOf = input.indexOf(token);
-            if (newIndexOf != -1 & newIndexOf <= firstIndexOf) {
-                firstIndexOf = newIndexOf;
-            }
-        }
-        return firstIndexOf > input.length() ? -1 : firstIndexOf;
     }
 
     public String firstToken(String input, Collection tokens) {
@@ -712,31 +750,6 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     }
 
     /**
-     * Trim characters in prefix
-     *
-     * @param str String
-     * @param ch  character which has to be removed
-     * @return null, if str is null, otherwise string will be returned
-     * without character prefixed
-     */
-    public static String leftTrim(String str, char ch) {
-        if (str == null) {
-            return null;
-        }
-        int count = str.length();
-        int len = str.length();
-        int st = 0;
-        int off = 0;
-        char[] val = str.toCharArray();
-
-        while ((st < len) && (val[off + st] == ch)) {
-            st++;
-        }
-
-        return st > 0 ? str.substring(st, len) : str;
-    }
-
-    /**
      * Retorna null si el String es vacio, o el String original si no lo es.
      *
      * @param s The given string
@@ -875,6 +888,9 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         }
     }
 
+    // Inicio de metodos de SICAM
+    // TODO: Sincerar que metodos son utiles
+
     public Collection splitBySeparators(String input, Collection separators) {
         if (isNotBlank(input)) {
             String separatorMask = String.valueOf(System.currentTimeMillis());
@@ -889,9 +905,6 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
             return new ArrayList();
         }
     }
-
-    // Inicio de metodos de SICAM
-    // TODO: Sincerar que metodos son utiles
 
     public String substringIfLonger(String cadena, int limite) {
         return substringIfLonger(cadena, limite, "");
@@ -909,18 +922,18 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         }
     }
 
+    //    public  void main(String[] args) {
+    //        String test = "<span class=\"colorLink\" >64280</span>";
+    //        log.debug("args = " + test.replaceAll("<span class=\"colorLink\" >",
+    // "").replaceAll("</span>", ""));
+    //    }
+
     public String toParragraph(String s) {
         if (isBlank(s)) {
             return s;
         }
         return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
     }
-
-    //    public  void main(String[] args) {
-    //        String test = "<span class=\"colorLink\" >64280</span>";
-    //        log.debug("args = " + test.replaceAll("<span class=\"colorLink\" >",
-    // "").replaceAll("</span>", ""));
-    //    }
 
     /**
      * Converts String[] to Vector&lt;String&gt;
@@ -942,13 +955,13 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         return result;
     }
 
+    // Final de metodos de SICAM
+
     public String transformsCollectionIntoString(Collection<String> tokens) {
         final StringBuilder result = new StringBuilder();
         IterableUtils.forEach(tokens, result::append);
         return result.toString();
     }
-
-    // Final de metodos de SICAM
 
     public String transformsCollectionIntoStringWithSeperator(Collection<Object> tokens, final String separator) {
         final StringBuffer result = new StringBuffer();
@@ -961,37 +974,9 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
                                                                           final String separator,
                                                                           final String demarcation) {
         final StringBuffer result = new StringBuffer();
-        IterableUtils.forEach(tokens,
-                o -> result.append(demarcation).append(o).append(demarcation).append(separator));
+        IterableUtils.forEach(tokens, o -> result.append(demarcation).append(o).append(demarcation).append(separator));
         result.replace(result.length() - 1, result.length(), EMPTY);
         return result.toString();
-    }
-
-    /**
-     * Trim characters in prefix and suffix
-     *
-     * @param str String
-     * @param ch  character which has to be removed
-     * @return null, if str is null, otherwise string will be returned
-     * without character prefixed/suffixed
-     */
-    public String trim(String str, char ch) {
-        if (str == null) {
-            return null;
-        }
-        int count = str.length();
-        int len = str.length();
-        int st = 0;
-        int off = 0;
-        char[] val = str.toCharArray();
-
-        while ((st < len) && (val[off + st] == ch)) {
-            st++;
-        }
-        while ((st < len) && (val[off + len - 1] == ch)) {
-            len--;
-        }
-        return ((st > 0) || (len < count)) ? str.substring(st, len) : str;
     }
 
     //    public  void main(String[] args) {
@@ -1030,6 +1015,33 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 */
 
     /**
+     * Trim characters in prefix and suffix
+     *
+     * @param str String
+     * @param ch  character which has to be removed
+     * @return null, if str is null, otherwise string will be returned
+     * without character prefixed/suffixed
+     */
+    public String trim(String str, char ch) {
+        if (str == null) {
+            return null;
+        }
+        int count = str.length();
+        int len = str.length();
+        int st = 0;
+        int off = 0;
+        char[] val = str.toCharArray();
+
+        while ((st < len) && (val[off + st] == ch)) {
+            st++;
+        }
+        while ((st < len) && (val[off + len - 1] == ch)) {
+            len--;
+        }
+        return ((st > 0) || (len < count)) ? str.substring(st, len) : str;
+    }
+
+    /**
      * Dado un arreglo, crea un String con los elementos del mismo,
      * separados por el delimitador indicado.
      * NOTA: Si se les ocurre un mejor nombre que unSplit, por favor avisenme.
@@ -1063,7 +1075,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
             delimitador = "";
         }
         // StringBuilder result = new StringBuilder("");
-        StringBuilder result = new StringBuilder("");
+        StringBuilder result = new StringBuilder();
 
         iterateElements(elementos, delimitador, prev, post, result);
         return result.toString();
@@ -1112,6 +1124,126 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         return sb.toString();
     }
 
+    public String singularizeTypeName(Class clazz) {
+        String typeName = cleanClassName(clazz);
+        return singularizeTypeName(typeName);
+    }
+
+    public String pluralizeTypeName(Class clazz) {
+        String typeName = cleanClassName(clazz);
+        return pluralizeTypeName(typeName);
+    }
+
+    @SuppressWarnings("DuplicateExpressions")
+    public String singularizeTypeName(String clazz) {
+        String typeName = cleanClassName(clazz);
+
+        if (typeName.endsWith("ses")) {
+            typeName = typeName.substring(0, typeName.length() - 3);
+        } else if (typeName.endsWith("s")) {
+            typeName = typeName.substring(0, typeName.length() - 1);
+        } else if (typeName.endsWith("ees")) {
+            typeName = typeName.substring(0, typeName.length() - 3);
+        } else {
+            typeName = English.plural(typeName, 1);
+        }
+        return typeName;
+    }
+
+    public String pluralizeTypeName(String clazz) {
+        String typeName = cleanClassName(clazz);
+
+        if (!typeName.endsWith("ses") && !typeName.endsWith("ees") && !typeName.endsWith("s")) {
+            if (!typeName.endsWith("data") && !typeName.endsWith("Data")) {
+                typeName = English.plural(typeName, 2);
+            }
+        }
+
+        return typeName;
+    }
+
+    private String cleanClassName(String simpleName) {
+        if (simpleName.startsWith("Dto") || simpleName.startsWith("dto")) {
+            simpleName = simpleName.substring(3);
+        }
+        if (simpleName.endsWith("Dto")) {
+            simpleName = simpleName.substring(0, simpleName.length() - 3);
+        }
+        return StringUtils.uncapitalize(simpleName);
+    }
+
+    private String cleanClassName(Class clazz) {
+        String simpleName = clazz.getSimpleName();
+        return cleanClassName(simpleName);
+    }
+
+    public String toSnake(String input) {
+        return toSnake(input, true);
+    }
+
+    public String toSnake(String input, boolean forceUncapitalized) {
+        String snakedInput = LOWER_CAMEL.to(LOWER_HYPHEN, input);
+        if (forceUncapitalized) {
+            snakedInput = StringUtils.uncapitalize(snakedInput);
+        }
+        return snakedInput;
+    }
+
+    public String splitWords(String input) {
+        return splitWords(input, true);
+    }
+
+    public String splitWords(String input, boolean forceUncapitalized) {
+        String[] underScoredInputList = input.split("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])");
+        StringBuilder underScoredInput = new StringBuilder(StringUtils.EMPTY);
+        for (String str : underScoredInputList) {
+            underScoredInput.append(" ").append(forceUncapitalized ? StringUtils.uncapitalize(str) : str);
+        }
+        return underScoredInput.toString();
+    }
+
+    public String toUnderscore(String input) {
+        return toUnderscore(input, true, true);
+    }
+
+    public String toUnderscore(String input, boolean forceUncapitalized, boolean uppercase) {
+        String underScoredInput = LOWER_CAMEL.to((uppercase ? UPPER_UNDERSCORE : LOWER_UNDERSCORE), input);
+        if (forceUncapitalized) {
+            underScoredInput = StringUtils.uncapitalize(underScoredInput);
+        }
+        return underScoredInput;
+    }
+
+    public String fromUnderscore(String input) {
+        return fromUnderscore(input, false, false);
+    }
+
+    public String fromUnderscore(String input, boolean forceUncapitalized, boolean uppercase) {
+        String underScoredInput = UPPER_UNDERSCORE.to((uppercase ? UPPER_CAMEL : LOWER_CAMEL), input);
+        if (forceUncapitalized) {
+            underScoredInput = StringUtils.uncapitalize(underScoredInput);
+        } else {
+            underScoredInput = StringUtils.capitalize(underScoredInput);
+        }
+        return underScoredInput;
+    }
+
+    public boolean hasLength(CharSequence str) {
+        return (str != null && str.length() > 0);
+    }
+
+    public boolean hasText(CharSequence str) {
+        return (str != null && str.length() > 0 && containsText(str));
+    }
+    private boolean containsText(CharSequence str) {
+        int strLen = str.length();
+        for (int i = 0; i < strLen; i++) {
+            if (!Character.isWhitespace(str.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 

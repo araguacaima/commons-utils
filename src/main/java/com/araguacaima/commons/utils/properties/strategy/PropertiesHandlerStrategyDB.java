@@ -19,13 +19,11 @@
 
 package com.araguacaima.commons.utils.properties.strategy;
 
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-@Component("DB")
 public class PropertiesHandlerStrategyDB extends PropertiesHandlerStrategy {
 
     private static final String PROPERTIES_HANDLER_STRATEGY_NAME = PropertiesHandlerStrategy

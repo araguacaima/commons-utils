@@ -38,31 +38,29 @@ public class JCaseEntry implements KeyWords {
      * Ordinarily they have just one entry. But sometimes they
      * may have more than one entry.
      * For eg.
-     * <p/>
+     * <br>
      * case 12:
      * case 13:
      * case 18:
-     * <<do Something>>
-     * <p/>
+     * &lt;&lt;do Something&gt;&gt;
+     * <br>
      * In this case there will be three entries in the list.
      */
-    List values;
-
+    final List<String> values;
+    /**
+     * End Pc of this case target and the beginnin of the next target.
+     */
+    int endTarget;
     /**
      * Target of this group of case entry.
      */
     int target;
 
     /**
-     * End Pc of this case target and the beginnin of the next target.
-     */
-    int endTarget;
-
-    /**
      * Empty constructor.
      */
     public JCaseEntry() {
-        values = new Vector();
+        values = new Vector<>();
     }
 
     /**
@@ -72,7 +70,7 @@ public class JCaseEntry implements KeyWords {
      */
     public JCaseEntry(String name, int targetPc) {
         target = targetPc;
-        values = new Vector();
+        values = new Vector<>();
         values.add(name);
     }
 
@@ -83,30 +81,6 @@ public class JCaseEntry implements KeyWords {
      */
     public void addValue(String name) {
         values.add(name);
-    }
-
-    /**
-     * @return Returns the List of case targets.
-     *         Members are 'String'.
-     */
-    public List getValues() {
-        return values;
-    }
-
-    /**
-     * @return Returns the targetPc of the beginning branch
-     */
-    public int getTarget() {
-        return target;
-    }
-
-    /**
-     * Setter method for TargetPc
-     *
-     * @param targetPc TargetPc
-     */
-    public void setTarget(int targetPc) {
-        target = targetPc;
     }
 
     /**
@@ -126,26 +100,48 @@ public class JCaseEntry implements KeyWords {
     }
 
     /**
-     * Returns a string with the case targets and the
-     * correpoding branch PCs listed.
-     *
-     * @return Disassembled piece of code.
+     * @return Returns the targetPc of the beginning branch
      */
-    public String disAssemble() {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < values.size(); i++) {
-            sb.append(values.get(i) + ":\n\t\t\t");
-        }
-        sb.append("\n\t\t\t\t" + GOTO + " " + target);
-        return sb.toString();
+    public int getTarget() {
+        return target;
+    }
+
+    /**
+     * Setter method for TargetPc
+     *
+     * @param targetPc TargetPc
+     */
+    public void setTarget(int targetPc) {
+        target = targetPc;
+    }
+
+    /**
+     * @return Returns the List of case targets.
+     * Members are 'String'.
+     */
+    public List<String> getValues() {
+        return values;
     }
 
     /**
      * @return Returns a Stringified form of the class.
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append(disAssemble() + " upto " + endTarget);
+        return disAssemble() + " upto " + endTarget;
+    }
+
+    /**
+     * Returns a string with the case targets and the
+     * correpoding branch PCs listed.
+     *
+     * @return Disassembled piece of code.
+     */
+    public String disAssemble() {
+        StringBuilder sb = new StringBuilder();
+        for (String value : values) {
+            sb.append(value).append(":\n\t\t\t");
+        }
+        sb.append("\n\t\t\t\t" + GOTO + " ").append(target);
         return sb.toString();
     }
 }

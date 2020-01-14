@@ -21,15 +21,12 @@ package com.araguacaima.commons.utils.properties.strategy;
 
 import com.araguacaima.commons.exception.core.PropertiesUtilException;
 import com.araguacaima.commons.utils.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-@Component("FTP")
 public class PropertiesHandlerStrategyFTP extends PropertiesHandlerStrategy {
 
     private static final String PROPERTIES_FTP_LOCAL_FILE_PATH = "PROPERTIES_FTP_LOCAL_FILE_PATH";
@@ -39,16 +36,11 @@ public class PropertiesHandlerStrategyFTP extends PropertiesHandlerStrategy {
     private static final String PROPERTIES_FTP_SERVER_DOMAIN_PASSWORD = "PROPERTIES_FTP_SERVER_DOMAIN_PASSWORD";
     private static final String PROPERTIES_HANDLER_STRATEGY_NAME = PropertiesHandlerStrategy
             .PROPERTIES_HANDLER_STRATEGY_FTP;
-    @Value("${ftp.local.file.path}")
-    private String ftpLocalFilePath = StringUtils.EMPTY;
-    @Value("${ftp.remote.file.path}")
-    private String ftpRemoteFilePath = StringUtils.EMPTY;
-    @Value("${ftp.server.domain}")
-    private String ftpServerDomain = StringUtils.EMPTY;
-    @Value("${ftp.server.domain.login}")
-    private String ftpServerDomainLogin = StringUtils.EMPTY;
-    @Value("${ftp.server.domain.password}")
-    private String ftpServerDomainPassword = StringUtils.EMPTY;
+    private final String ftpLocalFilePath = StringUtils.EMPTY;
+    private final String ftpRemoteFilePath = StringUtils.EMPTY;
+    private final String ftpServerDomain = StringUtils.EMPTY;
+    private final String ftpServerDomainLogin = StringUtils.EMPTY;
+    private final String ftpServerDomainPassword = StringUtils.EMPTY;
     private PropertiesHandlerStrategyInterface next;
 
     public PropertiesHandlerStrategyInterface getNext() {

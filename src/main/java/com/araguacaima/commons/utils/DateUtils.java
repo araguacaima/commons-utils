@@ -21,7 +21,6 @@ package com.araguacaima.commons.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.text.SimpleDateFormat;
@@ -44,7 +43,7 @@ import java.util.Locale;
 
 // TODO: This class uses a lot of hardcoded spanish words...
 
-@Component
+
 public class DateUtils {
 
     public static final String EMPTY_DATE_FE = "DD-MM-AAAA"; // Valor a mostrar en la pantalla por defecto
@@ -55,6 +54,7 @@ public class DateUtils {
     public static final long MILLISECONDS_IN_DAY = 3600L * 24L * 1000L;
     public static final int SHORT_DATE_LENGTH = 10;
     private static final Logger log = LoggerFactory.getLogger(DateUtils.class);
+    private static final DateUtils INSTANCE = new DateUtils();
     // Formato para crear objetos Date desde javascript
     public final SimpleDateFormat sdfjs = new SimpleDateFormat("yyyy,MM,dd");
     // Formato para manejo de nombres de archivos.  No formatear fechas con este formato.
@@ -76,11 +76,20 @@ public class DateUtils {
     //    public  final SimpleDateFormat sdft = new SimpleDateFormat(SystemInfo.get("date.time")); //
     // HH:mm:ss
     public SimpleDateFormat sdft; // HH:mm:ss
+    ;
 
-    /**
-     * Constructor
-     */
-    public DateUtils() {
+    private DateUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
+
+    public static DateUtils getInstance() {
+        return INSTANCE;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
     }
 
     public String completeDateFirst(String date) {
@@ -221,7 +230,7 @@ public class DateUtils {
     public boolean isEmpty(String formattedDate) {
         return DateUtils.EMPTY_DATE_FE.equalsIgnoreCase(formattedDate) || DateUtils.EMPTY_DATE_FE_HHMMSS
                 .equalsIgnoreCase(
-                formattedDate) || (StringUtils.isBlank(formattedDate));
+                        formattedDate) || (StringUtils.isBlank(formattedDate));
     }
 
     public void main(String[] args) {

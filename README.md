@@ -15,3 +15,5 @@ Most of the utilities extend functionalities covered in amazing libraries like:
 * commons-lang3 (apache)
 * commons-io (apache)
 * commons-math3 (apache)
+* commons-collections4 (apache)
+* jreversepro (akkumar)

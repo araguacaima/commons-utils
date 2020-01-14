@@ -20,11 +20,10 @@
 package com.araguacaima.commons.utils;
 
 import org.apache.commons.collections4.Predicate;
-import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 
-@Component
+
 public class NotNullOrEmptyStringObjectPredicate implements Predicate<Object>, Serializable {
 
     public NotNullOrEmptyStringObjectPredicate() {

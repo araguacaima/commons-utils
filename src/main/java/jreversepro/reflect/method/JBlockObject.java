@@ -36,12 +36,12 @@ public abstract class JBlockObject {
     /**
      * Contains list of all blocks and stmts contained within this block
      */
-    private Vector blocksNstmts;
+    private final Vector<Object> blocksNstmts;
 
     /**
      * Default indentation
      */
-    private String defaultIndent = "     ";
+    private final String defaultIndent = "     ";
 
     /**
      * Directed indentation
@@ -52,15 +52,7 @@ public abstract class JBlockObject {
      * Creates a new instance of BranchObject
      */
     public JBlockObject() {
-        blocksNstmts = new Vector();
-    }
-
-    /**
-     * @return Returns  TRUE if block has only one stmt or block & does not
-     *         need bracketing, otherwise returns FALSE.
-     */
-    protected boolean isSimpleBlock() {
-        return blocksNstmts.size() == 1;
+        blocksNstmts = new Vector<>();
     }
 
     /**
@@ -73,21 +65,6 @@ public abstract class JBlockObject {
     }
 
     /**
-     * Called to remove last block.
-     *
-     * @return true If there are blocks.
-     *         false, If there are no blocks at all.
-     */
-    public boolean removeLastBlock() {
-        if (blocksNstmts.size() > 0) {
-            blocksNstmts.removeElementAt(blocksNstmts.size() - 1);
-        } else {
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * Called to add a line of code.
      *
      * @param _loc LineofCode to be added.
@@ -97,31 +74,9 @@ public abstract class JBlockObject {
     }
 
     /**
-     * Called to remove the last line of code added
-     *
-     * @return Last Statement if the block has got at least one
-     *         statement.
-     *         NULL, if the block has no statement.
-     */
-    public JLineOfCode removeLastStatement() {
-        if (blocksNstmts.size() > 0) {
-            return (JLineOfCode) blocksNstmts.remove(blocksNstmts.size() - 1);
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * @return Returns any starting code to open the block as a String.
      */
     protected String getEntryCode() {
-        return "";
-    }
-
-    /**
-     * @return Returns any terminating code to close the block as a String.
-     */
-    protected String getExitCode() {
         return "";
     }
 
@@ -133,60 +88,35 @@ public abstract class JBlockObject {
     }
 
     /**
+     * @return Returns any terminating code to close the block as a String.
+     */
+    protected String getExitCode() {
+        return "";
+    }
+
+    /**
      * @return Returns any terminating code to close the block as a
-     *         JLineOfCode.
+     * JLineOfCode.
      */
     protected JLineOfCode getExitLineOfCode() {
         return new JLineOfCode(indent + getExitCode(), this, JLineOfCode.EXIT);
     }
 
     /**
-     * @param _indent Indentation.
-     * @return Outputs the method code contained in this block
-     *         (and sub-blocks) as a string
-     */
-    public String toString(String _indent) {
-
-        indent = _indent;
-
-        StringBuffer sb = new StringBuffer();
-
-        //Print block entry code
-        sb.append(indent + getEntryCode());
-
-        //Print code inside block
-        //log.info("[numBlocks="+blocksNstmts.size());
-        for (int i = 0; i < blocksNstmts.size(); i++) {
-            Object o = blocksNstmts.get(i);
-            if (o instanceof JBlockObject) {
-                sb.append(((JBlockObject) o).toString(indent + defaultIndent));
-            } else if (o instanceof JLineOfCode) {
-                sb.append(((JLineOfCode) o).toString(indent + defaultIndent));
-            }
-        }
-
-        //Print block exit code
-        sb.append(indent + getExitCode());
-
-        return sb.toString();
-    }
-
-    /**
      * @param _indent Indentation String to be appended.
      * @return Outputs the method code contained in this block
-     *         (and sub-blocks) as a vector of JLineOfCode objects
+     * (and sub-blocks) as a vector of JLineOfCode objects
      */
-    public Vector getFlattenedCode(String _indent) {
+    public Vector<Object> getFlattenedCode(String _indent) {
 
         indent = _indent;
-        Vector locs = new Vector();
+        Vector<Object> locs = new Vector<>();
 
         //Adds block entry code as a JLineOfCode
         locs.add(getEntryLineOfCode());
 
         //Print code inside block
-        for (int i = 0; i < blocksNstmts.size(); i++) {
-            Object o = blocksNstmts.get(i);
+        for (Object o : blocksNstmts) {
             if (o instanceof JBlockObject) {
                 locs.add(((JBlockObject) o).
                         getFlattenedCode(_indent + defaultIndent));
@@ -199,5 +129,67 @@ public abstract class JBlockObject {
         locs.add(getExitLineOfCode());
 
         return locs;
+    }
+
+    /**
+     * @return Returns TRUE if block has only one stmt or block and does not
+     * need bracketing, otherwise returns FALSE.
+     */
+    protected boolean isSimpleBlock() {
+        return blocksNstmts.size() == 1;
+    }
+
+    /**
+     * Called to remove last block.
+     */
+    public void removeLastBlock() {
+        if (blocksNstmts.size() > 0) {
+            blocksNstmts.removeElementAt(blocksNstmts.size() - 1);
+        }
+    }
+
+    /**
+     * Called to remove the last line of code added
+     *
+     * @return Last Statement if the block has got at least one
+     * statement.
+     * NULL, if the block has no statement.
+     */
+    public JLineOfCode removeLastStatement() {
+        if (blocksNstmts.size() > 0) {
+            return (JLineOfCode) blocksNstmts.remove(blocksNstmts.size() - 1);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @param _indent Indentation.
+     * @return Outputs the method code contained in this block
+     * (and sub-blocks) as a string
+     */
+    public String toString(String _indent) {
+
+        indent = _indent;
+
+        StringBuilder sb = new StringBuilder();
+
+        //Print block entry code
+        sb.append(indent).append(getEntryCode());
+
+        //Print code inside block
+        //log.info("[numBlocks="+blocksNstmts.size());
+        for (Object o : blocksNstmts) {
+            if (o instanceof JBlockObject) {
+                sb.append(((JBlockObject) o).toString(indent + defaultIndent));
+            } else if (o instanceof JLineOfCode) {
+                sb.append(((JLineOfCode) o).toString(indent + defaultIndent));
+            }
+        }
+
+        //Print block exit code
+        sb.append(indent).append(getExitCode());
+
+        return sb.toString();
     }
 }

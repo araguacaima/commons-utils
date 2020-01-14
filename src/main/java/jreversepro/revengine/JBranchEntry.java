@@ -1,47 +1,30 @@
-/**
- * @(#)JBranchEntry.java
- *
- *
- * JReversePro - Java Decompiler / Disassembler.
+/*
+  @(#)JBranchEntry.java JReversePro - Java Decompiler / Disassembler.
  * Copyright (C) 2000 2001 Karthik Kumar.
  * EMail: akkumar@users.sourceforge.net
- *
+ * <p>
  * This program is free software; you can redistribute it and/or modify
  * it , under the terms of the GNU General Public License as published
  * by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  * You should have received a copy of the GNU General Public License
  * along with this program.If not, write to
- *  The Free Software Foundation, Inc.,
- *  59 Temple Place - Suite 330,
- *  Boston, MA 02111-1307, USA.
- **/
+ * The Free Software Foundation, Inc.,
+ * 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
 package jreversepro.revengine;
 
-import jreversepro.common.KeyWords;
 import jreversepro.common.Helper;
-
-import jreversepro.reflect.JMethod;
+import jreversepro.common.KeyWords;
 import jreversepro.reflect.JInstruction;
-
-import jreversepro.reflect.method.JBlockObject;
-import jreversepro.reflect.method.JIfBlock;
-import jreversepro.reflect.method.JElseIfBlock;
-import jreversepro.reflect.method.JElseBlock;
-import jreversepro.reflect.method.JForBlock;
-import jreversepro.reflect.method.JDoWhileBlock;
-import jreversepro.reflect.method.JTryBlock;
-import jreversepro.reflect.method.JFinallyBlock;
-import jreversepro.reflect.method.JCatchBlock;
-import jreversepro.reflect.method.JSynchBlock;
-import jreversepro.reflect.method.JCaseBlock;
-import jreversepro.reflect.method.JSwitchBlock;
-
+import jreversepro.reflect.JMethod;
+import jreversepro.reflect.method.*;
 import jreversepro.runtime.JOperandStack;
 import jreversepro.runtime.Operand;
 import jreversepro.runtime.OperandConstants;
@@ -54,26 +37,22 @@ import jreversepro.runtime.OperandConstants;
 public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants {
 
     /**
-     * startPc is the start of the branch entry
+     * The method corresponding to the code being processed
      */
-    int startPc;
-
+    final JMethod method;
     /**
-     * targetPc is the targetPc of the branch entry
+     * The JBlockObject associated with this JBranchEntry
      */
-    int targetPc;
-
+    JBlockObject block = null;
     /**
      * nextPc is the NextPc of the branch entry.
      */
     int nextPc;
-
     /**
-     * type of the branch type
+     * Operator
      */
-    int type;
+    String operator;
     //Possible values.  TYPE_WHILE || TYPE_IF.
-
     /**
      * Operand 1
      */
@@ -83,27 +62,23 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
      * Operand 2.
      */
     String opr2;
-
     /**
-     * Operator
+     * startPc is the start of the branch entry
      */
-    String operator;
-
+    int startPc;
+    /**
+     * targetPc is the targetPc of the branch entry
+     */
+    int targetPc;
+    /**
+     * type of the branch type
+     */
+    int type;
     /**
      * Written flag - to signify if the branch has been written on the source
      * code.
      */
     boolean written;
-
-    /**
-     * The method corresponding to the code being processed
-     */
-    JMethod method;
-
-    /**
-     * The JBlockObject associated with this JBranchEntry
-     */
-    JBlockObject block = null;
 
     /**
      * @param method   Method to which this branch entry belongs to.
@@ -113,9 +88,6 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
      */
     public JBranchEntry(JMethod method, int startPc, int targetPc, int type) {
         this(method, startPc, startPc, targetPc, type, "", "", "");
-        if (type == TYPE_JSR) {
-            startPc = targetPc;
-        }
         written = false;
     }
 
@@ -136,8 +108,7 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
                         int type,
                         String opr1,
                         String opr2,
-                        String operator)
-    {
+                        String operator) {
 
         this.method = method;
 
@@ -153,343 +124,176 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
     }
 
     /**
-     * Sets the written flag.
-     */
-    public void setWrittenFlag() {
-        written = true;
-    }
-
-    /**
-     * Resets the written flag
-     */
-    public void resetWrittenFlag() {
-        written = false;
-    }
-
-    /**
-     * Returns if the branch mentioned can be a TYPE_WHILE.
-     * One indication of a while loop is that the startPc > targetPc.
+     * Appends end block statement for a branch entry.
      *
-     * @return true, if it is a while loop. false, otherwise.
+     * @param decomp Decompiler reference.
+     * @param jos    Java Operand Stack reference.
+     * @return Returns boolean.
      */
-    public boolean isWhile() {
-        return (startPc > targetPc);
-    }
+    public final boolean appendEndBlockStmt(JDecompiler decomp, JOperandStack jos) {
+        boolean mergeStack = false;
+        if (!(type == TYPE_CATCH_ANY || type == TYPE_TRY_ANY)) {
+            Helper.log("Branch Ends " + this);
+            switch (type) {
+                case TYPE_IF:
+                    if (written) {
+                        method.closeBlock();
+                        decomp.setLastIns(nextPc);
+                        //Set the index ptr to the ins after the end of
+                        //this block
+                        //JInstruction sIns =
+                        //              method.getInstruction(TargetPc);
+                        //decomp.setLastIns(sIns.getTargetPc2());
+                        //decomp.setLastInsPos(
+                        //  method.getInstruction(
+                        //      sIns.getTargetPc2()).position);
+                        //
+                        //log.info(
+                        //  "End sync - setting end to: "+sIns.getTargetPc());
 
-    /**
-     * @return Returns the startPc
-     */
-    public int getStartPc() {
-        return startPc;
-    }
+                        //decomp.setLastInsPos(?);
+                    } else if (!jos.empty()) {
+                        //Rollback (remove current IF block)
+                        method.removeCurrentBlock();
+                        Operand op1 = jos.pop();
+                        String expr = getExpression();
+                        jos.push(new Operand("(" + expr + ") ? " + op1.getValueEx(L_TERN) + " : ",
+                                op1.getDatatype(),
+                                L_TERN));
+                    } else {
+                        method.closeBlock();
+                        //Set the index ptr to the ins after the end of this
+                        //block
+                        //JInstruction sIns = method.getInstruction(TargetPc);
+                        //decomp.setLastIns(sIns.getTargetPc2());
+                        //decomp.setLastInsPos(
+                        //  method.getInstruction(
+                        //      sIns.getTargetPc2()).position);
+                        //log.info("End sync - setting end to: "
+                        //  + sIns.getTargetPc());
+                        // log.info(method.getName()+":if2
+                        // StartPC="+StartPc+" NextPc="+NextPc+" TargetPc="
+                        //  +TargetPc);
+                        // decomp.setLastIns(NextPc);
+                        // decomp.setLastInsPos(?);
+                    }
+                    break;
+                case TYPE_ELSE:
+                    if (written) {
+                        method.closeBlock();
+                        //Set the index ptr to the ins after the end of this
+                        //block
+                        //JInstruction sIns = method.getInstruction(TargetPc);
+                        //decomp.setLastIns(sIns.getTargetPc2());
+                        //decomp.setLastInsPos(
+                        //  method.getInstruction(
+                        //              sIns.getTargetPc2()).position);
+                        //log.info("End sync - setting end to: "
+                        //  + sIns.getTargetPc());
+                        // log.info(method.getName()+":else
+                        //  StartPC="+StartPc+" NextPc="+NextPc+" TargetPc="
+                        //  +TargetPc);
+                        //decomp.setLastIns(NextPc);
+                        //decomp.setLastInsPos(?);
+                    } else {
+                        if (!jos.empty()) {
+                            //Rollback (remove current else block)
+                            method.removeCurrentBlock();
+                        }
+                        mergeStack = true;
+                    }
+                    break;
+                case TYPE_TRY:
+                case TYPE_ELSE_IF:
+                case TYPE_WHILE:
+                case TYPE_JSR:
+                case TYPE_SWITCH:
+                case TYPE_CASE:
+                    //Blocks that use "goto i" at targetPc to identify next
+                    //instruction
+                case TYPE_CATCH:
+                case TYPE_SYNC:
+                    method.closeBlock();
+                    //Set the index ptr to the ins after the end of this block
+                    //JInstruction sIns = method.getInstruction(TargetPc);
+                    //decomp.setLastIns(sIns.getTargetPc2());
+                    //decomp.setLastInsPos(method.getInstruction(
+                    //                  sIns.getTargetPc2()).position);
+                    //log.info("End sync - setting end to: "
+                    //                      + sIns.getTargetPc());
+                    ///log.info(method.getName()
+                    //          + ":try/elseif...    StartPC="
+                    //          + StartPc+" NextPc="+NextPc+" TargetPc="
+                    //          + TargetPc);
+                    //decomp.setLastIns(NextPc);
+                    //decomp.setLastInsPos(?);
+                    break;
 
-    /**
-     * @return Returns the targetPc.
-     */
-    public int getTargetPc() {
-        return targetPc;
-    }
+                //Set the index ptr to the ins after the end of this
+                    //block, IF no other catch follows
+                    /*
+                                       JInstruction sIns = method.getInstruction(targetPc);
+                     if (targetPc > 0) {
+                     // Verified that this works for catch stmts
+                     decomp.setLastIns(sIns.index);
+                     decomp.setLastInsPos(sIns.position);
+                     //decomp.setLastIns(sIns.getTargetPc2());
+                     //decomp.setLastInsPos(method.getInstruction(
+                     //      sIns.getTargetPc2()).position);
+                     //
+                     }
+                     */
+                case TYPE_DO_WHILE:
+                    method.closeBlock();
+                    decomp.setLastIns(nextPc);
+                    //decomp.setLastInsPos(?);
+                    ((JDoWhileBlock) block).setVar1(opr1);
+                    ((JDoWhileBlock) block).setOper(operator);
+                    ((JDoWhileBlock) block).setVar2(opr2);
+                    //Set the index ptr to the ins after the end of this block
 
-    /**
-     * @return Returns the NextPc.
-     */
-    public int getNextPc() {
-        return nextPc;
-    }
-
-    /**
-     * @return Returns the type of the Branch.
-     */
-    public final int getType() {
-        return type;
-    }
-
-    /**
-     * @return Returns the operand 1.
-     */
-    public String getOpr1() {
-        return opr1;
-    }
-
-    /**
-     * Setter method for NextPc.
-     *
-     * @param nextPc Value for the nextPc.
-     */
-    public void setNextPc(int nextPc) {
-        this.nextPc = nextPc;
-    }
-
-    /**
-     * @param targetPc TargetPC of the block.
-     */
-    public void setTargetPc(int targetPc) {
-        this.targetPc = targetPc;
-    }
-
-    /**
-     * @param startPc StartPc of the branch.
-     *                Setter method for startPc.
-     */
-    public void setStartPc(int startPc) {
-        this.startPc = startPc;
-    }
-
-    /**
-     * Setter method for type.
-     *
-     * @param type Type of the branch.
-     */
-    public void setType(int type) {
-        this.type = type;
-    }
-
-    /**
-     * @param opr1 Operand 1.
-     *             Setter method for operand 1.
-     */
-    public void setOpr1(String opr1) {
-        this.opr1 = opr1;
-    }
-
-    /**
-     * @param opr2 Operand 2.
-     *             Setter method for operand 2.
-     */
-    public void setOpr2(String opr2) {
-        this.opr2 = opr2;
-    }
-
-    /**
-     * This is invoked under the following circumstances. First this
-     * is recognized as a 'if' branch. Then afterwards recognized as
-     * 'while' branch.
-     */
-    public void convertToWhile() {
-        this.type = TYPE_WHILE;
-
-        //Swap targetPc and NextPc.
-        int temp = targetPc;
-        targetPc = nextPc;
-        nextPc = temp;
-    }
-
-    /**
-     * Complements the conditional operator of the branch
-     */
-    public void complementOperator() {
-        operator = getComplementOperator(operator);
-    }
-
-    /**
-     * Case 1:
-     * <p><br><code>
-     * a:     x    y   z   <br>
-     * b:     y    p1  p2 <br>
-     * z:       <br><br></code>
-     * This means either a 'IF OR '  or and 'WHILE AND' between the
-     * statements.
-     * <br>
-     * Now the row 'b'  is invalidated , and contents of a become
-     * <code><br>a: x p1 p2 <br></code>
-     * The Operands are also changed accordingly.
-     * <p/>
-     * Case 2:
-     * <p><br><code>
-     * a:     x    y   z   <br>
-     * b:      y   p1  z  OR <br>
-     * <p/>
-     * a:     x    y   z   <br>
-     * z:      .....       <br>
-     * b:      y   p1  p2 <br><br></code>
-     * This means either a 'IF AND'  or 'WHILE OR' between the
-     * statements.<br>+
-     * Now the row 'b'  is invalidated , and contents of a become
-     * <code><br>a: x p1 p2 <br></code>
-     * The Operands are also changed accordingly.
-     * <br></p>
-     * <p/>
-     * <br></p>
-     *
-     * @param case1  Merge case either case1 or case 2
-     *               as mentioned above.
-     * @param ifstat If we have to write a if statements.
-     * @param entryB Other entry index for which we have to write the statement.
-     */
-    void writeCase(boolean case1, boolean ifstat, JBranchEntry entryB) {
-        this.type = entryB.type;
-        entryB.type = TYPE_INVALID;
-        //Invalidate entryB since that is irrelevant 
-        //after merging.
-
-        this.nextPc = entryB.nextPc;
-        this.targetPc = entryB.targetPc;
-
-        this.rewriteCondition(entryB,
-                              (ifstat ^ case1)
-                              ? COND_AND
-                              : COND_OR,
-                              ifstat);
-
-    }
-
-    /**
-     * Collates a single statement , depending on if it is
-     * a  IF / WHILE statement.
-     * <p></p>
-     *
-     * @return true , if the entry is a 'if' branch .
-     *         false , otherwise.
-     */
-    boolean collate() {
-        if (type == TYPE_JSR) {
-            return true;
-        }
-        if (startPc < targetPc) {
-            complementOperator();
-            return true;
-        } else {
-            if (type != TYPE_WHILE) {
-                type = TYPE_DO_WHILE;
+                    //JInstruction sIns = method.getInstruction(TargetPc);
+                    //decomp.setLastIns(sIns.getTargetPc2());
+                    //decomp.setLastInsPos(method.getInstruction(
+                    //                  sIns.getTargetPc2()).position);
+                    //log.info("End sync - setting end to: "
+                    //                  +sIns.getTargetPc());
+                    // log.info("do_while");
+                    // log.info("do_while    StartPC="
+                    //                  +StartPc+" NextPc="
+                    // +NextPc+" TargetPc="+TargetPc);
+                    break;
+                default:
             }
-            return false;
         }
+        return mergeStack;
     }
 
     /**
-     * This method checks if this particular branch block starts with
-     * the given Pc.
+     * Trims the expression for a condition here.
+     * For eg, an expression of the form -
+     * if ( a == true ) is converted to 'a' ( just 'a' ).
+     * These small modifications improve the readability of the code.
      *
-     * @param rhsStartPc StartPc that is to be checked if a block
-     *                   starts there.
-     * @return true, if this block starts with the mentioned startPc.
-     *         false, otherwise.
-     * @throws RevEngineException Thrown when any error occurs.
+     * @return Returns the new code.
      */
-    public boolean doesStartWith(int rhsStartPc) throws RevEngineException {
+    public String getExpression() {
+        operator = operator.trim();
+        opr2 = opr2.trim();
 
-        if (type == TYPE_INVALID) {
-            return false;
-        }
-        return (getStartBlockPc() == rhsStartPc);
-    }
-
-    /**
-     * Lets us know if the block is independent.
-     * When we say independent, we refer to blocks that can start on its own,
-     * Examples of the same - if, while, try, do..while. switch
-     * Examples of dependent branch blocks are .
-     * else_if , else, catch each dependent on one of the independent block
-     * for is existence
-     *
-     * @return true, if the block is independent.
-     *         false, otherwise.
-     */
-    public boolean independent() {
-        return type == TYPE_IF
-               || type == TYPE_WHILE
-               || type == TYPE_TRY
-               || type == TYPE_DO_WHILE
-               || type == TYPE_SYNC
-               || type == TYPE_SWITCH
-               || type == TYPE_CASE
-               || type == TYPE_TRY_ANY;
-    }
-
-    /**
-     * Returns if the given Pc is enclosed in the mentioned block
-     *
-     * @param aPc the Pc for which the location is to be mentioned.
-     * @return true, if the block mentioned contains this Pc.
-     *         false, otherwise.
-     * @throws RevEngineException Thrown in case any error occurs while
-     *                            performing this operation.
-     */
-    public boolean doesContain(int aPc) throws RevEngineException {
-
-        return (getStartBlockPc() <= aPc && getEndBlockPc() >= aPc);
-    }
-
-    /**
-     * @return Returns the start pc of this block.
-     * @throws RevEngineException Thrown in case of any error while geting
-     *                            start block Pc.
-     */
-    public int getStartBlockPc() throws RevEngineException {
-
-        switch (type) {
-            case TYPE_IF:
-            case TYPE_ELSE:
-            case TYPE_ELSE_IF:
-            case TYPE_TRY:
-            case TYPE_TRY_ANY:
-            case TYPE_CATCH:
-            case TYPE_CATCH_ANY:
-            case TYPE_JSR:
-            case TYPE_SYNC:
-            case TYPE_SWITCH:
-            case TYPE_CASE:
-                return startPc;
-            case TYPE_WHILE:
-            case TYPE_DO_WHILE:
-                return targetPc;
+        switch (opr2) {
+            case FALSE:
+                if (operator.equals(OPR_EQ)) {
+                    return OPR_NOT + opr1;
+                }
+                return opr1;
+            case TRUE:
+                if (operator.equals(OPR_EQ)) {
+                    return opr1;
+                }
+                return OPR_NOT + opr1;
             default:
-                throw new RevEngineException("Invalid Branch Entry");
-        }
-    }
-
-    /**
-     * @return Returns the endpc of the block under consideration.
-     * @throws RevEngineException Thrown in case there of any
-     *                            problem getting End block pc.
-     */
-    public int getEndBlockPc() throws RevEngineException {
-
-        switch (type) {
-            case TYPE_IF:
-            case TYPE_ELSE:
-            case TYPE_ELSE_IF:
-            case TYPE_TRY:
-            case TYPE_TRY_ANY:
-            case TYPE_CATCH:
-            case TYPE_CATCH_ANY:
-            case TYPE_JSR:
-            case TYPE_SYNC:
-            case TYPE_CASE:
-            case TYPE_SWITCH:
-                return targetPc;
-            case TYPE_WHILE:
-            case TYPE_DO_WHILE:
-                return nextPc;
-            default:
-                throw new RevEngineException("Invalid Branch Entry ");
-        }
-    }
-
-    /**
-     * @return Returns the Pc from which the execution for the
-     *         block under consideration.
-     * @throws RevEngineException Thrown in case any error occurs.
-     */
-    public int getStartExecPc() throws RevEngineException {
-        switch (type) {
-            case TYPE_IF:
-            case TYPE_ELSE:
-            case TYPE_ELSE_IF:
-            case TYPE_TRY:
-            case TYPE_TRY_ANY:
-            case TYPE_CATCH:
-            case TYPE_CATCH_ANY:
-            case TYPE_JSR:
-            case TYPE_SYNC:
-            case TYPE_CASE:
-            case TYPE_SWITCH:
-                return nextPc;
-            case TYPE_WHILE:
-            case TYPE_DO_WHILE:
-                return targetPc;
-            default:
-                throw new RevEngineException("Invalid Branch Entry");
+                return opr1 + " " + operator + " " + opr2;
         }
     }
 
@@ -499,7 +303,7 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
      * @param decomp Reference to decempiler.
      */
     public final void appendStartBlockStmtX(JDecompiler decomp) {
-        JInstruction sIns = null;
+        JInstruction sIns;
 
         Helper.log("Branch Begins " + this);
         if (!(type == TYPE_CATCH_ANY || type == TYPE_TRY_ANY)) {
@@ -521,7 +325,7 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
                     method.addBlock(new JElseBlock(this));
                     break;
                 case TYPE_WHILE:
-                    //This is a For loop 
+                    //This is a For loop
                     //Create a reference so we can add the missing init
                     //& loop values later
                     block = new JForBlock(this, getExpression());
@@ -565,167 +369,145 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
     }
 
     /**
-     * Appends end block statement for a branch entry.
+     * Collates a single statement , depending on if it is
+     * a  IF / WHILE statement.
+     * <br>
      *
-     * @param decomp Decompiler reference.
-     * @param jos    Java Operand Stack reference.
-     * @return Returns boolean.
+     * @return true , if the entry is a 'if' branch .
+     * false , otherwise.
      */
-    public final boolean appendEndBlockStmt(JDecompiler decomp, JOperandStack jos) {
-        boolean mergeStack = false;
-        if (!(type == TYPE_CATCH_ANY || type == TYPE_TRY_ANY)) {
-            Helper.log("Branch Ends " + this);
-            switch (type) {
-                case TYPE_IF:
-                    if (written) {
-                        method.closeBlock();
-                        decomp.setLastIns(nextPc);
-                        //Set the index ptr to the ins after the end of 
-                        //this block
-                        //JInstruction sIns = 
-                        //              method.getInstruction(TargetPc); 
-                        //decomp.setLastIns(sIns.getTargetPc2());
-                        //decomp.setLastInsPos(
-                        //  method.getInstruction(
-                        //      sIns.getTargetPc2()).position);
-                        //      
-                        //log.info(
-                        //  "End sync - setting end to: "+sIns.getTargetPc());
-
-                        //decomp.setLastInsPos(?);
-                    } else if (!jos.empty()) {
-                        //Rollback (remove current IF block)
-                        method.removeCurrentBlock();
-                        Operand op1 = (Operand) jos.pop();
-                        String expr = getExpression();
-                        jos.push(new Operand("(" + expr + ") ? " + op1.getValueEx(L_TERN) + " : ",
-                                             op1.getDatatype(),
-                                             L_TERN));
-                    } else {
-                        method.closeBlock();
-                        //Set the index ptr to the ins after the end of this
-                        //block
-                        //JInstruction sIns = method.getInstruction(TargetPc); 
-                        //decomp.setLastIns(sIns.getTargetPc2());
-                        //decomp.setLastInsPos(
-                        //  method.getInstruction(
-                        //      sIns.getTargetPc2()).position);
-                        //log.info("End sync - setting end to: "
-                        //  + sIns.getTargetPc());                    
-                        // log.info(method.getName()+":if2
-                        // StartPC="+StartPc+" NextPc="+NextPc+" TargetPc="
-                        //  +TargetPc);
-                        // decomp.setLastIns(NextPc);
-                        // decomp.setLastInsPos(?);
-                    }
-                    break;
-                case TYPE_ELSE:
-                    if (written) {
-                        method.closeBlock();
-                        //Set the index ptr to the ins after the end of this
-                        //block
-                        //JInstruction sIns = method.getInstruction(TargetPc);
-                        //decomp.setLastIns(sIns.getTargetPc2());
-                        //decomp.setLastInsPos(
-                        //  method.getInstruction(
-                        //              sIns.getTargetPc2()).position);
-                        //log.info("End sync - setting end to: "
-                        //  + sIns.getTargetPc());
-                        // log.info(method.getName()+":else
-                        //  StartPC="+StartPc+" NextPc="+NextPc+" TargetPc="
-                        //  +TargetPc);
-                        //decomp.setLastIns(NextPc);
-                        //decomp.setLastInsPos(?);
-                    } else {
-                        if (!jos.empty()) {
-                            //Rollback (remove current else block)
-                            method.removeCurrentBlock();
-                        }
-                        mergeStack = true;
-                    }
-                    break;
-                case TYPE_TRY:
-                case TYPE_ELSE_IF:
-                case TYPE_WHILE:
-                case TYPE_JSR:
-                case TYPE_SWITCH:
-                case TYPE_CASE:
-                    method.closeBlock();
-                    //Set the index ptr to the ins after the end of this block
-                    //JInstruction sIns = method.getInstruction(TargetPc); 
-                    //decomp.setLastIns(sIns.getTargetPc2());
-                    //decomp.setLastInsPos(method.getInstruction(
-                    //                  sIns.getTargetPc2()).position);
-                    //log.info("End sync - setting end to: "
-                    //                      + sIns.getTargetPc());
-                    ///log.info(method.getName()
-                    //          + ":try/elseif...    StartPC="
-                    //          + StartPc+" NextPc="+NextPc+" TargetPc="
-                    //          + TargetPc);
-                    //decomp.setLastIns(NextPc);
-                    //decomp.setLastInsPos(?);
-                    break;
-                //Blocks that use "goto i" at targetPc to identify next
-                //instruction
-                case TYPE_CATCH:
-                case TYPE_SYNC:
-                    method.closeBlock();
-
-                    //Set the index ptr to the ins after the end of this
-                    //block, IF no other catch follows
-/**
- *                  JInstruction sIns = method.getInstruction(targetPc); 
- if (targetPc > 0) {
- // Verified that this works for catch stmts
- decomp.setLastIns(sIns.index);
- decomp.setLastInsPos(sIns.position);
- //decomp.setLastIns(sIns.getTargetPc2());
- //decomp.setLastInsPos(method.getInstruction(
- //      sIns.getTargetPc2()).position);
- //
- }
- */
-                    break;
-                case TYPE_DO_WHILE:
-                    method.closeBlock();
-                    decomp.setLastIns(nextPc);
-                    //decomp.setLastInsPos(?);
-                    ((JDoWhileBlock) block).setVar1(opr1);
-                    ((JDoWhileBlock) block).setOper(operator);
-                    ((JDoWhileBlock) block).setVar2(opr2);
-                    //Set the index ptr to the ins after the end of this block
-
-                    //JInstruction sIns = method.getInstruction(TargetPc); 
-                    //decomp.setLastIns(sIns.getTargetPc2());
-                    //decomp.setLastInsPos(method.getInstruction(
-                    //                  sIns.getTargetPc2()).position);
-                    //log.info("End sync - setting end to: "
-                    //                  +sIns.getTargetPc());
-                    // log.info("do_while");
-                    // log.info("do_while    StartPC="
-                    //                  +StartPc+" NextPc="
-                    // +NextPc+" TargetPc="+TargetPc);
-                    break;
-                default:
-            }
+    boolean collate() {
+        if (type == TYPE_JSR) {
+            return true;
         }
-        return mergeStack;
+        if (startPc < targetPc) {
+            complementOperator();
+            return true;
+        } else {
+            if (type != TYPE_WHILE) {
+                type = TYPE_DO_WHILE;
+            }
+            return false;
+        }
     }
 
     /**
-     * This merges the current condition represented by the
-     * current JBranchEntry.
-     *
-     * @param nextEntry     Next Condition that is to be merged with
-     *                      the current condition.
-     * @param conditionType If OR or AND.
-     * @param complement    if the current expression needs to be
-     *                      complemented.
+     * Complements the conditional operator of the branch
      */
-    public void rewriteCondition(JBranchEntry nextEntry, String conditionType, boolean complement) {
-        opr1 = this.getCondition(complement);
-        operator = conditionType;
-        opr2 = nextEntry.getCondition(true);
+    public void complementOperator() {
+        operator = getComplementOperator(operator);
+    }
+
+    /**
+     * Returns the complementary operator of the given operator.
+     * <br>
+     *
+     * @param rhs Operator for which complement is to be returned.
+     * @return the complementary operator of <code>Rhs</code>
+     */
+    private String getComplementOperator(String rhs) {
+        if (rhs.compareTo(OPR_GT) == 0) {
+            return OPR_LE;
+        } else if (rhs.compareTo(OPR_GE) == 0) {
+            return OPR_LT;
+        } else if (rhs.compareTo(OPR_LT) == 0) {
+            return OPR_GE;
+        } else if (rhs.compareTo(OPR_LE) == 0) {
+            return OPR_GT;
+        } else if (rhs.compareTo(OPR_EQ) == 0) {
+            return OPR_NE;
+        } else if (rhs.compareTo(OPR_NE) == 0) {
+            return OPR_EQ;
+        } else {
+            return rhs;
+        }
+    }
+
+    /**
+     * This is invoked under the following circumstances. First this
+     * is recognized as a 'if' branch. Then afterwards recognized as
+     * 'while' branch.
+     */
+    public void convertToWhile() {
+        this.type = TYPE_WHILE;
+
+        //Swap targetPc and NextPc.
+        int temp = targetPc;
+        targetPc = nextPc;
+        nextPc = temp;
+    }
+
+    /**
+     * Returns if the given Pc is enclosed in the mentioned block
+     *
+     * @param aPc the Pc for which the location is to be mentioned.
+     * @return true, if the block mentioned contains this Pc.
+     * false, otherwise.
+     * @throws RevEngineException Thrown in case any error occurs while
+     *                            performing this operation.
+     */
+    public boolean doesContain(int aPc)
+            throws RevEngineException {
+
+        return (getStartBlockPc() <= aPc && getEndBlockPc() >= aPc);
+    }
+
+    /**
+     * @return Returns the start pc of this block.
+     * @throws RevEngineException Thrown in case of any error while geting
+     *                            start block Pc.
+     */
+    public int getStartBlockPc()
+            throws RevEngineException {
+
+        switch (type) {
+            case TYPE_IF:
+            case TYPE_ELSE:
+            case TYPE_ELSE_IF:
+            case TYPE_TRY:
+            case TYPE_TRY_ANY:
+            case TYPE_CATCH:
+            case TYPE_CATCH_ANY:
+            case TYPE_JSR:
+            case TYPE_SYNC:
+            case TYPE_SWITCH:
+            case TYPE_CASE:
+                return startPc;
+            case TYPE_WHILE:
+            case TYPE_DO_WHILE:
+                return targetPc;
+            default:
+                throw new RevEngineException("Invalid Branch Entry");
+        }
+    }
+
+    /**
+     * @return Returns the endpc of the block under consideration.
+     * @throws RevEngineException Thrown in case there of any
+     *                            problem getting End block pc.
+     */
+    public int getEndBlockPc()
+            throws RevEngineException {
+
+        switch (type) {
+            case TYPE_IF:
+            case TYPE_ELSE:
+            case TYPE_ELSE_IF:
+            case TYPE_TRY:
+            case TYPE_TRY_ANY:
+            case TYPE_CATCH:
+            case TYPE_CATCH_ANY:
+            case TYPE_JSR:
+            case TYPE_SYNC:
+            case TYPE_CASE:
+            case TYPE_SWITCH:
+                return targetPc;
+            case TYPE_WHILE:
+            case TYPE_DO_WHILE:
+                return nextPc;
+            default:
+                throw new RevEngineException("Invalid Branch Entry ");
+        }
     }
 
     /**
@@ -757,87 +539,181 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
     }
 
     /**
-     * Given the index to the entry in the BranchTable , this
-     * returns the condition .
-     * <p>
-     * For example , if an entry has <br>
-     * <code>4:  i  3 !=  </code> .<br>
-     * Then <code>getCondition(4,true)</code> yields
-     * <code>i != 3 </code>  and <br>
-     * <code>getCondition(4,false)</code> yields
-     * <code>i == 3 </code></p> .
+     * This method checks if this particular branch block starts with
+     * the given Pc.
      *
-     * @param complement If flag is set the operator is replaced by its
-     *                   complement. For eg, complement of >= is replaced by '<''.
-     * @return Returns the condition.
+     * @param rhsStartPc StartPc that is to be checked if a block
+     *                   starts there.
+     * @return true, if this block starts with the mentioned startPc.
+     * false, otherwise.
+     * @throws RevEngineException Thrown when any error occurs.
      */
-    private String getCondition(boolean complement) {
-        if (!complement) {
-            operator = getComplementOperator(operator);
-        }
-        return getExpression();
+    public boolean doesStartWith(int rhsStartPc)
+            throws RevEngineException {
+
+        return type != TYPE_INVALID && (getStartBlockPc() == rhsStartPc);
     }
 
     /**
-     * Returns the complementary operator of the given operator.
-     * <p/>
-     *
-     * @param rhs Operator for which complement is to be returned.
-     * @return the complementary operator of <code>Rhs</code>
+     * @return Returns the NextPc.
      */
-    private String getComplementOperator(String rhs) {
-        if (rhs.compareTo(OPR_GT) == 0) {
-            return OPR_LE;
-        } else if (rhs.compareTo(OPR_GE) == 0) {
-            return OPR_LT;
-        } else if (rhs.compareTo(OPR_LT) == 0) {
-            return OPR_GE;
-        } else if (rhs.compareTo(OPR_LE) == 0) {
-            return OPR_GT;
-        } else if (rhs.compareTo(OPR_EQ) == 0) {
-            return OPR_NE;
-        } else if (rhs.compareTo(OPR_NE) == 0) {
-            return OPR_EQ;
-        } else {
-            return rhs;
+    public int getNextPc() {
+        return nextPc;
+    }
+
+    /**
+     * Setter method for NextPc.
+     *
+     * @param nextPc Value for the nextPc.
+     */
+    public void setNextPc(int nextPc) {
+        this.nextPc = nextPc;
+    }
+
+    /**
+     * @return Returns the operand 1.
+     */
+    public String getOpr1() {
+        return opr1;
+    }
+
+    /**
+     * @param opr1 Operand 1.
+     *             Setter method for operand 1.
+     */
+    public void setOpr1(String opr1) {
+        this.opr1 = opr1;
+    }
+
+    /**
+     * @return Returns the Pc from which the execution for the
+     * block under consideration.
+     * @throws RevEngineException Thrown in case any error occurs.
+     */
+    public int getStartExecPc()
+            throws RevEngineException {
+        switch (type) {
+            case TYPE_IF:
+            case TYPE_ELSE:
+            case TYPE_ELSE_IF:
+            case TYPE_TRY:
+            case TYPE_TRY_ANY:
+            case TYPE_CATCH:
+            case TYPE_CATCH_ANY:
+            case TYPE_JSR:
+            case TYPE_SYNC:
+            case TYPE_CASE:
+            case TYPE_SWITCH:
+                return nextPc;
+            case TYPE_WHILE:
+            case TYPE_DO_WHILE:
+                return targetPc;
+            default:
+                throw new RevEngineException("Invalid Branch Entry");
         }
     }
 
     /**
-     * Trims the expression for a condition here.
-     * For eg, an expression of the form -
-     * if ( a == true ) is converted to 'a' ( just 'a' ).
-     * These small modifications improve the readability of the code.
-     *
-     * @return Returns the new code.
+     * @return Returns the startPc
      */
-    public String getExpression() {
-        operator = operator.trim();
-        opr2 = opr2.trim();
+    public int getStartPc() {
+        return startPc;
+    }
 
-        if (opr2.equals(FALSE)) {
-            if (operator.equals(OPR_EQ)) {
-                return OPR_NOT + opr1;
-            }
-            return opr1;
-        } else if (opr2.equals(TRUE)) {
-            if (operator.equals(OPR_EQ)) {
-                return opr1;
-            }
-            return OPR_NOT + opr1;
-        } else {
-            return opr1 + " " + operator + " " + opr2;
-        }
+    /**
+     * @param startPc StartPc of the branch.
+     *                Setter method for startPc.
+     */
+    public void setStartPc(int startPc) {
+        this.startPc = startPc;
+    }
+
+    /**
+     * @return Returns the targetPc.
+     */
+    public int getTargetPc() {
+        return targetPc;
+    }
+
+    /**
+     * @param targetPc TargetPC of the block.
+     */
+    public void setTargetPc(int targetPc) {
+        this.targetPc = targetPc;
+    }
+
+    /**
+     * @return Returns the type of the Branch.
+     */
+    public final int getType() {
+        return type;
+    }
+
+    /**
+     * Setter method for type.
+     *
+     * @param type Type of the branch.
+     */
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    /**
+     * Lets us know if the block is independent.
+     * When we say independent, we refer to blocks that can start on its own,
+     * Examples of the same - if, while, try, do..while. switch
+     * Examples of dependent branch blocks are .
+     * else_if , else, catch each dependent on one of the independent block
+     * for is existence
+     *
+     * @return true, if the block is independent.
+     * false, otherwise.
+     */
+    public boolean independent() {
+        return type == TYPE_IF || type == TYPE_WHILE || type == TYPE_TRY || type == TYPE_DO_WHILE || type ==
+                TYPE_SYNC || type == TYPE_SWITCH || type == TYPE_CASE || type == TYPE_TRY_ANY;
+    }
+
+    /**
+     * Returns if the branch mentioned can be a TYPE_WHILE.
+     * One indication of a while loop is that the startPc &gt; targetPc.
+     *
+     * @return true, if it is a while loop. false, otherwise.
+     */
+    public boolean isWhile() {
+        return (startPc > targetPc);
+    }
+
+    /**
+     * Resets the written flag
+     */
+    public void resetWrittenFlag() {
+        written = false;
+    }
+
+    /**
+     * @param opr2 Operand 2.
+     *             Setter method for operand 2.
+     */
+    public void setOpr2(String opr2) {
+        this.opr2 = opr2;
+    }
+
+    /**
+     * Sets the written flag.
+     */
+    public void setWrittenFlag() {
+        written = true;
     }
 
     /**
      * @return Returns the Stringified representation of the
-     *         class.
+     * class.
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer("  ");
-        sb.append(written + " ");
-        sb.append(startPc + " " + nextPc + "  " + targetPc + " ");
+        StringBuilder sb = new StringBuilder("  ");
+        sb.append(written).append(" ");
+        sb.append(startPc).append(" ").append(nextPc).append("  ").append(targetPc).append(" ");
         switch (type) {
             case TYPE_IF:
                 sb.append("TYPE_IF");
@@ -881,7 +757,93 @@ public class JBranchEntry implements KeyWords, BranchConstants, OperandConstants
             default:
                 sb.append(type);
         }
-        sb.append(" " + opr1 + " " + operator + " " + opr2);
+        sb.append(" ").append(opr1).append(" ").append(operator).append(" ").append(opr2);
         return sb.toString();
+    }
+
+    /**
+     * Case 1:
+     * <br><br><code>
+     * a:     x    y   z   <br>
+     * b:     y    p1  p2 <br>
+     * z:       <br><br></code>
+     * This means either a 'IF OR '  or and 'WHILE AND' between the
+     * statements.
+     * <br>
+     * Now the row 'b'  is invalidated , and contents of a become
+     * <code><br>a: x p1 p2 <br></code>
+     * The Operands are also changed accordingly.
+     * <br>
+     * Case 2:
+     * <br><br><code>
+     * a:     x    y   z   <br>
+     * b:      y   p1  z  OR <br>
+     * <br>
+     * a:     x    y   z   <br>
+     * z:      .....       <br>
+     * b:      y   p1  p2 <br><br></code>
+     * This means either a 'IF AND'  or 'WHILE OR' between the
+     * statements.<br>+
+     * Now the row 'b'  is invalidated , and contents of a become
+     * <code><br>a: x p1 p2 <br></code>
+     * The Operands are also changed accordingly.
+     * <br>
+     * <br>
+     * <br>
+     *
+     * @param case1  Merge case either case1 or case 2
+     *               as mentioned above.
+     * @param ifstat If we have to write a if statements.
+     * @param entryB Other entry index for which we have to write the statement.
+     */
+    void writeCase(boolean case1, boolean ifstat, JBranchEntry entryB) {
+        this.type = entryB.type;
+        entryB.type = TYPE_INVALID;
+        //Invalidate entryB since that is irrelevant
+        //after merging.
+
+        this.nextPc = entryB.nextPc;
+        this.targetPc = entryB.targetPc;
+
+        this.rewriteCondition(entryB, (ifstat ^ case1) ? COND_AND : COND_OR, ifstat);
+
+    }
+
+    /**
+     * This merges the current condition represented by the
+     * current JBranchEntry.
+     *
+     * @param nextEntry     Next Condition that is to be merged with
+     *                      the current condition.
+     * @param conditionType If OR or AND.
+     * @param complement    if the current expression needs to be
+     *                      complemented.
+     */
+    public void rewriteCondition(JBranchEntry nextEntry, String conditionType, boolean complement) {
+        opr1 = this.getCondition(complement);
+        operator = conditionType;
+        opr2 = nextEntry.getCondition(true);
+    }
+
+    /**
+     * Given the index to the entry in the BranchTable , this
+     * returns the condition .
+     * <br>
+     * For example , if an entry has <br>
+     * <code>4:  i  3 !=  </code> .<br>
+     * Then <code>getCondition(4,true)</code> yields
+     * <code>i != 3 </code>  and <br>
+     * <code>getCondition(4,false)</code> yields
+     * <code>i == 3 </code> .
+     *
+     * @param complement If flag is set the operator is replaced by its
+     *                   complement. For eg, complement of &gt;= is replaced by '&lt;''.
+     * @return Returns the condition.
+     */
+    private String getCondition(boolean complement) {
+        if (!complement) {
+            operator = getComplementOperator(operator);
+        }
+        return getExpression();
     }
 }

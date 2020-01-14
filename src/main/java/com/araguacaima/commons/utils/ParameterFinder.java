@@ -1,6 +1,5 @@
 package com.araguacaima.commons.utils;
 
-import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.slf4j.Logger;
@@ -10,9 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.*;
 
-/**
- * @noinspection UnusedDeclaration
- */
 public class ParameterFinder {
 
     public final static int REQUEST_ATTRIBUTE_PARAMETER_SESSION_SEARCH_ORDER = 1;
@@ -53,17 +49,17 @@ public class ParameterFinder {
                 if (object == null) {
                     object = this.getRequest().getAttribute(attributeName);
                     if (object == null) {
-                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_SESSION +
-                                "-" + TYPE_ATTRIBUTE);
+                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_SESSION + "-" +
+                                TYPE_ATTRIBUTE);
                         return this.getSession().getAttribute(attributeName);
                     } else {
-                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST +
-                                "-" + TYPE_ATTRIBUTE);
+                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-" +
+                                TYPE_ATTRIBUTE);
                         return object;
                     }
                 } else {
-                    log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-"
-                            + TYPE_PARAMETER);
+                    log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-" +
+                            TYPE_PARAMETER);
                     return object;
                 }
             case REQUEST_ATTRIBUTE_PARAMETER_SESSION_SEARCH_ORDER:
@@ -71,17 +67,17 @@ public class ParameterFinder {
                 if (object == null) {
                     object = this.getRequest().getParameter(attributeName);
                     if (object == null) {
-                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_SESSION +
-                                "-" + TYPE_ATTRIBUTE);
+                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_SESSION + "-" +
+                                TYPE_ATTRIBUTE);
                         return this.getSession().getAttribute(attributeName);
                     } else {
-                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST +
-                                "-" + TYPE_PARAMETER);
+                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-" +
+                                TYPE_PARAMETER);
                         return object;
                     }
                 } else {
-                    log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-"
-                            + TYPE_ATTRIBUTE);
+                    log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-" +
+                            TYPE_ATTRIBUTE);
                     return object;
                 }
             case SESSION_REQUEST_ATTRIBUTE_PARAMETER_SEARCH_ORDER:
@@ -89,17 +85,17 @@ public class ParameterFinder {
                 if (object == null) {
                     object = this.getRequest().getAttribute(attributeName);
                     if (object == null) {
-                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST +
-                                "-" + TYPE_PARAMETER);
+                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-" +
+                                TYPE_PARAMETER);
                         return this.getRequest().getParameter(attributeName);
                     } else {
-                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST +
-                                "-" + TYPE_ATTRIBUTE);
+                        log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_REQUEST + "-" +
+                                TYPE_ATTRIBUTE);
                         return object;
                     }
                 } else {
-                    log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_SESSION + "-"
-                            + TYPE_ATTRIBUTE);
+                    log.debug(metodo + "Parameter '" + attributeName + "' found as " + TYPE_SESSION + "-" +
+                            TYPE_ATTRIBUTE);
                     return object;
                 }
 
@@ -123,50 +119,43 @@ public class ParameterFinder {
 
     public Object getAttributeDefaultValue(String attributeName, Object defaultValue, int order) {
         Object object = this.getAttribute(attributeName, order);
-        return object == null ? object : defaultValue;
+        return object == null ? null : defaultValue;
     }
 
-    public Map getBothParametersAndAttributes() {
-        Map map = getAllParameters();
+    public Map<Object, Object> getBothParametersAndAttributes() {
+        Map<Object, Object> map = getAllParameters();
         map.putAll(getAllAttributes());
         return map;
     }
 
-    public Map getAllParameters() {
-        final Map map = new HashMap();
+    public Map<Object, Object> getAllParameters() {
+        final Map<Object, Object> map = new HashMap<>();
         final HttpServletRequest req = this.getRequest();
-        Collection parameters = new ArrayList();
+        Collection<Object> parameters = new ArrayList<>();
         CollectionUtils.addAll(parameters, req.getParameterNames());
-        IterableUtils.forEach(parameters, new Closure() {
-            public void execute(Object o) {
-                String[] paramValues = req.getParameterValues((String) o);
-                if (paramValues.length == 1) {
-                    String paramValue = paramValues[0];
-                    if (paramValue.length() == 0) {
-                        map.put(o, null);
-                    } else {
-                        map.put(o, req.getParameter((String) o));
-                    }
+        IterableUtils.forEach(parameters, o -> {
+            String[] paramValues = req.getParameterValues((String) o);
+            if (paramValues.length == 1) {
+                String paramValue = paramValues[0];
+                if (paramValue.length() == 0) {
+                    map.put(o, null);
                 } else {
-                    Collection paramValuesCollection = new ArrayList();
-                    paramValuesCollection.addAll(Arrays.asList(paramValues));
-                    map.put(o, paramValuesCollection);
+                    map.put(o, req.getParameter((String) o));
                 }
+            } else {
+                Collection<String> paramValuesCollection = new ArrayList<>(Arrays.asList(paramValues));
+                map.put(o, paramValuesCollection);
             }
         });
         return map;
     }
 
-    public Map getAllAttributes() {
-        final Map map = new HashMap();
+    public Map<Object, Object> getAllAttributes() {
+        final Map<Object, Object> map = new HashMap<>();
         final HttpServletRequest req = this.getRequest();
-        Collection attributes = new ArrayList();
+        Collection<Object> attributes = new ArrayList<>();
         CollectionUtils.addAll(attributes, req.getAttributeNames());
-        IterableUtils.forEach(attributes, new Closure() {
-            public void execute(Object o) {
-                map.put(o, req.getAttribute((String) o));
-            }
-        });
+        IterableUtils.forEach(attributes, o -> map.put(o, req.getAttribute((String) o)));
         return map;
     }
 }

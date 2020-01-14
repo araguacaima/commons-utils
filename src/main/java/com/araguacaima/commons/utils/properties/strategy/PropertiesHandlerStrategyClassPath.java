@@ -21,13 +21,11 @@ package com.araguacaima.commons.utils.properties.strategy;
 
 import com.araguacaima.commons.exception.core.PropertiesUtilException;
 import com.araguacaima.commons.utils.StringUtils;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-@Component("ClassPath")
 public class PropertiesHandlerStrategyClassPath extends PropertiesHandlerStrategy {
 
     private static final String PROPERTIES_FILE_NAME_WITHIN_CLASSPATH = "PROPERTIES_FILE_NAME_WITHIN_CLASSPATH";

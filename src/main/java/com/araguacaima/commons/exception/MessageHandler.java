@@ -23,8 +23,6 @@ import com.araguacaima.commons.utils.PropertiesHandlerUtils;
 import com.araguacaima.commons.utils.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
 import java.util.Enumeration;
@@ -43,7 +41,7 @@ import java.util.Properties;
  * @see java.util.ResourceBundle
  */
 
-@Component
+
 public class MessageHandler {
     public static final String ERRORS = "errors";
     public static final String EXCEPTIONS = "exceptions";
@@ -58,7 +56,7 @@ public class MessageHandler {
     private final PropertiesHandlerUtils propertiesHandlerUtils;
     private String defaultFile = null;
 
-    @Autowired
+
     public MessageHandler(PropertiesHandlerUtils propertiesHandlerUtils) {
         this.propertiesHandlerUtils = propertiesHandlerUtils;
     }
@@ -222,6 +220,18 @@ public class MessageHandler {
     }
 
     /**
+     * Obtiene un mensaje/etiqueta de acuerdo al key solicitado, usando el
+     * Locale por defecto del sistema.
+     *
+     * @param propertyName String con el identificador del mensaje/etiqueta a mostrar
+     * @param origin       String con el nombre del archivo o tabla de donde se lee la etiqueta
+     * @return String con el valor de la etiqueta propertyName a mostrar
+     */
+    public static String get(String propertyName, String origin) {
+        return get(propertyName, origin, getLocale());
+    }
+
+    /**
      * Adds information to {@link SystemInfo} from the incoming file name.
      *
      * @param filename File name
@@ -259,6 +269,39 @@ public class MessageHandler {
 
         log.debug("Uploaded " + count + " tags from file '" + filename + "'.");
         return count;
+    }
+
+    private int propertyToMap(int count, String bundleKey, Properties bundle) {
+        Enumeration keys = bundle.keys();
+        while (keys.hasMoreElements()) {
+            String key = (String) keys.nextElement();
+            try {
+                put(key, bundle.getProperty(key), bundleKey);
+                count++;
+            } catch (Exception e) {
+                log.error("Error adding data for label '" + key + "'.  No data will be added for this label.", e);
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Adds the value for the tag with the specified property name
+     *
+     * @param propertyName  String with tag name
+     * @param propertyValue String with the value of the tag to add
+     * @param origin        String with the name of the file or table where the tag is read, and the locale. It is
+     *                      formed as <code>&lt;fileName&gt;_&lt;localeId&gt; o &lt;tableName&gt;_&lt;localeId&gt;
+     *                      </code>
+     */
+    public void put(String propertyName, String propertyValue, String origin) {
+        Hashtable<String, String> innerMap = labels.get(origin);
+        if (null == innerMap) {
+            origin = DEFAULT_ORIGIN;
+            innerMap = new Hashtable<>();
+        }
+        labels.put(origin, innerMap);
+        innerMap.put(propertyName, propertyValue);
     }
 
     /**
@@ -316,50 +359,5 @@ public class MessageHandler {
      */
     public String getValue(String propertyName) {
         return get(propertyName, defaultFile);
-    }
-
-    /**
-     * Obtiene un mensaje/etiqueta de acuerdo al key solicitado, usando el
-     * Locale por defecto del sistema.
-     *
-     * @param propertyName String con el identificador del mensaje/etiqueta a mostrar
-     * @param origin       String con el nombre del archivo o tabla de donde se lee la etiqueta
-     * @return String con el valor de la etiqueta propertyName a mostrar
-     */
-    public static String get(String propertyName, String origin) {
-        return get(propertyName, origin, getLocale());
-    }
-
-    /**
-     * Adds the value for the tag with the specified property name
-     *
-     * @param propertyName  String with tag name
-     * @param propertyValue String with the value of the tag to add
-     * @param origin        String with the name of the file or table where the tag is read, and the locale. It is
-     *                      formed as <code>&lt;fileName&gt;_&lt;localeId&gt; o &lt;tableName&gt;_&lt;localeId&gt;
-     *                      </code>
-     */
-    public void put(String propertyName, String propertyValue, String origin) {
-        Hashtable<String, String> innerMap = labels.get(origin);
-        if (null == innerMap) {
-            origin = DEFAULT_ORIGIN;
-            innerMap = new Hashtable<>();
-        }
-        labels.put(origin, innerMap);
-        innerMap.put(propertyName, propertyValue);
-    }
-
-    private int propertyToMap(int count, String bundleKey, Properties bundle) {
-        Enumeration keys = bundle.keys();
-        while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
-            try {
-                put(key, bundle.getProperty(key), bundleKey);
-                count++;
-            } catch (Exception e) {
-                log.error("Error adding data for label '" + key + "'.  No data will be added for this label.", e);
-            }
-        }
-        return count;
     }
 }

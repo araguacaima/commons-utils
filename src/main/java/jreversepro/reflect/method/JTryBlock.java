@@ -24,7 +24,6 @@
 
 package jreversepro.reflect.method;
 
-import jreversepro.reflect.*;
 import jreversepro.revengine.JBranchEntry;
 
 /**
@@ -33,19 +32,20 @@ import jreversepro.revengine.JBranchEntry;
 public class JTryBlock extends JBlockObject {
 
     /**
-     * Associated Branch Entry
-     */
-    private JBranchEntry branch;
-
-    /**
      * Creates a new instance of JTryBlock
+     *
+     * @param _jbe Branch
      */
     public JTryBlock(JBranchEntry _jbe) {
-        branch = _jbe;
+        /*
+      Associated Branch Entry
+     */
     }
 
     /**
      * Outputs any starting code to open the block
+     *
+     * @return The starting code to open the block
      */
     protected String getEntryCode() {
         return "try {\n";

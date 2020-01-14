@@ -22,24 +22,22 @@ package com.araguacaima.commons.utils;
 import com.araguacaima.commons.utils.file.FileUtilsFilenameFilter;
 import com.araguacaima.commons.utils.file.FileUtilsFilenameFilterImpl;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.net.ftp.FTPClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -53,9 +51,11 @@ import java.util.zip.ZipOutputStream;
  * Simple helper for basic file operations.
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@Component
+
 public class FileUtils extends org.apache.commons.io.FileUtils {
 
+    public static final int DEFAULT_FILTER_TYPE;
+    public static final int DEFAULT_SEARCH_TYPE;
     public static final String EXTENSION_GSG = "gsg"; // Test
     public static final String EXTENSION_TXT = "txt";
     public static final String EXTENSION_XML = "xml";
@@ -85,9 +85,8 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             return !(new File(dir.getPath() + File.separator + name)).isHidden();
         }
     };
-    public static int DEFAULT_FILTER_TYPE;
+    private final static Logger log = LoggerFactory.getLogger(FileUtils.class);
     public static int DEFAULT_RECURSION_LEVEL;
-    public static int DEFAULT_SEARCH_TYPE;
 
     static {
         DEFAULT_FILTER_TYPE = FILTER_TYPE_ALL;
@@ -96,26 +95,14 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public final String DEFAULT_PATH = "/";
-    private final Logger log = LoggerFactory.getLogger(FileUtils.class);
-    private DateUtils dateUtils;
+    private DateUtils dateUtils = DateUtils.getInstance();
     private String filterCriterion;
     private NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters = new NotNullsLinkedHashSet<>();
-    private JarUtils jarUtils;
-    private NumberUtils numberUtils;
+    private JarUtils jarUtils = JarUtils.getInstance();
+    private NumberUtils numberUtils = NumberUtils.getInstance();
     private int recursionLevel;
     private int searchType;
-    private StringUtils stringUtils;
-
-    @Autowired
-    public FileUtils(DateUtils dateUtils,
-                     JarUtils jarUtils,
-                     NumberUtils numberUtils,
-                     StringUtils stringUtils) {
-        this.dateUtils = dateUtils;
-        this.jarUtils = jarUtils;
-        this.numberUtils = numberUtils;
-        this.stringUtils = stringUtils;
-    }
+    private StringUtils stringUtils = StringUtils.getInstance();
 
     public FileUtils() {
         setSearchType(DEFAULT_SEARCH_TYPE);
@@ -128,50 +115,54 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     /**
-     * @param sourcefile
-     * @param orderedFields
-     * @param fieldSeparator
-     * @param classToBind
-     * @throws Exception
+     * Bind the information stored in a file to a collection of objets that represents it. Each line in the file
+     * corresponds with an object
+     *
+     * @param sourcefile     File name for searching about objects to bind
+     * @param orderedFields  Fields of the object that will be associated to the file read
+     * @param fieldSeparator Separator for identifying each field
+     * @param classToBind    Class to bind objects
+     * @return A collection of objects resulting from binding source file with incoming class
+     * @throws Exception If it's not possible to read the file or if internal information could not be ssociated to
+     *                   the desired class
      */
 
     public static Collection<Object> bindRecordsFromFileToObject(String sourcefile,
-                                                                     Collection orderedFields,
-                                                                     char fieldSeparator,
-                                                                     Class classToBind)
+                                                                 Collection<String> orderedFields,
+                                                                 char fieldSeparator,
+                                                                 Class classToBind)
             throws Exception {
         return bindRecordsFromFileToObject(new File(sourcefile), orderedFields, fieldSeparator, classToBind);
     }
 
     /**
-     * @param orderedFields
-     * @param fieldSeparator
-     * @param classToBind
-     * @throws Exception
+     * @param file           File for searching about objects to bind
+     * @param orderedFields  Fields of the object that will be associated to the file read
+     * @param fieldSeparator Separator for identifying each field
+     * @param classToBind    Class to bind objects
+     * @return A collection of objects resulting from binding source file with incoming class
+     * @throws Exception If it's not possible to read the file or if internal information could not be ssociated to
+     *                   the desired class
      */
 
     public static Collection<Object> bindRecordsFromFileToObject(File file,
-                                                                     Collection orderedFields,
-                                                                     char fieldSeparator,
-                                                                     Class classToBind)
+                                                                 Collection<String> orderedFields,
+                                                                 char fieldSeparator,
+                                                                 Class classToBind)
             throws Exception {
         RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
         String buffer;
-        Collection result = new ArrayList();
+        Collection<Object> result = new ArrayList<>();
         while ((buffer = randomAccessFile.readLine()) != null) {
-            final Iterator bufferSpplitted = Arrays.asList(buffer.split(Character.toString(fieldSeparator))).iterator();
+            final Iterator<String> bufferSplitted = Arrays.asList(buffer.split(Character.toString(fieldSeparator)))
+                    .iterator();
             final Object objectToBind = classToBind.newInstance();
-            CollectionUtils.forAllDo(orderedFields, new Closure() {
-                public void execute(Object o) {
-                    try {
-                        Object value = bufferSpplitted.next();
-                        String methodName = (String) o;
-                        BeanUtils.setProperty(objectToBind, methodName, value);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
+            IterableUtils.forEach(orderedFields, methodName -> {
+                try {
+                    String value = bufferSplitted.next();
+                    BeanUtils.setProperty(objectToBind, methodName, value);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    e.printStackTrace();
                 }
             });
             result.add(objectToBind);
@@ -180,7 +171,11 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public static File getFileFromClassPath(String fileName) {
-        return new File(FileUtils.class.getClassLoader().getResource(fileName).getPath());
+        final URL resource = FileUtils.class.getClassLoader().getResource(fileName);
+        if (resource != null) {
+            return new File(resource.getPath());
+        }
+        return null;
     }
 
     public static FileUtilsFilenameFilterCompare getFileUtilsFilenameFilterCompare() {
@@ -191,11 +186,11 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return FILE_UTIL_FILENAME_FILTER_COMPARE_IGNORE_CASE;
     }
 
-    public static FileUtilsFilenameFilter getHiddenFilter() {
+    public static FileUtilsFilenameFilter<File> getHiddenFilter() {
         return hiddenFilter;
     }
 
-    public static FileUtilsFilenameFilter getNotHiddenFilter() {
+    public static FileUtilsFilenameFilter<File> getNotHiddenFilter() {
         return notHiddenFilter;
     }
 
@@ -215,31 +210,31 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         File file = new File(sourcefile);
         RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
         long fileLength = randomAccessFile.length();
-        String buffer = StringUtils.EMPTY;
+        StringBuilder buffer = new StringBuilder(StringUtils.EMPTY);
         if (startPosition < fileLength) {
             randomAccessFile.seek(startPosition);
             boolean recordStartingPointFound = false;
             long i = startPosition - 1;
 
             for (; i > 0 && !recordStartingPointFound; randomAccessFile.seek(i--)) {
-                Character character = new Character(randomAccessFile.readChar());
-                buffer = character + buffer;
-                if (buffer.startsWith(searchFor)) {
+                Character character = randomAccessFile.readChar();
+                buffer.insert(0, character);
+                if (buffer.toString().startsWith(searchFor)) {
                     recordStartingPointFound = true;
                 }
             }
             recordStartingPointFound = false;
             i = startPosition;
             for (; i < fileLength && !recordStartingPointFound; ) {
-                Character character = new Character(randomAccessFile.readChar());
-                buffer = character + buffer;
-                if (buffer.endsWith(searchFor)) {
+                Character character = randomAccessFile.readChar();
+                buffer.insert(0, character);
+                if (buffer.toString().endsWith(searchFor)) {
                     recordStartingPointFound = true;
                 }
                 randomAccessFile.seek(i++);
             }
         }
-        return buffer;
+        return buffer.toString();
     }
 
     /**
@@ -258,7 +253,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         File file = new File(sourcefile);
         BufferedReader bout = new BufferedReader(new FileReader(file));
         char character;
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         int i = 0;
         if (startPosition < file.length()) {
             while ((character = (char) bout.read()) != 0 && i < startPosition) {
@@ -279,8 +274,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public static boolean isCompressedFile(File file) {
-        return file.getPath().indexOf(".jar") != -1 || file.getPath().indexOf(".zip") != -1 || file.getPath().indexOf(
-                ".tar") != -1;
+        return file.getPath().contains(".jar") || file.getPath().contains(".zip") || file.getPath().contains(".tar");
     }
 
     /**
@@ -303,6 +297,128 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             searchCount += ffline.split(searchFor).length;
         }
         return searchCount;
+    }
+
+    public static File getFile(String path) throws FileNotFoundException {
+        String outputFile = path;
+        ClassLoader classLoader = FileUtils.class.getClassLoader();
+        InputStream stream = classLoader.getResourceAsStream(path);
+        if (stream != null) {
+            try {
+                String pathname = System.getProperty("user.home") + File.separator + "tmp";
+                File file = new File(pathname);
+                file.mkdir();
+                File tempConfig = File.createTempFile(new File(path).getName() + "-", ".dat", file);
+                org.apache.commons.io.FileUtils.copyInputStreamToFile(stream, tempConfig);
+                outputFile = tempConfig.getPath();
+            } catch (NullPointerException | IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                log.info("Attempting to load file: " + path);
+                log.info("\tSearching thru classloader (1): " + classLoader.toString());
+                URL resource = classLoader.getResource(path);
+                InputStream inputstream = classLoader.getResourceAsStream(path);
+                if (resource != null) {
+                    outputFile = resource.getPath();
+                }
+                if (inputstream == null) {
+                    log.info("\tSearching thru classloader (2): " + classLoader.toString());
+                    inputstream = classLoader.getResourceAsStream(path);
+                    resource = classLoader.getResource(path);
+                    if (resource != null) {
+                        outputFile = resource.getPath();
+                    }
+                    if (inputstream == null) {
+                        log.info("\tSearching thru classloader (3): " + classLoader.getParent().toString());
+                        inputstream = classLoader.getParent().getResourceAsStream(path);
+                        resource = classLoader.getParent().getResource(path);
+                        if (resource != null) {
+                            outputFile = resource.getPath();
+                        }
+                        if (inputstream == null) {
+                            log.info("\tSearching thru classloader (4): " + ClassLoader.getSystemClassLoader().toString());
+                            inputstream = ClassLoader.getSystemClassLoader().getResourceAsStream(path);
+                            resource = ClassLoader.getSystemClassLoader().getResource(path);
+                            if (resource != null) {
+                                outputFile = resource.getPath();
+                            }
+                            if (inputstream == null) {
+                                log.info("\tSearching directly from absolute path (5): " + path);
+                                inputstream = new FileInputStream((new File(path)));
+                                resource = (new File(path)).toURI().toURL();
+                                outputFile = resource.getPath();
+                            }
+                        }
+                    }
+                }
+                log.info("\tFile: " + path + " found!");
+                inputstream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        File file = new File(outputFile);
+        if (!file.exists()) {
+            throw new FileNotFoundException("File '" + path + "' not found!");
+        }
+        return file;
+    }
+
+    public static boolean isEmpty(File file) throws Exception {
+        if (file == null) {
+            return false;
+        }
+        if (file.isDirectory()) {
+            String[] list = file.list();
+            return list == null || list.length <= 0;
+        } else {
+            throw new FileNotFoundException("File is not an directory");
+        }
+    }
+
+    public static File makeDirFromPackageName(File rootDirectory, String packageName) throws IOException {
+        return makeDirFromTokens(rootDirectory, packageName, "\\.");
+    }
+
+    public static File makeDirFromTokens(File rootDirectory, String directoryName, String regexTokenSeparator) throws IOException {
+        if (rootDirectory == null) {
+            return null;
+        }
+        if (StringUtils.isBlank(directoryName)) {
+            if (rootDirectory.isDirectory()) {
+                return rootDirectory;
+            } else if (rootDirectory.isFile()) {
+                return rootDirectory.getParentFile();
+            }
+        }
+        if (StringUtils.isBlank(regexTokenSeparator)) {
+            if (rootDirectory.isDirectory()) {
+                return new File(rootDirectory, directoryName);
+            } else if (rootDirectory.isFile()) {
+                return new File(rootDirectory.getParentFile(), directoryName);
+            }
+        }
+        File file = rootDirectory;
+        try {
+            for (String directory : directoryName.split(regexTokenSeparator)) {
+                file = new File(file, directory);
+                file.mkdir();
+            }
+        } catch (Throwable t) {
+            log.error("Is not possible to create File '" + rootDirectory.getCanonicalPath() + File.separator + "' due exception: " + t.getMessage());
+        }
+        return file;
+    }
+
+    public static File createTempDir(String baseName) {
+        File baseDir = new File(System.getProperty("java.io.tmpdir"));
+        File tempDir = new File(baseDir, baseName);
+        if (tempDir.mkdir()) {
+            return tempDir;
+        }
+        throw new IllegalStateException("Failed to create directory with name '" + baseName + "'");
     }
 
     /**
@@ -331,11 +447,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public void addFilters(NotNullsLinkedHashSet<FileUtilsFilenameFilter> filters) {
-        CollectionUtils.predicatedCollection(filters, new Predicate() {
-            public boolean evaluate(Object o) {
-                return o instanceof FileUtilsFilenameFilterImpl;
-            }
-        });
+        CollectionUtils.predicatedCollection(filters, (Predicate) o -> o instanceof FileUtilsFilenameFilterImpl);
         this.filters.addAll(filters);
     }
 
@@ -349,7 +461,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      */
     public String buildDatedFileName(String fileName) {
         return buildDatedFileName(fileName.substring(0, fileName.indexOf(".")),
-                fileName.substring(fileName.indexOf(".") + 1, fileName.length()));
+                fileName.substring(fileName.indexOf(".") + 1));
     }
 
     /**
@@ -481,6 +593,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return f;
     }
 
+    // public  void main(String[] args) {
+    // generateFile("Hola mundo!", "c:\\pepe.txt");
+    // }
+
     /**
      * Tests if a specified file should be included in a file list.
      *
@@ -493,7 +609,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         try {
             return ((StringUtils.isBlank(this.getFilterCriterion())) || (Pattern.compile(this.getFilterCriterion())
                     .matcher(
-                    name).matches()));
+                            name).matches()));
         } catch (Exception e) {
             log.error("Error checking the file '" + name + "' on dir '" + dir + "'", e);
             return false;
@@ -572,10 +688,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         }
     }
 
-    // public  void main(String[] args) {
-    // generateFile("Hola mundo!", "c:\\pepe.txt");
-    // }
-
     public void copyResourceToDirectory(URL url, File dest, String basePath, boolean forceDelete)
             throws IOException {
         if (url != null) {
@@ -642,10 +754,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                     parent.mkdirs();
                 }
 
-                FileOutputStream out = new FileOutputStream(dest);
-                InputStream in = fromJar.getInputStream(entry);
-
-                try {
+                try (FileOutputStream out = new FileOutputStream(dest); InputStream in = fromJar.getInputStream(entry)) {
                     byte[] buffer = new byte[8 * 1024];
 
                     int s;
@@ -654,15 +763,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                     }
                 } catch (IOException e) {
                     throw new IOException("Could not copy asset from jar file", e);
-                } finally {
-                    try {
-                        in.close();
-                    } catch (IOException ignored) {
-                    }
-                    try {
-                        out.close();
-                    } catch (IOException ignored) {
-                    }
                 }
             }
         }
@@ -694,6 +794,9 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     public boolean fileOrDirectoryExists(String filepath) {
         return (new File(filepath)).exists();
     }
+
+    // Inicio de los metodos usados en SICAM
+    // Validar que funcionen y sean utiles
 
     /**
      * Get all clazz that extends of superClass
@@ -917,6 +1020,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return path;
     }
 
+    // public  void main(String[] args) {
+    // getClassesThatImplementsFromJar(IReseteableDao.clas, "C:\\bea", true);
+    // }
+
     public void flushInputStreamToFile(InputStream stream, String filepath)
             throws IOException {
         File file = createFile(filepath);
@@ -924,16 +1031,13 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         log.debug("file: " + file);
         log.debug("filepath: " + filepath);
         out = new FileOutputStream(file);
-        byte buf[] = new byte[1024];
+        byte[] buf = new byte[1024];
         int len;
         while ((len = stream.read(buf)) > 0) {
             out.write(buf, 0, len);
         }
         out.close();
     }
-
-    // Inicio de los metodos usados en SICAM
-    // Validar que funcionen y sean utiles
 
     public File createFile(String filepath)
             throws IOException {
@@ -1004,9 +1108,8 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return generateFile(data, fullFileName);
     }
 
-    // public  void main(String[] args) {
-    // getClassesThatImplementsFromJar(IReseteableDao.clas, "C:\\bea", true);
-    // }
+    // Validar que funcionen y sean utiles
+    // Final de los metodos usados en SICAM
 
     /**
      * Generates a unique name for a file, adding a unique number and a unique
@@ -1100,9 +1203,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return findClassesThatImplementedFromJar(jar, implementedClassName, jarName);
     }
 
-    // Validar que funcionen y sean utiles
-    // Final de los metodos usados en SICAM
-
     /**
      * Get all clazz that implemets of superClass from Jar
      *
@@ -1123,9 +1223,9 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
         if (isFile && endsWithJar) {
             //log.debug("[fJAR] jar valido");
-            ArrayList clazzez = jarUtils.listClassesOnJar(jarName);
-            for (Object aClasses : clazzez) {
-                String nativeNotation = (String) aClasses;
+            ArrayList<String> clazzez = jarUtils.listClassesOnJar(jarName);
+            for (String aClasses : clazzez) {
+                String nativeNotation = aClasses;
                 if (nativeNotation.contains("$")) {
                     log.debug("*** Clase interna " + nativeNotation + " sera ignorada.");
                     // TODO: Estamos ignorando las clases internas. Se puede
@@ -1280,6 +1380,17 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return file;
     }
 
+    public void forceCreateNewFile(File file) {
+        try {
+            if (file.exists()) {
+                file.delete();
+            }
+            file.createNewFile();
+        } catch (IOException e) {
+            log.error("Exception [" + e.getClass() + "] - " + e.getMessage());
+        }
+    }
+
     public File getFileFromURL(String urlLocalFilePath,
                                String urlRemoteFilePath,
                                String urlServerDomainAndPort,
@@ -1321,24 +1432,15 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         } finally {
 
             try {
-                is.close();
+                if (is != null) {
+                    is.close();
+                }
             } catch (Exception e) {
                 log.error("Exception [" + e.getClass() + "] - " + e.getMessage());
             }
 
         }
         return file;
-    }
-
-    public void forceCreateNewFile(File file) {
-        try {
-            if (file.exists()) {
-                file.delete();
-            }
-            file.createNewFile();
-        } catch (IOException e) {
-            log.error("Exception [" + e.getClass() + "] - " + e.getMessage());
-        }
     }
 
     public NotNullsLinkedHashSet<FileUtilsFilenameFilter> getFilters() {
@@ -1351,10 +1453,10 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
     private String getPath() {
         /*
-           * String path = properties.getProperty(BASE_PATH_PROPERTY_NAME); // No
-           * tenemos que validar una excepcion? return (null == path) ?
-           * DEFAULT_PATH : path;
-           */
+         * String path = properties.getProperty(BASE_PATH_PROPERTY_NAME); // No
+         * tenemos que validar una excepcion? return (null == path) ?
+         * DEFAULT_PATH : path;
+         */
         return DEFAULT_PATH;
     }
 
@@ -1383,17 +1485,24 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         return list.iterator();
     }
 
-    public File getRelativeFile(String fileName)
-            throws IOException {
+    public File getRelativeFile(String fileName) throws IOException {
         File file = null;
-        InputStream stream = FileUtils.class.getResourceAsStream("/" + fileName);
-        if (stream == null) {
-            stream = FileUtils.class.getClassLoader().getResourceAsStream("/" + fileName);
+        URL url = FileUtils.class.getResource("/" + fileName);
+        if (url != null) {
+            InputStream stream = url.openStream();
+            if (stream == null) {
+                url = FileUtils.class.getClassLoader().getResource("/" + fileName);
+                if (url != null) {
+                    stream = url.openStream();
+                    if (stream != null) {
+                        return new File(url.getFile());
+                    }
+                }
+            } else {
+                return new File(url.getFile());
+            }
         }
-        if (stream != null) {
-            copyInputStreamToFile(stream, file);
-        }
-        return file;
+        return null;
     }
 
     public String getRelativePathFrom(File baseFile, File absoluteFile) {
@@ -1501,13 +1610,13 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public NotNullsLinkedHashSet<File> listFiles(File file, int filteringType) {
-        NotNullsLinkedHashSet files = new NotNullsLinkedHashSet();
+        NotNullsLinkedHashSet<File> files = new NotNullsLinkedHashSet<>();
         files.add(file);
         return listFiles(files, filters, filteringType, DEFAULT_RECURSION_LEVEL, DEFAULT_SEARCH_TYPE);
     }
 
     public NotNullsLinkedHashSet<File> listFiles(File file) {
-        NotNullsLinkedHashSet files = new NotNullsLinkedHashSet();
+        NotNullsLinkedHashSet<File> files = new NotNullsLinkedHashSet<>();
         files.add(file);
         return listFiles(files, filters, DEFAULT_FILTER_TYPE, DEFAULT_RECURSION_LEVEL, DEFAULT_SEARCH_TYPE);
     }
@@ -1519,7 +1628,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     }
 
     public NotNullsLinkedHashSet<File> listFiles(File file, int filteringType, int recursionLevel, int searchType) {
-        NotNullsLinkedHashSet files = new NotNullsLinkedHashSet();
+        NotNullsLinkedHashSet<File> files = new NotNullsLinkedHashSet<>();
         files.add(file);
         return listFiles(files, filters, filteringType, recursionLevel, searchType);
     }
@@ -1529,7 +1638,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                                                  int filteringType,
                                                  int recursionLevel,
                                                  int searchType) {
-        NotNullsLinkedHashSet files = new NotNullsLinkedHashSet();
+        NotNullsLinkedHashSet<File> files = new NotNullsLinkedHashSet<>();
         files.add(file);
         return listFiles(files, filters, filteringType, recursionLevel, searchType);
     }
@@ -1541,8 +1650,8 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
      * @param recurse       Recursion level
      * @param searchType    Searching type
      * @return Collection of files that has matched filters
-     * @noinspection ConstantConditions
      */
+    @SuppressWarnings("ConstantConditions")
     public NotNullsLinkedHashSet<File> listFiles(final Collection<File> files,
                                                  final Collection<FileUtilsFilenameFilter> filters,
                                                  final int filteringType,
@@ -1555,46 +1664,38 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         final NotNullsLinkedHashSet<File> listedFiles = new NotNullsLinkedHashSet<>();
 
         for (File file1 : files) {
-            final NotNullsLinkedHashSet filteredFiles = new NotNullsLinkedHashSet<>();
+            final NotNullsLinkedHashSet<File> filteredFiles = new NotNullsLinkedHashSet<>();
             final File entry = file1;
             try {
                 JarFile module = new JarFile(entry);
-                filteredFiles.addAll(Collections.list(module.entries()));
+                final ArrayList<JarEntry> list = Collections.list(module.entries());
+                IterableUtils.forEach(list, o -> filteredFiles.add(new File(entry + File.separator + o.toString())));
             } catch (IOException ignored) {
                 try {
-                    filteredFiles.addAll(Arrays.asList(entry.listFiles()));
+                    final File[] listFiles = entry.listFiles();
+                    assert listFiles != null;
+                    filteredFiles.addAll(Arrays.asList(listFiles));
                 } catch (NullPointerException npe) {
                     filteredFiles.add(entry);
                 }
             }
 
-            CollectionUtils.filter(filteredFiles, new Predicate() {
-                public boolean evaluate(Object o) {
-                    String value = o.toString();
-                    return !value.endsWith(StringUtils.SLASH) && !value.endsWith("CVS") && !value.endsWith(".svn") &&
-                            !value.endsWith(
-                            "cvs") && !value.endsWith(".SVN");
-                }
+            CollectionUtils.filter(filteredFiles, o -> {
+                String value = o.toString();
+                return !value.endsWith(StringUtils.SLASH) && !value.endsWith("CVS") && !value.endsWith(".svn") &&
+                        !value.endsWith(
+                                "cvs") && !value.endsWith(".SVN");
             });
 
-            CollectionUtils.transform(filteredFiles, new Transformer() {
-                public Object transform(Object o) {
-                    if (o instanceof JarEntry) {
-                        return new File(entry + File.separator + o.toString());
-                    } else {
-                        return o;
-                    }
-                }
-            });
-
-            final NotNullsLinkedHashSet filteredFilesTemp = new NotNullsLinkedHashSet();
-            final NotNullsLinkedHashSet filesToRemove = new NotNullsLinkedHashSet();
-            for (Iterator filteredFilesIter = filteredFiles.iterator(); filteredFilesIter.hasNext(); ) {
-                File fileEntry = (File) filteredFilesIter.next();
+            final NotNullsLinkedHashSet<File> filteredFilesTemp = new NotNullsLinkedHashSet<>();
+            final NotNullsLinkedHashSet<File> filesToRemove = new NotNullsLinkedHashSet<>();
+            for (Object filteredFile : filteredFiles) {
+                File fileEntry = (File) filteredFile;
                 try {
                     new JarFile(fileEntry);
                     filesToRemove.add(fileEntry);
-                    filteredFilesTemp.addAll(listFiles(new NotNullsLinkedHashSet(Arrays.asList(new File[]{fileEntry})),
+                    filteredFilesTemp.addAll(listFiles(new NotNullsLinkedHashSet<>(Collections.singletonList
+                                    (fileEntry)),
                             filters,
                             filteringType,
                             recurse,
@@ -1605,8 +1706,8 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             filteredFiles.removeAll(filesToRemove);
             filteredFiles.addAll(filteredFilesTemp);
 
-            for (Iterator filteredFilesIter = filteredFiles.iterator(); filteredFilesIter.hasNext(); ) {
-                File fileEntry = (File) filteredFilesIter.next();
+            for (Object filteredFile : filteredFiles) {
+                File fileEntry = (File) filteredFile;
                 String directory;
                 String file;
                 File incomingFile;
@@ -1656,15 +1757,11 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
                 boolean applyFilter = filters != null;
 
-                Collection filteredEntries;
+                Collection<FileUtilsFilenameFilter> filteredEntries;
 
                 if (applyFilter) {
-                    filteredEntries = CollectionUtils.select(filters, new Predicate() {
-                        public boolean evaluate(Object o) {
-                            FileUtilsFilenameFilter filterImpl = (FileUtilsFilenameFilter) o;
-                            return filterImpl.accept(directoryFile, fileName);
-                        }
-                    });
+                    filteredEntries = CollectionUtils.select(filters,
+                            filterImpl -> filterImpl.accept(directoryFile, fileName));
 
                     switch (filteringType) {
                         case FILTER_TYPE_ALL:
@@ -1677,7 +1774,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
                             applyFilter = filteredEntries.size() == 0;
                             break;
                         case FILTER_TYPE_UNKNOWN:
-                            break;
                         default:
                             break;
                     }
@@ -1688,8 +1784,8 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
                     if (isCompressedFile(fileEntry)) {
                         if (Math.abs(recurse) < RECURSION_LIMIT && !incomingFile.getPath().equals(entryPath) &&
-                                fileEntry.getName().indexOf(
-                                ".") == -1) {
+                                !fileEntry.getName().contains(
+                                        ".")) {
                             recurse--;
                             listedFiles.addAll(listFiles(incomingFile, filters, filteringType, recurse, searchType));
                             recurse++;
@@ -1711,12 +1807,11 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
             }
         }
-        //        log.debug("listedFiles: " + listedFiles);
         return listedFiles;
     }
 
     public NotNullsLinkedHashSet<File> listPaths(File file) {
-        NotNullsLinkedHashSet files = new NotNullsLinkedHashSet();
+        NotNullsLinkedHashSet<File> files = new NotNullsLinkedHashSet<>();
         files.add(file);
         return listFiles(files, filters, DEFAULT_FILTER_TYPE, DEFAULT_RECURSION_LEVEL, SEARCH_INCLUDE_ONLY_PATH);
     }
@@ -1765,9 +1860,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
     public String loadFile(String fileToLoad)
             throws IOException {
         StringBuilder extractedData = new StringBuilder();
-        FileReader fileDataReader = null;
-        try {
-            fileDataReader = new FileReader(fileToLoad);
+        try (FileReader fileDataReader = new FileReader(fileToLoad)) {
             BufferedReader br = new BufferedReader(fileDataReader);
             String readline;
             while ((readline = br.readLine()) != null) {
@@ -1777,10 +1870,6 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             return extractedData.toString();
         } catch (IOException e) {
             throw new IOException();
-        } finally {
-            if (null != fileDataReader) {
-                fileDataReader.close();
-            }
         }
     }
 
@@ -1847,7 +1936,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             StringBuilder builder = new StringBuilder();
             int index;
             while ((index = bufferd.read(buffer, 0, buffer.length)) > 0) {
-                builder.append(new String(buffer, 0, index, "UTF-8"));
+                builder.append(new String(buffer, 0, index, StandardCharsets.UTF_8));
             }
             return builder.toString();
         } finally {
@@ -1892,7 +1981,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 
         try (BufferedWriter out = new BufferedWriter(new FileWriter(result)); BufferedReader br = new BufferedReader
                 (new FileReader(
-                file))) {
+                        file))) {
             String line = br.readLine();
             while (line != null) {
                 out.write(line.replaceAll(regExp, replacement) + "\n");
@@ -1922,7 +2011,7 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
         Matcher m;
         try (BufferedWriter out = new BufferedWriter(new FileWriter(result)); BufferedReader br = new BufferedReader
                 (new FileReader(
-                file))) {
+                        file))) {
             String line = br.readLine();
             while (line != null) {
                 m = r.matcher(line);
@@ -2000,5 +2089,4 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
             return path1.compareToIgnoreCase(path2);
         }
     }
-
 }

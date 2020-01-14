@@ -2,21 +2,22 @@ package com.araguacaima.commons.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
-@Component
+
 public class HTMLDecorator {
     public static final int ACTUAL_RENDERING_TAG_FONT = 1;
     public static final int ACTUAL_RENDERING_TAG_IMG = 0;
     public static final int ACTUAL_RENDERING_TAG_NONE = -1;
-    public static final List<String> FONTCSS_TAG_FIELDS = Arrays.asList(new String[]{"fontCssClass", "fontText"});
-    public static final List<String> IMAGE_TAG_FIELDS = Arrays.asList(new String[]{"imageSource",
+    public static final List<String> FONTCSS_TAG_FIELDS = Arrays.asList("fontCssClass", "fontText");
+    public static final List<String> IMAGE_TAG_FIELDS = Arrays.asList("imageSource",
             "imageAltText",
             "imageWidth",
-            "imageHeight"});
+            "imageHeight");
     final static String CSS_CLASS_FIELD = "class";
     final static int DEFAULT_IMAGE_HEIGHT = 19;
     final static int DEFAULT_IMAGE_WIDTH = 25;
@@ -32,6 +33,7 @@ public class HTMLDecorator {
      */
     private final static String className = HTMLDecorator.class.getName();
     private static final Logger log = LoggerFactory.getLogger(HTMLDecorator.class);
+    private final ReflectionUtils reflectionUtils;
     public int actualRenderingTag = ACTUAL_RENDERING_TAG_NONE;
     public boolean debug = false;
     public String fontCssClass;
@@ -40,9 +42,8 @@ public class HTMLDecorator {
     public int imageHeight = DEFAULT_IMAGE_HEIGHT;
     public String imageSource;
     public int imageWidth = DEFAULT_IMAGE_WIDTH;
-    private ReflectionUtils reflectionUtils;
 
-    @Autowired
+
     public HTMLDecorator(ReflectionUtils reflectionUtils) {
         this.reflectionUtils = reflectionUtils;
 
@@ -55,7 +56,7 @@ public class HTMLDecorator {
      */
 
     public String decorateFontCssTag() {
-        StringBuffer fontCss = new StringBuffer();
+        StringBuilder fontCss = new StringBuilder();
         actualRenderingTag = ACTUAL_RENDERING_TAG_FONT;
         if (ensureFontCssInitialized()) {
             fontCss.append(StringUtils.LESS_THAN_SYMBOL).append(FONT_TAG_NAME).append(StringUtils.BLANK_SPACE).append(
@@ -80,6 +81,30 @@ public class HTMLDecorator {
         return !StringUtils.isBlank(this.fontCssClass);
     }
 
+    private String printTagRendered(String tag) {
+        String metodo = className + " - printTagRendered: ";
+        if (debug) {
+            Collection tal = new ArrayList();
+            log.debug(metodo + "Tag values - ");
+            switch (actualRenderingTag) {
+                case ACTUAL_RENDERING_TAG_IMG:
+                    tal = IMAGE_TAG_FIELDS;
+                    break;
+                case ACTUAL_RENDERING_TAG_FONT:
+                    tal = FONTCSS_TAG_FIELDS;
+                    break;
+                default:
+                    break;
+            }
+            for (Object aTal : tal) {
+                String field = (String) aTal;
+                log.debug("\t" + field + ": " + reflectionUtils.invokeGetter(this, field));
+            }
+            log.debug(metodo + "Tag rendered: " + tag);
+        }
+        return tag;
+    }
+
     /**
      * Decorates the img with the incoming images tag ensured values
      *
@@ -87,7 +112,7 @@ public class HTMLDecorator {
      */
 
     public String decorateImageTag() {
-        StringBuffer imgTag = new StringBuffer();
+        StringBuilder imgTag = new StringBuilder();
         actualRenderingTag = ACTUAL_RENDERING_TAG_IMG;
         if (ensureImgIsInitialized()) {
             imgTag.append(StringUtils.LESS_THAN_SYMBOL).append(IMAGE_TAG_NAME).append(StringUtils.BLANK_SPACE).append(
@@ -96,14 +121,14 @@ public class HTMLDecorator {
             if (!StringUtils.isBlank(imageAltText)) {
                 imgTag.append(IMAGE_TAG_ALT_NAME).append(StringUtils.EQUAL_SYMBOL).append(StringUtils.DOUBLE_QUOTE)
                         .append(
-                        imageAltText).append(StringUtils.DOUBLE_QUOTE).append(StringUtils.BLANK_SPACE);
+                                imageAltText).append(StringUtils.DOUBLE_QUOTE).append(StringUtils.BLANK_SPACE);
             }
             imgTag.append(IMAGE_TAG_WIDTH_NAME).append(StringUtils.EQUAL_SYMBOL).append(StringUtils.DOUBLE_QUOTE)
                     .append(
-                    imageWidth).append(PIXEL_TAG_NAME).append(StringUtils.DOUBLE_QUOTE).append(StringUtils.BLANK_SPACE);
+                            imageWidth).append(PIXEL_TAG_NAME).append(StringUtils.DOUBLE_QUOTE).append(StringUtils.BLANK_SPACE);
             imgTag.append(IMAGE_TAG_HEIGHT_NAME).append(StringUtils.EQUAL_SYMBOL).append(StringUtils.DOUBLE_QUOTE)
                     .append(
-                    imageHeight).append(PIXEL_TAG_NAME).append(StringUtils.DOUBLE_QUOTE).append(StringUtils
+                            imageHeight).append(PIXEL_TAG_NAME).append(StringUtils.DOUBLE_QUOTE).append(StringUtils
                     .BLANK_SPACE);
             imgTag.append(StringUtils.GREATER_THAN_SYMBOL);
         } else {
@@ -120,30 +145,6 @@ public class HTMLDecorator {
 
     private boolean ensureImgIsInitialized() {
         return !StringUtils.isBlank(this.imageSource);
-    }
-
-    private String printTagRendered(String tag) {
-        String metodo = className + " - printTagRendered: ";
-        if (debug) {
-            Collection tal = new ArrayList();
-            log.debug(metodo + "Tag values - ");
-            switch (actualRenderingTag) {
-                case ACTUAL_RENDERING_TAG_IMG:
-                    tal = IMAGE_TAG_FIELDS;
-                    break;
-                case ACTUAL_RENDERING_TAG_FONT:
-                    tal = FONTCSS_TAG_FIELDS;
-                    break;
-                default:
-                    break;
-            }
-            for (Iterator iter = tal.iterator(); iter.hasNext(); ) {
-                String field = (String) iter.next();
-                log.debug("\t" + field + ": " + reflectionUtils.invokeGetter(this, field));
-            }
-            log.debug(metodo + "Tag rendered: " + tag);
-        }
-        return tag;
     }
 
     public int getActualRenderingTag() {
@@ -179,7 +180,6 @@ public class HTMLDecorator {
      *
      * @param cssClassName The CSS class name
      * @param text         The text to be rendered
-     * @noinspection UnusedDeclaration
      */
 
     public void initializeFontCssTag(String cssClassName, String text) {
@@ -194,7 +194,6 @@ public class HTMLDecorator {
      * @param imageAltText The alternate text (non required)
      * @param imageWidth   The width of the image (If ommited 25px will be used)
      * @param imageHeight  The height of the image (If ommited 19px will be used)
-     * @noinspection UnusedDeclaration
      */
 
     public void initializeImageTag(String imageSource, String imageAltText, int imageWidth, int imageHeight) {
@@ -210,7 +209,6 @@ public class HTMLDecorator {
      *
      * @param imageSource  The relative URL path for the image
      * @param imageAltText The alternate text (non required)
-     * @noinspection UnusedDeclaration
      */
 
     public void initializeImageTag(String imageSource, String imageAltText) {

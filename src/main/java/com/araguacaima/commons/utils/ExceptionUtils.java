@@ -24,7 +24,6 @@ import com.araguacaima.commons.exception.core.Exceptions;
 import com.araguacaima.commons.exception.core.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.Locale;
 
@@ -39,10 +38,27 @@ import java.util.Locale;
  * </ul>
  */
 @SuppressWarnings("WeakerAccess")
-@Component
+
 public class ExceptionUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ExceptionUtils.class);
+
+    private static final ExceptionUtils INSTANCE = new ExceptionUtils();
+    ;
+
+    private ExceptionUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
+
+    public static ExceptionUtils getInstance() {
+        return INSTANCE;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
+    }
 
     /**
      * Elimina las excepciones anidadas, hasta llegar a la inicial
@@ -134,6 +150,39 @@ public class ExceptionUtils {
     }
 
     /**
+     * Metodo que limpia el mensaje de una excepcion, mostrando un subString del mismo.
+     *
+     * @param e         Exception con el mensaje a limpiar
+     * @param finalLine int con la linea final a mostrar
+     * @return String con el mensaje truncado
+     */
+    public String cleanMessage(Exception e, int finalLine) {
+        return cleanMessage(e, 0, finalLine);
+    }
+
+    /**
+     * Metodo que limpia el mensaje de una excepcion, mostrando un subString del mismo.
+     *
+     * @param e           Exception con el mensaje a limpiar
+     * @param initialLine int con la linea inicial a mostrar
+     * @param finalLine   int con la linea final a mostrar
+     * @return String con el mensaje truncado
+     */
+    public String cleanMessage(Exception e, int initialLine, int finalLine) {
+        if (e == null || initialLine >= finalLine) {
+            return null;
+        } else if (e.getMessage() == null) {
+            StringBuilder result = new StringBuilder((finalLine - initialLine) * 100);
+            for (int ii = initialLine; ii <= finalLine; ii++) {
+                result.append(e.getStackTrace()[ii]).append("\n");
+            }
+            return result.toString().substring(0, result.toString().length() - 1);
+        } else {
+            return cleanMessage(e.getMessage(), initialLine, finalLine);
+        }
+    }
+
+    /**
      * Obtiene el mensaje de una excepcion, con el Locale dado, sin trazas.
      *
      * @param exception Exception de la que saldra el mensaje.
@@ -165,6 +214,19 @@ public class ExceptionUtils {
      * La idea de este metodo es que sea lo existente dentro de
      * la mayoria de los catchs de la aplicacion.
      *
+     * @param e Exception a ser manejada
+     * @throws ApplicationException (TechnicalException, ApplicationException)
+     *                              de acuerdo a la excepcion procesada.
+     */
+    public void handleException(Exception e) {
+        handleException(Exceptions.NESTED_EXCEPTION, e);
+    }
+
+    /**
+     * Procesa una excepcion.
+     * La idea de este metodo es que sea lo existente dentro de
+     * la mayoria de los catchs de la aplicacion.
+     *
      * @param messageKey String con el codigo del error a ser enviado.
      * @param e          Exception a ser manejada
      * @throws ApplicationException (TechnicalException, ApplicationException)
@@ -178,52 +240,6 @@ public class ExceptionUtils {
             new ApplicationException(messageKey, e);
         } else {
             new TechnicalException(messageKey, e);
-        }
-    }
-
-    /**
-     * Procesa una excepcion.
-     * La idea de este metodo es que sea lo existente dentro de
-     * la mayoria de los catchs de la aplicacion.
-     *
-     * @param e Exception a ser manejada
-     * @throws ApplicationException (TechnicalException, ApplicationException)
-     *                              de acuerdo a la excepcion procesada.
-     */
-    public void handleException(Exception e) {
-        handleException(Exceptions.NESTED_EXCEPTION, e);
-    }
-
-    /**
-     * Metodo que limpia el mensaje de una excepcion, mostrando un subString del mismo.
-     *
-     * @param e         Exception con el mensaje a limpiar
-     * @param finalLine int con la linea final a mostrar
-     * @return String con el mensaje truncado
-     */
-    public String cleanMessage(Exception e, int finalLine) {
-        return cleanMessage(e, 0, finalLine);
-    }
-
-    /**
-     * Metodo que limpia el mensaje de una excepcion, mostrando un subString del mismo.
-     *
-     * @param e           Exception con el mensaje a limpiar
-     * @param initialLine int con la linea inicial a mostrar
-     * @param finalLine   int con la linea final a mostrar
-     * @return String con el mensaje truncado
-     */
-    public String cleanMessage(Exception e, int initialLine, int finalLine) {
-        if (e == null || initialLine >= finalLine) {
-            return null;
-        } else if (e.getMessage() == null) {
-            StringBuilder result = new StringBuilder((finalLine - initialLine) * 100);
-            for (int ii = initialLine; ii <= finalLine; ii++) {
-                result.append(e.getStackTrace()[ii]).append("\n");
-            }
-            return result.toString().substring(0, result.toString().length() - 1);
-        } else {
-            return cleanMessage(e.getMessage(), initialLine, finalLine);
         }
     }
 

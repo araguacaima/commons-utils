@@ -14,14 +14,12 @@ import java.util.Map;
 
 public class NotNullsLinkedHashSet<T> extends LinkedHashSet<T> {
 
-    private static final long serialVersionUID = 4462897959138488249L;
-    private boolean traverseFields;
-    private static Predicate NULL_PREDICATE = e -> {
+    private static final Predicate NULL_PREDICATE = e -> {
         try {
             final Map<String, Object> map = PropertyUtils.describe(e);
             for (final Map.Entry<String, Object> entry : map.entrySet()) {
-                if (!("class".equals(entry.getKey()) && Class.class.isAssignableFrom(entry.getValue().getClass()))
-                    && entry.getValue() != null) {
+                if (!("class".equals(entry.getKey()) && Class.class.isAssignableFrom(entry.getValue().getClass())) &&
+                        entry.getValue() != null) {
                     return false;
                 }
             }
@@ -30,13 +28,14 @@ public class NotNullsLinkedHashSet<T> extends LinkedHashSet<T> {
         }
         return true;
     };
-
+    private static final long serialVersionUID = 4462897959138488249L;
     public static Predicate NOT_EMPTY_PREDICATE = e -> {
         try {
             final Map<String, Object> map = PropertyUtils.describe(e);
             for (final Map.Entry<String, Object> entry : map.entrySet()) {
-                if (!("class".equals(entry.getKey()) && Class.class.isAssignableFrom(entry.getValue().getClass()))
-                        && entry.getValue() != null && StringUtils.isNotBlank(entry.getValue().toString())) {
+                if (!("class".equals(entry.getKey()) && Class.class.isAssignableFrom(entry.getValue().getClass())) &&
+                        entry.getValue() != null && StringUtils.isNotBlank(
+                        entry.getValue().toString())) {
                     return false;
                 }
             }
@@ -45,8 +44,15 @@ public class NotNullsLinkedHashSet<T> extends LinkedHashSet<T> {
         }
         return true;
     };
-
+    private final boolean traverseFields;
     private Predicate predicate = NULL_PREDICATE;
+
+    public NotNullsLinkedHashSet(Predicate predicate) {
+        this();
+        if (predicate != null) {
+            this.predicate = predicate;
+        }
+    }
 
     public NotNullsLinkedHashSet() {
         this(false);
@@ -57,20 +63,6 @@ public class NotNullsLinkedHashSet<T> extends LinkedHashSet<T> {
         this.traverseFields = traverseFields;
     }
 
-    public NotNullsLinkedHashSet(Predicate predicate) {
-        this();
-        if (predicate != null) {
-            this.predicate = predicate;
-        }
-    }
-    
-    public NotNullsLinkedHashSet(final boolean traverseFields, Predicate allFieldsAreNull) {
-        this(traverseFields);
-        if (allFieldsAreNull != null) {
-            this.predicate = allFieldsAreNull;
-        }
-    }
-
     public NotNullsLinkedHashSet(final boolean traverseFields,
                                  Predicate allFieldsAreNull,
                                  final Collection<? extends T> elements) {
@@ -78,10 +70,28 @@ public class NotNullsLinkedHashSet<T> extends LinkedHashSet<T> {
         this.addAll(elements);
     }
 
+    public NotNullsLinkedHashSet(final boolean traverseFields, Predicate allFieldsAreNull) {
+        this(traverseFields);
+        if (allFieldsAreNull != null) {
+            this.predicate = allFieldsAreNull;
+        }
+    }
 
     public NotNullsLinkedHashSet(final Collection<? extends T> elements) {
         this(false, null);
         this.addAll(elements);
+    }
+
+    @Override
+    public boolean addAll(final Collection<? extends T> elements) {
+        boolean result = true;
+        if (elements == null) {
+            return false;
+        }
+        for (final T element : elements) {
+            result = add(element) && result;
+        }
+        return result;
     }
 
     @Override
@@ -102,7 +112,6 @@ public class NotNullsLinkedHashSet<T> extends LinkedHashSet<T> {
         return -1;
     }
 
-
     public int indexOf(Predicate<T> e) {
         int result = 0;
 
@@ -114,18 +123,6 @@ public class NotNullsLinkedHashSet<T> extends LinkedHashSet<T> {
         }
 
         return -1;
-    }
-
-    @Override
-    public boolean addAll(final Collection<? extends T> elements) {
-        boolean result = true;
-        if (elements == null) {
-            return false;
-        }
-        for (final T element : elements) {
-            result = add(element) && result;
-        }
-        return result;
     }
 
 }

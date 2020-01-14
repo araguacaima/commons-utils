@@ -185,14 +185,12 @@ public class FileUtilsFilenameFilterPackage extends FileUtilsFilenameFilterImpl 
     }
 
     @Override
-    public Collection<String> getResourcePaths(final ClassLoader classLoader)
-            throws IOException {
+    public Collection<String> getResourcePaths(final ClassLoader classLoader) {
         return transformURLIntoStringPaths(getResources(classLoader));
     }
 
     @Override
-    public Collection<URL> getResources(final ClassLoader classLoader)
-            throws IOException {
+    public Collection<URL> getResources(final ClassLoader classLoader) {
         final Collection<URL> result = new ArrayList<>();
         packageCriteriaCollection.add(packageCriteria);
         IterableUtils.forEach(packageCriteriaCollection, packageCriteria -> {
@@ -205,8 +203,7 @@ public class FileUtilsFilenameFilterPackage extends FileUtilsFilenameFilterImpl 
                     File transformedClassPath = null;
                     try {
                         if (url != null) {
-                            transformedClassPath = new File((URL.class).isInstance(url) ? url.getFile() : url
-                                    .toString());
+                            transformedClassPath = new File(url.getFile());
                             String fileNameDecoded = URLDecoder.decode(transformedClassPath.getPath(), "UTF-8");
                             transformedClassPath = new File(fileNameDecoded);
                         }
@@ -223,8 +220,7 @@ public class FileUtilsFilenameFilterPackage extends FileUtilsFilenameFilterImpl 
         return result;
     }
 
-    public Collection<URL> getResources()
-            throws IOException {
+    public Collection<URL> getResources() {
         final Collection<URL> result = new ArrayList<>();
 
         packageCriteriaCollection.add(packageCriteria);
@@ -237,9 +233,9 @@ public class FileUtilsFilenameFilterPackage extends FileUtilsFilenameFilterImpl 
                 String packageCriteriaTransformed = stringUtils.replaceLast(packageCriteria, "/\\*", StringUtils.EMPTY);
                 Collection<URL> resourcesPath = classLoaderUtils.getResources(packageCriteriaTransformed);
                 IterableUtils.forEach(resourcesPath, url -> {
-                    File transformedClassPath = null;
+                    File transformedClassPath;
                     try {
-                        transformedClassPath = new File((URL.class).isInstance(url) ? url.getFile() : url.toString());
+                        transformedClassPath = new File(url != null ? url.getFile() : url.toString());
                         String fileNameDecoded = URLDecoder.decode(transformedClassPath.getPath(), "UTF-8");
                         transformedClassPath = new File(fileNameDecoded);
                         final NotNullsLinkedHashSet<File> files = fileUtils.listFiles(transformedClassPath,

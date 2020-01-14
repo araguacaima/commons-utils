@@ -34,168 +34,74 @@ import jreversepro.reflect.method.JBlockObject;
 public class JLineOfCode {
 
     /**
-     * Entry of block *
+     * Entry of block
      */
     public static final int ENTRY = 1;
-
     /**
-     * Inside a block *
-     */
-    public static final int INBLOCK = 0;
-
-    /**
-     * Exiting out of a block *
+     * Exiting out of a block
      */
     public static final int EXIT = 2;
-
+    /**
+     * Inside a block
+     */
+    public static final int INBLOCK = 0;
+    /**
+     * Immediate JBlockObject in which this code exists
+     */
+    JBlockObject block = null;
     /**
      * TRUE if line is not directly associated with any bytecode.
      * E.g. "try" or catch", or "{" or "}",  etc.
      */
     private boolean decoration;
-
     /**
-     * Bytecode addr start *
-     */
-    private int start;
-
-    /**
-     * Get Bytecode addr start *
-     */
-    public int getStart() {
-        return start;
-    }
-
-    /**
-     * Set Bytecode addr start *
-     */
-    public void setStart(int s) {
-        start = s;
-    }
-
-    /**
-     * Bytecode addr end *
+     * Bytecode addr end
      */
     private int end;
-
     /**
-     * Get Bytecode addr end *
-     */
-    public int getEnd() {
-        return end;
-    }
-
-    /**
-     * Set Bytecode addr end *
-     */
-    public void setEnd(int e) {
-        end = e;
-    }
-
-    /**
-     * From Index *
+     * From Index
      */
     private int fromIndex;
-
     /**
-     * Get from index*
-     */
-    public int getFromIndex() {
-        return fromIndex;
-    }
-
-    /**
-     * Set from Index *
-     */
-    public void setFromIndex(int f) {
-        fromIndex = f;
-    }
-
-    /**
-     * End of Index *
-     */
-    private int toIndex;
-
-    /**
-     * Get to index*
-     */
-    public int getToIndex() {
-        return toIndex;
-    }
-
-    /**
-     * Set to Index *
-     */
-    public void setToIndex(int t) {
-        toIndex = t;
-    }
-
-    /**
-     * Statement *
-     */
-    private String stmt;
-
-    /**
-     * Get stmt - the stringified version of the line of code *
-     */
-    public String getStmt() {
-        return stmt;
-    }
-
-    /**
-     * Set stmt *
-     */
-    public void setStmt(String s) {
-        stmt = s;
-    }
-
-    /**
-     * ??? **
+     * ???
      */
     private boolean p = false;
-
     /**
-     * ??? *
+     * Bytecode addr start
      */
-    private String viz = null;
-
-    /**
-     * Get viz - the stringified version of the line of code. This is redundant (for now) with getStmt(). *
-     */
-    public String getViz() {
-        return viz;
-    }
-
-    /**
-     * Set viz *
-     */
-    public void setViz(String v) {
-        viz = v;
-    }
-
+    private int start;
     /**
      * State defines the position in the block (ENTRY, INBLOCK, or EXIT code)
      */
     private int state = INBLOCK;
+    /**
+     * Statement
+     */
+    private String stmt;
+    /**
+     * End of Index
+     */
+    private int toIndex;
+    /**
+     * ???
+     */
+    private String viz = null;
 
     /**
-     * Get state *
+     * Creates a new instance of JLineOfCode
+     * This JLineOfCode is either block entry or block exit code
+     * since no offsets are provided.
+     *
+     * @param stmt  Stringified line of code
+     * @param jbo   the JBlockObject this line is associated with
+     * @param state ENTRY | EXIT
      */
-    public int getState() {
-        return state;
+    public JLineOfCode(String stmt, JBlockObject jbo, int state) {
+        this(-1, -1, -1, -1, stmt);
+        this.state = state;
+        this.block = jbo;
+        decoration = true;
     }
-
-    /**
-     * Set state *
-     */
-    public void setState(int s) {
-        state = s;
-    }
-
-    /**
-     * Immediate JBlockObject in which this code exists
-     */
-    JBlockObject block = null;
 
     /**
      * Creates a new instance of JLineOfCode
@@ -218,19 +124,10 @@ public class JLineOfCode {
     }
 
     /**
-     * Creates a new instance of JLineOfCode
-     * This JLineOfCode is either block entry or block exit code
-     * since no offsets are provided.
-     *
-     * @param stmt  Stringified line of code
-     * @param jbo   the JBlockObject this line is associated with
-     * @param state ENTRY | EXIT
+     * @return Returns the LineOfCode's containing block
      */
-    public JLineOfCode(String stmt, JBlockObject jbo, int state) {
-        this(-1, -1, -1, -1, stmt);
-        this.state = state;
-        this.block = jbo;
-        decoration = true;
+    public JBlockObject getBlock() {
+        return block;
     }
 
     /**
@@ -243,31 +140,129 @@ public class JLineOfCode {
     }
 
     /**
-     * @return Returns the LineOfCode's containing block
+     * Get Bytecode addr end
+     *
+     * @return The ending bytecode
      */
-    public JBlockObject getBlock() {
-        return block;
+    public int getEnd() {
+        return end;
     }
 
     /**
-     * @return Returns TRUE if line is entry code, FALSE otherwise
+     * Set Bytecode addr end
+     *
+     * @param e The ending bytecode
      */
-    public boolean isEntryCode() {
-        return state == this.ENTRY;
+    public void setEnd(int e) {
+        end = e;
     }
 
     /**
-     * @return Returns TRUE if line is exit code, FALSE otherwise
+     * Get from index
+     *
+     * @return The index
      */
-    public boolean isExitCode() {
-        return state == this.EXIT;
+    public int getFromIndex() {
+        return fromIndex;
     }
 
     /**
-     * @return Returns TRUE if line is in block code, FALSE otherwise
+     * Set from Index
+     *
+     * @param f The index
      */
-    public boolean isInBlockCode() {
-        return state == this.INBLOCK;
+    public void setFromIndex(int f) {
+        fromIndex = f;
+    }
+
+    /**
+     * Get Bytecode addr start
+     *
+     * @return The starting bytecode
+     */
+    public int getStart() {
+        return start;
+    }
+
+    /**
+     * Set Bytecode addr start
+     *
+     * @param s Set the starting bytecode
+     */
+    public void setStart(int s) {
+        start = s;
+    }
+
+    /**
+     * Get state
+     *
+     * @return The state
+     */
+    public int getState() {
+        return state;
+    }
+
+    /**
+     * Set state
+     *
+     * @param s The state
+     */
+    public void setState(int s) {
+        state = s;
+    }
+
+    /**
+     * Get stmt - the stringified version of the line of code
+     *
+     * @return The stringified version of the line of code (stmt)
+     */
+    public String getStmt() {
+        return stmt;
+    }
+
+    /**
+     * Set stmt
+     *
+     * @param s The stringified version of the line of code (stmt)
+     */
+    public void setStmt(String s) {
+        stmt = s;
+    }
+
+    /**
+     * Get to index
+     *
+     * @return The index upper limit
+     */
+    public int getToIndex() {
+        return toIndex;
+    }
+
+    /**
+     * Set to Index
+     *
+     * @param t The index upper limit
+     */
+    public void setToIndex(int t) {
+        toIndex = t;
+    }
+
+    /**
+     * Get viz - the stringified version of the line of code. This is redundant (for now) with getStmt().
+     *
+     * @return The stringified version of the line of code. This is redundant (for now) with getStmt().
+     */
+    public String getViz() {
+        return viz;
+    }
+
+    /**
+     * Set viz
+     *
+     * @param v The stringified version of the line of code. This is redundant (for now) with getStmt().
+     */
+    public void setViz(String v) {
+        viz = v;
     }
 
     /**
@@ -275,6 +270,27 @@ public class JLineOfCode {
      */
     public boolean isDecoration() {
         return decoration;
+    }
+
+    /**
+     * @return Returns TRUE if line is entry code, FALSE otherwise
+     */
+    public boolean isEntryCode() {
+        return state == ENTRY;
+    }
+
+    /**
+     * @return Returns TRUE if line is exit code, FALSE otherwise
+     */
+    public boolean isExitCode() {
+        return state == EXIT;
+    }
+
+    /**
+     * @return Returns TRUE if line is in block code, FALSE otherwise
+     */
+    public boolean isInBlockCode() {
+        return state == INBLOCK;
     }
 
     /**

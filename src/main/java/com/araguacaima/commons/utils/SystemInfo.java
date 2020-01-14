@@ -24,8 +24,6 @@ import com.araguacaima.commons.exception.core.Exceptions;
 import com.araguacaima.commons.exception.core.TechnicalException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -54,7 +52,7 @@ import java.util.Properties;
  */
 
 // TODO: Sacar un padre comun a esta clase y MessageHandler
-@Component
+
 public class SystemInfo {
 
     public static final String APPLICATION_FOLDER_ROOT = "application.folder.root";
@@ -83,7 +81,7 @@ public class SystemInfo {
     // Si es true, agrega al nombre el origen de la propiedad para que no se repita
     private boolean uniqueName = false;
 
-    @Autowired
+
     private SystemInfo(NumberUtils numberUtils, FileUtils fileUtils) {
         this.numberUtils = numberUtils;
         this.fileUtils = fileUtils;
@@ -116,10 +114,10 @@ public class SystemInfo {
     }
 
     /* Agrega informacion al SystemInfo desde el archivo indicado por fileName.
-    *
-    * @param fileName String con el nombre del archivo
-    * @return int con el conteo de las propiedades agregadas
-    */
+     *
+     * @param fileName String con el nombre del archivo
+     * @return int con el conteo de las propiedades agregadas
+     */
     public int addDataFromExternalFile(String fileName) {
         int count = 0;
         try {
@@ -210,7 +208,7 @@ public class SystemInfo {
                 return (Integer.parseInt(value) == 1);
             } else {
                 //return (null != value) && Boolean.parseBoolean(value);
-                return (null != value) && Boolean.valueOf(value);
+                return Boolean.parseBoolean(value);
             }
         } catch (Exception e) {
             log.error("Error getting property '" + propertyName + "' value as boolean (" + value + ")");

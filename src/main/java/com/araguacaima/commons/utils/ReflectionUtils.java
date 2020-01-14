@@ -20,6 +20,11 @@
 package com.araguacaima.commons.utils;
 
 import com.google.common.collect.ObjectArrays;
+import io.github.benas.randombeans.EnhancedRandomBuilder;
+import io.github.benas.randombeans.api.EnhancedRandom;
+import javassist.CannotCompileException;
+import javassist.CtClass;
+import javassist.CtMethod;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
@@ -29,24 +34,22 @@ import org.apache.commons.lang3.builder.StandardToStringStyle;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import sun.reflect.ConstructorAccessor;
 import sun.reflect.FieldAccessor;
 import sun.reflect.ReflectionFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 @SuppressWarnings({"unchecked", "UnusedReturnValue"})
-@Component
-public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
+
+public class ReflectionUtils implements Serializable {
 
     public static final List BASIC_CLASSES = Arrays.asList(String.class,
             Boolean.class,
@@ -57,13 +60,32 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             Long.class,
             Float.class,
             Double.class);
-    public static final Transformer<Class, String> CLASS_NAME_TRANSFORMER = Class::getName;
     public static final Transformer CLASS_FROM_OBJECT_TRANSFORMER = Object::getClass;
+    public static final Transformer<Class, String> CLASS_NAME_TRANSFORMER = Class::getName;
+    public static final Collection<String> COMMONS_JAVA_TYPES_EXCLUSIONS = new ArrayList<String>() {
+        {
+            add("java.util.Currency");
+            add("java.util.Calendar");
+            add("org.joda.time.Period");
+        }
+    };
+    public static final Collection<String> COMMONS_TYPES_PREFIXES = new ArrayList<String>() {
+        {
+            add("java.lang");
+            add("java.util");
+            add("java.math");
+            add("java.io");
+            add("java.sql");
+            add("java.text");
+            add("java.net");
+            add("org.joda.time");
+        }
+    };
     public static final Transformer<Field, String> FIELD_NAME_TRANSFORMER = Field::getName;
     public static final Predicate<Method> METHOD_IS_GETTER_PREDICATE = method -> method.getName().matches
-            ("get[A-Z]+") || method.getName().matches(
-            "is[A-Z]+");
-    public static final Predicate<Method> METHOD_IS_SETTER_PREDICATE = method -> method.getName().matches("set[A-Z]+");
+            ("get[A-Z]+.*") || method.getName().matches(
+            "is[A-Z]+.*");
+    public static final Predicate<Method> METHOD_IS_SETTER_PREDICATE = method -> method.getName().matches("set[A-Z]+.*");
     public static final Transformer<Method, String> METHOD_NAME_TRANSFORMER = Method::getName;
     public static final Map PRIMITIVE_AND_BASIC_TYPES = new HashMap();
     public static final Map PRIMITIVE_AND_BASIC_TYPE_DEFAULT_VALUES = new HashMap();
@@ -79,8 +101,20 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             Double.TYPE,
             Void.TYPE);
     public static final String UNKNOWN_VALUE = "UNKNOWN_VALUE";
+    private static final Collection<Class> COMMONS_COLLECTIONS_IMPLEMENTATIONS = new ArrayList<Class>() {
+        {
+            add(ArrayList.class);
+            add(TreeSet.class);
+            add(HashSet.class);
+            add(LinkedHashSet.class);
+            add(LinkedList.class);
+        }
+    };
     private static final FieldCompare FIELD_COMPARE = new FieldCompare();
+    private static final DataTypesConverter dataTypesConverter = new DataTypesConverter();
     private static final Logger log = LoggerFactory.getLogger(ReflectionUtils.class);
+    private static final EnhancedRandomBuilder randomBuilder;
+    private static final ReflectionUtils INSTANCE = new ReflectionUtils();
 
     static {
         final StandardToStringStyle tiesStyle = new StandardToStringStyle();
@@ -165,44 +199,489 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         PRIMITIVE_AND_BASIC_TYPE_DEFAULT_VALUES.put(Float.class, (float) -1);
         PRIMITIVE_AND_BASIC_TYPE_DEFAULT_VALUES.put(Double.class, (double) -1);
         PRIMITIVE_AND_BASIC_TYPE_DEFAULT_VALUES.put(String.class, StringUtils.EMPTY);
+
+        LocalTime timeLower = LocalTime.of(0, 0);
+        LocalTime timeUpper = LocalTime.of(0, 0);
+        LocalDate dateLower = LocalDate.of(2000, 1, 1);
+        LocalDate dateUpper = LocalDate.of(2040, 12, 31);
+
+        randomBuilder = EnhancedRandomBuilder.aNewEnhancedRandomBuilder()
+                .seed(123L)
+                .objectPoolSize(100)
+                .charset(StandardCharsets.UTF_8)
+                .timeRange(timeLower, timeUpper)
+                .dateRange(dateLower, dateUpper)
+                .stringLengthRange(5, 20)
+                .collectionSizeRange(1, 5)
+                .scanClasspathForConcreteTypes(true)
+                .overrideDefaultInitialization(true)
+                .objectPoolSize(3);
     }
 
-    public static final Collection<String> COMMONS_JAVA_TYPES_EXCLUSIONS = new ArrayList<String>() {
-        {
-            add("java.util.Currency");
-            add("java.util.Calendar");
-            add("org.joda.time.Period");
-        }
-    };
-    public static final Collection<String> COMMONS_TYPES_PREFIXES = new ArrayList<String>() {
-        {
-            add("java.lang");
-            add("java.util");
-            add("java.math");
-            add("java.io");
-            add("java.sql");
-            add("java.text");
-            add("java.net");
-            add("org.joda.time");
-        }
-    };
-    private static final Collection<Class> COMMONS_COLLECTIONS_IMPLEMENTATIONS = new ArrayList<Class>() {
-        {
-            add(ArrayList.class);
-            add(TreeSet.class);
-            add(HashSet.class);
-            add(LinkedHashSet.class);
-            add(LinkedList.class);
-        }
-    };
-
-    private static final DataTypesConverter dataTypesConverter = new DataTypesConverter();
     private final ReflectionFactory reflectionFactory = ReflectionFactory.getReflectionFactory();
     private StringUtils stringUtils;
+    ;
 
-    @Autowired
-    public ReflectionUtils(StringUtils stringUtils) {
-        this.stringUtils = stringUtils;
+    private ReflectionUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
+    }
+
+    public static ReflectionUtils getInstance() {
+        return INSTANCE;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
+    }
+
+    public Object createCollectionObject(Class<?> clazz)
+            throws IllegalAccessException, InstantiationException {
+        Class generics = extractGenerics(clazz);
+        Object bean = generics.newInstance();
+
+        Object result;
+        if (Collection.class.isAssignableFrom(clazz)) {
+            Type genericSuperclass = clazz.getGenericSuperclass();
+            if (genericSuperclass == null) {
+                return new ArrayList();
+            } else {
+                result = ((ParameterizedType) genericSuperclass).getActualTypeArguments()[0];
+            }
+            try {
+                ((Collection) result).add(bean);
+            } catch (Exception ignored) {
+                try {
+                    return clazz.newInstance();
+                } catch (Throwable ignored_) {
+                    return new ArrayList();
+                }
+            }
+        } else
+            result = getObject_(clazz, bean, generics);
+        return result;
+    }
+
+    public Class extractGenerics(Class clazz) {
+        if (clazz == null) {
+            return null;
+        }
+        if (!isCollectionImplementation(clazz)) {
+            return clazz;
+        }
+        Class generics;
+        if (Collection.class.isAssignableFrom(clazz)) {
+            Type genericSuperclass = clazz.getGenericSuperclass();
+            if (genericSuperclass == null) {
+                generics = Object.class;
+            } else {
+                try {
+                    Object type = ((ParameterizedType) genericSuperclass).getActualTypeArguments()[0];
+                    generics = (Class) type;
+                } catch (ClassCastException ignored) {
+                    try {
+                        generics = (Class) clazz.getGenericInterfaces()[0];
+                    } catch (Throwable t) {
+                        generics = Object.class;
+                    }
+                }
+            }
+        } else
+            generics = getClass(clazz);
+
+        return generics;
+
+    }
+
+    private Object getObject_(Class<?> clazz, Object value, Class<?> generics) {
+        Object result = null;
+        if (Object[].class.isAssignableFrom(clazz) || clazz.isArray()) {
+            try {
+                result = ObjectArrays.newArray(generics, 0);
+                result = ObjectArrays.concat((Object[]) result, value);
+            } catch (Exception ignored) {
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid Type. Incoming type must be a collection implementation");
+        }
+        return result;
+    }
+
+    public boolean isCollectionImplementation(String className) {
+        Class collectionClass;
+        try {
+            String firstPartType = StringUtils.defaultIfBlank(returnNativeClass(className), className.split("<")[0]);
+            collectionClass = Class.forName(firstPartType);
+        } catch (ClassNotFoundException e) {
+            try {
+                collectionClass = Class.forName(className);
+            } catch (ClassNotFoundException ex) {
+                return false;
+            }
+        }
+        return isCollectionImplementation(collectionClass);
+    }
+
+    public boolean isCollectionImplementation(Class clazz) {
+        return clazz != null && (Collection.class.isAssignableFrom(clazz) || Object[].class.isAssignableFrom(clazz)
+                || clazz.isArray());
+    }
+
+    private Class getClass(Class clazz) {
+        Class generics = null;
+        if (Object[].class.isAssignableFrom(clazz)) {
+            try {
+                generics = Class.forName(clazz.toString().replaceFirst("class \\[L", StringUtils.EMPTY).replace(";",
+                        StringUtils.EMPTY));
+            } catch (ClassNotFoundException e) {
+                log.error(e.getMessage());
+            }
+
+        } else if (clazz.isArray()) {
+            try {
+                Method method = Class.class.getDeclaredMethod("getPrimitiveClass", String.class);
+                method.setAccessible(true);
+                generics = (Class) method.invoke(Class.forName("java.lang.Class"),
+                        clazz.getSimpleName().replace("[]", StringUtils.EMPTY));
+            } catch (InvocationTargetException | ClassNotFoundException | NoSuchMethodException |
+                    IllegalAccessException | NullPointerException ignored) {
+            }
+        }
+        return generics;
+    }
+
+    public Class extractGenerics(Field field) {
+        Class clazz;
+        final Type genericType = field.getGenericType();
+        Type[] typeArguments = null;
+        if (genericType instanceof Class) {
+            clazz = (Class) genericType;
+        } else {
+            clazz = getType(genericType);
+        }
+        if (clazz == null) {
+            clazz = field.getType();
+        }
+        return extractGenerics(clazz);
+    }
+
+    private Class getType(Type genericType) {
+        Type[] typeArguments = null;
+        Class clazz = null;
+        try {
+            Field rawTypeField = genericType.getClass().getDeclaredField("rawType");
+            rawTypeField.setAccessible(true);
+            Class clazz_ = (Class) rawTypeField.get(genericType);
+            typeArguments = ((ParameterizedType) genericType).getActualTypeArguments();
+            if (isMapImplementation(clazz_)) {
+                clazz = (Class) typeArguments[1];
+            } else {
+                clazz = (Class) typeArguments[0];
+            }
+        } catch (ClassCastException ignored) {
+            Type type = Objects.requireNonNull(typeArguments)[0];
+            try {
+                Field rawTypeField = type.getClass().getDeclaredField("rawType");
+                rawTypeField.setAccessible(true);
+                clazz = (Class) rawTypeField.get(type);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        } catch (NoSuchFieldException | NullPointerException | IndexOutOfBoundsException ignored) {
+            typeArguments = ((TypeVariable) genericType).getBounds();
+            clazz = (Class) typeArguments[0];
+        } catch (Throwable ignored) {
+
+        }
+        return clazz;
+    }
+
+    private boolean fieldIsNotContainedIn(Field field, Collection<String> excludeFields) {
+        return !fieldIsContainedIn(field, excludeFields);
+    }
+
+    private boolean fieldIsContainedIn(Field field, Collection<String> excludeFields) {
+        return IterableUtils.find(excludeFields, fieldName -> fieldNameEqualsToPredicate(field, fieldName)) != null;
+    }
+
+    private boolean fieldNameEqualsToPredicate(Field field, String fieldName) {
+        return !StringUtils.isBlank(fieldName) && field.getName().equals(fieldName);
+    }
+
+    private boolean fieldNameIsNotContainedIn(String fieldName, Collection<String> excludeFields) {
+        return !fieldNameIsContainedIn(fieldName, excludeFields);
+    }
+
+    private boolean fieldNameIsContainedIn(String fieldName, Collection<String> excludeFields) {
+        return excludeFields.contains(fieldName);
+    }
+
+    public Collection<String> getAllFieldNamesIncludingParents(Class clazz) {
+        return CollectionUtils.collect(getAllFieldsIncludingParents(clazz,
+                null,
+                Modifier.VOLATILE | Modifier.NATIVE | Modifier.TRANSIENT), FIELD_NAME_TRANSFORMER);
+    }
+
+    public Collection<Field> getAllFieldsIncludingParents(Class clazz,
+                                                          final Integer modifiersInclusion,
+                                                          final Integer modifiersExclusion) {
+        final Collection<Field> fields = new ArrayList<>();
+        FieldFilter fieldFilterModifierInclusion = field -> modifiersInclusion == null || (field.getModifiers() &
+                modifiersInclusion) != 0;
+        FieldFilter fieldFilterModifierExclusion = field -> modifiersExclusion == null || (field.getModifiers() &
+                modifiersExclusion) == 0;
+        doWithFields(clazz,
+                fields::add,
+                modifiersInclusion == null ? (modifiersExclusion == null ? null : fieldFilterModifierExclusion) :
+                        fieldFilterModifierInclusion);
+        return fields;
+    }
+
+    public Collection<String> getAllFieldsNamesOfType(Object object, final Class type) {
+        return getAllFieldsNamesOfType(object.getClass(), null, type);
+    }
+
+    public Collection<String> getAllFieldsNamesOfType(Class clazz,
+                                                      Collection<String> excludeFields,
+                                                      final Class type) {
+        return CollectionUtils.collect(getAllFieldsOfType(clazz, excludeFields, type), FIELD_NAME_TRANSFORMER);
+    }
+
+    public Collection<Field> getAllFieldsOfType(Class clazz,
+                                                Collection<String> excludeFields,
+                                                final Class type) {
+        final Collection<Field> result = new ArrayList();
+        if (clazz != null) {
+            IterableUtils.forEach(getAllFieldsIncludingParents(clazz, excludeFields), field -> {
+                if (field.getType().getName().equals(type.getName())) {
+                    result.add(field);
+                }
+            });
+        }
+        return result;
+    }
+
+    public Collection<Field> getAllFieldsIncludingParents(Class clazz, Collection<String> excludeFields) {
+        Collection<Field> result = getAllFieldsIncludingParents(clazz);
+        if (CollectionUtils.isEmpty(excludeFields)) {
+            return result;
+        }
+        CollectionUtils.filterInverse(result, field -> fieldIsContainedIn(field, excludeFields));
+        return result;
+    }
+
+    public Collection<Field> getAllFieldsIncludingParents(Class clazz) {
+        return getAllFieldsIncludingParents(clazz,
+                null,
+                Modifier.STATIC | Modifier.VOLATILE | Modifier.NATIVE | Modifier.TRANSIENT);
+    }
+
+    public String getExtractedGenerics(String s) {
+        String s1 = s.trim();
+        try {
+            String firstPartType = s1.split("<")[1];
+            if (firstPartType.endsWith(">")) {
+                return firstPartType.substring(0, firstPartType.length() - 1);
+            }
+        } catch (Throwable ignored) {
+        }
+        return s1;
+    }
+
+    /**
+     * @param object The object to obtain the class name
+     * @return The class name
+     * @deprecated
+     */
+    public String getSimpleClassName(Object object) {
+        return getSimpleClassName(object.getClass());
+    }
+
+    public String getSimpleClassName(Class clazz) {
+        String className = null;
+        if (clazz != null) {
+            className = clazz.getName();
+            try {
+                className = clazz.getName().substring(clazz.getName().lastIndexOf(".") + 1);
+                className = className.substring(className.lastIndexOf("$") + 1);
+                className = className.replaceAll(";", "[]");
+            } catch (Exception e) {
+                log.error("Impossible to get the simple name for the class: " + clazz.getName() + ". It'll be taken: " +
+                        "" + "" + className);
+            }
+        }
+        return className;
+    }
+
+    public boolean isList(String type) {
+        try {
+            boolean result = type.equals("List") || type.startsWith("List<") || type.startsWith("java.util.List<") || type.equals(
+                    "Collection") || type.startsWith("Collection<") || type.startsWith("java.util.Collection<");
+            if (!result) {
+                String firstPartType = StringUtils.defaultIfBlank(returnNativeClass(type), type.split("<")[0]);
+                result = Class.forName(firstPartType) != null;
+            }
+            return result;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    public Collection<Object> createAndInitializeTypedCollection(Class<?> typedClassForCollection, Object
+            value)
+            throws IllegalAccessException, InstantiationException {
+        Collection<Object> result = new ArrayList<>();
+        if (value == null) {
+            Object bean = typedClassForCollection.newInstance();
+            result.add(bean);
+        } else {
+            result.add(value);
+        }
+        return result;
+    }
+
+    public boolean isMapImplementation(Class clazz) {
+        return clazz != null && Map.class.isAssignableFrom(clazz);
+    }
+
+    public <E, F> F deepClone(E e) {
+        ByteArrayOutputStream bo = new ByteArrayOutputStream();
+        ObjectOutputStream oo;
+        try {
+            oo = new ObjectOutputStream(bo);
+            oo.writeObject(e);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        ByteArrayInputStream bi = new ByteArrayInputStream(bo.toByteArray());
+        ObjectInputStream oi;
+        try {
+            oi = new ObjectInputStream(bi);
+            return (F) (oi.readObject());
+        } catch (IOException | ClassNotFoundException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public CtMethod generateGetter(CtClass declaringClass, String fieldName, CtClass fieldClass)
+            throws CannotCompileException {
+
+        Class clazz = fieldClass.getClass();
+        String prefix = (clazz.getSimpleName().equals("Boolean") || clazz.getTypeName().equals("boolean")) ? "is" :
+                "get";
+        String getterName = prefix + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        String sb = "public " + fieldClass.getName() + " " + getterName + "(){" +
+                "return this." + fieldName + ";" + "}";
+        return CtMethod.make(sb, declaringClass);
+    }
+
+    public CtMethod generateSetter(CtClass declaringClass, String fieldName, CtClass fieldClass)
+            throws CannotCompileException {
+
+        String setterName = "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+        String sb = "public void " + setterName + "(" + fieldClass.getName() + " " +
+                fieldName + ")" + "{" + "this." + fieldName + "=" + fieldName +
+                ";" + "}";
+        return CtMethod.make(sb, declaringClass);
+    }
+
+    public String returnNativeClass(String type) {
+        Class clazz;
+        type = type.split("<")[0];
+        for (String javaTypePrefix : COMMONS_TYPES_PREFIXES) {
+            try {
+                clazz = Class.forName(type.contains(".") ? type : javaTypePrefix + "." + type);
+                return clazz.getName();
+            } catch (ClassNotFoundException ignored) {
+
+            }
+        }
+        return null;
+    }
+
+    public String getFullyQualifiedJavaTypeOrNull(String type, boolean considerLists) {
+        if (type == null) {
+            return null;
+        }
+        DataTypesConverter.DataTypeView dataTypeView = dataTypesConverter.getDataTypeView(type);
+        type = dataTypeView.getTransformedDataType();
+        String transformedType;
+        boolean complexType = DataTypesConverter.DataTypeView.COMPLEX_TYPE.equals(dataTypeView.getDataType());
+        if (complexType) {
+            transformedType = type;
+        } else {
+            transformedType = StringUtils.capitalize(type);
+        }
+        Class clazz;
+        if (considerLists) {
+            if (isList(type)) {
+                String generics = getExtractedGenerics(type);
+                final String javaType = getFullyQualifiedJavaTypeOrNull(generics, false);
+                if (StringUtils.isBlank(javaType)) {
+                    return null;
+                } else {
+                    return "java.util.List<" + javaType + ">";
+                }
+            }
+        }
+        if (!complexType) {
+            for (String javaTypePrefix : COMMONS_TYPES_PREFIXES) {
+                try {
+                    clazz = Class.forName(transformedType.contains(".") ? transformedType : javaTypePrefix + "." +
+                            transformedType);
+                    if (considerLists) {
+                        if (isList(type)) {
+                            return "java.util.List<" + clazz.getName() + ">";
+                        }
+                    }
+                    if (!COMMONS_JAVA_TYPES_EXCLUSIONS.contains(clazz.getName())) {
+                        return clazz.getName();
+                    }
+                } catch (ClassNotFoundException ignored) {
+
+                }
+            }
+        }
+        try {
+            Method method = Class.class.getDeclaredMethod("getPrimitiveClass", String.class);
+            method.setAccessible(true);
+            clazz = (Class) method.invoke(Class.forName("java.lang.Class"), StringUtils.uncapitalize(type));
+            if (considerLists) {
+                if (isList(type)) {
+                    return "java.util.List<" + clazz.getName() + ">";
+                }
+            }
+            return clazz.getName();
+        } catch (InvocationTargetException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | NullPointerException ignored) {
+        }
+        return null;
+    }
+
+    public String getSimpleJavaTypeOrNull(Class type) {
+        return getSimpleJavaTypeOrNull(type, true);
+    }
+
+    public String getSimpleJavaTypeOrNull(Class type, boolean considerLists) {
+        return getSimpleJavaTypeOrNull(type.getSimpleName(), considerLists);
+    }
+
+    public String getSimpleJavaTypeOrNull(String type) {
+        return getSimpleJavaTypeOrNull(type, true);
+    }
+
+    public String getSimpleJavaTypeOrNull(String type, boolean considerLists) {
+        String fullyQualifedJavaType = getFullyQualifiedJavaTypeOrNull(type, considerLists);
+        if (StringUtils.isNotBlank(fullyQualifedJavaType)) {
+            try {
+                return Class.forName(fullyQualifedJavaType).getSimpleName();
+            } catch (ClassNotFoundException ignored) {
+
+            }
+        }
+        return null;
     }
 
     /**
@@ -224,7 +703,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
 
         // 1. Lookup "$VALUES" holder in enum class and get previous enum instances
         Field valuesField = null;
-        Field[] fields = type.getClass().getDeclaredFields();
+        Field[] fields = type.getDeclaredFields();
         for (Field field : fields) {
             if (field.getName().equals("enumConstants")) {
                 valuesField = field;
@@ -255,7 +734,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             values.add(newValue);
 
             // 5. Set new values field
-            setFailsafeFieldValue(valuesField, type, values.toArray((T[]) Array.newInstance(type, 0)));
+            setFailsafeFieldValue(Objects.requireNonNull(valuesField), type, values.toArray((T[]) Array.newInstance(type, 0)));
 
             // 6. Clean enum cache
             //            cleanEnumCache(type);
@@ -361,7 +840,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return requestMap;
     }
 
-    @SuppressWarnings({"unchecked", "JavaReflectionMemberAccess"})
+    @SuppressWarnings({"unchecked"})
     public Object changeAnnotationValue(Annotation annotation, String key, Object newValue) {
         InvocationHandler handler = Proxy.getInvocationHandler(annotation);
         Field f;
@@ -399,7 +878,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return false;
     }
 
-    public boolean checkWhetherOrNotSuperclassesImplementsCriteria(final Class clazz, final Class interfaceCriteria) {
+    public boolean checkWhetherOrNotSuperclassesImplementsCriteria(final Class clazz,
+                                                                   final Class interfaceCriteria) {
         boolean result;
         if (clazz != null && clazz != Object.class) {
             Collection<Class> incomingInterfaces = Arrays.asList(clazz.getInterfaces());
@@ -444,37 +924,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return getObject(clazz, value, generics);
     }
 
-    public static Class extractGenerics(Class clazz) {
-        if (clazz == null) {
-            return null;
-        }
-        if (!isCollectionImplementation(clazz)) {
-            return clazz;
-        }
-        Class generics;
-        if (Collection.class.isAssignableFrom(clazz)) {
-            Type genericSuperclass = clazz.getGenericSuperclass();
-            if (genericSuperclass == null) {
-                generics = Object.class;
-            } else {
-                try {
-                    Object type = ((ParameterizedType) genericSuperclass).getActualTypeArguments()[0];
-                    generics = (Class) type;
-                } catch (ClassCastException ignored) {
-                    try {
-                        generics = (Class) clazz.getGenericInterfaces()[0];
-                    } catch (Throwable t) {
-                        generics = Object.class;
-                    }
-                }
-            }
-        } else
-            generics = getClass(clazz);
-
-        return generics;
-
-    }
-
     private Object getObject(Class<?> clazz, Object value, Class<?> generics) {
         Object result;
         if (Collection.class.isAssignableFrom(clazz)) {
@@ -486,48 +935,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             }
         } else
             result = getObject_(clazz, value, generics);
-        return result;
-    }
-
-    public static boolean isCollectionImplementation(Class clazz) {
-        return clazz != null && (Collection.class.isAssignableFrom(clazz) || Object[].class.isAssignableFrom(clazz)
-                || clazz.isArray());
-    }
-
-    private static Class getClass(Class clazz) {
-        Class generics = null;
-        if (Object[].class.isAssignableFrom(clazz)) {
-            try {
-                generics = Class.forName(clazz.toString().replaceFirst("class \\[L", StringUtils.EMPTY).replace(";",
-                        StringUtils.EMPTY));
-            } catch (ClassNotFoundException e) {
-                log.error(e.getMessage());
-            }
-
-        } else if (clazz.isArray()) {
-            try {
-                Method method = Class.class.getDeclaredMethod("getPrimitiveClass", String.class);
-                method.setAccessible(true);
-                generics = (Class) method.invoke(Class.forName("java.lang.Class"),
-                        clazz.getSimpleName().replace("[]", StringUtils.EMPTY));
-            } catch (InvocationTargetException | ClassNotFoundException | NoSuchMethodException |
-                    IllegalAccessException | NullPointerException ignored) {
-            }
-        }
-        return generics;
-    }
-
-    private static Object getObject_(Class<?> clazz, Object value, Class<?> generics) {
-        Object result = null;
-        if (Object[].class.isAssignableFrom(clazz) || clazz.isArray()) {
-            try {
-                result = ObjectArrays.newArray(generics, 0);
-                result = ObjectArrays.concat((Object[]) result, value);
-            } catch (Exception ignored) {
-            }
-        } else {
-            throw new IllegalArgumentException("Invalid Type. Incoming type must be a collection implementation");
-        }
         return result;
     }
 
@@ -544,18 +951,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return createAndInitializeTypedCollection(typedClassForCollection, null);
     }
 
-    public static Collection<Object> createAndInitializeTypedCollection(Class<?> typedClassForCollection, Object value)
-            throws IllegalAccessException, InstantiationException {
-        Collection<Object> result = new ArrayList<>();
-        if (value == null) {
-            Object bean = typedClassForCollection.newInstance();
-            result.add(bean);
-        } else {
-            result.add(value);
-        }
-        return result;
-    }
-
     public Collection<Object> createAndInitializeTypedCollection(Class<?> clazz, String methodName, Object value)
             throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
         Collection<Object> result = new ArrayList<>();
@@ -565,39 +960,12 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
-    public static Object createCollectionObject(Class<?> clazz)
-            throws IllegalAccessException, InstantiationException {
-        Class generics = extractGenerics(clazz);
-        Object bean = generics.newInstance();
-
-        Object result;
-        if (Collection.class.isAssignableFrom(clazz)) {
-            Type genericSuperclass = clazz.getGenericSuperclass();
-            if (genericSuperclass == null) {
-                return new ArrayList();
-            } else {
-                result = ((ParameterizedType) genericSuperclass).getActualTypeArguments()[0];
-            }
-            try {
-                ((Collection) result).add(bean);
-            } catch (Exception ignored) {
-                try {
-                    return clazz.newInstance();
-                } catch (Throwable ignored_) {
-                    return new ArrayList();
-                }
-            }
-        } else
-            result = getObject_(clazz, bean, generics);
-        return result;
-    }
-
-    public Object createObject(Class type)
+    public <T> T createObject(Class<T> type)
             throws InvocationTargetException {
         return createObject(type, true);
     }
 
-    public Object createObject(Class type, boolean privateConstructors)
+    public <T> T createObject(Class<T> type, boolean privateConstructors)
             throws InvocationTargetException {
         // Use no-arg constructor.
         Constructor constructor = null;
@@ -637,135 +1005,169 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                     "Unable to find a no-arg constructor for class: " + type.getName());
 
         try {
-            return constructor.newInstance();
+            return (T) constructor.newInstance();
         } catch (Exception ex) {
             throw new InvocationTargetException(ex, "Error constructing instance of class: " + type.getName());
         }
     }
 
     /**
-     * This method makes a "deep clone" of any Java object it is given.
+     * Perform a deep initialization of the given object. That action includes initializing all its fields, according to the 'includeParent' indicator.
      *
-     * @param object The object to be cloned
-     * @return A new fresh object cloned from the incoming one
+     * @param object        The object to initialize
+     * @param includeParent Indicates whether or not include the parent's fields
+     * @throws IllegalArgumentException If is not possible to initialize provided object.
+     * @throws IllegalAccessException   If is not possible to initialize provided object.
+     * @deprecated Use <code>com.araguacaima.commons.utils.ReflectionUtils#deepInitialization(java.lang.Class)</code> instead
      */
-    public Object deepClone(Object object) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(object);
-            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-            ObjectInputStream ois = new ObjectInputStream(bais);
-            return ois.readObject();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return null;
-        }
-    }
-
+    @Deprecated()
     public void deepInitialization(Object object, boolean includeParent)
             throws IllegalArgumentException, IllegalAccessException {
-        deepInitialization(object, null, includeParent, true);
+        deepInitialization(object, null, includeParent);
     }
 
+    /**
+     * Perform a deep initialization of the given object including all its parent's fields.
+     *
+     * @param object The object to initialize
+     * @throws IllegalArgumentException If is not possible to initialize provided object.
+     * @throws IllegalAccessException   If is not possible to initialize provided object.
+     * @deprecated Use <code>com.araguacaima.commons.utils.ReflectionUtils#deepInitialization(java.lang.Class)</code> instead
+     */
+    @Deprecated()
     public void deepInitialization(Object object)
             throws IllegalArgumentException, IllegalAccessException {
-        deepInitialization(object, null, true, true);
+        deepInitialization(object, null, true);
     }
 
+    /**
+     * Perform a deep initialization of the given object. That action includes initializing all its fields, according to the 'includeParent' indicator inside the provided set of 'packages'.
+     *
+     * @param object   The object to initialize
+     * @param packages Set of packages to searching for.
+     * @throws IllegalArgumentException If is not possible to initialize provided object.
+     * @throws IllegalAccessException   If is not possible to initialize provided object.
+     * @deprecated Use <code>com.araguacaima.commons.utils.ReflectionUtils#deepInitialization(java.lang.Class)</code> instead
+     */
+    @Deprecated()
     public void deepInitialization(Object object, Set<String> packages)
             throws IllegalArgumentException, IllegalAccessException {
-        deepInitialization(object, packages, true, true);
+        deepInitialization(object, packages, true);
     }
 
-    public void deepInitialization(Object object, Set<String> packages, boolean includeParent, boolean verbose)
+    /**
+     * Perform a deep initialization of the given class according to the default random builder configuration.
+     *
+     * @param clazz The class to initialize
+     * @param <T>   This is the type parameter
+     * @return A new instance of the given class full initialized.
+     * @see io.github.benas.randombeans.EnhancedRandomBuilder
+     */
+    public <T> T deepInitialization(Class<T> clazz) {
+        return deepInitialization(clazz, randomBuilder);
+    }
+
+    /**
+     * Perform a deep initialization of the given class according to the provided random builder configuration.
+     *
+     * @param clazz         The class to initialize
+     * @param randomBuilder The random builder configuration.
+     * @param <T>           This is the type parameter
+     * @return A new instance of the given class full initialized.
+     * @see io.github.benas.randombeans.EnhancedRandomBuilder
+     */
+    public <T> T deepInitialization(Class<T> clazz, EnhancedRandomBuilder randomBuilder) {
+        EnhancedRandom random = randomBuilder.build();
+        return random.nextObject(clazz);
+    }
+
+    /**
+     * Perform a deep initialization of the given object. That action includes initializing all its fields, according to the 'includeParent' indicator.
+     *
+     * @param object        The object to initialize
+     * @param packages      Set of packages to searching for.
+     * @param includeParent Indicates whether or not include the parent's fields.
+     * @throws IllegalArgumentException If is not possible to initialize provided object.
+     * @throws IllegalAccessException   If is not possible to initialize provided object.
+     * @deprecated Use <code>com.araguacaima.commons.utils.ReflectionUtils#deepInitialization(java.lang.Class)</code> instead
+     */
+    @Deprecated()
+    public void deepInitialization(Object object, Set<String> packages, boolean includeParent)
             throws IllegalArgumentException, IllegalAccessException {
 
         Field[] fields;
 
         if (includeParent) {
             Collection<Field> fields_ = getAllFieldsIncludingParents(object);
-            fields = fields_.toArray(new Field[fields_.size()]);
+            fields = fields_.toArray(new Field[0]);
         } else {
             fields = object.getClass().getDeclaredFields();
         }
-        if (fields != null) {
-            for (Field field : fields) {
-                String fieldName = field.getName();
-                Class<?> fieldClass = field.getType();
+        for (Field field : fields) {
+            String fieldName = field.getName();
+            Class<?> fieldClass = field.getType();
+            // skip primitives
+            if (fieldClass.isEnum() || fieldClass.isAssignableFrom(Enum.class) || fieldClass.isPrimitive() || (!isCollectionImplementation(fieldClass) && StringUtils.isNotBlank(getSimpleJavaTypeOrNull
+                    (fieldClass.getSimpleName(),
+                            false)))) {
+                continue;
+            }
+            // allow access to private fields
+            boolean isAccessible = field.isAccessible();
+            Object fieldValue;
+            Object value = null;
 
-                // skip primitives
-                if (!isCollectionImplementation(fieldClass) && StringUtils.isNotBlank(getSimpleJavaTypeOrNull
-                        (fieldClass.getSimpleName(),
-                        false))) {
+            // skip if not in packages
+            boolean inPackage = packages == null || packages.size() == 0;
+            if (!inPackage) {
+                for (String pack : packages) {
+                    if (fieldClass.getPackage().getName().startsWith(pack)) {
+                        inPackage = true;
+                        break;
+                    }
+                }
+                if (!inPackage) {
                     continue;
                 }
-
-                // allow access to private fields
-                boolean isAccessible = field.isAccessible();
-                Object fieldValue;
-                Object value = null;
-
-                // skip if not in packages
-                boolean inPackage = packages == null || packages.size() == 0;
-                if (!inPackage) {
-                    for (String pack : packages) {
-                        if (fieldClass.getPackage().getName().startsWith(pack)) {
-                            inPackage = true;
-                            break;
-                        }
-                    }
-                    if (!inPackage) {
-                        continue;
-                    }
-                }
-                field.setAccessible(true);
-
-                fieldValue = field.get(object);
-                if (fieldValue == null) {
-                    try {
-
-                        if (Collection.class.isAssignableFrom(fieldClass)) {
-                            //TODO Mejor esfuerzo para intentar inizilizar el collection con los tipos más comunes de
-                            // implementaciones de la interfaz Collection
-                            boolean found = false;
-                            for (Class clazz : COMMONS_COLLECTIONS_IMPLEMENTATIONS) {
-                                try {
-                                    value = clazz.newInstance();
-                                    field.set(object, value);
-                                    found = true;
-                                    break;
-                                } catch (Throwable ignored) {
-                                }
-                            }
-                            if (found) {
-                                continue;
-                            }
-                        } else if (Object[].class.isAssignableFrom(fieldClass)) {
-                            value = Object[].class.newInstance();
-                        } else if (fieldClass.isArray()) {
-                            value = Array.newInstance(int.class, 1);
-                        } else {
-                            value = fieldClass.newInstance();
-                        }
-                        //            child = value;
-                        field.set(object, value);
-                    } catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
-
-                        log.error("Could not initialize " + fieldClass.getSimpleName() + ", Maybe it's an " +
-                                "interface, abstract class, or it hasn't an empty Constructor");
-                        continue;
-                    }
-                }
-
-                fieldValue = field.get(object);
-
-                // reset accessible
-                field.setAccessible(isAccessible);
-
-                // recursive call for sub-objects
-                deepInitialization(fieldValue, packages, false, verbose);
             }
+            field.setAccessible(true);
+            fieldValue = field.get(object);
+
+            if (fieldValue != null) {
+                try {
+                    if (isCollectionImplementation(fieldClass)) {
+                        deepInitialization(fieldValue, packages, false);
+                        value = createAndInitializeTypedCollection(fieldClass, fieldValue);
+                    } else if (isMapImplementation(fieldClass)) {
+                        deepInitialization(fieldValue, packages, false);
+                        value = new TreeMap();
+                        ((Map) value).putAll((Map) fieldValue);
+                    } else {
+                        value = fieldValue;
+                    }
+                } catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
+                    log.error("Could not initialize " + fieldClass.getSimpleName() + ", Maybe it's an " +
+                            "interface, abstract class, or it hasn't an empty Constructor");
+                    continue;
+                }
+                field.set(object, value);
+            } else {
+                try {
+                    value = fieldClass.newInstance();
+                    field.set(object, value);
+                    continue;
+                } catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
+                    log.error("Could not initialize " + fieldClass.getSimpleName() + ", Maybe it's an " +
+                            "interface, abstract class, or it hasn't an empty Constructor");
+                    continue;
+                }
+            }
+
+            // reset accessible
+            field.setAccessible(isAccessible);
+
+            // recursive call for sub-objects
+            deepInitialization(fieldValue, packages, false);
         }
     }
 
@@ -781,8 +1183,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                 Class returnedType = getterMethod.getReturnType();
                 final Predicate<Method> methodPredicate = method -> method.getName().equals(getterMethod.getName()
                         .replaceFirst(
-                        "get",
-                        "set"));
+                                "get",
+                                "set"));
                 Method setterMethod = IterableUtils.find(declaredSetterMethods, methodPredicate);
                 if (setterMethod != null) {
                     if (returnedType.equals(String.class)) {
@@ -832,28 +1234,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return IterableUtils.find(PRIMITIVE_TYPES, o -> ((Class) o).getName().equals(clazz.getName())) != null;
     }
 
-    @SuppressWarnings("JavaReflectionMemberAccess")
-    public static Class extractGenerics(Field field) {
-        Class clazz = null;
-        try {
-            clazz = (Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-        } catch (ClassCastException ignored) {
-            Type type = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-            try {
-                Field rawTypeField = type.getClass().getDeclaredField("rawType");
-                rawTypeField.setAccessible(true);
-                clazz = (Class) rawTypeField.get(type);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                log.error(e.getMessage());
-            }
-        } catch (Throwable ignored) {
-        }
-        if (clazz == null) {
-            clazz = field.getType();
-        }
-        return extractGenerics(clazz);
-    }
-
     public Class extractGenericsKeyValue(Field field, boolean extractKey) {
         Class clazz = null;
         if (Map.class.isAssignableFrom(field.getType())) {
@@ -900,26 +1280,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return generics;
     }
 
-    private static boolean fieldIsNotContainedIn(Field field, Collection<String> excludeFields) {
-        return !fieldIsContainedIn(field, excludeFields);
-    }
-
-    private static boolean fieldIsContainedIn(Field field, Collection<String> excludeFields) {
-        return IterableUtils.find(excludeFields, fieldName -> fieldNameEqualsToPredicate(field, fieldName)) != null;
-    }
-
-    private static boolean fieldNameEqualsToPredicate(Field field, String fieldName) {
-        return !StringUtils.isBlank(fieldName) && field.getName().equals(fieldName);
-    }
-
-    private static boolean fieldNameIsNotContainedIn(String fieldName, Collection<String> excludeFields) {
-        return !fieldNameIsContainedIn(fieldName, excludeFields);
-    }
-
-    private static boolean fieldNameIsContainedIn(String fieldName, Collection<String> excludeFields) {
-        return excludeFields.contains(fieldName);
-    }
-
     public void fillObjectWithMap(Object object, Map arg) {
         String key;
         String value;
@@ -934,7 +1294,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
      * @param object    The object for simple setter invokation
      * @param fieldName The field on which the simple setter will be performed
      * @param value     The value to be assigned as parameter to the setter method
-     * @noinspection UnusedAssignment
      */
     public void invokeSimpleSetter(Object object, final String fieldName, final Object value) {
         Method method = IterableUtils.find(getDeclaredSetterMethods(object.getClass()), innerMethod -> {
@@ -1020,7 +1379,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                         }
                         Collection<Method> getterMethods = considerHierarchy ? getGetterMethods(clazz) :
                                 getDeclaredGetterMethods(
-                                clazz);
+                                        clazz);
                         for (final Method method : getterMethods) {
                             final String fieldName = (String) IterableUtils.find(fieldNames,
                                     o -> ((String) o).equalsIgnoreCase(method.getName().replaceFirst("get",
@@ -1041,20 +1400,19 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                                         value = ((Object[]) object)[i];
                                         objectValuesFormatted.append(indentation).append("[").append(i).append("]")
                                                 .append(
-                                                StringUtils.BLANK_SPACE).append("(").append(getSimpleClassName(value
+                                                        StringUtils.BLANK_SPACE).append("(").append(getSimpleClassName(value
                                                 .getClass())).append(
                                                 ")").append(StringUtils.BLANK_SPACE).append(StringUtils.EQUAL_SYMBOL)
                                                 .append(
-                                                StringUtils.BLANK_SPACE).append(StringUtils.isNotBlank(indentation)
+                                                        StringUtils.BLANK_SPACE).append(StringUtils.isNotBlank(indentation)
                                                 && !isBasic(
-                                                value.getClass()) ? ((new StringBuffer()).append(StringUtils
-                                                .NEW_LINE)).toString() : StringUtils.EMPTY).append(
+                                                value.getClass()) ? String.valueOf(StringUtils
+                                                .NEW_LINE) : StringUtils.EMPTY).append(
                                                 formatObjectValues(value,
                                                         false,
                                                         false,
-                                                        !isBasic(value.getClass()) ? ((new StringBuffer()).append(
-                                                                indentation).append(StringUtils.TAB).append
-                                                                (StringUtils.TAB)).toString() : StringUtils.EMPTY,
+                                                        !isBasic(value.getClass()) ? indentation + StringUtils.TAB +
+                                                                StringUtils.TAB : StringUtils.EMPTY,
                                                         false)).append(StringUtils.NEW_LINE);
                                     } catch (Exception e) {
                                         objectValuesFormatted.append("[").append(i).append("]").append(StringUtils
@@ -1071,22 +1429,20 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                                         objectValuesFormatted.append(fieldName).append(StringUtils.BLANK_SPACE).append(
                                                 "(").append(getSimpleClassName(value.getClass())).append(")").append(
                                                 StringUtils.BLANK_SPACE).append(StringUtils.EQUAL_SYMBOL).append(
-                                                StringUtils.BLANK_SPACE).append(!isBasic(value.getClass()) ? ((new
-                                                StringBuffer()).append(
-                                                StringUtils.NEW_LINE)).toString() : StringUtils.EMPTY).append(value
+                                                StringUtils.BLANK_SPACE).append(!isBasic(value.getClass()) ? String.valueOf(StringUtils.NEW_LINE) : StringUtils.EMPTY).append(value
                                                 != object ? formatObjectValues(
                                                 value,
                                                 false,
                                                 false,
-                                                !isBasic(value.getClass()) ? ((new StringBuffer()).append(StringUtils
-                                                        .TAB).append(
-                                                        StringUtils.TAB)).toString() : StringUtils.EMPTY,
+                                                !isBasic(value.getClass()) ? String.valueOf(StringUtils
+                                                        .TAB) +
+                                                        StringUtils.TAB : StringUtils.EMPTY,
                                                 false) : toString(object)).append(StringUtils.NEW_LINE);
                                     } catch (IllegalAccessException | InvocationTargetException e) {
                                         Object valueOfField = UNKNOWN_VALUE;
                                         Field field;
                                         try {
-                                            field = getFieldByFieldName(object, fieldName);
+                                            field = getField(object, fieldName);
                                             field.setAccessible(true);
                                             valueOfField = field.get(object);
                                         } catch (IllegalAccessException e1) {
@@ -1096,13 +1452,13 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                                         }
                                         objectValuesFormatted.append(getSimpleClassName(valueOfField.getClass()))
                                                 .append(
-                                                ")").append(StringUtils.BLANK_SPACE).append(StringUtils.EQUAL_SYMBOL)
+                                                        ")").append(StringUtils.BLANK_SPACE).append(StringUtils.EQUAL_SYMBOL)
                                                 .append(
-                                                StringUtils.BLANK_SPACE).append(valueOfField).append(StringUtils
+                                                        StringUtils.BLANK_SPACE).append(valueOfField).append(StringUtils
                                                 .NEW_LINE);
                                     } catch (NullPointerException e) {
                                         Object valueOfField = UNKNOWN_VALUE;
-                                        Field field = getFieldByFieldName(object, fieldName);
+                                        Field field = getField(object, fieldName);
                                         objectValuesFormatted.append(field == null ? getSimpleClassName(method
                                                 .getReturnType()) : getSimpleClassName(
                                                 field.getType())).append(")").append(StringUtils.BLANK_SPACE).append(
@@ -1113,7 +1469,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                                         Object valueOfField = UNKNOWN_VALUE;
                                         Field field;
                                         try {
-                                            field = getFieldByFieldName(object, fieldName);
+                                            field = getField(object, fieldName);
 
                                             if (field != null) {
                                                 field.setAccessible(true);
@@ -1128,7 +1484,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                                                 .getReturnType()) : getSimpleClassName(
                                                 valueOfField.getClass())).append(")").append(StringUtils.BLANK_SPACE)
                                                 .append(
-                                                StringUtils.EQUAL_SYMBOL).append(StringUtils.BLANK_SPACE).append(
+                                                        StringUtils.EQUAL_SYMBOL).append(StringUtils.BLANK_SPACE).append(
                                                 valueOfField).append(StringUtils.NEW_LINE);
                                     }
                                 }
@@ -1172,68 +1528,12 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return collection;
     }
 
-    public static Collection<String> getAllFieldNamesIncludingParents(Class clazz) {
-        return CollectionUtils.collect(getAllFieldsIncludingParents(clazz,
-                null,
-                Modifier.VOLATILE | Modifier.NATIVE | Modifier.TRANSIENT), FIELD_NAME_TRANSFORMER);
-    }
-
-    public static Collection<Field> getAllFieldsIncludingParents(Class clazz,
-                                                          final Integer modifiersInclusion,
-                                                          final Integer modifiersExclusion) {
-        final Collection<Field> fields = new ArrayList<>();
-        FieldFilter fieldFilterModifierInclusion = field -> modifiersInclusion == null || (field.getModifiers() &
-                modifiersInclusion) != 0;
-        FieldFilter fieldFilterModifierExclusion = field -> modifiersExclusion == null || (field.getModifiers() &
-                modifiersExclusion) == 0;
-        doWithFields(clazz,
-                fields::add,
-                modifiersInclusion == null ? (modifiersExclusion == null ? null : fieldFilterModifierExclusion) :
-                        fieldFilterModifierInclusion);
-        return fields;
-    }
-
     public Collection<Field> getAllFieldsIncludingParents(Object object) {
         return getAllFieldsIncludingParents(object.getClass());
     }
 
     public Collection<String> getAllFieldsNamesOfType(Class clazz, final Class type) {
         return getAllFieldsNamesOfType(clazz, null, type);
-    }
-
-    public static Collection<String> getAllFieldsNamesOfType(Class clazz, Collection<String> excludeFields, final Class type) {
-        return CollectionUtils.collect(getAllFieldsOfType(clazz, excludeFields, type), FIELD_NAME_TRANSFORMER);
-    }
-
-    public static Collection<Field> getAllFieldsOfType(Class clazz, Collection<String> excludeFields, final Class type) {
-        final Collection<Field> result = new ArrayList();
-        if (clazz != null) {
-            IterableUtils.forEach(getAllFieldsIncludingParents(clazz, excludeFields), field -> {
-                if (field.getType().getName().equals(type.getName())) {
-                    result.add(field);
-                }
-            });
-        }
-        return result;
-    }
-
-    public static Collection<Field> getAllFieldsIncludingParents(Class clazz, Collection<String> excludeFields) {
-        Collection<Field> result = getAllFieldsIncludingParents(clazz);
-        if (CollectionUtils.isEmpty(excludeFields)) {
-            return result;
-        }
-        CollectionUtils.filterInverse(result, field -> fieldIsContainedIn(field, excludeFields));
-        return result;
-    }
-
-    public static Collection<Field> getAllFieldsIncludingParents(Class clazz) {
-        return getAllFieldsIncludingParents(clazz,
-                null,
-                Modifier.STATIC | Modifier.VOLATILE | Modifier.NATIVE | Modifier.TRANSIENT);
-    }
-
-    public static Collection<String> getAllFieldsNamesOfType(Object object, final Class type) {
-        return getAllFieldsNamesOfType(object.getClass(), null, type);
     }
 
     public Collection<Field> getAllFieldsOfType(Object object, final Class type) {
@@ -1300,7 +1600,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
-    public Collection<Method> getAllMethodsOfType(Class clazz, Collection<String> excludeMethods, final Class type) {
+    public Collection<Method> getAllMethodsOfType(Class clazz, Collection<String> excludeMethods,
+                                                  final Class type) {
         final Collection<Method> result = new ArrayList();
         if (clazz != null) {
             IterableUtils.forEach(getAllMethodsIncludingParents(clazz, excludeMethods), method -> {
@@ -1333,7 +1634,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return CollectionUtils.collect(getAllMethodsOfType(object, excludeMethods, type), METHOD_NAME_TRANSFORMER);
     }
 
-    public Collection<Method> getAllMethodsOfType(Object object, Collection<String> excludeFields, final Class type) {
+    public Collection<Method> getAllMethodsOfType(Object object, Collection<String> excludeFields,
+                                                  final Class type) {
         Collection<Method> result = new ArrayList();
 
         if (object != null) {
@@ -1355,15 +1657,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         CollectionUtils.filterInverse(result, excludeMethods::contains);
         Collections.sort((List) result);
         return result;
-    }
-
-    public static String getExtractedGenerics(String s) {
-        String s1 = s.trim();
-        try {
-            s1 = s1.split("List<")[1].replaceAll(">", StringUtils.EMPTY);
-        } catch (Throwable ignored) {
-        }
-        return s1;
     }
 
     public Field getField(Class clazz, String fieldName) {
@@ -1410,11 +1703,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     }
 
     public Collection<Field> getDeclaredFields(Object object) {
-        return getDeclaredFields(object.getClass());
-    }
-
-    public Collection<Field> getDeclaredFields(Class clazz) {
-        return Arrays.asList(clazz.getDeclaredFields());
+        Field[] declaredFields = getDeclaredFields(object.getClass());
+        return Arrays.asList(declaredFields);
     }
 
     public Map getFieldValueMap(Object object) {
@@ -1450,7 +1740,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         } catch (IllegalAccessException | InvocationTargetException e) {
             log.error("Impossible to invoke method: " + "get" + fieldName + " because of an " + e.getClass().getName());
             try {
-                Field field = getFieldByFieldName(object, fieldName);
+                Field field = getField(object, fieldName);
                 field.setAccessible(true);
                 value = field.get(object);
             } catch (IllegalAccessException e1) {
@@ -1461,7 +1751,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             log.error("Impossible to invoke method: " + "get" + fieldName + " because of an NullPointerException, " +
                     "may be the incoming field :" + fieldName + " have not a getter");
             try {
-                Field field = getFieldByFieldName(object, fieldName);
+                Field field = getField(object, fieldName);
                 if (field != null) {
                     field.setAccessible(true);
                     value = field.get(object);
@@ -1474,83 +1764,12 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return value;
     }
 
-    public static String getSimpleClassName(Class clazz) {
-        String className = null;
-        if (clazz != null) {
-            className = clazz.getName();
-            try {
-                className = clazz.getName().substring(clazz.getName().lastIndexOf(".") + 1);
-                className = className.substring(className.lastIndexOf("$") + 1);
-                className = className.replaceAll(";", "[]");
-            } catch (Exception e) {
-                log.error("Impossible to get the simple name for the class: " + clazz.getName() + ". It'll be taken: " +
-                        className);
-            }
-        }
-        return className;
-    }
-
     public Collection<Method> getGetterMethods(Class clazz) {
         return CollectionUtils.select(getAllMethodsIncludingParents(clazz), METHOD_IS_GETTER_PREDICATE);
     }
 
-    public Field getFieldByFieldName(Object object, final String fieldName) {
-        return getFieldByFieldName(object.getClass(), fieldName);
-    }
-
-    public Field getFieldByFieldName(Class clazz, final String fieldName) {
-        return IterableUtils.find(getAllFieldsIncludingParents(clazz),
-                field -> fieldNameEqualsToPredicate(field, fieldName));
-    }
-
-    public static String getFullyQualifiedJavaTypeOrNull(String type, boolean considerLists) {
-        if (type == null) {
-            return null;
-        }
-        type = dataTypesConverter.getDataTypeView(type).getTransformedDataType();
-        String capitalizedType = StringUtils.capitalize(type);
-        Class clazz;
-        if (considerLists) {
-            if (isList(type)) {
-                String generics = getExtractedGenerics(type);
-                final String javaType = getFullyQualifiedJavaTypeOrNull(generics, false);
-                if (StringUtils.isBlank(javaType)) {
-                    return null;
-                } else {
-                    return "java.util.List<" + javaType + ">";
-                }
-            }
-        }
-        for (String javaTypePrefix : COMMONS_TYPES_PREFIXES) {
-            try {
-                clazz = Class.forName(capitalizedType.contains(".") ? capitalizedType : javaTypePrefix + "." +
-                        capitalizedType);
-                if (considerLists) {
-                    if (isList(type)) {
-                        return "java.util.List<" + clazz.getName() + ">";
-                    }
-                }
-                if (!COMMONS_JAVA_TYPES_EXCLUSIONS.contains(clazz.getName())) {
-                    return clazz.getName();
-                }
-            } catch (ClassNotFoundException ignored) {
-
-            }
-        }
-        try {
-            Method method = Class.class.getDeclaredMethod("getPrimitiveClass", String.class);
-            method.setAccessible(true);
-            clazz = (Class) method.invoke(Class.forName("java.lang.Class"), StringUtils.uncapitalize(type));
-            if (considerLists) {
-                if (isList(type)) {
-                    return "java.util.List<" + clazz.getName() + ">";
-                }
-            }
-            return clazz.getName();
-        } catch (InvocationTargetException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | NullPointerException ignored) {
-        }
-        return null;
+    public Field getField(Object object, final String fieldName) {
+        return getField(object.getClass(), fieldName);
     }
 
     public String getFullyQualifiedJavaTypeOrNull(Object object) {
@@ -1558,7 +1777,7 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     }
 
     public String getFullyQualifiedJavaTypeOrNull(Class clazz) {
-        return getFullyQualifiedJavaTypeOrNull(clazz.getSimpleName(), true);
+        return getFullyQualifiedJavaTypeOrNull(clazz.getName(), true);
     }
 
     public Collection<Method> getGetterMethodsForField(Class clazz, final String fieldName) {
@@ -1582,39 +1801,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
 
     public Collection<Method> getSetterMethods(Class clazz) {
         return CollectionUtils.select(getAllMethodsIncludingParents(clazz), METHOD_IS_SETTER_PREDICATE);
-    }
-
-    /**
-     * @param object The object to obtain the class name
-     * @return The class name
-     * @deprecated
-     */
-    public static String getSimpleClassName(Object object) {
-        return getSimpleClassName(object.getClass());
-    }
-
-    public static String getSimpleJavaTypeOrNull(Class type) {
-        return getSimpleJavaTypeOrNull(type, true);
-    }
-
-    public static String getSimpleJavaTypeOrNull(Class type, boolean considerLists) {
-        return getSimpleJavaTypeOrNull(type.getSimpleName(), considerLists);
-    }
-
-    public static String getSimpleJavaTypeOrNull(String type) {
-        return getSimpleJavaTypeOrNull(type, true);
-    }
-
-    public static String getSimpleJavaTypeOrNull(String type, boolean considerLists) {
-        String fullyQualifedJavaType = getFullyQualifiedJavaTypeOrNull(type, considerLists);
-        if (StringUtils.isNotBlank(fullyQualifedJavaType)) {
-            try {
-                return Class.forName(fullyQualifedJavaType).getSimpleName();
-            } catch (ClassNotFoundException ignored) {
-
-            }
-        }
-        return null;
     }
 
     public Object getValueFromCollectionImplementation(Object value) {
@@ -1655,19 +1841,38 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             throws Exception {
 
         Object result;
-        final Collection<Object> objectClasses = new ArrayList(Arrays.asList(args));
+        final List<Object> objectClasses = new ArrayList(Arrays.asList(args));
         CollectionUtils.transform(objectClasses, CLASS_FROM_OBJECT_TRANSFORMER);
-        Collection<Method> methods = CollectionUtils.select(getAllMethodsIncludingParents(object.getClass()), method -> methodNameEqualsToPredicate(method, methodName));
+        Collection<Method> methods = CollectionUtils.select(getAllMethodsIncludingParents(object.getClass()),
+                method -> methodNameEqualsToPredicate(method, methodName));
 
         Method method = IterableUtils.find(methods, (Predicate) o -> {
             Method innerMethod = (Method) o;
-
-            final Collection<Class> parameterClasses = Arrays.asList(innerMethod.getParameterTypes());
-            CollectionUtils.transform(parameterClasses, (Transformer) o1 -> getClassFromPrimitive((Class) o1));
-
-            return (innerMethod.getName().toUpperCase().equals((methodName).toUpperCase())) & (Arrays.equals(
-                    parameterClasses.toArray(),
-                    objectClasses.toArray()));
+            final List<Class> parameterClasses = Arrays.asList(innerMethod.getParameterTypes());
+            int size = objectClasses.size();
+            if (size == parameterClasses.size()) {
+                CollectionUtils.transform(parameterClasses, (Transformer) o1 -> getClassFromPrimitive((Class) o1));
+                boolean isAssignableFrom = true;
+                for (int i = 0; i < size; i++) {
+                    Object objectClass = objectClasses.get(i);
+                    Class aClass = parameterClasses.get(i);
+                    try {
+                        Class<?> cls = objectClass.getClass();
+                        if (Class.class.equals(cls)) {
+                            isAssignableFrom = isAssignableFrom && aClass.isAssignableFrom((Class) objectClass);
+                        } else {
+                            isAssignableFrom = isAssignableFrom && aClass.isAssignableFrom(cls);
+                        }
+                    } catch (Throwable ignored) {
+                        isAssignableFrom = false;
+                    }
+                }
+                String s = innerMethod.getName().toUpperCase();
+                String s1 = (methodName).toUpperCase();
+                return (s.equals(s1)) && isAssignableFrom;
+            } else {
+                return false;
+            }
         });
 
         try {
@@ -1740,16 +1945,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return clazz.getName().equalsIgnoreCase("Boolean") || clazz.getName().equalsIgnoreCase("java.lang.Boolean");
     }
 
-    public boolean isCollectionImplementation(String fullyQulifiedClassName) {
-        try {
-            Class clazz = Class.forName(fullyQulifiedClassName);
-            return isCollectionImplementation(clazz);
-        } catch (Throwable ignored) {
-        }
-        return false;
-
-    }
-
     public boolean isDouble(Class clazz) {
         return clazz.getName().equalsIgnoreCase("Double") || clazz.getName().equalsIgnoreCase("java.lang.Double");
     }
@@ -1762,15 +1957,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return clazz.getName().equalsIgnoreCase("Integer") || clazz.getName().equalsIgnoreCase("java.lang.Integer");
     }
 
-    public static boolean isList(String type) {
-        try {
-            return type.equals("List") || type.startsWith("List<") || type.startsWith("java.util.List<") || type.equals(
-                    "Collection") || type.startsWith("Collection<") || type.startsWith("java.util.Collection<");
-        } catch (Throwable ignored) {
-            return false;
-        }
-    }
-
     public boolean isNullOrEmpty(Object object) {
         //TODO AMM 30072010: Este metodo explota para todos los tipos Map o Collection. Quizas sea bueno preguntar si
         // el la clase al que pertenece el objeto es una instancia de Collection o Map e invocar el método "isEmpty"
@@ -1778,7 +1964,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         if (object != null) {
             Class clazz = object.getClass();
             if (isPrimitive(clazz)) {
-                result = false;
             } else if (isString(clazz)) {
                 result = StringUtils.isNotBlank((String) object);
             } else if (object instanceof Collection || object instanceof Map) {
@@ -1798,7 +1983,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T mergeObjects(T origin, T target)
             throws IllegalAccessException, InstantiationException {
         return mergeObjects(origin, target, false, false);
@@ -1842,10 +2026,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         return (T) returnValue;
     }
 
-    public boolean isMapImplementation(Class clazz) {
-        return clazz != null && Map.class.isAssignableFrom(clazz);
-    }
-
     private boolean methodIsNotContainedIn(Method method, Collection<String> excludeMethods) {
         return !methodIsContainedIn(method, excludeMethods);
     }
@@ -1855,13 +2035,17 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
                 methodName -> methodNameEqualsToPredicate(method, methodName)) != null;
     }
 
+/*    public String toString(Object object) {
+        return formatObjectValues(object, true, true, StringUtils.EMPTY, false);
+    }*/
+
     private boolean methodNameIsNotContainedIn(String methodName, Collection<String> excludeMethods) {
         return !methodNameIsContainedIn(methodName, excludeMethods);
     }
 
     public LinkedList<Class> recursivelyGetAllInterfaces(Class clazz) {
-        if (clazz == null || Object.class.getName().equals(clazz.getClass().getName()) || isCollectionImplementation(
-                clazz) || isMapImplementation(clazz) || getFullyQualifiedJavaTypeOrNull(clazz.getSimpleName(),
+        if (clazz == null || Object.class.getName().equals(clazz.getName()) || isCollectionImplementation(
+                clazz) || isMapImplementation(clazz) || getFullyQualifiedJavaTypeOrNull(clazz.getName(),
                 true) != null) {
             return new LinkedList<>();
         } else {
@@ -1877,8 +2061,8 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
     }
 
     public LinkedList<Class> recursivelyGetAllSuperClasses(Class clazz) {
-        if (clazz == null || Object.class.getName().equals(clazz.getClass().getName()) || isCollectionImplementation(
-                clazz) || getFullyQualifiedJavaTypeOrNull(clazz.getSimpleName(), true) != null) {
+        if (clazz == null || Object.class.getName().equals(clazz.getName()) || isCollectionImplementation(
+                clazz) || getFullyQualifiedJavaTypeOrNull(clazz.getName(), true) != null) {
             return new LinkedList<>();
         } else {
             LinkedList<Class> result = new LinkedList<>();
@@ -1890,10 +2074,6 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
             return result;
         }
     }
-
-/*    public String toString(Object object) {
-        return formatObjectValues(object, true, true, StringUtils.EMPTY, false);
-    }*/
 
     public String toString(Object object) {
         try {
@@ -1917,6 +2097,75 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         } catch (Exception ignored) {
             return object.toString();
         }
+    }
+
+    private <T> void traverseForExtraction(Object entity, Class<?>
+            incomingClass, Class<T> outcomingClass, Set<T> result) {
+        ReflectionUtils.doWithFields(incomingClass, field -> {
+            field.setAccessible(true);
+            Object object_ = field.get(entity);
+            if (object_ != null) {
+                if (isCollectionImplementation(object_.getClass())) {
+                    ((Collection) object_).forEach(iter -> {
+                        traverseForExtraction(iter, iter.getClass(), outcomingClass, result);
+                        T iter1 = (T) iter;
+                        if (outcomingClass.isAssignableFrom(iter1.getClass())) {
+                            result.add(iter1);
+                        }
+                    });
+                } else {
+                    if (!result.contains(object_)) {
+                        Class<?> generic = extractGenerics(field);
+                        if (outcomingClass.isAssignableFrom(generic)) {
+                            Class<?> fieldType = field.getType();
+                            if (isCollectionImplementation(fieldType)) {
+                                ((Collection) object_).forEach(iter -> {
+                                    traverseForExtraction(iter, generic, outcomingClass, result);
+                                    T iter1 = (T) iter;
+                                    if (outcomingClass.isAssignableFrom(iter1.getClass())) {
+                                        result.add(iter1);
+                                    }
+                                });
+                            } else {
+                                T object = (T) field.get(entity);
+                                if (outcomingClass.isAssignableFrom(object.getClass())) {
+                                    result.add(object);
+                                }
+                            }
+                        } else {
+                            String genericType = getFullyQualifiedJavaTypeOrNull(generic);
+                            if (genericType == null) {
+                                traverseForExtraction(object_, generic, outcomingClass, result);
+                            }
+                        }
+                    }
+                }
+            }
+        }, this::isComplex);
+    }
+
+    private boolean isComplex(Field field) {
+        int modifiers = field.getModifiers();
+        if (Modifier.isStatic(modifiers)
+                || Modifier.isFinal(modifiers)
+                || Modifier.isNative(modifiers)
+                || Modifier.isAbstract(modifiers)
+                || Modifier.isTransient(modifiers)) {
+            return false;
+        }
+        Class aClass = null;
+        try {
+            aClass = extractGenerics(field);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return aClass != null && (getFullyQualifiedJavaTypeOrNull(aClass) == null && !aClass.isEnum() && !Enum.class.isAssignableFrom(aClass));
+    }
+
+    public <T> Set<T> extractByType(Object object, Class<T> outcomingClass) {
+        Set<T> result = new HashSet<>();
+        traverseForExtraction(object, object.getClass(), outcomingClass, result);
+        return result;
     }
 
     private static class FieldCompare implements Comparator {
@@ -1987,5 +2236,824 @@ public class ReflectionUtils extends org.springframework.util.ReflectionUtils {
         }
     }
 
-}
 
+    /**
+     * Pre-built MethodFilter that matches all non-bridge non-synthetic methods
+     * which are not declared on {@code java.lang.Object}.
+     *
+     * @since 3.0.5
+     */
+    public static final MethodFilter USER_DECLARED_METHODS =
+            (method -> !method.isBridge() && !method.isSynthetic());
+
+    /**
+     * Pre-built FieldFilter that matches all non-static, non-final fields.
+     */
+    public static final FieldFilter COPYABLE_FIELDS =
+            (field -> !(Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers())));
+
+
+    /**
+     * Naming prefix for CGLIB-renamed methods.
+     *
+     * @see #isCglibRenamedMethod
+     */
+    private static final String CGLIB_RENAMED_METHOD_PREFIX = "CGLIB$";
+
+    private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];
+
+    private static final Method[] EMPTY_METHOD_ARRAY = new Method[0];
+
+    private static final Field[] EMPTY_FIELD_ARRAY = new Field[0];
+
+    private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
+
+
+    /**
+     * Cache for {@link Class#getDeclaredMethods()} plus equivalent default methods
+     * from Java 8 based interfaces, allowing for fast iteration.
+     */
+    private static final Map<Class<?>, Method[]> declaredMethodsCache = new ConcurrentReferenceHashMap<>(256);
+
+    /**
+     * Cache for {@link Class#getDeclaredFields()}, allowing for fast iteration.
+     */
+    private static final Map<Class<?>, Field[]> declaredFieldsCache = new ConcurrentReferenceHashMap<>(256);
+
+
+    // Exception handling
+
+    /**
+     * Handle the given reflection exception.
+     * <p>Should only be called if no checked exception is expected to be thrown
+     * by a target method, or if an error occurs while accessing a method or field.
+     * <p>Throws the underlying RuntimeException or Error in case of an
+     * InvocationTargetException with such a root cause. Throws an
+     * IllegalStateException with an appropriate message or
+     * UndeclaredThrowableException otherwise.
+     *
+     * @param ex the reflection exception to handle
+     */
+    public static void handleReflectionException(Exception ex) {
+        if (ex instanceof NoSuchMethodException) {
+            throw new IllegalStateException("Method not found: " + ex.getMessage());
+        }
+        if (ex instanceof IllegalAccessException) {
+            throw new IllegalStateException("Could not access method or field: " + ex.getMessage());
+        }
+        if (ex instanceof InvocationTargetException) {
+            handleInvocationTargetException((InvocationTargetException) ex);
+        }
+        if (ex instanceof RuntimeException) {
+            throw (RuntimeException) ex;
+        }
+        throw new UndeclaredThrowableException(ex);
+    }
+
+    /**
+     * Handle the given invocation target exception. Should only be called if no
+     * checked exception is expected to be thrown by the target method.
+     * <p>Throws the underlying RuntimeException or Error in case of such a root
+     * cause. Throws an UndeclaredThrowableException otherwise.
+     *
+     * @param ex the invocation target exception to handle
+     */
+    public static void handleInvocationTargetException(InvocationTargetException ex) {
+        rethrowRuntimeException(ex.getTargetException());
+    }
+
+    /**
+     * Rethrow the given {@link Throwable exception}, which is presumably the
+     * <em>target exception</em> of an {@link InvocationTargetException}.
+     * Should only be called if no checked exception is expected to be thrown
+     * by the target method.
+     * <p>Rethrows the underlying exception cast to a {@link RuntimeException} or
+     * {@link Error} if appropriate; otherwise, throws an
+     * {@link UndeclaredThrowableException}.
+     *
+     * @param ex the exception to rethrow
+     * @throws RuntimeException the rethrown exception
+     */
+    public static void rethrowRuntimeException(Throwable ex) {
+        if (ex instanceof RuntimeException) {
+            throw (RuntimeException) ex;
+        }
+        if (ex instanceof Error) {
+            throw (Error) ex;
+        }
+        throw new UndeclaredThrowableException(ex);
+    }
+
+    /**
+     * Rethrow the given {@link Throwable exception}, which is presumably the
+     * <em>target exception</em> of an {@link InvocationTargetException}.
+     * Should only be called if no checked exception is expected to be thrown
+     * by the target method.
+     * <p>Rethrows the underlying exception cast to an {@link Exception} or
+     * {@link Error} if appropriate; otherwise, throws an
+     * {@link UndeclaredThrowableException}.
+     *
+     * @param ex the exception to rethrow
+     * @throws Exception the rethrown exception (in case of a checked exception)
+     */
+    public static void rethrowException(Throwable ex) throws Exception {
+        if (ex instanceof Exception) {
+            throw (Exception) ex;
+        }
+        if (ex instanceof Error) {
+            throw (Error) ex;
+        }
+        throw new UndeclaredThrowableException(ex);
+    }
+
+
+    // Constructor handling
+
+    /**
+     * Obtain an accessible constructor for the given class and parameters.
+     *
+     * @param clazz          the clazz to check
+     * @param parameterTypes the parameter types of the desired constructor
+     * @return the constructor reference
+     * @throws NoSuchMethodException if no such constructor exists
+     * @since 5.0
+     */
+    public static <T> Constructor<T> accessibleConstructor(Class<T> clazz, Class<?>... parameterTypes)
+            throws NoSuchMethodException {
+
+        Constructor<T> ctor = clazz.getDeclaredConstructor(parameterTypes);
+        makeAccessible(ctor);
+        return ctor;
+    }
+
+    /**
+     * Make the given constructor accessible, explicitly setting it accessible
+     * if necessary. The {@code setAccessible(true)} method is only called
+     * when actually necessary, to avoid unnecessary conflicts with a JVM
+     * SecurityManager (if active).
+     *
+     * @param ctor the constructor to make accessible
+     * @see java.lang.reflect.Constructor#setAccessible
+     */
+    @SuppressWarnings("deprecation")  // on JDK 9
+    public static void makeAccessible(Constructor<?> ctor) {
+        if ((!Modifier.isPublic(ctor.getModifiers()) ||
+                !Modifier.isPublic(ctor.getDeclaringClass().getModifiers())) && !ctor.isAccessible()) {
+            ctor.setAccessible(true);
+        }
+    }
+
+
+    // Method handling
+
+    /**
+     * Attempt to find a {@link Method} on the supplied class with the supplied name
+     * and no parameters. Searches all superclasses up to {@code Object}.
+     * <p>Returns {@code null} if no {@link Method} can be found.
+     *
+     * @param clazz the class to introspect
+     * @param name  the name of the method
+     * @return the Method object, or {@code null} if none found
+     */
+    public static Method findMethod(Class<?> clazz, String name) {
+        return findMethod(clazz, name, EMPTY_CLASS_ARRAY);
+    }
+
+    /**
+     * Attempt to find a {@link Method} on the supplied class with the supplied name
+     * and parameter types. Searches all superclasses up to {@code Object}.
+     * <p>Returns {@code null} if no {@link Method} can be found.
+     *
+     * @param clazz      the class to introspect
+     * @param name       the name of the method
+     * @param paramTypes the parameter types of the method
+     *                   (may be {@code null} to indicate any signature)
+     * @return the Method object, or {@code null} if none found
+     */
+
+    public static Method findMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
+        Class<?> searchType = clazz;
+        while (searchType != null) {
+            Method[] methods = searchType.isInterface() ?
+                    searchType.getMethods() :
+                    getDeclaredMethods(searchType, false);
+            for (Method method : methods) {
+                if (name.equals(method.getName()) &&
+                        (paramTypes == null || Arrays.equals(paramTypes, method.getParameterTypes()))) {
+                    return method;
+                }
+            }
+            searchType = searchType.getSuperclass();
+        }
+        return null;
+    }
+
+    /**
+     * Invoke the specified {@link Method} against the supplied target object with no arguments.
+     * The target object can be {@code null} when invoking a static {@link Method}.
+     * <p>Thrown exceptions are handled via a call to {@link #handleReflectionException}.
+     *
+     * @param method the method to invoke
+     * @param target the target object to invoke the method on
+     * @return the invocation result, if any
+     * @see #invokeMethod(java.lang.reflect.Method, Object, Object[])
+     */
+    
+    public static Object invokeMethod(Method method, Object target) {
+        return invokeMethod(method, target, EMPTY_OBJECT_ARRAY);
+    }
+
+    /**
+     * Invoke the specified {@link Method} against the supplied target object with the
+     * supplied arguments. The target object can be {@code null} when invoking a
+     * static {@link Method}.
+     * <p>Thrown exceptions are handled via a call to {@link #handleReflectionException}.
+     *
+     * @param method the method to invoke
+     * @param target the target object to invoke the method on
+     * @param args   the invocation arguments (may be {@code null})
+     * @return the invocation result, if any
+     */
+    
+    public static Object invokeMethod(Method method, Object target, Object... args) {
+        try {
+            return method.invoke(target, args);
+        } catch (Exception ex) {
+            handleReflectionException(ex);
+        }
+        throw new IllegalStateException("Should never get here");
+    }
+
+    /**
+     * Determine whether the given method explicitly declares the given
+     * exception or one of its superclasses, which means that an exception
+     * of that type can be propagated as-is within a reflective invocation.
+     *
+     * @param method        the declaring method
+     * @param exceptionType the exception to throw
+     * @return {@code true} if the exception can be thrown as-is;
+     * {@code false} if it needs to be wrapped
+     */
+    public static boolean declaresException(Method method, Class<?> exceptionType) {
+        Class<?>[] declaredExceptions = method.getExceptionTypes();
+        for (Class<?> declaredException : declaredExceptions) {
+            if (declaredException.isAssignableFrom(exceptionType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Perform the given callback operation on all matching methods of the given
+     * class, as locally declared or equivalent thereof (such as default methods
+     * on Java 8 based interfaces that the given class implements).
+     *
+     * @param clazz the class to introspect
+     * @param mc    the callback to invoke for each method
+     * @throws IllegalStateException if introspection fails
+     * @see #doWithMethods
+     * @since 4.2
+     */
+    public static void doWithLocalMethods(Class<?> clazz, MethodCallback mc) {
+        Method[] methods = getDeclaredMethods(clazz, false);
+        for (Method method : methods) {
+            try {
+                mc.doWith(method);
+            } catch (IllegalAccessException ex) {
+                throw new IllegalStateException("Not allowed to access method '" + method.getName() + "': " + ex);
+            }
+        }
+    }
+
+    /**
+     * Perform the given callback operation on all matching methods of the given
+     * class and superclasses.
+     * <p>The same named method occurring on subclass and superclass will appear
+     * twice, unless excluded by a {@link MethodFilter}.
+     *
+     * @param clazz the class to introspect
+     * @param mc    the callback to invoke for each method
+     * @throws IllegalStateException if introspection fails
+     * @see #doWithMethods(Class, MethodCallback, MethodFilter)
+     */
+    public static void doWithMethods(Class<?> clazz, MethodCallback mc) {
+        doWithMethods(clazz, mc, null);
+    }
+
+    /**
+     * Perform the given callback operation on all matching methods of the given
+     * class and superclasses (or given interface and super-interfaces).
+     * <p>The same named method occurring on subclass and superclass will appear
+     * twice, unless excluded by the specified {@link MethodFilter}.
+     *
+     * @param clazz the class to introspect
+     * @param mc    the callback to invoke for each method
+     * @param mf    the filter that determines the methods to apply the callback to
+     * @throws IllegalStateException if introspection fails
+     */
+    public static void doWithMethods(Class<?> clazz, MethodCallback mc, MethodFilter mf) {
+        // Keep backing up the inheritance hierarchy.
+        Method[] methods = getDeclaredMethods(clazz, false);
+        for (Method method : methods) {
+            if (mf != null && !mf.matches(method)) {
+                continue;
+            }
+            try {
+                mc.doWith(method);
+            } catch (IllegalAccessException ex) {
+                throw new IllegalStateException("Not allowed to access method '" + method.getName() + "': " + ex);
+            }
+        }
+        if (clazz.getSuperclass() != null && (mf != USER_DECLARED_METHODS || clazz.getSuperclass() != Object.class)) {
+            doWithMethods(clazz.getSuperclass(), mc, mf);
+        } else if (clazz.isInterface()) {
+            for (Class<?> superIfc : clazz.getInterfaces()) {
+                doWithMethods(superIfc, mc, mf);
+            }
+        }
+    }
+
+    /**
+     * Get all declared methods on the leaf class and all superclasses.
+     * Leaf class methods are included first.
+     *
+     * @param leafClass the class to introspect
+     * @throws IllegalStateException if introspection fails
+     */
+    public static Method[] getAllDeclaredMethods(Class<?> leafClass) {
+        final List<Method> methods = new ArrayList<>(32);
+        doWithMethods(leafClass, methods::add);
+        return methods.toArray(EMPTY_METHOD_ARRAY);
+    }
+
+    /**
+     * Get the unique set of declared methods on the leaf class and all superclasses.
+     * Leaf class methods are included first and while traversing the superclass hierarchy
+     * any methods found with signatures matching a method already included are filtered out.
+     *
+     * @param leafClass the class to introspect
+     * @throws IllegalStateException if introspection fails
+     */
+    public static Method[] getUniqueDeclaredMethods(Class<?> leafClass) {
+        return getUniqueDeclaredMethods(leafClass, null);
+    }
+
+    /**
+     * Get the unique set of declared methods on the leaf class and all superclasses.
+     * Leaf class methods are included first and while traversing the superclass hierarchy
+     * any methods found with signatures matching a method already included are filtered out.
+     *
+     * @param leafClass the class to introspect
+     * @param mf        the filter that determines the methods to take into account
+     * @throws IllegalStateException if introspection fails
+     * @since 5.2
+     */
+    public static Method[] getUniqueDeclaredMethods(Class<?> leafClass, MethodFilter mf) {
+        final List<Method> methods = new ArrayList<>(32);
+        doWithMethods(leafClass, method -> {
+            boolean knownSignature = false;
+            Method methodBeingOverriddenWithCovariantReturnType = null;
+            for (Method existingMethod : methods) {
+                if (method.getName().equals(existingMethod.getName()) &&
+                        Arrays.equals(method.getParameterTypes(), existingMethod.getParameterTypes())) {
+                    // Is this a covariant return type situation?
+                    if (existingMethod.getReturnType() != method.getReturnType() &&
+                            existingMethod.getReturnType().isAssignableFrom(method.getReturnType())) {
+                        methodBeingOverriddenWithCovariantReturnType = existingMethod;
+                    } else {
+                        knownSignature = true;
+                    }
+                    break;
+                }
+            }
+            if (methodBeingOverriddenWithCovariantReturnType != null) {
+                methods.remove(methodBeingOverriddenWithCovariantReturnType);
+            }
+            if (!knownSignature && !isCglibRenamedMethod(method)) {
+                methods.add(method);
+            }
+        }, mf);
+        return methods.toArray(EMPTY_METHOD_ARRAY);
+    }
+
+    /**
+     * Variant of {@link Class#getDeclaredMethods()} that uses a local cache in
+     * order to avoid the JVM's SecurityManager check and new Method instances.
+     * In addition, it also includes Java 8 default methods from locally
+     * implemented interfaces, since those are effectively to be treated just
+     * like declared methods.
+     *
+     * @param clazz the class to introspect
+     * @return the cached array of methods
+     * @throws IllegalStateException if introspection fails
+     * @see Class#getDeclaredMethods()
+     * @since 5.2
+     */
+    public static Method[] getDeclaredMethods(Class<?> clazz) {
+        return getDeclaredMethods(clazz, true);
+    }
+
+    private static Method[] getDeclaredMethods(Class<?> clazz, boolean defensive) {
+        Method[] result = declaredMethodsCache.get(clazz);
+        if (result == null) {
+            try {
+                Method[] declaredMethods = clazz.getDeclaredMethods();
+                List<Method> defaultMethods = findConcreteMethodsOnInterfaces(clazz);
+                if (defaultMethods != null) {
+                    result = new Method[declaredMethods.length + defaultMethods.size()];
+                    System.arraycopy(declaredMethods, 0, result, 0, declaredMethods.length);
+                    int index = declaredMethods.length;
+                    for (Method defaultMethod : defaultMethods) {
+                        result[index] = defaultMethod;
+                        index++;
+                    }
+                } else {
+                    result = declaredMethods;
+                }
+                declaredMethodsCache.put(clazz, (result.length == 0 ? EMPTY_METHOD_ARRAY : result));
+            } catch (Throwable ex) {
+                throw new IllegalStateException("Failed to introspect Class [" + clazz.getName() +
+                        "] from ClassLoader [" + clazz.getClassLoader() + "]", ex);
+            }
+        }
+        return (result.length == 0 || !defensive) ? result : result.clone();
+    }
+
+    
+    private static List<Method> findConcreteMethodsOnInterfaces(Class<?> clazz) {
+        List<Method> result = null;
+        for (Class<?> ifc : clazz.getInterfaces()) {
+            for (Method ifcMethod : ifc.getMethods()) {
+                if (!Modifier.isAbstract(ifcMethod.getModifiers())) {
+                    if (result == null) {
+                        result = new ArrayList<>();
+                    }
+                    result.add(ifcMethod);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Determine whether the given method is an "equals" method.
+     *
+     * @see java.lang.Object#equals(Object)
+     */
+    public static boolean isEqualsMethod(Method method) {
+        if (method == null || !method.getName().equals("equals")) {
+            return false;
+        }
+        Class<?>[] paramTypes = method.getParameterTypes();
+        return (paramTypes.length == 1 && paramTypes[0] == Object.class);
+    }
+
+    /**
+     * Determine whether the given method is a "hashCode" method.
+     *
+     * @see java.lang.Object#hashCode()
+     */
+    public static boolean isHashCodeMethod(Method method) {
+        return (method != null && method.getName().equals("hashCode") && method.getParameterCount() == 0);
+    }
+
+    /**
+     * Determine whether the given method is a "toString" method.
+     *
+     * @see java.lang.Object#toString()
+     */
+    public static boolean isToStringMethod(Method method) {
+        return (method != null && method.getName().equals("toString") && method.getParameterCount() == 0);
+    }
+
+    /**
+     * Determine whether the given method is originally declared by {@link java.lang.Object}.
+     */
+    public static boolean isObjectMethod(Method method) {
+        return (method != null && (method.getDeclaringClass() == Object.class ||
+                isEqualsMethod(method) || isHashCodeMethod(method) || isToStringMethod(method)));
+    }
+
+    /**
+     * Determine whether the given method is a CGLIB 'renamed' method,
+     * following the pattern "CGLIB$methodName$0".
+     *
+     * @param renamedMethod the method to check
+     */
+    public static boolean isCglibRenamedMethod(Method renamedMethod) {
+        String name = renamedMethod.getName();
+        if (name.startsWith(CGLIB_RENAMED_METHOD_PREFIX)) {
+            int i = name.length() - 1;
+            while (i >= 0 && Character.isDigit(name.charAt(i))) {
+                i--;
+            }
+            return (i > CGLIB_RENAMED_METHOD_PREFIX.length() && (i < name.length() - 1) && name.charAt(i) == '$');
+        }
+        return false;
+    }
+
+    /**
+     * Make the given method accessible, explicitly setting it accessible if
+     * necessary. The {@code setAccessible(true)} method is only called
+     * when actually necessary, to avoid unnecessary conflicts with a JVM
+     * SecurityManager (if active).
+     *
+     * @param method the method to make accessible
+     * @see java.lang.reflect.Method#setAccessible
+     */
+    @SuppressWarnings("deprecation")  // on JDK 9
+    public static void makeAccessible(Method method) {
+        if ((!Modifier.isPublic(method.getModifiers()) ||
+                !Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
+            method.setAccessible(true);
+        }
+    }
+
+
+    // Field handling
+
+    /**
+     * Attempt to find a {@link Field field} on the supplied {@link Class} with the
+     * supplied {@code name}. Searches all superclasses up to {@link Object}.
+     *
+     * @param clazz the class to introspect
+     * @param name  the name of the field
+     * @return the corresponding Field object, or {@code null} if not found
+     */
+    
+    public static Field findField(Class<?> clazz, String name) {
+        return findField(clazz, name, null);
+    }
+
+    /**
+     * Attempt to find a {@link Field field} on the supplied {@link Class} with the
+     * supplied {@code name} and/or {@link Class type}. Searches all superclasses
+     * up to {@link Object}.
+     *
+     * @param clazz the class to introspect
+     * @param name  the name of the field (may be {@code null} if type is specified)
+     * @param type  the type of the field (may be {@code null} if name is specified)
+     * @return the corresponding Field object, or {@code null} if not found
+     */
+    
+    public static Field findField(Class<?> clazz, String name, Class<?> type) {
+        Class<?> searchType = clazz;
+        while (Object.class != searchType && searchType != null) {
+            Field[] fields = getDeclaredFields(searchType);
+            for (Field field : fields) {
+                if ((name == null || name.equals(field.getName())) &&
+                        (type == null || type.equals(field.getType()))) {
+                    return field;
+                }
+            }
+            searchType = searchType.getSuperclass();
+        }
+        return null;
+    }
+
+    /**
+     * Set the field represented by the supplied {@linkplain Field field object} on
+     * the specified {@linkplain Object target object} to the specified {@code value}.
+     * <p>In accordance with {@link Field#set(Object, Object)} semantics, the new value
+     * is automatically unwrapped if the underlying field has a primitive type.
+     * <p>This method does not support setting {@code static final} fields.
+     * <p>Thrown exceptions are handled via a call to {@link #handleReflectionException(Exception)}.
+     *
+     * @param field  the field to set
+     * @param target the target object on which to set the field
+     * @param value  the value to set (may be {@code null})
+     */
+    public static void setField(Field field, Object target, Object value) {
+        try {
+            field.set(target, value);
+        } catch (IllegalAccessException ex) {
+            handleReflectionException(ex);
+        }
+    }
+
+    /**
+     * Get the field represented by the supplied {@link Field field object} on the
+     * specified {@link Object target object}. In accordance with {@link Field#get(Object)}
+     * semantics, the returned value is automatically wrapped if the underlying field
+     * has a primitive type.
+     * <p>Thrown exceptions are handled via a call to {@link #handleReflectionException(Exception)}.
+     *
+     * @param field  the field to get
+     * @param target the target object from which to get the field
+     * @return the field's current value
+     */
+    
+    public static Object getField(Field field, Object target) {
+        try {
+            return field.get(target);
+        } catch (IllegalAccessException ex) {
+            handleReflectionException(ex);
+        }
+        throw new IllegalStateException("Should never get here");
+    }
+
+    /**
+     * Invoke the given callback on all locally declared fields in the given class.
+     *
+     * @param clazz the target class to analyze
+     * @param fc    the callback to invoke for each field
+     * @throws IllegalStateException if introspection fails
+     * @see #doWithFields
+     * @since 4.2
+     */
+    public static void doWithLocalFields(Class<?> clazz, FieldCallback fc) {
+        for (Field field : getDeclaredFields(clazz)) {
+            try {
+                fc.doWith(field);
+            } catch (IllegalAccessException ex) {
+                throw new IllegalStateException("Not allowed to access field '" + field.getName() + "': " + ex);
+            }
+        }
+    }
+
+    /**
+     * Invoke the given callback on all fields in the target class, going up the
+     * class hierarchy to get all declared fields.
+     *
+     * @param clazz the target class to analyze
+     * @param fc    the callback to invoke for each field
+     * @throws IllegalStateException if introspection fails
+     */
+    public static void doWithFields(Class<?> clazz, FieldCallback fc) {
+        doWithFields(clazz, fc, null);
+    }
+
+    /**
+     * Invoke the given callback on all fields in the target class, going up the
+     * class hierarchy to get all declared fields.
+     *
+     * @param clazz the target class to analyze
+     * @param fc    the callback to invoke for each field
+     * @param ff    the filter that determines the fields to apply the callback to
+     * @throws IllegalStateException if introspection fails
+     */
+    public static void doWithFields(Class<?> clazz, FieldCallback fc, FieldFilter ff) {
+        // Keep backing up the inheritance hierarchy.
+        Class<?> targetClass = clazz;
+        do {
+            Field[] fields = getDeclaredFields(targetClass);
+            for (Field field : fields) {
+                if (ff != null && !ff.matches(field)) {
+                    continue;
+                }
+                try {
+                    fc.doWith(field);
+                } catch (IllegalAccessException ex) {
+                    throw new IllegalStateException("Not allowed to access field '" + field.getName() + "': " + ex);
+                }
+            }
+            targetClass = targetClass.getSuperclass();
+        }
+        while (targetClass != null && targetClass != Object.class);
+    }
+
+    /**
+     * This variant retrieves {@link Class#getDeclaredFields()} from a local cache
+     * in order to avoid the JVM's SecurityManager check and defensive array copying.
+     *
+     * @param clazz the class to introspect
+     * @return the cached array of fields
+     * @throws IllegalStateException if introspection fails
+     * @see Class#getDeclaredFields()
+     */
+    private static Field[] getDeclaredFields(Class<?> clazz) {
+        Field[] result = declaredFieldsCache.get(clazz);
+        if (result == null) {
+            try {
+                result = clazz.getDeclaredFields();
+                declaredFieldsCache.put(clazz, (result.length == 0 ? EMPTY_FIELD_ARRAY : result));
+            } catch (Throwable ex) {
+                throw new IllegalStateException("Failed to introspect Class [" + clazz.getName() +
+                        "] from ClassLoader [" + clazz.getClassLoader() + "]", ex);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Given the source object and the destination, which must be the same class
+     * or a subclass, copy all fields, including inherited fields. Designed to
+     * work on objects with public no-arg constructors.
+     *
+     * @throws IllegalStateException if introspection fails
+     */
+    public static void shallowCopyFieldState(final Object src, final Object dest) {
+        if (!src.getClass().isAssignableFrom(dest.getClass())) {
+            throw new IllegalArgumentException("Destination class [" + dest.getClass().getName() +
+                    "] must be same or subclass as source class [" + src.getClass().getName() + "]");
+        }
+        doWithFields(src.getClass(), field -> {
+            makeAccessible(field);
+            Object srcValue = field.get(src);
+            field.set(dest, srcValue);
+        }, COPYABLE_FIELDS);
+    }
+
+    /**
+     * Determine whether the given field is a "public static final" constant.
+     *
+     * @param field the field to check
+     */
+    public static boolean isPublicStaticFinal(Field field) {
+        int modifiers = field.getModifiers();
+        return (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers));
+    }
+
+    /**
+     * Make the given field accessible, explicitly setting it accessible if
+     * necessary. The {@code setAccessible(true)} method is only called
+     * when actually necessary, to avoid unnecessary conflicts with a JVM
+     * SecurityManager (if active).
+     *
+     * @param field the field to make accessible
+     * @see java.lang.reflect.Field#setAccessible
+     */
+    @SuppressWarnings("deprecation")  // on JDK 9
+    public static void makeAccessible(Field field) {
+        if ((!Modifier.isPublic(field.getModifiers()) ||
+                !Modifier.isPublic(field.getDeclaringClass().getModifiers()) ||
+                Modifier.isFinal(field.getModifiers())) && !field.isAccessible()) {
+            field.setAccessible(true);
+        }
+    }
+
+
+    // Cache handling
+
+    /**
+     * Clear the internal method/field cache.
+     *
+     * @since 4.2.4
+     */
+    public static void clearCache() {
+        declaredMethodsCache.clear();
+        declaredFieldsCache.clear();
+    }
+
+
+    /**
+     * Action to take on each method.
+     */
+    @FunctionalInterface
+    public interface MethodCallback {
+
+        /**
+         * Perform an operation using the given method.
+         *
+         * @param method the method to operate on
+         */
+        void doWith(Method method) throws IllegalArgumentException, IllegalAccessException;
+    }
+
+
+    /**
+     * Callback optionally used to filter methods to be operated on by a method callback.
+     */
+    @FunctionalInterface
+    public interface MethodFilter {
+
+        /**
+         * Determine whether the given method matches.
+         *
+         * @param method the method to check
+         */
+        boolean matches(Method method);
+    }
+
+
+    /**
+     * Callback interface invoked on each field in the hierarchy.
+     */
+    @FunctionalInterface
+    public interface FieldCallback {
+
+        /**
+         * Perform an operation using the given field.
+         *
+         * @param field the field to operate on
+         */
+        void doWith(Field field) throws IllegalArgumentException, IllegalAccessException;
+    }
+
+
+    /**
+     * Callback optionally used to filter fields to be operated on by a field callback.
+     */
+    @FunctionalInterface
+    public interface FieldFilter {
+
+        /**
+         * Determine whether the given field matches.
+         *
+         * @param field the field to check
+         */
+        boolean matches(Field field);
+    }
+
+}

@@ -2,20 +2,19 @@ package com.araguacaima.commons.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Properties;
 
-@Component
+
 public class ByPassingTestingCode {
 
     private static final Logger log = LoggerFactory.getLogger(ByPassingTestingCode.class);
+    private final MapUtils mapUtils;
+    private final NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate;
+    private final PropertiesHandlerUtils propertiesHandlerUtils;
     public Map BYPASSING_TESTING_CODE_PARAMETERS_MAP;
     private String logFileSourceName;
-    private MapUtils mapUtils;
-    private NotNullOrEmptyStringObjectPredicate notNullOrEmptyStringObjectPredicate;
-    private PropertiesHandlerUtils propertiesHandlerUtils;
 
     public ByPassingTestingCode(PropertiesHandlerUtils propertiesHandlerUtils,
                                 MapUtils mapUtils,
@@ -40,10 +39,9 @@ public class ByPassingTestingCode {
             log.debug(exception.getMessage(), 2);
         } finally {
             if (MapUtils.isEmpty(BYPASSING_TESTING_CODE_PARAMETERS_MAP)) {
-                log.debug("No Bypassing Testing Code (bypassing.testing.code_) found inside the file", 2);
+                log.debug("No Bypassing Testing Code (bypassing.testing.code_) found inside the file");
             } else {
-                log.debug("Bypassing Testing Code (bypassing.testing.code_): " + BYPASSING_TESTING_CODE_PARAMETERS_MAP,
-                        2);
+                log.debug("Bypassing Testing Code (bypassing.testing.code_): " + BYPASSING_TESTING_CODE_PARAMETERS_MAP);
             }
         }
     }

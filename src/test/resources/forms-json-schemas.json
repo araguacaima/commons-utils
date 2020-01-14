@@ -1,0 +1,231 @@
+[
+  {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "calculatedScore": {
+        "type": "number"
+      },
+      "category": {
+        "type": "string",
+        "enum": [
+          "CATEGORY_1",
+          "CATEGORY_2"
+        ],
+        "$id": "com.araguacaima.braas.core.drools.model.forms.QuestionCategory"
+      },
+      "description": {
+        "type": "string"
+      },
+      "formId": {
+        "type": "string"
+      },
+      "id": {
+        "type": "string"
+      },
+      "maxScore": {
+        "type": "integer"
+      },
+      "options": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "isText": {
+              "type": "boolean"
+            },
+            "questionId": {
+              "type": "string"
+            },
+            "selected": {
+              "type": "boolean"
+            },
+            "title": {
+              "type": "string"
+            },
+            "weighting": {
+              "type": "number"
+            }
+          },
+          "$id": "com.araguacaima.braas.core.drools.model.forms.QuestionOption"
+        },
+        "$id": "java.util.Set<com.araguacaima.braas.core.drools.model.forms.QuestionOption>"
+      },
+      "title": {
+        "type": "string"
+      },
+      "type": {
+        "type": "string",
+        "enum": [
+          "MULTIPLE",
+          "SINGLE"
+        ],
+        "$id": "com.araguacaima.braas.core.drools.model.forms.QuestionType"
+      }
+    },
+    "$id": "com.araguacaima.braas.core.drools.model.forms.Question"
+  },
+  {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "enum": [
+      "ES",
+      "EN"
+    ],
+    "$id": "com.araguacaima.braas.core.drools.model.forms.FormLocale"
+  },
+  {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "enum": [
+      "MULTIPLE",
+      "SINGLE"
+    ],
+    "$id": "com.araguacaima.braas.core.drools.model.forms.QuestionType"
+  },
+  {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string"
+      },
+      "isText": {
+        "type": "boolean"
+      },
+      "questionId": {
+        "type": "string"
+      },
+      "selected": {
+        "type": "boolean"
+      },
+      "title": {
+        "type": "string"
+      },
+      "weighting": {
+        "type": "number"
+      }
+    },
+    "$id": "com.araguacaima.braas.core.drools.model.forms.QuestionOption"
+  },
+  {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "enum": [
+      "CATEGORY_1",
+      "CATEGORY_2"
+    ],
+    "$id": "com.araguacaima.braas.core.drools.model.forms.QuestionCategory"
+  },
+  {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "description": {
+        "type": "string"
+      },
+      "id": {
+        "type": "string"
+      },
+      "locale": {
+        "type": "string",
+        "enum": [
+          "ES",
+          "EN"
+        ],
+        "$id": "com.araguacaima.braas.core.drools.model.forms.FormLocale"
+      },
+      "questions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "calculatedScore": {
+              "type": "number"
+            },
+            "category": {
+              "type": "string",
+              "enum": [
+                "CATEGORY_1",
+                "CATEGORY_2"
+              ],
+              "$id": "com.araguacaima.braas.core.drools.model.forms.QuestionCategory"
+            },
+            "description": {
+              "type": "string"
+            },
+            "formId": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "maxScore": {
+              "type": "integer"
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "isText": {
+                    "type": "boolean"
+                  },
+                  "questionId": {
+                    "type": "string"
+                  },
+                  "selected": {
+                    "type": "boolean"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "weighting": {
+                    "type": "number"
+                  }
+                },
+                "$id": "com.araguacaima.braas.core.drools.model.forms.QuestionOption"
+              },
+              "$id": "java.util.Set<com.araguacaima.braas.core.drools.model.forms.QuestionOption>"
+            },
+            "title": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "MULTIPLE",
+                "SINGLE"
+              ],
+              "$id": "com.araguacaima.braas.core.drools.model.forms.QuestionType"
+            }
+          },
+          "$id": "com.araguacaima.braas.core.drools.model.forms.Question"
+        },
+        "$id": "java.util.Set<com.araguacaima.braas.core.drools.model.forms.Question>"
+      },
+      "title": {
+        "type": "string"
+      },
+      "url": {
+        "type": "string"
+      }
+    },
+    "$id": "com.araguacaima.braas.core.drools.model.forms.Form"
+  }
+]

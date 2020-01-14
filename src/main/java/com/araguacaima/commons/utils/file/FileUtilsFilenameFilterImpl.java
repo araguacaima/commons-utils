@@ -8,7 +8,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,12 +17,12 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-@Component
+
 public abstract class FileUtilsFilenameFilterImpl implements FileUtilsFilenameFilter<File> {
 
     protected static Logger log = LoggerFactory.getLogger(FileUtilsFilenameFilter.class);
+    protected final FileUtils fileUtils = new FileUtils();
     protected ClassLoaderUtils classLoaderUtils;
-    protected FileUtils fileUtils = new FileUtils();
     protected int filterType;
     protected StringUtils stringUtils;
 
@@ -53,30 +52,28 @@ public abstract class FileUtilsFilenameFilterImpl implements FileUtilsFilenameFi
         this.filterType = filterType;
     }
 
-    public Collection<URL> getResources(ClassLoader classLoader)
-            throws IOException {
-        return getResources();
-    }
-
     @Override
     public Collection<String> getResourcePaths(final ClassLoader classLoader)
             throws IOException {
         return transformURLIntoStringPaths(getResources(classLoader));
     }
 
-    public Collection<URL> getResources()
+    protected Collection<String> transformURLIntoStringPaths(Collection<URL> urls) {
+        return CollectionUtils.collect(urls, URL::getFile);
+    }
+
+    public Collection<URL> getResources(ClassLoader classLoader)
             throws IOException {
+        return getResources();
+    }
+
+    public Collection<URL> getResources() {
         return new ArrayList<>();
     }
 
     public String printCriterias() {
         return StringUtils.EMPTY;
     }
-
-    protected Collection<String> transformURLIntoStringPaths(Collection<URL> urls) {
-        return CollectionUtils.collect(urls, URL::getFile);
-    }
-
 
     protected Collection<URL> transformFilesIntoURLs(File[] files) {
         try {

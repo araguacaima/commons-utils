@@ -6,7 +6,6 @@
 
 package jreversepro.reflect.method;
 
-import jreversepro.reflect.*;
 import jreversepro.revengine.JBranchEntry;
 
 /**
@@ -17,23 +16,25 @@ public class JSwitchBlock extends JBlockObject {
     /**
      * Contains stringified switch expression
      */
-    private String expr;
-
-    /**
-     * Associated Branch Entry
-     */
-    private JBranchEntry branch;
+    private final String expr;
 
     /**
      * Creates a new instance of JSwitchBlock
+     *
+     * @param _jbe  Branch
+     * @param _expr The expression
      */
     public JSwitchBlock(JBranchEntry _jbe, String _expr) {
-        branch = _jbe;
+        /*
+      Associated Branch Entry
+     */
         expr = _expr;
     }
 
     /**
      * Outputs any starting code to open the block
+     *
+     * @return The starting code to open the block
      */
     protected String getEntryCode() {
         return "switch (" + expr + ") {\n";

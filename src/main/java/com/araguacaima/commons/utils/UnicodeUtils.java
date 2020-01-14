@@ -19,7 +19,6 @@
 
 package com.araguacaima.commons.utils;
 
-import org.springframework.stereotype.Component;
 
 /**
  * Constantes UNICODE y utilidades de encoding varias
@@ -30,7 +29,7 @@ import org.springframework.stereotype.Component;
  * <li> 2014-11-26 (AMMA)  Creacion de la clase. </li>
  * </ul>
  */
-@Component
+
 public class UnicodeUtils {
 
     // ***** Letras acentuadas, con tildes, con dieresis, y similares... *****

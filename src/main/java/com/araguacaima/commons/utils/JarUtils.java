@@ -22,12 +22,12 @@ package com.araguacaima.commons.utils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.jar.*;
+import java.util.zip.ZipEntry;
 
 /**
  * Clase utilitaria para manipular archivos .jar <br>
@@ -39,20 +39,52 @@ import java.util.jar.*;
  * <li> 2014-11-26 (AMMA)  Creacion de la clase. </li>
  * </ul>
  */
-@Component
+
 public class JarUtils {
 
     private static final Logger log = LoggerFactory.getLogger(JarUtils.class);
 
-    public JarUtils() {
+    private static final JarUtils INSTANCE = new JarUtils();
 
+    private JarUtils() {
+        if (INSTANCE != null) {
+            throw new IllegalStateException("Already instantiated");
+        }
     }
 
-    private void add(File source,
-                     JarOutputStream target,
-                     int offsetExclusionDirectory,
-                     String jarOutputFullPath,
-                     String rootPath)
+    public static JarUtils getInstance() {
+        return INSTANCE;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("Cannot clone instance of this class");
+    }
+
+    @SuppressWarnings("SameReturnValue")
+    public boolean appendFileToJar(File fileToAdd, String jarFileStr) throws IOException {
+        JarFile jar = new JarFile(jarFileStr);
+        JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFileStr));
+        ZipEntry entry = new ZipEntry(fileToAdd.getName());
+        jarOutputStream.putNextEntry(entry);
+        FileInputStream fileInputStream = new FileInputStream(fileToAdd);
+        byte[] buf = new byte[1024];
+        int bytesRead;
+        // Read the input file by chucks of 1024 bytes
+        // and write the read bytes to the zip stream
+        while ((bytesRead = fileInputStream.read(buf)) > 0) {
+            jarOutputStream.write(buf, 0, bytesRead);
+        }
+        // close JarEntry to store the stream to the file
+        jarOutputStream.closeEntry();
+        jarOutputStream.close();
+        return true;
+    }
+
+    public void add(File source,
+                    JarOutputStream target,
+                    int offsetExclusionDirectory,
+                    String jarOutputFullPath,
+                    String rootPath)
             throws IOException {
         BufferedInputStream in = null;
         try {
@@ -91,7 +123,7 @@ public class JarUtils {
                     for (File aNestedFile : files) {
                         if (!aNestedFile.getPath().equals(jarOutputFullPath)) {
                             offsetExclusionDirectory--;
-                            add(aNestedFile, target, offsetExclusionDirectory, jarOutputFullPath, rootPath);
+                            add(aNestedFile, target, offsetExclusionDirectory, jarOutputFullPath, source.getPath() + File.separator);
                         }
                     }
                 }
@@ -144,9 +176,36 @@ public class JarUtils {
      * @throws IOException If it could not be created any jar file from provided directory
      */
 
+    public void generateJarFromDirectory(File inputDirectory, File jarOutputFullPath)
+            throws IOException {
+        generateJarFromDirectory(inputDirectory, jarOutputFullPath, 1);
+    }
+
+    /**
+     * Generates a new jar file appending its Manifest and a set of files contained on an incoming directory
+     *
+     * @param inputDirectory    The incoming directory where the files resides
+     * @param jarOutputFullPath The output full path jar name
+     * @throws IOException If it could not be created any jar file from provided directory
+     */
+
     public void generateJarFromDirectory(String inputDirectory, String jarOutputFullPath)
             throws IOException {
         generateJarFromDirectory(inputDirectory, jarOutputFullPath, 1);
+    }
+
+    /**
+     * Generates a new jar file appending its Manifest and a set of files contained on an incoming directory
+     *
+     * @param inputDirectory           The incoming directory where the files resides
+     * @param jarOutputFullPath        The output full path jar name
+     * @param offsetExclusionDirectory The offset deep tree of the directory for excluding
+     * @throws IOException If it could not be created any jar file from provided directory
+     */
+
+    public void generateJarFromDirectory(File inputDirectory, File jarOutputFullPath, int offsetExclusionDirectory)
+            throws IOException {
+        generateJarFromDirectory(inputDirectory.getCanonicalPath(), jarOutputFullPath.getCanonicalPath(), offsetExclusionDirectory);
     }
 
     /**
@@ -197,6 +256,46 @@ public class JarUtils {
             log.error("Error looking on jar '" + jarName + "'");
         }
         return result;
+    }
+
+    public void unZip(String destinationDir, String jarPath) throws IOException {
+        File file = new File(jarPath);
+        JarFile jar = new JarFile(file);
+
+        // fist get all directories,
+        // then make those directory on the destination Path
+        for (Enumeration<JarEntry> enums = jar.entries(); enums.hasMoreElements(); ) {
+            JarEntry entry = enums.nextElement();
+
+            String fileName = destinationDir + File.separator + entry.getName();
+            File f = new File(fileName);
+
+            if (fileName.endsWith("/")) {
+                f.mkdirs();
+            }
+
+        }
+
+        //now create all files
+        for (Enumeration<JarEntry> enums = jar.entries(); enums.hasMoreElements(); ) {
+            JarEntry entry = enums.nextElement();
+
+            String fileName = destinationDir + File.separator + entry.getName();
+            File f = new File(fileName);
+
+            if (!fileName.endsWith("/")) {
+                InputStream is = jar.getInputStream(entry);
+                FileOutputStream fos = new FileOutputStream(f);
+
+                // write contents of 'is' to 'fos'
+                while (is.available() > 0) {
+                    fos.write(is.read());
+                }
+
+                fos.close();
+                is.close();
+            }
+        }
     }
 
 }

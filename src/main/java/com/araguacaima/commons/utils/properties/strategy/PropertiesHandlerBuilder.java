@@ -22,13 +22,12 @@ package com.araguacaima.commons.utils.properties.strategy;
 import com.araguacaima.commons.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 @SuppressWarnings("UnusedReturnValue")
-@Component
+
 public class PropertiesHandlerBuilder {
 
     public static final String PROPERTIES_HANDLER_STRATEGY_POLICY = "PROPERTIES_HANDLER_STRATEGY_POLICY";
@@ -46,22 +45,6 @@ public class PropertiesHandlerBuilder {
         PropertiesHandlerStrategyInterface propertiesHandlerStrategy = new PropertiesHandlerBuilder()
                 .createPropertiesHandlerStrategyDefault();
         return getPropertiesHandlerStrategy(policyString, defaultFileName, propertiesHandlerStrategy);
-    }
-
-    public static PropertiesHandlerStrategyInterface getPropertiesHandlerStrategy(String policyString,
-                                                                                  String defaultFileName,
-                                                                                  PropertiesHandlerStrategyInterface
-                                                                                          propertiesHandlerStrategy) {
-        if (!StringUtils.isBlank(policyString)) {
-            String[] policy = policyString.split(";");
-            if (policy.length == 1) {
-                policy = policyString.split(",");
-            }
-            setNext(propertiesHandlerStrategy, new ArrayList<>(Arrays.asList(policy)), defaultFileName);
-            return propertiesHandlerStrategy.getNext();
-        } else {
-            return new PropertiesHandlerBuilder().createPropertiesHandlerStrategyDefault();
-        }
     }
 
     private static PropertiesHandlerStrategyInterface createPropertiesHandlerStrategyWithoutPolicies(String label,
@@ -101,6 +84,22 @@ public class PropertiesHandlerBuilder {
         return propertiesHandlerStrategy;
     }
 
+    public static PropertiesHandlerStrategyInterface getPropertiesHandlerStrategy(String policyString,
+                                                                                  String defaultFileName,
+                                                                                  PropertiesHandlerStrategyInterface
+                                                                                          propertiesHandlerStrategy) {
+        if (!StringUtils.isBlank(policyString)) {
+            String[] policy = policyString.split(";");
+            if (policy.length == 1) {
+                policy = policyString.split(",");
+            }
+            setNext(propertiesHandlerStrategy, new ArrayList<>(Arrays.asList(policy)), defaultFileName);
+            return propertiesHandlerStrategy.getNext();
+        } else {
+            return new PropertiesHandlerBuilder().createPropertiesHandlerStrategyDefault();
+        }
+    }
+
     private static PropertiesHandlerStrategyInterface setNext(PropertiesHandlerStrategyInterface
                                                                       propertiesHandlerStrategy,
                                                               ArrayList<String> propertiesHandlerStrategyPolicies,
@@ -110,7 +109,7 @@ public class PropertiesHandlerBuilder {
                 PropertiesHandlerStrategyInterface next = PropertiesHandlerBuilder
                         .createPropertiesHandlerStrategyWithoutPolicies(
 
-                        (propertiesHandlerStrategyPolicies.get(0)).trim(), defaultFileName);
+                                (propertiesHandlerStrategyPolicies.get(0)).trim(), defaultFileName);
                 propertiesHandlerStrategy.setNext(next);
                 propertiesHandlerStrategyPolicies.remove(0);
                 setNext(next, propertiesHandlerStrategyPolicies, defaultFileName);
@@ -201,10 +200,10 @@ public class PropertiesHandlerBuilder {
         ((PropertiesHandlerStrategyDefault) propertiesHandlerStrategy).setDefaultPath(defaultFileName);
         if (StringUtils.isBlank(propertiesHandlerStrategyPolicy)) {
             PropertiesHandlerStrategyInterface nextDB = new PropertiesHandlerStrategyDB();
-            PropertiesHandlerStrategyInterface nextClassPath = new PropertiesHandlerStrategyClassPath();
-            ((PropertiesHandlerStrategyClassPath) nextClassPath).setFileWithinClasspath(defaultFileName);
-            PropertiesHandlerStrategyInterface nextPath = new PropertiesHandlerStrategyPath();
-            ((PropertiesHandlerStrategyPath) nextPath).setFileInPath(defaultFileName);
+            PropertiesHandlerStrategyClassPath nextClassPath = new PropertiesHandlerStrategyClassPath();
+            nextClassPath.setFileWithinClasspath(defaultFileName);
+            PropertiesHandlerStrategyPath nextPath = new PropertiesHandlerStrategyPath();
+            nextPath.setFileInPath(defaultFileName);
             PropertiesHandlerStrategyInterface nextURL = new PropertiesHandlerStrategyURL();
             PropertiesHandlerStrategyInterface nextFTP = new PropertiesHandlerStrategyFTP();
             nextDB.setNext(nextClassPath);
