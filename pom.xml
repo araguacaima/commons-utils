@@ -64,7 +64,7 @@
         <javax.servlet-servlet-api>3.1.0</javax.servlet-servlet-api>
         <commons-httpclient-commons-httpclient>3.1</commons-httpclient-commons-httpclient>
         <org.apache.commons-commons-math3>3.6.1</org.apache.commons-commons-math3>
-        <org.apache.logging.log4j>2.9.0</org.apache.logging.log4j>
+        <org.apache.logging.log4j>2.13.3</org.apache.logging.log4j>
         <aspectj.version>1.8.4</aspectj.version>
         <org.reflections-reflections>0.9.10</org.reflections-reflections>
         <com.fasterxml.jackson.core-jackson-annotations>2.9.8</com.fasterxml.jackson.core-jackson-annotations>
