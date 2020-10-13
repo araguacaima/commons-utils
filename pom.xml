@@ -95,7 +95,7 @@
         <!-- tests -->
         <org.evosuite-evosuite-standalone-runtime>1.0.5</org.evosuite-evosuite-standalone-runtime>
         <org.evosuite.plugins-evosuite-maven-plugin>1.0.5</org.evosuite.plugins-evosuite-maven-plugin>
-        <junit-junit>4.12</junit-junit>
+        <junit-junit>4.13.1</junit-junit>
 
         <!-- deployment -->
         <org.sonatype.plugins-nexus-staging-maven-plugin>1.6.8</org.sonatype.plugins-nexus-staging-maven-plugin>
