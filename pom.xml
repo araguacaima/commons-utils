@@ -59,7 +59,7 @@
         <commons-beanutils-commons-beanutils>1.9.4</commons-beanutils-commons-beanutils>
         <org.apache.commons-commons-lang3>3.6</org.apache.commons-commons-lang3>
         <joda-time-joda-time>2.9.9</joda-time-joda-time>
-        <commons-io-commons-io>2.5</commons-io-commons-io>
+        <commons-io-commons-io>2.7</commons-io-commons-io>
         <org.apache.commons-commons-collections4>4.1</org.apache.commons-commons-collections4>
         <javax.servlet-servlet-api>3.1.0</javax.servlet-servlet-api>
         <commons-httpclient-commons-httpclient>3.1</commons-httpclient-commons-httpclient>
