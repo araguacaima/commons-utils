@@ -36,10 +36,10 @@
     </developers>
 
     <scm>
-        <connection>https://github.com/araguacaima/commons-utils.git</connection>
+        <connection>scm:git:git@github.com/araguacaima/commons-utils.git</connection>
         <developerConnection>scm:git:git@github.com/araguacaima/commons-utils.git</developerConnection>
         <url>https://github.com/araguacaima/commons-utils</url>
-        <tag>commons-utils-1.5.17</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
@@ -89,6 +89,7 @@
         <org.apache.maven.plugin-maven-dependency-plugin>3.0.1</org.apache.maven.plugin-maven-dependency-plugin>
         <org.codehaus.mojo-aspectj-maven-plugin>1.8</org.codehaus.mojo-aspectj-maven-plugin>
         <org.apache.maven.plugins-maven-jar-plugin>3.0.2</org.apache.maven.plugins-maven-jar-plugin>
+        <org.apache.maven.plugins-maven-scm-plugin>1.11.2</org.apache.maven.plugins-maven-scm-plugin>
         <maven.skipTests>true</maven.skipTests>
 
         <!-- tests -->
@@ -331,7 +332,7 @@
         <profile>
             <id>release</id>
             <build>
-                <defaultGoal>clean deploy -B release:clean release:prepare release:perform</defaultGoal>
+                <defaultGoal>-B release:clean release:prepare release:perform</defaultGoal>
                 <plugins>
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
