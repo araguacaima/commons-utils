@@ -37,7 +37,7 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/araguacaima/commons-utils.git</connection>
+        <connection>scm:git:ssh://github.com/araguacaima/commons-utils.git</connection>
         <developerConnection>scm:git:ssh://github.com:araguacaima/commons-utils.git</developerConnection>
         <url>https://github.com/araguacaima/commons-utils/tree/master</url>
         <tag>commons-utils-1.5.8</tag>
