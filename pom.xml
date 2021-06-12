@@ -100,7 +100,7 @@
         <!-- deployment -->
         <org.sonatype.plugins-nexus-staging-maven-plugin>1.6.8</org.sonatype.plugins-nexus-staging-maven-plugin>
         <org.apache.maven.plugins-maven-gpg-plugin>1.6</org.apache.maven.plugins-maven-gpg-plugin>
-        <org.apache.maven.plugins-maven-release-plugin>2.5.3</org.apache.maven.plugins-maven-release-plugin>
+        <org.apache.maven.plugins-maven-release-plugin>3.0.0-M4</org.apache.maven.plugins-maven-release-plugin>
 
         <commons-net-commons-net>2.0</commons-net-commons-net>
         <io.github.benas-random-beans>3.7.0</io.github.benas-random-beans>
