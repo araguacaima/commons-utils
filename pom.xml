@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.araguacaima</groupId>
     <artifactId>commons-utils</artifactId>
-    <version>1.5.17</version>
+    <version>1.5.18-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>Common utilities is a set of java utilities for managing typical actions when working with enums,
@@ -39,7 +39,7 @@
         <connection>scm:git:https://github.com/araguacaima/commons-utils</connection>
         <developerConnection>scm:git:https://github.com/araguacaima/commons-utils</developerConnection>
         <url>scm:git:https://github.com/araguacaima/commons-utils</url>
-        <tag>commons-utils-1.5.17</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
