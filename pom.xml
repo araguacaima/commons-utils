@@ -4,13 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.araguacaima</groupId>
     <artifactId>commons-utils</artifactId>
-    <version>1.5.4</version>
+    <version>1.5.8</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <description>Common utilities is a set of java utilities for managing commmon actions when working with enums,
+    <description>Common utilities is a set of java utilities for managing typical actions when working with enums,
         files, exceptions, zip/jar files, classes (via Reflection), maps, numbers and so on.
 
-        Most of the utilities extend functionalities covered in amazing libraries like:
+        Most of the utilities extend functionalities offered by amazing libraries such as:
 
         * commons-beanutils (apache)
         * commons-lang3 (apache)
@@ -40,7 +40,7 @@
         <connection>scm:git:git://github.com/araguacaima/commons-utils.git</connection>
         <developerConnection>scm:git:ssh://github.com:araguacaima/commons-utils.git</developerConnection>
         <url>https://github.com/araguacaima/commons-utils/tree/master</url>
-        <tag>commons-utils-1.5.4</tag>
+        <tag>commons-utils-1.5.8</tag>
     </scm>
 
     <distributionManagement>
@@ -59,18 +59,18 @@
         <commons-beanutils-commons-beanutils>1.9.4</commons-beanutils-commons-beanutils>
         <org.apache.commons-commons-lang3>3.6</org.apache.commons-commons-lang3>
         <joda-time-joda-time>2.9.9</joda-time-joda-time>
-        <commons-io-commons-io>2.5</commons-io-commons-io>
+        <commons-io-commons-io>[2.7,)</commons-io-commons-io>
         <org.apache.commons-commons-collections4>4.1</org.apache.commons-commons-collections4>
         <javax.servlet-servlet-api>3.1.0</javax.servlet-servlet-api>
         <commons-httpclient-commons-httpclient>3.1</commons-httpclient-commons-httpclient>
         <org.apache.commons-commons-math3>3.6.1</org.apache.commons-commons-math3>
-        <org.apache.logging.log4j>2.9.0</org.apache.logging.log4j>
+        <org.apache.logging.log4j>[2.13.2,)</org.apache.logging.log4j>
         <aspectj.version>1.8.4</aspectj.version>
         <org.reflections-reflections>0.9.10</org.reflections-reflections>
-        <com.fasterxml.jackson.core-jackson-annotations>2.9.8</com.fasterxml.jackson.core-jackson-annotations>
-        <com.fasterxml.jackson.core-jackson-core>2.9.8</com.fasterxml.jackson.core-jackson-core>
-        <com.fasterxml.jackson.core-jackson-databind>2.9.10.1</com.fasterxml.jackson.core-jackson-databind>
-        <com.fasterxml.jackson.module-jackson-module-jsonSchema>2.9.8
+        <com.fasterxml.jackson.core-jackson-annotations>[2.9.10.7,)</com.fasterxml.jackson.core-jackson-annotations>
+        <com.fasterxml.jackson.core-jackson-core>[2.9.10.7,)</com.fasterxml.jackson.core-jackson-core>
+        <com.fasterxml.jackson.core-jackson-databind>[2.9.10.7,)</com.fasterxml.jackson.core-jackson-databind>
+        <com.fasterxml.jackson.module-jackson-module-jsonSchema>[2.9.10.7,)
         </com.fasterxml.jackson.module-jackson-module-jsonSchema>
 
         <!-- Generic properties -->
@@ -95,7 +95,7 @@
         <!-- tests -->
         <org.evosuite-evosuite-standalone-runtime>1.0.5</org.evosuite-evosuite-standalone-runtime>
         <org.evosuite.plugins-evosuite-maven-plugin>1.0.5</org.evosuite.plugins-evosuite-maven-plugin>
-        <junit-junit>4.12</junit-junit>
+        <junit-junit>[4.13.1,)</junit-junit>
 
         <!-- deployment -->
         <org.sonatype.plugins-nexus-staging-maven-plugin>1.6.8</org.sonatype.plugins-nexus-staging-maven-plugin>
