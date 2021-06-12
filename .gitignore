@@ -13,3 +13,4 @@ LICENSE
 *.tmp
 /pom.xml.releaseBackup
 /release.properties
+/release-pom.xml
