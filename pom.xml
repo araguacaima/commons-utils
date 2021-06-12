@@ -332,7 +332,7 @@
         <profile>
             <id>release</id>
             <build>
-                <defaultGoal>clean deploy -P -B release:clean release:prepare-with-pom release:perform</defaultGoal>
+                <defaultGoal>clean deploy -P release -B release:clean release:prepare-with-pom release:perform</defaultGoal>
                 <plugins>
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
