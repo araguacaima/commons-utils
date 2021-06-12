@@ -36,9 +36,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/araguacaima/commons-utilsz</connection>
-        <developerConnection>scm:git:https://github.com/araguacaima/commons-utilsp</developerConnection>
-        <url>https://github.com/araguacaima/commons-utilsx</url>
+        <connection>scm:git:https://github.com/araguacaima/commons-utils</connection>
+        <developerConnection>scm:git:git@github.com/araguacaima/commons-utils.git</developerConnection>
+        <url>https://github.com/araguacaima/commons-utils</url>
         <tag>commons-utils-1.5.17</tag>
     </scm>
 
